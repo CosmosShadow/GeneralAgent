@@ -34,9 +34,15 @@ class Memory:
         # 添加概念
         if concept_embedding is None:
             concept_embedding = self.embedding_fun(concept)
-        concept_node = ConceptNode(type, len(self.concept_nodes), concept)
+        # TODO: 计算优先级
+        priority = 0
+        concept_node = ConceptNode(type, len(self.concept_nodes), concept, concept_embedding=concept_embedding, priority=priority)
         self.concept_nodes.append(concept_node)
         self.insert(concept_node)
+
+        # TODO: 触发反思
+
+        return concept_node
 
     def get_concept_with_type(self, type):
         # 获取某种类型的概念
