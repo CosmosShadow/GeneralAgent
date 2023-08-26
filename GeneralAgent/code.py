@@ -4,15 +4,38 @@
 
 import pickle
 import os
+import io
+import sys
+
+class CodeBlock:
+    def __init__(self, type, command, code, log, name=None, value=None):
+        assert type in ['set', 'get', 'command']
+        self.type = type        # 类型, ['set', 'get', 'command']
+        self.command = command  # 命令
+        self.code = code
+        self.log = log            # 运行日志
+        self.name = name    # 在set和get使用
+        self.value = value     # 在set使用
+
+    def __str__(self):
+        if self.type == 'set':
+            return f"# set: \n{self.name}={self.value}"
+        if self.type == 'get':
+            return f"# get: {self.name}"
+        if self.type == 'command':
+            return f"# command: {self.command} \n {self.code}"
+        return f"{self.type} {self.command} {self.name} {self.value} {self.code} {self.log}"
 
 
 class CodeWorkspace:
     def __init__(self, serialize_path=None):
         # serialize_path: 保存工作环境的地址
         self.locals = {}    # 本地变量，代码运行时的环境
-        self.logs = []       # 运行时的日志，应该是一个三元组 (命令，代码，结果)
+        self.code_block_list = []       # 代码块列表
         self.serialize_path = serialize_path    # 序列化地址
         self._load()
+        if serialize_path is None:
+            print("Warning: serialize_path is None, CodeWorkspace will not be serialized")
 
     def _load(self):
         # 加载
@@ -20,13 +43,13 @@ class CodeWorkspace:
             with open(self.serialize_path, 'rb') as f:
                 data = pickle.loads(f.read())
                 self.locals = data['locals']
-                self.logs = data['logs']
+                self.code_block_list = data['code_block_list']
 
     def _save(self):
         # 保存，即序列化
         if self.serialize_path is not None:
             with open(self.serialize_path, 'wb') as f:
-                data = {'locals': self.locals, 'logs': self.logs}
+                data = {'locals': self.locals, 'code_block_list': self.code_block_list}
                 f.write(pickle.dumps(data))
 
     def input(self, command):
@@ -41,12 +64,9 @@ class CodeWorkspace:
             code = self._code_fix(code, command=command)
         # 执行代码&修复代码
         for _ in range(retry_count):
-            run_success = self._code_run(code)
+            run_success = self._code_run(command, code)
             if run_success: break
             code = self._code_fix(code, command=command, error=True)
-        # 保存现场
-        if run_success:
-            self._save()
         return run_success
 
     def _code_generate(self, command):
@@ -65,12 +85,24 @@ class CodeWorkspace:
         # 根据command，修复代码
         return code
     
-    def _code_run(self, code):
+    def _code_run(self, command, code):
         # 运行代码
         # TODO: 获取运行日志
         old_locals_bin = pickle.dumps(self.locals)
         try:
+            # 重定向输出
+            output = io.StringIO()
+            sys.stdout = output
+            # 运行代码
             exec(code, self.locals)
+            # 恢复输出
+            sys_stdout = output.getvalue()
+            sys.stdout = sys.__stdout__
+            # 保存代码块
+            code_block = CodeBlock(type='command', command=command, code=code, log=sys_stdout)
+            self.code_block_list.append(code_block)
+            # 保存现场
+            self._save()
             return True
         except Exception as e:
             # 异常情况，恢复环境
@@ -80,6 +112,11 @@ class CodeWorkspace:
 
     def get_variable(self, var_name):
         if var_name in self.locals:
+            # 保存代码块
+            code_block = CodeBlock(type='get', command=None, code=None, log=None, name=var_name)
+            self.code_block_list.append(code_block)
+            # 保存现场
+            self._save()
             return self.locals[var_name]
         else:
             print("Variable not found")
@@ -87,3 +124,13 @@ class CodeWorkspace:
 
     def set_variable(self, var_name, var_value):
         self.locals[var_name] = var_value
+        # 保存代码块
+        code_block = CodeBlock(type='set', command=None, code=None, log=None, name=var_name, value=var_value)
+        self.code_block_list.append(code_block)
+        # 保存现场
+        self._save()
+
+
+    def get_code_sheet(self):
+        # 获取代码清单
+        return '\n\n'.join([str(code_block) for code_block in self.code_block_list])
