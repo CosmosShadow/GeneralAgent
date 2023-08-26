@@ -18,7 +18,7 @@ class ConceptNode:
         assert type in ConceptNodeTypes
         assert state in ConceptNodeStates
         if type == 'plan':
-            assert concept.startswiths(['[plan]']) or concept.startswiths('[action]')
+            assert concept.startswith('[plan]') or concept.startswith('[action]')
         # 赋值
         self.type = type    # string: input, output, thought, plan, action
         self.index = index  # 索引 int
@@ -68,6 +68,3 @@ class Memory:
     def retrieve(self, focus_points):
         # 检索, focus_points 是关注的点，
         pass
-
-if __name__ == '__main__':
-    memory = Memory('memory.json')
