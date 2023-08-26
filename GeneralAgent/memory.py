@@ -18,7 +18,7 @@ class ConceptNode:
         assert type in ConceptNodeTypes
         assert state in ConceptNodeStates
         if type == 'plan':
-            assert concept.startswith('[plan]') or concept.startswith('[action]')
+            assert concept.startswith('[plan]') or concept.startswith('[action]') or concept.startswith('[response]')
         # 赋值
         self.type = type    # string: input, output, thought, plan, action
         self.index = index  # 索引 int
@@ -37,6 +37,8 @@ class ConceptNode:
 # 记忆
 class Memory:
     def __init__(self, file_path, embedding_fun=None) -> None:
+        # file_path: 存储路径，比如 xxx.json
+        # embedding_fun: 用于计算概念的embedding
         self.embedding_fun = embedding_fun
         self.db = TinyDB(file_path)
         self.concept_nodes = [ConceptNode.from_dict(record) for record in self.db.all()]
@@ -64,6 +66,10 @@ class Memory:
     def get_concept_with_type(self, type):
         # 获取某种类型的概念
         return [concept_node for concept_node in self.concept_nodes if concept_node.type == type]
+    
+    def get_plan_in_plan(self):
+        # 获取计划中的计划
+        return [x for x in self.concept_nodes if x.type == 'plan' and x.concept.startswith('[plan]')]
     
     def retrieve(self, focus_points):
         # 检索, focus_points 是关注的点，
