@@ -27,6 +27,10 @@ class CodeBlock:
             return f"# command: {self.command} \n {self.code}"
         return f"{self.type} {self.command} {self.name} {self.value} {self.code} {self.log}"
 
+init_code = """
+import os
+import sys
+"""
 
 class CodeWorkspace:
     def __init__(self, serialize_path=None):
@@ -34,9 +38,13 @@ class CodeWorkspace:
         self.locals = {}    # 本地变量，代码运行时的环境
         self.code_block_list = []       # 代码块列表
         self.serialize_path = serialize_path    # 序列化地址
-        self._load()
         if serialize_path is None:
             print("Warning: serialize_path is None, CodeWorkspace will not be serialized")
+        load_success = self._load()
+        if load_success is False:
+            # 初始化
+            global init_code
+            self._code_run('init', init_code)
 
     def _load(self):
         # 加载
@@ -45,6 +53,9 @@ class CodeWorkspace:
                 data = pickle.loads(f.read())
                 self.locals = data['locals']
                 self.code_block_list = data['code_block_list']
+                return True
+        else:
+            return False
 
     def _save(self):
         # 保存，即序列化
@@ -59,14 +70,16 @@ class CodeWorkspace:
         # 生成代码
         code = self._code_generate(command)
         # 检查&修复代码
-        for _ in range(retry_count):
+        for index in range(retry_count):
             check_success = self._code_check(command, code)
             if check_success: break
+            if index == retry_count - 1: return False
             code = self._code_fix(code, command=command)
         # 执行代码&修复代码
-        for _ in range(retry_count):
+        for index in range(retry_count):
             run_success, sys_stdio = self._code_run(command, code)
             if run_success: break
+            if index == retry_count - 1: return False
             code = self._code_fix(code, command=command, error=sys_stdio)
         return run_success
 
