@@ -4,7 +4,7 @@ import datetime
 from tinydb import TinyDB, Query
 
 ConceptNodeTypes = ['input', 'output', 'thought', 'plan', 'action']
-ConceptNodeStates = ['ready', 'done', 'cancel']
+ConceptNodeStates = ['ready', 'done', 'cancel', 'fail'] # 状态只能从ready转移到其他三个中去
 
 
 # 记忆节点

@@ -30,6 +30,7 @@ class CodeBlock:
 init_code = """
 import os
 import sys
+import tools
 """
 
 class CodeWorkspace:
