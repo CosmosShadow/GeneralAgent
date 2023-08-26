@@ -21,3 +21,17 @@ def embedding_fun(texts):
     result = [x['embedding'] for x in resp['data']]
     return result
 
+def translate_eng(text):
+    system_prompt = [{"role": "system", "content": f"You are a translator, translate the following text to english."}]
+    messages = system_prompt + [{"role": "user", "content": text}]
+    return llm_inference(messages)
+
+cached_dict = {}
+def cache_translate_eng(text):
+    if text in cached_dict.keys():
+        return cached_dict[text]
+    else:
+        result = translate_eng(text)
+        cached_dict[text] = result
+        return result
+
