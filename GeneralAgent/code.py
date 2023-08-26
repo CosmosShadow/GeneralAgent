@@ -1,11 +1,12 @@
 # CodeWorkspace: 
 # 代码工作空间，就是Agent的工作空间
-# 想法和Action的串联物，相当于人的肌肉，受控于神经元，操作工具，完成任务
+# concept和action的串联物，相当于人的肌肉，受控于神经元，操作工具，完成任务
 
 import pickle
 import os
 import io
 import sys
+import logging
 
 class CodeBlock:
     def __init__(self, type, command, code, log, name=None, value=None):
@@ -59,14 +60,14 @@ class CodeWorkspace:
         code = self._code_generate(command)
         # 检查&修复代码
         for _ in range(retry_count):
-            check_success = self._code_check(code)
+            check_success = self._code_check(command, code)
             if check_success: break
             code = self._code_fix(code, command=command)
         # 执行代码&修复代码
         for _ in range(retry_count):
-            run_success = self._code_run(command, code)
+            run_success, sys_stdio = self._code_run(command, code)
             if run_success: break
-            code = self._code_fix(code, command=command, error=True)
+            code = self._code_fix(code, command=command, error=sys_stdio)
         return run_success
 
     def _code_generate(self, command):
@@ -75,7 +76,7 @@ class CodeWorkspace:
         code = ''
         return code
 
-    def _code_check(self, code):
+    def _code_check(self, command, code):
         # TODO: 
         # 验证代码是否可以执行，有没有什么问题
         return True
@@ -89,26 +90,28 @@ class CodeWorkspace:
         # 运行代码
         # TODO: 获取运行日志
         old_locals_bin = pickle.dumps(self.locals)
+        # 重定向输出
+        output = io.StringIO()
+        sys.stdout = output
         try:
-            # 重定向输出
-            output = io.StringIO()
-            sys.stdout = output
             # 运行代码
             exec(code, self.locals)
-            # 恢复输出
+            # 获取结果
             sys_stdout = output.getvalue()
-            sys.stdout = sys.__stdout__
             # 保存代码块
             code_block = CodeBlock(type='command', command=command, code=code, log=sys_stdout)
             self.code_block_list.append(code_block)
             # 保存现场
             self._save()
-            return True
+            return True, sys_stdout
         except Exception as e:
             # 异常情况，恢复环境
             self.locals = pickle.loads(old_locals_bin)
-            print(e)
-            return False
+            logging.exception(e)
+            sys_stdout = output.getvalue()
+            return False, sys_stdout
+        finally:
+            sys.stdout = sys.__stdout__
 
     def get_variable(self, var_name):
         if var_name in self.locals:
