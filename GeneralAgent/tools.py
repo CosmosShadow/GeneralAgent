@@ -66,7 +66,7 @@ def wikipedia_search(query):
 
 
 def scrape_web(url: str) -> str:
-    """Scrape text(string) and links([(text, link)]) from a webpage url"""
+    """Scrape page title, content(string) and links([(text, link)]) from a webpage url"""
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
@@ -76,24 +76,33 @@ def scrape_web(url: str) -> str:
             html_content = page.content()
             soup = BeautifulSoup(html_content, "html.parser")
 
-            for script in soup(["script", "style"]):
-                script.extract()
+            # for script in soup(["script", "style"]):
+            #     script.extract()
+            # text = soup.get_text()
+            # lines = (line.strip() for line in text.splitlines())
+            # chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+            # text = "\n".join(chunk for chunk in chunks if chunk)
 
-            text = soup.get_text()
-            lines = (line.strip() for line in text.splitlines())
-            chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-            text = "\n".join(chunk for chunk in chunks if chunk)
+            # # 剔除掉文本中 <style xxx > xxx </style> 中所有内容
+            # import re
+            # text = re.sub(r'<style.*?</style>', '', text, flags=re.DOTALL)
+
+            title = page.title()
+            text = page.evaluate('document.body.innerText')
+            # text = page.evaluate('document.body.textContent')
 
             # hyperlinks: [(text (link))]
             hyperlinks = [(link.text, urljoin(url, link["href"])) for link in soup.find_all("a", href=True)]
+            hyperlinks = [(text, link) for (text, link) in hyperlinks if link.startswith('http')]
 
         except Exception as e:
+            title = None
             text = f"Error: {str(e)}"
             hyperlinks = []
         finally:
             browser.close()
 
-    return text, hyperlinks
+    return title, text, hyperlinks
 
 
 # send_message_fun(type, content)
