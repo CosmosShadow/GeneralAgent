@@ -1,6 +1,6 @@
 # 测试llm
 from base_setting import *
-from GeneralAgent.llm import cache_translate_eng, embedding_fun, cos_sim
+from GeneralAgent.llm import cache_translate_eng, embedding_fun, cos_sim, prompt_call
 
 def test_cache_translate_eng():
     text = "你是一个翻译官，将下面的文本翻译成为{{target}}: {{text}}"
@@ -19,7 +19,15 @@ def test_embedding_fun():
     assert cos_sim(a, a) >= 0.999
     assert cos_sim(a, b) > 0.9
 
+def test_prompt_call():
+    prompt = "你是一个翻译官，将下面的文本翻译成为{{target}}: {{text}}"
+    variables = {'target': '中文', 'text': 'I love china'}
+    json_schema = """{"source": "{text to translate}","translated": "{the translated text"}"""
+    result = prompt_call(prompt, variables, json_schema)
+    print(result)
+
 
 if __name__ == '__main__':
     # test_cache_translate_eng()
-    test_embedding_fun()
+    # test_embedding_fun()
+    test_prompt_call()

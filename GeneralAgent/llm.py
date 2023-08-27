@@ -56,28 +56,63 @@ def cache_translate_eng(text):
         return en
 
 
+def fix_llm_json_str(string):
+    new_string = string.strip()
+    try:
+        json.loads(new_string)
+        return new_string
+    except Exception as e:
+        print("fix_llm_json_str failed 1:", e)
+        try:
+            pattern = r'```json(.*?)```'
+            match = re.findall(pattern, new_string, re.DOTALL)
+            if match:
+                new_string = match[-1]
+            
+            json.loads(new_string)
+            return new_string
+        except Exception as e:
+            print("fix_llm_json_str failed 2:", e)
+            try:
+                new_string = new_string.replace("\n", "\\n")
+                json.loads(new_string)
+                return new_string
+            except Exception as e:
+                print("fix_llm_json_str failed 3:", e)
+                
+                ctx = [{
+                    "role": "system",
+                    "content": """Do not change the specific content, fix the json, directly return the repaired JSON, without any explanation and dialogue.
+                    ```
+                    """+new_string+"""
+                    ```"""
+                }]
+
+                message = llm_inference_messages(ctx)
+                pattern = r'```json(.*?)```'
+                match = re.findall(pattern, message, re.DOTALL)
+                if match:
+                    return match[-1]
+
+                return message
+
+return_json_prompt = """\nYou should only directly respond in JSON format as described below without explain. 
+Ensure the response must can be parsed by Python json.loads.
+Response Format example: \n"""
+
 def prompt_call(prompt, variables, json_schema=None):
-    prompt_en = cache_translate_eng("你是一个翻译官，将下面的文本翻译成为{{target}}: {{text}}")
-    prompt = Template(prompt_en).render(**variables)
+    prompt = cache_translate_eng(prompt)
+    prompt = Template(prompt).render(**variables)
     if json_schema is not None:
-        prompt += json_schema
-    result = llm_inference(prompt)
-    if json_schema is None:
-        return result
+        prompt += return_json_prompt + json_schema
+        result = llm_inference(prompt)
+        return json.loads(fix_llm_json_str(result))
     else:
-        # TODO: fix json
-        return json.loads(result)
-
-
-def translate(text, target):
-    prompt = "你是一个翻译官，将下面的文本翻译成为{{target}}: {{text}}"
-    variables = {'target': target, 'text': text}
-    # TODO: 修改return schema
-    json_schema = """\n return in json."""
-    return prompt_call(prompt, variables, json_schema)
+        return llm_inference(prompt)
 
 
 def embedding_fun(texts):
+    # embedding the texts(list of string), and return a list of embedding for every string
     import os
     import openai
     openai.api_key = os.environ['OPENAI_API_KEY']
@@ -87,10 +122,5 @@ def embedding_fun(texts):
     return result
 
 def cos_sim(a, b): 
-  """
-  This function calculates the cosine similarity (scalar value) between two input vectors 'a' and 'b', and return the similarity.
-  INPUT: 
-    a: 1-D array object 
-    b: 1-D array object 
-  """
-  return dot(a, b)/(norm(a)*norm(b))
+    # This function calculates the cosine similarity (scalar value) between two input vectors 'a' and 'b' (1-D array object), and return the similarity.
+    return dot(a, b)/(norm(a)*norm(b))
