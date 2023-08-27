@@ -8,21 +8,21 @@ from tinydb import TinyDB, Query
 import re
 from numpy import dot
 from numpy.linalg import norm
+from keys import OPENAI_MODEL, OPENAI_API_KEY, OPENAI_ORGANIZATION, OPENAI_API_BASE
 
 def llm_inference_messages(messages):
-    model = os.environ.get('OPENAI_MODEL', 'gpt-3.5-turbo-16k')
-    openai.api_key = os.environ.get('OPENAI_API_KEY')
+    model = OPENAI_MODEL or 'gpt-3.5-turbo-16k'
+    openai.api_key = OPENAI_API_KEY
     if model.startswith('gpt-4'):
-        openai.organization = os.environ.get('OPENAI_ORGANIZATION')
-    openai.api_base = os.environ.get('OPENAI_API_BASE', 'https://api.openai.com/v1')
+        openai.organization = OPENAI_ORGANIZATION
+    openai.api_base = OPENAI_API_BASE or 'https://api.openai.com/v1'
     response = openai.ChatCompletion.create(model=model, messages=messages)
     result = response['choices'][0]['message']['content'].strip()
     
-    if os.environ['REVERSE'] == '1':
-        print('-' * 50 + 'llm_inference_messages' + '-' * 50)
-        for message in messages:
-            print(f'[{message["role"]}] {message["content"]}')
-        print(f'[response] {result}')
+    print('-' * 50 + 'llm_inference_messages' + '-' * 50)
+    for message in messages:
+        print(f'[{message["role"]}] {message["content"]}')
+    print(f'[response] {result}')
     
     return result
 
@@ -117,8 +117,8 @@ def embedding_fun(texts):
     # embedding the texts(list of string), and return a list of embedding for every string
     import os
     import openai
-    openai.api_key = os.environ['OPENAI_API_KEY']
-    openai.api_base = os.environ['OPENAI_API_BASE']
+    openai.api_key = OPENAI_API_KEY
+    openai.api_base = OPENAI_API_BASE
     resp = openai.Embedding.create(input=texts,engine="text-embedding-ada-002")
     result = [x['embedding'] for x in resp['data']]
     return result

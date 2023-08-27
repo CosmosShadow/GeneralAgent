@@ -63,15 +63,15 @@ class CodeWorkspace:
         # 保存，即序列化
         if self.serialize_path is not None:
             with open(self.serialize_path, 'wb') as f:
+                # 删除不可序列化的变量: __builtins__和module
                 if '__builtins__' in self.locals:
                     self.locals.__delitem__('__builtins__')
                 keys = list(self.locals.keys())
                 for key in keys:
-                    # 如果self.locals[x]是模块，删除
                     if str(type(self.locals[key])) == "<class 'module'>":
                         self.locals.__delitem__(key)
+                # 保存
                 data = {'locals': self.locals, 'code_block_list': self.code_block_list}
-                # print(data)
                 f.write(pickle.dumps(data))
     
     def run_code(self, command, code):

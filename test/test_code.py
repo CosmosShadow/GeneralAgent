@@ -5,11 +5,7 @@ import os
 init_code = """
 import os
 import sys
-# 添加项目根目录到环境变量
 sys.path.append('../')
-# 加载项目配置文件
-import dotenv
-dotenv.load_dotenv('../GeneralAgent/.env')
 from GeneralAgent.tools import google_search, wikipedia_search, scrape_web, Tools
 """
 
