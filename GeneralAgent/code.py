@@ -66,7 +66,6 @@ class CodeWorkspace:
     
     def run_code(self, command, code):
         # 运行代码
-        # TODO: 获取运行日志
         old_locals_bin = pickle.dumps(self.locals)
         # 重定向输出
         output = io.StringIO()

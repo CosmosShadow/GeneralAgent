@@ -14,6 +14,7 @@ class RoleSetting(BaseModel):
     constraints: str # 约束
     desc: str
 
+
 class Controller:
     def __init__(self, role_setting, workspace, send_message_fun):
         # role_setting: 角色设定
@@ -68,7 +69,7 @@ class Controller:
             # TODO: 回复用户，有可能是最终答案，也可能是中间问题，想获取更多信息
             pass
 
-    def run_command(self, command):
+    def _run_command(self, command):
         # 输入命令(string)，生成代码并执行
         retry_count = 3
         # 生成代码
