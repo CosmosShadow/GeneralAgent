@@ -1,4 +1,5 @@
 # 大语言模型
+# 核心是: prompt_call、embedding_fun、cos_sim 这三个函数
 import openai
 import os
 import json
@@ -101,6 +102,7 @@ return_json_prompt = """\n\nYou should only directly respond in JSON format with
 Response Format example: \n"""
 
 def prompt_call(prompt, variables, json_schema=None):
+    # 通过prompt将大模型异化成为函数，并可以通过json_schema返回格式化数据
     prompt = cache_translate_eng(prompt)
     prompt = Template(prompt).render(**variables)
     if json_schema is not None:

@@ -1,10 +1,14 @@
 # 工具集，code可以操作的东西
+import json
+import os
+import requests
+from bs4 import BeautifulSoup
+from requests.compat import urljoin
+from playwright.sync_api import sync_playwright
+
 
 def google_search(query):
     # 返回一个可以被json.loads加载的字符串
-    import requests
-    import json
-    import os
     url = "https://google.serper.dev/search"
     payload = json.dumps({"q": query})
     SERPER_API_KEY = os.environ['SERPER_API_KEY']
@@ -60,6 +64,38 @@ def wikipedia_search(query):
                 obs = None
     return obs
 
+
+def scrape_web(url: str) -> str:
+    """Scrape text(string) and links([(text, link)]) from a webpage url"""
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+
+        try:
+            page.goto(url)
+            html_content = page.content()
+            soup = BeautifulSoup(html_content, "html.parser")
+
+            for script in soup(["script", "style"]):
+                script.extract()
+
+            text = soup.get_text()
+            lines = (line.strip() for line in text.splitlines())
+            chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+            text = "\n".join(chunk for chunk in chunks if chunk)
+
+            # hyperlinks: [(text (link))]
+            hyperlinks = [(link.text, urljoin(url, link["href"])) for link in soup.find_all("a", href=True)]
+
+        except Exception as e:
+            text = f"Error: {str(e)}"
+            hyperlinks = []
+        finally:
+            browser.close()
+
+    return text, hyperlinks
+
+
 # send_message_fun(type, content)
 # 发送消息的函数，参数为消息内容
 # type: text、react、json
@@ -71,3 +107,4 @@ class Tools():
         self.funs['send_message'] = send_message_fun
         self.funs['google_search'] = google_search
         self.funs['wikipedia_search'] = wikipedia_search
+        self.funs['scrape_web'] = scrape_web
