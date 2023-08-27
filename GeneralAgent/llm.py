@@ -31,9 +31,10 @@ def llm_inference(prompt):
     return llm_inference_messages(messages)
 
 def translate_eng(text):
-    system_prompt = [{"role": "system", "content": f"You are a translator, translate the following text to english. Do not translate the text in the curly braces."}]
+    system_prompt = [{"role": "system", "content": f"You are a translator, translate the user's input to english. Do not translate the text {{{{}}}}"}]
     messages = system_prompt + [{"role": "user", "content": text}]
-    return llm_inference_messages(messages)
+    result = llm_inference_messages(messages)
+    return result
 
 
 prompt_en_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'prompt_en.json')
@@ -96,8 +97,7 @@ def fix_llm_json_str(string):
 
                 return message
 
-return_json_prompt = """\nYou should only directly respond in JSON format as described below without explain. 
-Ensure the response must can be parsed by Python json.loads.
+return_json_prompt = """\n\nYou should only directly respond in JSON format without explian as described below, that must be parsed by Python json.loads.
 Response Format example: \n"""
 
 def prompt_call(prompt, variables, json_schema=None):
