@@ -1,2 +1,3 @@
 
 GeneralAgent/.env
+*.pyc
