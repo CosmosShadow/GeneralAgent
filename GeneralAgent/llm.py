@@ -5,6 +5,8 @@ import json
 from jinja2 import Template
 from tinydb import TinyDB, Query
 import re
+from numpy import dot
+from numpy.linalg import norm
 
 def llm_inference_messages(messages):
     model = os.environ.get('OPENAI_MODEL', 'gpt-3.5-turbo-16k')
@@ -27,16 +29,6 @@ def llm_inference(prompt):
     system_prompt = [{"role": "system", "content": 'You are a helpful assistant.'}]
     messages = system_prompt + [{"role": "user", "content": prompt}]
     return llm_inference_messages(messages)
-
-
-def embedding_fun(texts):
-    import os
-    import openai
-    openai.api_key = os.environ.get('OPENAI_API_KEY')
-    openai.api_base = os.environ['OPENAI_API_BASE', 'https://api.openai.com/v1']
-    resp = openai.Embedding.create(input=texts,engine="text-embedding-ada-002")
-    result = [x['embedding'] for x in resp['data']]
-    return result
 
 def translate_eng(text):
     system_prompt = [{"role": "system", "content": f"You are a translator, translate the following text to english. Do not translate the text in the curly braces."}]
@@ -83,3 +75,22 @@ def translate(text, target):
     # TODO: 修改return schema
     json_schema = """\n return in json."""
     return prompt_call(prompt, variables, json_schema)
+
+
+def embedding_fun(texts):
+    import os
+    import openai
+    openai.api_key = os.environ['OPENAI_API_KEY']
+    openai.api_base = os.environ['OPENAI_API_BASE']
+    resp = openai.Embedding.create(input=texts,engine="text-embedding-ada-002")
+    result = [x['embedding'] for x in resp['data']]
+    return result
+
+def cos_sim(a, b): 
+  """
+  This function calculates the cosine similarity (scalar value) between two input vectors 'a' and 'b', and return the similarity.
+  INPUT: 
+    a: 1-D array object 
+    b: 1-D array object 
+  """
+  return dot(a, b)/(norm(a)*norm(b))
