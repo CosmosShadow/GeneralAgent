@@ -67,3 +67,38 @@ class Controller:
         if plan.concept.startswith('[response]'):
             # TODO: 回复用户，有可能是最终答案，也可能是中间问题，想获取更多信息
             pass
+
+    def run_command(self, command):
+        # 输入命令(string)，生成代码并执行
+        retry_count = 3
+        # 生成代码
+        code = self._code_generate(command)
+        # 检查&修复代码
+        for index in range(retry_count):
+            check_success = self._code_check(command, code)
+            if check_success: break
+            if index == retry_count - 1: return False
+            code = self._code_fix(code, command=command)
+        # 执行代码&修复代码
+        for index in range(retry_count):
+            run_success, sys_stdio = self.code_workspace.run_code(command, code)
+            if run_success: break
+            if index == retry_count - 1: return False
+            code = self._code_fix(code, command=command, error=sys_stdio)
+        return run_success
+
+    def _code_generate(self, command):
+        # 根据命令，生成执行的代码
+        # TODO
+        code = ''
+        return code
+
+    def _code_check(self, command, code):
+        # TODO: 
+        # 验证代码是否可以执行，有没有什么问题
+        return True
+    
+    def _code_fix(self, code, command=None, error=None):
+        # TODO: 
+        # 根据command，修复代码
+        return code

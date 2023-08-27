@@ -27,14 +27,14 @@ class CodeBlock:
             return f"# command: {self.command} \n {self.code}"
         return f"{self.type} {self.command} {self.name} {self.value} {self.code} {self.log}"
 
-init_code = """
+default_init_code = """
 import os
 import sys
 import tools
 """
 
 class CodeWorkspace:
-    def __init__(self, serialize_path=None):
+    def __init__(self, serialize_path=None, init_code=default_init_code):
         # serialize_path: 保存工作环境的地址
         self.locals = {}    # 本地变量，代码运行时的环境
         self.code_block_list = []       # 代码块列表
@@ -44,7 +44,6 @@ class CodeWorkspace:
         load_success = self._load()
         if load_success is False:
             # 初始化
-            global init_code
             self._code_run('init', init_code)
 
     def _load(self):
@@ -64,43 +63,8 @@ class CodeWorkspace:
             with open(self.serialize_path, 'wb') as f:
                 data = {'locals': self.locals, 'code_block_list': self.code_block_list}
                 f.write(pickle.dumps(data))
-
-    def input(self, command):
-        # 输入命令(string)，生成代码并执行
-        retry_count = 3
-        # 生成代码
-        code = self._code_generate(command)
-        # 检查&修复代码
-        for index in range(retry_count):
-            check_success = self._code_check(command, code)
-            if check_success: break
-            if index == retry_count - 1: return False
-            code = self._code_fix(code, command=command)
-        # 执行代码&修复代码
-        for index in range(retry_count):
-            run_success, sys_stdio = self._code_run(command, code)
-            if run_success: break
-            if index == retry_count - 1: return False
-            code = self._code_fix(code, command=command, error=sys_stdio)
-        return run_success
-
-    def _code_generate(self, command):
-        # 根据命令，生成执行的代码
-        # TODO
-        code = ''
-        return code
-
-    def _code_check(self, command, code):
-        # TODO: 
-        # 验证代码是否可以执行，有没有什么问题
-        return True
     
-    def _code_fix(self, code, command=None, error=None):
-        # TODO: 
-        # 根据command，修复代码
-        return code
-    
-    def _code_run(self, command, code):
+    def run_code(self, command, code):
         # 运行代码
         # TODO: 获取运行日志
         old_locals_bin = pickle.dumps(self.locals)
