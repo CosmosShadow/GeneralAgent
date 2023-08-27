@@ -72,5 +72,6 @@ class Memory:
         return [x for x in self.concept_nodes if x.type == 'plan' and x.concept.startswith('[plan]')]
     
     def retrieve(self, focus_points):
-        # 检索, focus_points 是关注的点，
+        # 检索, focus_points 是关注的点
+        # TODO: 检索
         pass
