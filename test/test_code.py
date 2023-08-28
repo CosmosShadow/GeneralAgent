@@ -42,7 +42,7 @@ variables = {'target': 'chinese', 'text': 'I love china'}
 json_schema = \"\"\" {"source": "{text to translate}","translated": "{the translated text}"} \"\"\"
 result = prompt_call(prompt, variables, json_schema)
 """
-    print(code)
+    # print(code)
     success, sys_stdout = code_workspace.run_code('prompt call', code)
     assert success
     result = code_workspace.get_variable('result')

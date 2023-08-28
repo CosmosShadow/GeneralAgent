@@ -2,9 +2,26 @@
 import datetime
 # 存储所有记忆，优点是: 实时逐步序列化，即使程序崩溃了也记录了
 from tinydb import TinyDB, Query
+from GeneralAgent.llm import prompt_call
 
 ConceptNodeTypes = ['input', 'output', 'thought', 'plan', 'action']
 ConceptNodeStates = ['ready', 'done', 'cancel', 'fail'] # 状态只能从ready转移到其他三个中去
+
+def get_memory_importance_score(concept):
+    # 获取记忆的重要性评分
+
+# 在 1 到 10 的范围内，其中 1 是纯粹平凡的（例如，刷牙、整理床铺），而 10 是极其痛苦的（例如，分手、大学录取），请评估以下记忆片段可能的痛苦程度。
+# 记忆：{{概念}}
+# 评分：<填写>
+
+    # 这段prompt需要用英文写，因为 eng -> zh -> eng 损失了很多意思，评分不准
+    prompt = """On the scale of 1 to 10, where 1 is purely mundane (e.g., brushing teeth, making bed) and 10 is extremely poignant (e.g., a break up, college acceptance), rate the likely poignancy of the following piece of memory.
+Memory: {{concept}}
+Rating: <fill in>
+"""
+    json_schema = '{"rating": the_integer_score}'
+    result = prompt_call(prompt, {'concept': concept}, json_schema)
+    return int(result['rating'])
 
 
 # 记忆节点
