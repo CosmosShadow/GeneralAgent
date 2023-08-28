@@ -55,15 +55,26 @@ def is_english(text):
     else:
         return False
 
-prompt_en_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'prompt_en.json')
-prompt_db = TinyDB(prompt_en_path)
 
+class TinyDBCache():
+    def __init__(self, save_path):
+        save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), save_path)
+        self.db = TinyDB(save_path)
+
+    def get(self, key):
+        return self.db.get(Query().key == key)
+
+    def set(self, key, value):
+        self.db.upsert({'key': key, 'value': value}, Query().key == key)
+
+
+prompt_cache = TinyDBCache('prompt_en_cache.json')
 def cache_translate_eng(text):
     # 如果是英文，返回原文，不缓存
     if is_english(text):
         return text
     # 缓存翻译英文
-    result = prompt_db.get(Query().text == text)
+    result = prompt_cache.get(text)
     if result is not None:
         return result['en']
     else:
@@ -74,7 +85,7 @@ def cache_translate_eng(text):
             retry_count += 1
         if re.findall(r'{{.*?}}', text) != re.findall(r'{{.*?}}', en):
             raise Exception(f"translate_eng failed: {text} -> {en}")
-        prompt_db.insert({'text': text, 'en': en})
+        prompt_cache.set(text, en)
         return en
 
 
@@ -133,15 +144,20 @@ def prompt_call(prompt, variables, json_schema=None):
         return llm_inference(prompt)
 
 
-def embedding_fun(texts):
+embedding_cache = TinyDBCache('embedding_cache.json')
+def embedding_fun(text):
     # embedding the texts(list of string), and return a list of embedding for every string
-    import os
+    result = embedding_cache.get(text)
+    if result is not None:
+        return result
+    texts = [text]
     import openai
     openai.api_key = OPENAI_API_KEY
     openai.api_base = OPENAI_API_BASE
     resp = openai.Embedding.create(input=texts,engine="text-embedding-ada-002")
     result = [x['embedding'] for x in resp['data']]
-    return result
+    embedding_cache.set(text, result)
+    return result[0]
 
 def cos_sim(a, b): 
     # This function calculates the cosine similarity (scalar value) between two input vectors 'a' and 'b' (1-D array object), and return the similarity.

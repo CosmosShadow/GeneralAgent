@@ -52,23 +52,22 @@ class ConceptNode:
         return f'[{self.type}] {self.index} {self.state} {self.create_at} {self.concept}'
     
     def to_save_dict(self):
-        value_dict = self.__dict__.deepcoy()
+        value_dict = self.__dict__.copy()
         value_dict['create_at'] = value_dict['create_at'].strftime('%Y-%m-%d %H:%M:%S')
         value_dict['last_access'] = value_dict['last_access'].strftime('%Y-%m-%d %H:%M:%S')
-
+        return value_dict
 
 # 记忆
 class Memory:
-    def __init__(self, file_path, embedding_fun=None) -> None:
+    def __init__(self, file_path='./memory.json') -> None:
         # file_path: 存储路径，比如 xxx.json
-        # embedding_fun: 用于计算概念的embedding
-        self.embedding_fun = embedding_fun
         self.db = TinyDB(file_path)
         self.concept_nodes = [ConceptNode.from_dict(record) for record in self.db.all()]
 
     def add_concept(self, type, concept, concept_embedding=None):
+        assert type in ConceptNodeTypes
         if concept_embedding is None:
-            concept_embedding = self.embedding_fun(concept)
+            concept_embedding = embedding_fun(concept)
         
         # 计算优先级(重要性)
         priority = get_memory_importance_score(concept)
@@ -160,13 +159,13 @@ def retrieve(persona, perceived):
   return retrieved
 
 
-def normalize(d, target_min, target_max):
+def normalize(arr, target_min, target_max):
     assert target_max > target_min
-    min_val = min(d)
-    max_val = max(d)
+    min_val = min(arr)
+    max_val = max(arr)
     range_val = max_val - min_val
     normal = lambda x: ((x - min_val) * (target_max - target_min) / range_val + target_min)
     if range_val == 0: 
-        return [(target_max - target_min)/2] * len(d)
+        return [(target_max - target_min)/2] * len(arr)
     else: 
-        return [normal(x) for x in d]
+        return [normal(x) for x in arr]
