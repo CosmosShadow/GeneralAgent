@@ -20,8 +20,11 @@ Memory: {{concept}}
 Rating: <fill in>
 """
     json_schema = '{"rating": the_integer_score}'
-    result = prompt_call(prompt, {'concept': concept}, json_schema)
-    return int(result['rating'])
+    try:
+        result = prompt_call(prompt, {'concept': concept}, json_schema)
+        return int(result['rating'])
+    except:
+        return None
 
 
 # 记忆节点
@@ -64,8 +67,11 @@ class Memory:
         if concept_embedding is None:
             concept_embedding = self.embedding_fun(concept)
         
-        priority = 1
-        # TODO: 计算优先级
+        # 计算优先级(重要性)
+        priority = get_memory_importance_score(concept)
+        if priority is None:
+            priority = get_memory_importance_score(concept) or 5
+        
         concept_node = ConceptNode(type, len(self.concept_nodes), concept, concept_embedding=concept_embedding, priority=priority)
         self.concept_nodes.append(concept_node)
         
@@ -88,7 +94,7 @@ class Memory:
         # 获取计划中的计划
         return [x for x in self.concept_nodes if x.type == 'plan' and x.concept.startswith('[plan]')]
     
-    def retrieve(self, focus_points):
+    def retrieve(self, focus_points, top_k):
         # 检索, focus_points 是关注的点
         # TODO: 检索
         pass
