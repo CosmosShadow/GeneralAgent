@@ -1,6 +1,15 @@
 # 测试llm
 from base_setting import *
-from GeneralAgent.llm import cache_translate_eng, embedding_fun, cos_sim, prompt_call
+from GeneralAgent.llm import cache_translate_eng, embedding_fun, cos_sim, prompt_call, is_english
+
+def test_is_english():
+    text = """On the scale of 1 to 10, where 1 is purely mundane (e.g., brushing teeth, making bed) and 10 is extremely poignant (e.g., a break up, college acceptance), rate the likely poignancy of the following piece of memory.
+Memory: {{concept}}
+Rating: <fill in>
+"""
+    assert is_english(text)
+
+    assert not is_english(text + '中国')
 
 def test_cache_translate_eng():
     text = "你是一个翻译官，将下面的文本翻译成为{{target}}: {{text}}"
@@ -31,4 +40,5 @@ def test_prompt_call():
 if __name__ == '__main__':
     # test_cache_translate_eng()
     # test_embedding_fun()
-    test_prompt_call()
+    # test_prompt_call()
+    test_is_english()

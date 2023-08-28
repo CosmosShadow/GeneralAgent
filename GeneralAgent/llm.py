@@ -37,11 +37,31 @@ def translate_eng(text):
     result = llm_inference_messages(messages)
     return result
 
+def is_english(text):
+    """
+    Check if a string is an English string.
+    """
+    import string
+    # Remove all whitespace characters
+    text = ''.join(text.split())
+
+    # Check if all characters are in the ASCII range
+    if all(ord(c) < 128 for c in text):
+        # Check if the string contains any non-English characters
+        for c in text:
+            if c not in string.ascii_letters and c not in string.punctuation and c not in string.digits and c not in string.whitespace:
+                return False
+        return True
+    else:
+        return False
 
 prompt_en_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'prompt_en.json')
 prompt_db = TinyDB(prompt_en_path)
 
 def cache_translate_eng(text):
+    # 如果是英文，返回原文，不缓存
+    if is_english(text):
+        return text
     # 缓存翻译英文
     result = prompt_db.get(Query().text == text)
     if result is not None:

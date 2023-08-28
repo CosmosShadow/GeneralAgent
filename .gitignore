@@ -2,3 +2,4 @@
 GeneralAgent/.env
 *.pyc
 GeneralAgent/keys.py
+GeneralAgent/prompt_en.json
