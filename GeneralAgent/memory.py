@@ -14,7 +14,7 @@ def _get_memory_importance_score(concept):
     # 评分：<填写>
 
     # 这段prompt需要用英文写，因为 eng -> zh -> eng 损失了很多意思，评分不准
-    prompt = """On the scale of 1 to 10, where 1 is purely mundane (e.g., brushing teeth, making bed) and 10 is extremely poignant (e.g., a break up, college acceptance), rate the likely poignancy of the following piece of memory.\nMemory: {{concept}}\nRating: <fill in>"""
+    prompt = """On the scale of 1 to 10, where 1 is purely mundane (e.g., brushing teeth, making bed, I need to do the dishes, I need to walk the dog) and 10 is extremely poignant (e.g., a break up, college acceptance, I wish to become a professor, I love Elie), rate the likely poignancy of the following piece of memory.\nMemory: {{concept}}\nRating: <fill in>"""
 
     json_schema = '{"rating": the_integer_score}'
     try:
@@ -73,7 +73,13 @@ class Memory:
     def __init__(self, file_path='./memory.json') -> None:
         # file_path: 存储路径，比如 xxx.json
         self.db = TinyDB(file_path)
+        self.new_priority_list_table = self.db.table('_new_priority_list')
         self.concept_nodes = [ConceptNode.from_dict(record) for record in self.db.all()]
+        self.new_priority_list = [x['priority'] for x in self.new_priority_list_table.all()]
+
+    def get_nodes_orderby_last_access(self):
+        nodes = list(sorted(self.concept_nodes, key=lambda x: x.last_access))
+        return nodes
 
     def add_concept(self, type, concept):
         assert type in ConceptNodeTypes
@@ -87,7 +93,16 @@ class Memory:
         # 保存
         self.db.insert(concept_node.to_save_dict())
 
-        # TODO: 触发反思
+        # 触发反思
+        self.new_priority_list.append(priority)
+        if sum(self.new_priority_list) >= 100:
+            self.reflect()
+            self.new_priority_list = []
+            # 清空表单
+            self.new_priority_list_table.truncate()
+        else:
+            # 新增优先级
+            self.new_priority_list_table.insert({'priority': priority})
 
         return concept_node
     
@@ -109,11 +124,11 @@ class Memory:
         # 获取计划中的计划
         return [x for x in self.concept_nodes if x.type == 'plan' and x.concept.startswith('[plan]')]
     
-    def retrieve(self, focus_point, n_count=30):
-        # 根据关注点(focus_point, string)，获取前n_count个相关记忆内容
-        focal_embedding = embedding_fun(focus_point)
-        # 按时间排序记忆节点
-        nodes = list(sorted(self.concept_nodes, key=lambda x: x.create_at))
+    def retrieve(self, focal_point, n_count=30):
+        # 记忆提取: 根据关注点(focal_point, string)，获取前n_count个相关记忆内容
+        focal_embedding = embedding_fun(focal_point)
+        # last_access排序节点
+        nodes = self.get_nodes_orderby_last_access()
         # 计算因子
         recency = [0.99 ** index for index in range(1, len(nodes) + 1)]
         importance = [node.priority for node in nodes]
@@ -131,39 +146,44 @@ class Memory:
         for node in master_nodes:
             self.new_access(node)
         return master_nodes
-
-
-def retrieve(persona, perceived): 
-  """
-  This function takes the events that are perceived by the persona as input
-  and returns a set of related events and thoughts that the persona would 
-  need to consider as context when planning. 
-
-  INPUT: 
-    perceived: a list of event <ConceptNode>s that represent any of the events
-    `         that are happening around the persona. What is included in here
-              are controlled by the att_bandwidth and retention 
-              hyper-parameters.
-  OUTPUT: 
-    retrieved: a dictionary of dictionary. The first layer specifies an event, 
-               while the latter layer specifies the "curr_event", "events", 
-               and "thoughts" that are relevant.
-  """
-  # We rerieve events and thoughts separately. 
-  retrieved = dict()
-  for event in perceived: 
-    retrieved[event.description] = dict()
-    retrieved[event.description]["curr_event"] = event
     
-    relevant_events = persona.a_mem.retrieve_relevant_events(
-                        event.subject, event.predicate, event.object)
-    retrieved[event.description]["events"] = list(relevant_events)
-
-    relevant_thoughts = persona.a_mem.retrieve_relevant_thoughts(
-                          event.subject, event.predicate, event.object)
-    retrieved[event.description]["thoughts"] = list(relevant_thoughts)
+    def reflect(self):
+        # 反思: 最近遇到的事情 -> 提问 -> 问题相关记忆 -> 生成insight和evidence -> 保存所思
+        # 提问
+        importance_count = 30
+        recent_importance_nodes = self.get_nodes_orderby_last_access()[:importance_count]
+        questions = self._generate_questions_by_nodes(recent_importance_nodes, count=2)
+        for question in questions:
+            # 问题相关记忆
+            nodes_about_question = self.retrieve(question)
+            # 生成insight和evidence
+            thoughts = self._get_insights_and_evidence(nodes_about_question, count=2)
+            # 保存所思
+            for thought, evidence in thoughts.items():
+                from_index = [nodes_about_question[i].index  for i in evidence]
+                self.add_concept('thought', thought, from_nodes=from_index)
     
-  return retrieved
+    def _generate_questions_by_nodes(self, nodes, count):
+        prompt = """{{statements}}\n\nGiven only the information above, what are {{count}} most salient high-level questions we can answer about the subjects grounded in the statements?"""
+        json_schema = '{"questions": the_list_of_strings}'
+        try:
+            statements = "\n".join([node.concept for node in nodes])
+            result = prompt_call(prompt, {'statements': statements, 'count': count}, json_schema)
+            return result['questions']
+        except:
+            return []
+
+    def _get_insights_and_evidence(self, nodes, count):
+        # 根据记忆，生成insight和evidence
+        statement_list = [node.concept for node in nodes]
+        prompt = """Input:\n{{statements}}\n\nWhat {{count}} high-level insights can you infer from the above statements? What evidence can you provide to support your insights?"""
+        json_schema = '{"\{insight\}": [\{evidence index\}]}'
+        try:
+            statements = "\n".join([str(index+1) + ') ' + statement for index, statement in enumerate(statement_list)])
+            result = prompt_call(prompt, {'statements': statements, 'count': count}, json_schema)
+            return result
+        except:
+            return {}
 
 
 def normalize(arr, target_min, target_max):

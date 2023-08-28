@@ -5,8 +5,9 @@ from GeneralAgent.memory import Memory, get_memory_importance_score, normalize
 def test_get_memory_importance_score():
     rating = get_memory_importance_score('buying groceries at The Willows Market and Pharmacy')
     assert rating <= 3
-
     rating = get_memory_importance_score('buy a house')
+    assert rating >= 8
+    rating = get_memory_importance_score('I want to quit my job and start a business')
     assert rating >= 8
 
 def test_normalize():
@@ -29,12 +30,10 @@ def test_memory_create():
 def test_memory_retrieve():
     memory = Memory(memory_path)
     nodes = memory.retrieve('今天吃了啥？', n_count=3)
-    first = nodes[0]
-    second = nodes[1]
-    assert '吃' in first.concept
-    assert '吃' in second.concept
-    assert first.concept != second.concept
-
+    assert '吃' in nodes[0].concept
+    assert '吃' in nodes[1].concept
+    assert '吃' not in nodes[2].concept
+    assert nodes[0].concept != nodes[1].concept
 
 
 if __name__ == '__main__':
