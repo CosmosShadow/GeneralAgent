@@ -7,7 +7,7 @@ from GeneralAgent.llm import prompt_call, cos_sim, embedding_fun
 ConceptNodeTypes = ['input', 'output', 'thought', 'plan', 'action']
 ConceptNodeStates = ['ready', 'done', 'cancel', 'fail'] # 状态只能从ready转移到其他三个中去
 
-def get_memory_importance_score(concept):
+def _get_memory_importance_score(concept):
     """获取记忆的重要性评分"""
     # 在 1 到 10 的范围内，其中 1 是纯粹平凡的（例如，刷牙、整理床铺），而 10 是极其痛苦的（例如，分手、大学录取），请评估以下记忆片段可能的痛苦程度。
     # 记忆：{{概念}}
@@ -22,15 +22,25 @@ def get_memory_importance_score(concept):
         return int(result['rating'])
     except:
         return None
+    
+def get_memory_importance_score(concept):
+    for _ in range(2):
+        priority = _get_memory_importance_score(concept)
+        if priority is not None:
+            return priority
+    print('Warning: get_memory_importance_score failed multi times, set priority to 5')
+    return 5
 
+str2date = lambda x: datetime.datetime.now() if (x is None) else datetime.datetime.strptime(x, '%Y-%m-%d %H:%M:%S')
+date2str = lambda x: x.strftime('%Y-%m-%d %H:%M:%S')
 
 # 记忆节点
 class ConceptNode:
     @classmethod
     def from_dict(cls, dict):
-        return cls(dict['type'], dict['concept'], dict['create_at'], dict['concept_embedding'], dict['priority'], dict['create_at'], dict['state'], dict['from_nodes'], dict['to_nodes'])
+        return cls(dict['type'], dict['index'], dict['concept'], dict['priority'], dict['create_at'], dict['last_access'], dict['state'], dict['from_nodes'], dict['to_nodes'])
 
-    def __init__(self, type, index, concept, concept_embedding, priority, create_at=None, last_access=None, state='done', from_nodes=[], to_nodes=[]):
+    def __init__(self, type, index, concept, priority, create_at=None, last_access=None, state='done', from_nodes=[], to_nodes=[]):
         # 验证
         assert type in ConceptNodeTypes
         assert state in ConceptNodeStates
@@ -40,10 +50,10 @@ class ConceptNode:
         self.type = type    # string: input, output, thought, plan, action
         self.index = index  # 索引 int
         self.concept = concept  # 概念 string
-        self.concept_embedding = concept_embedding # 概念embedding ([float])
+        self.concept_embedding = embedding_fun(concept) # 概念embedding ([float])
         self.priority = priority    # 重要性 (float: 0~10)
-        self.create_at = create_at or datetime.datetime.now() # 创建时间, string
-        self.last_access = last_access or datetime.datetime.now() # 最新访问时间, string。最近再次访问过，容易被提取
+        self.create_at = str2date(create_at) # 创建时间, string
+        self.last_access = str2date(last_access) # 最新访问时间, string。最近再次访问过，容易被提取
         self.state = state  # 状态 string: ready、done、cancel
         self.from_nodes = from_nodes        # 来源 [index]
         self.to_nodes = to_nodes        # 被引用 -> 一般都是计划实行情况 [index]
@@ -53,8 +63,9 @@ class ConceptNode:
     
     def to_save_dict(self):
         value_dict = self.__dict__.copy()
-        value_dict['create_at'] = value_dict['create_at'].strftime('%Y-%m-%d %H:%M:%S')
-        value_dict['last_access'] = value_dict['last_access'].strftime('%Y-%m-%d %H:%M:%S')
+        value_dict['create_at'] = date2str(value_dict['create_at'])
+        value_dict['last_access'] = date2str(value_dict['last_access'])
+        value_dict.pop('concept_embedding')
         return value_dict
 
 # 记忆
@@ -64,17 +75,13 @@ class Memory:
         self.db = TinyDB(file_path)
         self.concept_nodes = [ConceptNode.from_dict(record) for record in self.db.all()]
 
-    def add_concept(self, type, concept, concept_embedding=None):
+    def add_concept(self, type, concept):
         assert type in ConceptNodeTypes
-        if concept_embedding is None:
-            concept_embedding = embedding_fun(concept)
         
         # 计算优先级(重要性)
         priority = get_memory_importance_score(concept)
-        if priority is None:
-            priority = get_memory_importance_score(concept) or 5
         
-        concept_node = ConceptNode(type, len(self.concept_nodes), concept, concept_embedding=concept_embedding, priority=priority)
+        concept_node = ConceptNode(type, len(self.concept_nodes), concept, priority=priority)
         self.concept_nodes.append(concept_node)
         
         # 保存

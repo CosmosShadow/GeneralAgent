@@ -29,13 +29,16 @@ def test_memory_create():
 def test_memory_retrieve():
     memory = Memory(memory_path)
     nodes = memory.retrieve('今天吃了啥？', n_count=3)
-    print(nodes)
-
+    first = nodes[0]
+    second = nodes[1]
+    assert '吃' in first.concept
+    assert '吃' in second.concept
+    assert first.concept != second.concept
 
 
 
 if __name__ == '__main__':
     # test_get_memory_importance_score()
     # test_normalize()
-    test_memory_create()
+    # test_memory_create()
     test_memory_retrieve()

@@ -62,7 +62,11 @@ class TinyDBCache():
         self.db = TinyDB(save_path)
 
     def get(self, key):
-        return self.db.get(Query().key == key)
+        result = self.db.get(Query().key == key)
+        if result is not None:
+            return result['value']
+        else:
+            return None
 
     def set(self, key, value):
         self.db.upsert({'key': key, 'value': value}, Query().key == key)
@@ -147,17 +151,18 @@ def prompt_call(prompt, variables, json_schema=None):
 embedding_cache = TinyDBCache('embedding_cache.json')
 def embedding_fun(text):
     # embedding the texts(list of string), and return a list of embedding for every string
-    result = embedding_cache.get(text)
-    if result is not None:
-        return result
+    embedding = embedding_cache.get(text)
+    if embedding is not None:
+        return embedding
     texts = [text]
     import openai
     openai.api_key = OPENAI_API_KEY
     openai.api_base = OPENAI_API_BASE
     resp = openai.Embedding.create(input=texts,engine="text-embedding-ada-002")
     result = [x['embedding'] for x in resp['data']]
-    embedding_cache.set(text, result)
-    return result[0]
+    embedding = result[0]
+    embedding_cache.set(text, embedding)
+    return embedding
 
 def cos_sim(a, b): 
     # This function calculates the cosine similarity (scalar value) between two input vectors 'a' and 'b' (1-D array object), and return the similarity.
