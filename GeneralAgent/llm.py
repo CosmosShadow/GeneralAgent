@@ -8,7 +8,7 @@ from tinydb import TinyDB, Query
 import re
 from numpy import dot
 from numpy.linalg import norm
-from keys import OPENAI_MODEL, OPENAI_API_KEY, OPENAI_ORGANIZATION, OPENAI_API_BASE
+from GeneralAgent.keys import OPENAI_MODEL, OPENAI_API_KEY, OPENAI_ORGANIZATION, OPENAI_API_BASE
 
 def llm_inference_messages(messages):
     model = OPENAI_MODEL or 'gpt-3.5-turbo-16k'

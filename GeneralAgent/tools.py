@@ -5,7 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 from requests.compat import urljoin
 from playwright.sync_api import sync_playwright
-from keys import SERPER_API_KEY
+from GeneralAgent.keys import SERPER_API_KEY
 
 def google_search(query):
     # 返回一个可以被json.loads加载的字符串

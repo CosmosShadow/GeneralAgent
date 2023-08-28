@@ -22,7 +22,7 @@ def test_embedding_fun():
 def test_prompt_call():
     prompt = "你是一个翻译官，将下面```包围起来的的文本翻译成为{{target}}: \n```\n{{text}}\n```\n"
     variables = {'target': 'chinese', 'text': 'I love china'}
-    json_schema = """{"source": "{text to translate}","translated": "{the translated text"}"""
+    json_schema = """ {"source": "{text to translate}","translated": "{the translated text}"} """
     result = prompt_call(prompt, variables, json_schema)
     assert result['source'] == 'I love china'
     assert result['translated'] == '我爱中国'
