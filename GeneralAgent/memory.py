@@ -103,14 +103,29 @@ class Memory:
         # 获取计划中的计划
         return [x for x in self.concept_nodes if x.type == 'plan' and x.concept.startswith('[plan]')]
     
-    def retrieve(self, focus_points, top_k):
-        # 检索, focus_points 是关注的点
-        # TODO: 检索
-        pass
+    def retrieve(self, focus_point, n_count=30):
+        # 根据关注点(focus_point, string)，获取前n_count个相关记忆内容
+        focal_embedding = embedding_fun(focus_point)
+        # 按时间排序记忆节点
+        nodes = list(sorted(self.concept_nodes, key=lambda x: x.create_at))
+        # 计算因子
+        recency = [0.99 ** index for index in range(1, len(nodes) + 1)]
+        importance = [node.priority for node in nodes]
+        relevance = [cos_sim(node.concept_embedding, focal_embedding) for node in nodes]
+        # 正则化
+        recency = normalize(recency, 0, 1)
+        importance = normalize(importance, 0, 1)
+        relevance = normalize(relevance, 0, 1)
+        # 排序因子 = recency * 0.5 + relevance * 3 + importance * 2
+        score = [recency[i]*0.5 + relevance[i]*3 + importance[i]*2 for i in range(len(nodes))]
+        # 获取score前n_count个最大值，且以对应的大小来排序了
+        top_n_index = sorted(range(len(score)), key=lambda i: score[i], reverse=True)[:n_count]
+        master_nodes = [nodes[index] for index in top_n_index]
+        # 更新最新访问时间
+        for node in master_nodes:
+            self.new_access(node)
+        return master_nodes
 
-
-from numpy import dot
-from numpy.linalg import norm
 
 def retrieve(persona, perceived): 
   """
@@ -145,79 +160,13 @@ def retrieve(persona, perceived):
   return retrieved
 
 
-
-def normalize_dict_floats(d, target_min, target_max):
-  """
-  This function normalizes the float values of a given dictionary 'd' between 
-  a target minimum and maximum value. The normalization is done by scaling the
-  values to the target range while maintaining the same relative proportions 
-  between the original values.
-  INPUT: 
-    d: Dictionary. The input dictionary whose float values need to be 
-       normalized.
-  """
-  min_val = min(val for val in d.values())
-  max_val = max(val for val in d.values())
-  range_val = max_val - min_val
-
-  if range_val == 0: 
-    for key, val in d.items(): 
-      d[key] = (target_max - target_min)/2
-  else: 
-    for key, val in d.items():
-      d[key] = ((val - min_val) * (target_max - target_min) 
-                / range_val + target_min)
-  return d
-
-
-def top_highest_x_values(d, x):
-    """returns a new dictionary containing the top 'x' key-value pairs from the input dictionary 'd' with the highest values."""
-    return dict(sorted(d.items(), key=lambda item: item[1], reverse=True)[:x])
-  
-
-def extract_recency(nodes: [ConceptNode]):
-    recency_vals = [0.99 ** i for i in range(1, len(nodes) + 1)]
-    recency_out = dict()
-    for index, node in enumerate(nodes): 
-        recency_out[node.index] = recency_vals[index]
-    return recency_out
-
-def extract_importance(nodes):
-    importance_out = dict()
-    for index, node in enumerate(nodes): 
-        importance_out[node.index] = node.poignancy
-    return importance_out
-
-def extract_relevance(nodes, focal_pt):
-    focal_embedding = embedding_fun(focal_pt)
-    relevance_out = dict()
-    for count, node in enumerate(nodes): 
-        relevance_out[node.index] = cos_sim(node.concept_embedding, focal_embedding)
-    return relevance_out
-
-
-def new_retrieve(memory, focal_point, n_count=30):
-    # 按时间排序记忆节点
-    nodes = list(sorted(memory.concept_nodes, key=lambda x: x.create_at))
-    # 排序因子 = recency * 0.5 + relevance * 3 + importance * 2
-    recency_out = extract_recency(nodes)
-    recency_out = normalize_dict_floats(recency_out, 0, 1)
-    importance_out = extract_importance(nodes)
-    importance_out = normalize_dict_floats(importance_out, 0, 1)  
-    relevance_out = extract_relevance(nodes, focal_point)
-    relevance_out = normalize_dict_floats(relevance_out, 0, 1)
-
-    gw = [0.5, 3, 2]
-    master_out = dict()
-    for key in recency_out.keys(): 
-        master_out[key] = (recency_out[key]*gw[0] + relevance_out[key]*gw[1] + importance_out[key]*gw[2])
-
-    master_out = top_highest_x_values(master_out, len(master_out.keys()))
-
-    master_out = top_highest_x_values(master_out, n_count)
-    master_nodes = [memory.concept_nodes[index] for index in list(master_out.keys())]
-
-    for node in master_nodes:
-        memory.new_access(node)
-
-    return master_nodes
+def normalize(d, target_min, target_max):
+    assert target_max > target_min
+    min_val = min(d)
+    max_val = max(d)
+    range_val = max_val - min_val
+    normal = lambda x: ((x - min_val) * (target_max - target_min) / range_val + target_min)
+    if range_val == 0: 
+        return [(target_max - target_min)/2] * len(d)
+    else: 
+        return [normal(x) for x in d]
