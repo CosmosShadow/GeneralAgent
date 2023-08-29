@@ -37,8 +37,11 @@ def md5(string):
 llm_cache = TinyDBCache('./llm_cache.json')
 
 
-def _llm_inference_messages(messages):
-    model = OPENAI_MODEL or 'gpt-3.5-turbo-16k'
+def _llm_inference_messages(messages, think_deep=False):
+    if think_deep:
+        model = 'gpt-4'
+    else:
+        model = 'gpt-3.5-turbo-16k'
     openai.api_key = OPENAI_API_KEY
     if model.startswith('gpt-4'):
         openai.organization = OPENAI_ORGANIZATION
@@ -55,23 +58,23 @@ def _llm_inference_messages(messages):
 
 
 
-def llm_inference_messages(messages, force_run=False):
+def llm_inference_messages(messages, force_run=False, think_deep=False):
+    key = md5(messages)
     if not force_run:
-        key = md5(messages)
         result = llm_cache.get(key)
         if result is not None:
             return result
-    result = _llm_inference_messages(messages)
+    result = _llm_inference_messages(messages, think_deep=think_deep)
     llm_cache.set(key, result)
     return result
 
 
 
-def llm_inference(prompt, force_run):
+def llm_inference(prompt, force_run, think_deep=False):
     # 缓存
     system_prompt = [{"role": "system", "content": 'You are a helpful assistant.'}]
     messages = system_prompt + [{"role": "user", "content": prompt}]
-    return llm_inference_messages(messages, force_run=force_run)
+    return llm_inference_messages(messages, force_run=force_run, think_deep=think_deep)
 
 def _translate_eng(text, force_run=False):
     system_prompt = [{"role": "system", "content": f"You are a translator, translate the user's input to english. Do not translate the text {{{{}}}}"}]
@@ -153,16 +156,16 @@ def fix_llm_json_str(string):
 return_json_prompt = """\n\nYou should only directly respond in JSON format without explian as described below, that must be parsed by Python json.loads.
 Response Format example: \n"""
 
-def prompt_call(prompt, variables, json_schema=None, force_run=False):
+def prompt_call(prompt, variables, json_schema=None, force_run=False, think_deep=False):
     # 通过prompt将大模型异化成为函数，并可以通过json_schema返回格式化数据
     prompt = translate_eng(prompt)
     prompt = Template(prompt).render(**variables)
     if json_schema is not None:
         prompt += return_json_prompt + json_schema
-        result = llm_inference(prompt, force_run=force_run)
+        result = llm_inference(prompt, force_run=force_run, think_deep=think_deep)
         return json.loads(fix_llm_json_str(result))
     else:
-        return llm_inference(prompt, force_run=force_run)
+        return llm_inference(prompt, force_run=force_run, think_deep=think_deep)
 
 
 embedding_cache = TinyDBCache('./embedding_cache.json')

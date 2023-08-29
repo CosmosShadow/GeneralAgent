@@ -1,6 +1,7 @@
 # 测试Memory
 from base_setting import *
 from GeneralAgent.memory import Memory, get_memory_importance_score, normalize
+from GeneralAgent.memory import generate_questions_by_statements
 
 def test_get_memory_importance_score():
     rating = get_memory_importance_score('buying groceries at The Willows Market and Pharmacy')
@@ -16,8 +17,35 @@ def test_normalize():
     # print(normal)
     assert normal == [0.0, 0.25, 0.5, 0.75, 1.0]
 
-memory_path = './memory.json'
+def test_generate_questions_by_statements():
+    statement_list = [
+        "今天早上7点起床了",
+        "9点到公司，开始工作",
+        "早饭吃了一个包子，一碗粥",
+        "今天工作量有点大，写了700行python代码",
+        "今天工作量有点大，写了1000行javascript代码",
+        "今天工作量有点大，写了700行python代码",
+        "今天工作量有点大，写了1000行javascript代码",
+        "今天工作量有点大，写了700行python代码",
+        "今天工作量有点大，写了1000行javascript代码",
+        "今天工作量有点大，写了500行python代码",
+        "今天工作量有点大，写了500行python代码",
+        "今天工作量有点大，写了500行python代码",
+        "今天工作量有点大，写了500行python代码",
+        "今天工作量有点大，写了600行javascript代码",
+        "今天工作量有点大，写了600行javascript代码",
+        "今天工作量有点大，写了600行javascript代码",
+        "今天工作量有点大，写了800行javascript代码",
+        "今天工作量有点大，写了800行javascript代码",
+        "今天工作量有点大，写了800行javascript代码",
+        "今天工作量有点大，写了900行python代码",
+        "今天工作量有点大，写了900行python代码",
+        "今天工作量有点大，写了900行python代码"
+    ]
+    questions = generate_questions_by_statements(statement_list)
+    print(questions)
 
+memory_path = './memory.json'
 def test_memory_create():
     if os.path.exists(memory_path): os.remove(memory_path)
     memory = Memory(memory_path)
@@ -48,5 +76,6 @@ def test_memory_retrieve():
 if __name__ == '__main__':
     # test_get_memory_importance_score()
     # test_normalize()
-    test_memory_create()
+    # test_memory_create()
     # test_memory_retrieve()
+    test_generate_questions_by_statements()

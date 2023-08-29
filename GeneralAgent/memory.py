@@ -3,6 +3,7 @@ import datetime
 # 存储所有记忆，优点是: 实时逐步序列化，即使程序崩溃了也记录了
 from tinydb import TinyDB, Query
 from GeneralAgent.llm import prompt_call, cos_sim, embedding_fun
+import logging
 
 ConceptNodeTypes = ['input', 'output', 'thought', 'plan', 'action']
 ConceptNodeStates = ['ready', 'done', 'cancel', 'fail'] # 状态只能从ready转移到其他三个中去
@@ -19,8 +20,10 @@ def _get_memory_importance_score(concept):
     json_schema = '{"rating": the_integer_score}'
     try:
         result = prompt_call(prompt, {'concept': concept}, json_schema)
+        # print(result)
         return int(result['rating'])
-    except:
+    except Exception as e:
+        logging.exception(e)
         return None
     
 def get_memory_importance_score(concept):
@@ -81,13 +84,13 @@ class Memory:
         nodes = list(sorted(self.concept_nodes, key=lambda x: x.last_access))
         return nodes
 
-    def add_concept(self, type, concept):
+    def add_concept(self, type, concept, from_nodes=[]):
         assert type in ConceptNodeTypes
         
         # 计算优先级(重要性)
         priority = get_memory_importance_score(concept)
         
-        concept_node = ConceptNode(type, len(self.concept_nodes), concept, priority=priority)
+        concept_node = ConceptNode(type, len(self.concept_nodes), concept, priority=priority, from_nodes=from_nodes)
         self.concept_nodes.append(concept_node)
         
         # 保存
@@ -96,10 +99,12 @@ class Memory:
         # 触发反思
         self.new_priority_list.append(priority)
         if sum(self.new_priority_list) >= 100:
-            self.reflect()
-            self.new_priority_list = []
+            # 注意: 必须先清空，避免循环调用
             # 清空表单
+            self.new_priority_list = []
             self.new_priority_list_table.truncate()
+            # 反思
+            self.reflect()
         else:
             # 新增优先级
             self.new_priority_list_table.insert({'priority': priority})
@@ -133,6 +138,8 @@ class Memory:
         recency = [0.99 ** index for index in range(1, len(nodes) + 1)]
         importance = [node.priority for node in nodes]
         relevance = [cos_sim(node.concept_embedding, focal_embedding) for node in nodes]
+        print(focal_point)
+        print(relevance)
         # 正则化
         recency = normalize(recency, 0, 1)
         importance = normalize(importance, 0, 1)
@@ -150,37 +157,44 @@ class Memory:
     def reflect(self):
         # 反思: 最近遇到的事情 -> 提问 -> 问题相关记忆 -> 生成insight和evidence -> 保存所思
         # 提问
+        print('start reflect' + '-'*100)
         importance_count = 30
         recent_importance_nodes = self.get_nodes_orderby_last_access()[:importance_count]
-        questions = self._generate_questions_by_nodes(recent_importance_nodes, count=2)
+        # questions = self._generate_questions_by_nodes(recent_importance_nodes, count=2)
+        questions = generate_questions_by_statements([node.concept for node in recent_importance_nodes])
         for question in questions:
             # 问题相关记忆
             nodes_about_question = self.retrieve(question)
             # 生成insight和evidence
-            thoughts = self._get_insights_and_evidence(nodes_about_question, count=2)
+            thoughts = self._get_insights_and_evidence(nodes_about_question, topic=question)
             # 保存所思
             for thought, evidence in thoughts.items():
                 from_index = [nodes_about_question[i].index  for i in evidence]
                 self.add_concept('thought', thought, from_nodes=from_index)
+        print('end reflect' + '-'*100)
     
-    def _generate_questions_by_nodes(self, nodes, count):
-        prompt = """{{statements}}\n\nGiven only the information above, what are {{count}} most salient high-level questions we can answer about the subjects grounded in the statements?"""
-        json_schema = '{"questions": the_list_of_strings}'
-        try:
-            statements = "\n".join([node.concept for node in nodes])
-            result = prompt_call(prompt, {'statements': statements, 'count': count}, json_schema)
-            return result['questions']
-        except:
-            return []
+    # def _generate_questions_by_nodes(self, nodes, count):
+    #     prompt = """{{statements}}\n\nGiven only the information above, what are {{count}} most salient high-level questions we can answer about the subjects grounded in the statements?"""
+    #     json_schema = '{"questions": the_list_of_strings}'
+    #     try:
+    #         statements = "\n".join([node.concept for node in nodes])
+    #         result = prompt_call(prompt, {'statements': statements, 'count': count}, json_schema)
+    #         return result['questions']
+    #     except:
+    #         return []
 
-    def _get_insights_and_evidence(self, nodes, count):
+    def _get_insights_and_evidence(self, nodes, topic=None):
         # 根据记忆，生成insight和evidence
         statement_list = [node.concept for node in nodes]
-        prompt = """Input:\n{{statements}}\n\nWhat {{count}} high-level insights can you infer from the above statements? What evidence can you provide to support your insights?"""
+        if topic is None:
+            prompt = """Statements:\n{{statements}}\n\nWhat high-level insights can you infer from the above statements? What evidence can you provide to support your insights?"""
+        else:
+            prompt = """Topic: {{topic}}: Statements:\n{{statements}}\n\n About the topic, what high-level insights can you infer from the above statements? What evidence can you provide to support your insights?"""
         json_schema = '{"\{insight description\}": [\{evidence index\}]}'
         try:
             statements = "\n".join([str(index) + ') ' + statement for index, statement in enumerate(statement_list)])
-            result = prompt_call(prompt, {'statements': statements, 'count': count}, json_schema, force_run=True)
+            variables = {'statements': statements} if topic is None else {'statements': statements, 'topic': topic}
+            result = prompt_call(prompt, variables, json_schema, force_run=False, think_deep=True)
             # 检查格式
             out = {}
             for insight, evidence in result.items():
@@ -213,3 +227,14 @@ def normalize(arr, target_min, target_max):
         return [(target_max - target_min)/2] * len(arr)
     else: 
         return [normal(x) for x in arr]
+    
+def generate_questions_by_statements(statement_list):
+    prompt = """{{statements}}\n\n根据上面多条描述，最有价值的高级别问题是什么？该问题不能简单通过单条描述回答，而是需要综合多条描述才能回答，或者需要进一步调查才能回答。如果没有问题，就返回空。如果有多条，全部返回，且做多有2个问题。"""
+    json_schema = '{"questions": the_list_of_strings}'
+    try:
+        statements = "\n".join([str(index) + '. ' + x for index, x in enumerate(statement_list)])
+        result = prompt_call(prompt, {'statements': statements}, json_schema, think_deep=True)
+        return result['questions']
+    except Exception as e:
+        logging.exception(e)
+        return []
