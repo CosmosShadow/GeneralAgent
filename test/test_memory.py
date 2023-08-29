@@ -1,7 +1,7 @@
 # 测试Memory
 from base_setting import *
 from GeneralAgent.memory import Memory, get_memory_importance_score, normalize
-from GeneralAgent.memory import generate_questions_by_statements
+from GeneralAgent.memory import generate_questions_by_statements, get_insights_and_evidence
 
 def test_get_memory_importance_score():
     rating = get_memory_importance_score('buying groceries at The Willows Market and Pharmacy')
@@ -17,33 +17,43 @@ def test_normalize():
     # print(normal)
     assert normal == [0.0, 0.25, 0.5, 0.75, 1.0]
 
+statement_list = [
+    "今天早上7点起床了",
+    "9点到公司，开始工作",
+    "早饭吃了一个包子，一碗粥",
+    "今天工作量有点大，写了700行python代码",
+    "今天工作量有点大，写了1000行javascript代码",
+    "今天工作量有点大，写了700行python代码",
+    "今天工作量有点大，写了1000行javascript代码",
+    "今天工作量有点大，写了700行python代码",
+    "今天工作量有点大，写了1000行javascript代码",
+    "今天工作量有点大，写了500行python代码",
+    "今天工作量有点大，写了500行python代码",
+    "今天工作量有点大，写了500行python代码",
+    "今天工作量有点大，写了500行python代码",
+    "今天工作量有点大，写了600行javascript代码",
+    "今天工作量有点大，写了600行javascript代码",
+    "今天工作量有点大，写了600行javascript代码",
+    "今天工作量有点大，写了800行javascript代码",
+    "今天工作量有点大，写了800行javascript代码",
+    "今天工作量有点大，写了800行javascript代码",
+    "今天工作量有点大，写了900行python代码",
+    "今天工作量有点大，写了900行python代码",
+    "今天工作量有点大，写了900行python代码"
+]
+
 def test_generate_questions_by_statements():
-    statement_list = [
-        "今天早上7点起床了",
-        "9点到公司，开始工作",
-        "早饭吃了一个包子，一碗粥",
-        "今天工作量有点大，写了700行python代码",
-        "今天工作量有点大，写了1000行javascript代码",
-        "今天工作量有点大，写了700行python代码",
-        "今天工作量有点大，写了1000行javascript代码",
-        "今天工作量有点大，写了700行python代码",
-        "今天工作量有点大，写了1000行javascript代码",
-        "今天工作量有点大，写了500行python代码",
-        "今天工作量有点大，写了500行python代码",
-        "今天工作量有点大，写了500行python代码",
-        "今天工作量有点大，写了500行python代码",
-        "今天工作量有点大，写了600行javascript代码",
-        "今天工作量有点大，写了600行javascript代码",
-        "今天工作量有点大，写了600行javascript代码",
-        "今天工作量有点大，写了800行javascript代码",
-        "今天工作量有点大，写了800行javascript代码",
-        "今天工作量有点大，写了800行javascript代码",
-        "今天工作量有点大，写了900行python代码",
-        "今天工作量有点大，写了900行python代码",
-        "今天工作量有点大，写了900行python代码"
-    ]
+    global statement_list
     questions = generate_questions_by_statements(statement_list)
     print(questions)
+    assert len(questions) <= 2
+
+def test_get_insights_and_evidence():
+    global statement_list
+    questions = ['今天一共写了多少行python代码和javascript代码？', '对于如此高的工作量，你觉得自己的工作压力大吗？']
+    for q in questions:
+        insights = get_insights_and_evidence(statement_list, topic=q)
+        print(insights)
 
 memory_path = './memory.json'
 def test_memory_create():
@@ -60,7 +70,16 @@ def test_memory_create():
         memory.add_concept('action', f'今天工作量有点大，写了{line_count}行{lang}代码')
     # 检查反思
     thought_nodes = memory.get_concepts_with_type('thought')
-    print(thought_nodes)
+    print('thought_nodes:')
+    for node in thought_nodes:
+        print(node.concept)
+
+    # 预期输出:
+    # thought_nodes:
+    # The speaker wrote a large amount of code today, with both Python and Javascript code written
+    # The speaker started work at 9AM and had specific meals throughout the day
+    # The speaker uses both Python and Javascript in their work, but they write more lines of Python code than Javascript
+    # The speaker's work involves substantial coding, requiring them to write thousands of lines of code within a day
 
 def test_memory_retrieve():
     memory = Memory(memory_path)
@@ -76,6 +95,7 @@ def test_memory_retrieve():
 if __name__ == '__main__':
     # test_get_memory_importance_score()
     # test_normalize()
-    # test_memory_create()
+    test_memory_create()
     # test_memory_retrieve()
-    test_generate_questions_by_statements()
+    # test_generate_questions_by_statements()
+    # test_get_insights_and_evidence()

@@ -138,8 +138,8 @@ class Memory:
         recency = [0.99 ** index for index in range(1, len(nodes) + 1)]
         importance = [node.priority for node in nodes]
         relevance = [cos_sim(node.concept_embedding, focal_embedding) for node in nodes]
-        print(focal_point)
-        print(relevance)
+        # print(focal_point)
+        # print(relevance)
         # 正则化
         recency = normalize(recency, 0, 1)
         importance = normalize(importance, 0, 1)
@@ -166,55 +166,12 @@ class Memory:
             # 问题相关记忆
             nodes_about_question = self.retrieve(question)
             # 生成insight和evidence
-            thoughts = self._get_insights_and_evidence(nodes_about_question, topic=question)
+            thoughts = get_insights_and_evidence([node.concept for node in nodes_about_question], topic=question)
             # 保存所思
             for thought, evidence in thoughts.items():
                 from_index = [nodes_about_question[i].index  for i in evidence]
                 self.add_concept('thought', thought, from_nodes=from_index)
         print('end reflect' + '-'*100)
-    
-    # def _generate_questions_by_nodes(self, nodes, count):
-    #     prompt = """{{statements}}\n\nGiven only the information above, what are {{count}} most salient high-level questions we can answer about the subjects grounded in the statements?"""
-    #     json_schema = '{"questions": the_list_of_strings}'
-    #     try:
-    #         statements = "\n".join([node.concept for node in nodes])
-    #         result = prompt_call(prompt, {'statements': statements, 'count': count}, json_schema)
-    #         return result['questions']
-    #     except:
-    #         return []
-
-    def _get_insights_and_evidence(self, nodes, topic=None):
-        # 根据记忆，生成insight和evidence
-        statement_list = [node.concept for node in nodes]
-        if topic is None:
-            prompt = """Statements:\n{{statements}}\n\nWhat high-level insights can you infer from the above statements? What evidence can you provide to support your insights?"""
-        else:
-            prompt = """Topic: {{topic}}: Statements:\n{{statements}}\n\n About the topic, what high-level insights can you infer from the above statements? What evidence can you provide to support your insights?"""
-        json_schema = '{"\{insight description\}": [\{evidence index\}]}'
-        try:
-            statements = "\n".join([str(index) + ') ' + statement for index, statement in enumerate(statement_list)])
-            variables = {'statements': statements} if topic is None else {'statements': statements, 'topic': topic}
-            result = prompt_call(prompt, variables, json_schema, force_run=False, think_deep=True)
-            # 检查格式
-            out = {}
-            for insight, evidence in result.items():
-                if not isinstance(insight, str):
-                    print(f'Warning: insight is not string: {insight}')
-                    continue
-                if not isinstance(evidence, list):
-                    print(f'Warning: evidence is not list: {evidence}')
-                    continue
-                if len(evidence) == 0:
-                    print(f'Warning: evidence is empty: {evidence}')
-                    continue
-                evidence = [int(x) for x in evidence]
-                if max(evidence) >= len(statement_list) or min(evidence) < 0:
-                    print(f'Warning: evidence is out of range: {evidence}, remove the value out of range')
-                evidence = [x for x in evidence if (x >= 0 and x < len(statement_list))]
-                out[insight] = evidence
-            return out
-        except:
-            return {}
 
 
 def normalize(arr, target_min, target_max):
@@ -233,8 +190,40 @@ def generate_questions_by_statements(statement_list):
     json_schema = '{"questions": the_list_of_strings}'
     try:
         statements = "\n".join([str(index) + '. ' + x for index, x in enumerate(statement_list)])
-        result = prompt_call(prompt, {'statements': statements}, json_schema, think_deep=True)
+        result = prompt_call(prompt, {'statements': statements}, json_schema, force_run=False, think_deep=True)
         return result['questions']
     except Exception as e:
         logging.exception(e)
         return []
+    
+def get_insights_and_evidence(statement_list, topic=None):
+    # 根据描述情况，生成insight和evidence
+    if topic is None:
+        prompt = """Statements:\n{{statements}}\n\n根据上面的多条描述，能推理出来那些洞察？每条洞察有哪几条描述支持？\n洞察不能是单条描述，而是需要综合多条描述才能得出的洞察。如果没有洞察，就返回空。如果有多条，全部返回，且做多有2个洞察。"""
+    else:
+        prompt = """Topic: {{topic}}\nStatements:\n{{statements}}\n\n根据上面的多条描述，关于主题，能推理出来那些洞察？每条洞察有哪几条描述支持？\n洞察不能是单条描述，而是需要综合多条描述才能得出的洞察。如果没有洞察，就返回空。如果有多条，全部返回，且做多有2个洞察。"""
+    json_schema = '{"\{insight description\}": [\{evidence index\}]}'
+    try:
+        statements = "\n".join([str(index) + ') ' + statement for index, statement in enumerate(statement_list)])
+        variables = {'statements': statements} if topic is None else {'statements': statements, 'topic': topic}
+        result = prompt_call(prompt, variables, json_schema, force_run=False, think_deep=True)
+        # 检查格式
+        out = {}
+        for insight, evidence in result.items():
+            if not isinstance(insight, str):
+                print(f'Warning: insight is not string: {insight}')
+                continue
+            if not isinstance(evidence, list):
+                print(f'Warning: evidence is not list: {evidence}')
+                continue
+            if len(evidence) == 0:
+                print(f'Warning: evidence is empty: {evidence}')
+                continue
+            evidence = [int(x) for x in evidence]
+            if max(evidence) >= len(statement_list) or min(evidence) < 0:
+                print(f'Warning: evidence is out of range: {evidence}, remove the value out of range')
+            evidence = [x for x in evidence if (x >= 0 and x < len(statement_list))]
+            out[insight] = evidence
+        return out
+    except:
+        return {}
