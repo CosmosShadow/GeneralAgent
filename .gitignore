@@ -1,8 +1,6 @@
-
-GeneralAgent/.env
 *.pyc
 GeneralAgent/keys.py
 GeneralAgent/prompt_en.json
 test/memory.json
-GeneralAgent/prompt_en_cache.json
 GeneralAgent/embedding_cache.json
+GeneralAgent/llm_cache.json

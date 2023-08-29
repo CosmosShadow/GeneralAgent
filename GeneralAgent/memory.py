@@ -116,7 +116,7 @@ class Memory:
         concept_node.last_access = datetime.datetime.now()
         self.db.update(concept_node.to_save_dict(), Query().index == concept_node.index)
 
-    def get_concept_with_type(self, type):
+    def get_concepts_with_type(self, type):
         # 获取某种类型的概念
         return [concept_node for concept_node in self.concept_nodes if concept_node.type == type]
     
@@ -177,11 +177,28 @@ class Memory:
         # 根据记忆，生成insight和evidence
         statement_list = [node.concept for node in nodes]
         prompt = """Input:\n{{statements}}\n\nWhat {{count}} high-level insights can you infer from the above statements? What evidence can you provide to support your insights?"""
-        json_schema = '{"\{insight\}": [\{evidence index\}]}'
+        json_schema = '{"\{insight description\}": [\{evidence index\}]}'
         try:
-            statements = "\n".join([str(index+1) + ') ' + statement for index, statement in enumerate(statement_list)])
-            result = prompt_call(prompt, {'statements': statements, 'count': count}, json_schema)
-            return result
+            statements = "\n".join([str(index) + ') ' + statement for index, statement in enumerate(statement_list)])
+            result = prompt_call(prompt, {'statements': statements, 'count': count}, json_schema, force_run=True)
+            # 检查格式
+            out = {}
+            for insight, evidence in result.items():
+                if not isinstance(insight, str):
+                    print(f'Warning: insight is not string: {insight}')
+                    continue
+                if not isinstance(evidence, list):
+                    print(f'Warning: evidence is not list: {evidence}')
+                    continue
+                if len(evidence) == 0:
+                    print(f'Warning: evidence is empty: {evidence}')
+                    continue
+                evidence = [int(x) for x in evidence]
+                if max(evidence) >= len(statement_list) or min(evidence) < 0:
+                    print(f'Warning: evidence is out of range: {evidence}, remove the value out of range')
+                evidence = [x for x in evidence if (x >= 0 and x < len(statement_list))]
+                out[insight] = evidence
+            return out
         except:
             return {}
 

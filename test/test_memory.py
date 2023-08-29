@@ -24,8 +24,15 @@ def test_memory_create():
     memory.add_concept('action', '今天早上7点起床了')
     memory.add_concept('action', '早饭吃了一个包子，一碗粥')
     memory.add_concept('action', '9点到公司，开始工作')
-    memory.add_concept('action', '上午工作量有点大，写了1000行代码')
     memory.add_concept('action', '中午吃的汉堡')
+    lines = [500, 600, 700, 800, 900, 1000] * 4
+    for index in range(20):
+        lang = ['python', 'javascript'][index % 2]
+        line_count = lines[index]
+        memory.add_concept('action', f'今天工作量有点大，写了{line_count}行{lang}代码')
+    # 检查反思
+    thought_nodes = memory.get_concepts_with_type('thought')
+    print(thought_nodes)
 
 def test_memory_retrieve():
     memory = Memory(memory_path)
@@ -36,8 +43,10 @@ def test_memory_retrieve():
     assert nodes[0].concept != nodes[1].concept
 
 
+
+
 if __name__ == '__main__':
     # test_get_memory_importance_score()
     # test_normalize()
-    # test_memory_create()
-    test_memory_retrieve()
+    test_memory_create()
+    # test_memory_retrieve()
