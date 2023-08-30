@@ -32,6 +32,15 @@ class Scratch:
     def __init__(self, file_path='./memory.json'):
         self.db = TinyDB(file_path)
         self.spark_node_list = [SparkNode(node) for node in self.db.all()]
-
-    def new_node_id(self):
-        return len(self.new_node_id)
+    
+    def add_node(self, role, type, state, name, command, parent, childrens):
+        node_id = len(self.spark_node_list)
+        node = SparkNode(node_id, role, type, state, name, command, parent, childrens)
+        self.db.insert(node.__dict__)
+        return node
+    
+    def get_node(self, node_id):
+        return self.spark_node_list[node_id]
+    
+    def update_node(self, node):
+        self.db.update(node.__dict__, Query().node_id == node.node_id)
