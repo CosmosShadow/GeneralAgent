@@ -76,8 +76,10 @@ class Memory:
     def __init__(self, file_path='./memory.json') -> None:
         # file_path: 存储路径，比如 xxx.json
         self.db = TinyDB(file_path)
-        self.new_priority_list_table = self.db.table('_new_priority_list')
+        # 记忆内容
         self.concept_nodes = [ConceptNode.from_dict(record) for record in self.db.all()]
+        # 重要性列表，用户触发反思
+        self.new_priority_list_table = self.db.table('_new_priority_list')
         self.new_priority_list = [x['priority'] for x in self.new_priority_list_table.all()]
 
     def get_nodes_orderby_last_access(self):
