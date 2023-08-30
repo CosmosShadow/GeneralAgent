@@ -10,7 +10,7 @@ class SparkNode:
         return cls(dict['node_id'], dict['role'], dict['action'], dict['state'], dict['task'], dict['input'], dict['output'], dict['parent'], dict['childrens'])
 
     def __init__(self, node_id, role, action, state, task, input, output, parent=None, childrens=[]):
-        assert role in ['user', 'system']
+        assert role in ['user', 'system', 'root']   # root 是虚拟根节点
         assert action in ['input', 'output', 'plan', 'think', 'write_code', 'run_code']
         assert state in ['ready', 'working', 'success', 'fail']
         self.node_id = node_id
@@ -32,6 +32,9 @@ class Scratch:
     def __init__(self, file_path='./memory.json'):
         self.db = TinyDB(file_path)
         self.spark_node_list = [SparkNode(node) for node in self.db.all()]
+        # 添加虚拟根节点
+        if len(self.spark_node_list) == 0:
+            self.add_node('root', 'input', 'ready', 'init', '', '', None, [])
     
     def add_node(self, role, action, state, task, input, output, parent, childrens):
         # TODO: parent和childrens需要设置
