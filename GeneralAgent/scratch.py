@@ -43,6 +43,19 @@ class Scratch:
         self.db.insert(node.__dict__)
         return node
     
+    def delete_node(self, node, update_parent=True):
+        # 删除父节点关系
+        parent = self.get_node(node.parent) if node.parent else None
+        if parent and update_parent:
+            parent.childrens.remove(node.node_id)
+            self.update_node(parent)
+        # 删除所有子节点
+        childrens = [self.get_node(node_id) for node_id in node.childrens]
+        for children in childrens:
+            self.delete_node(children, update_parent=False)
+        # 删除自己
+        self.db.remove(Query().node_id == node.node_id)
+    
     def get_node(self, node_id):
         return self.spark_node_list[node_id]
     
