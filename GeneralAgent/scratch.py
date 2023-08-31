@@ -26,7 +26,7 @@ class SparkNode:
     
     def __post_init__(self):
         assert self.role in ['user', 'system', 'root'], self.role   # root 是虚拟根节点
-        assert self.action in ['root', 'input', 'output', 'plan', 'think', 'write_code', 'run_code'], self.action
+        assert self.action in ['root', 'input', 'output', 'plan', 'answer', 'write_code', 'run_code'], self.action
         assert self.state in ['ready', 'working', 'success', 'fail'], self.state
         self.childrens = self.childrens if self.childrens else []
 
@@ -177,8 +177,14 @@ class Scratch:
         if parent:
             if all([self.get_node(node_id).state == 'success' for node_id in parent.childrens]):
                 self.finish_node(parent)
+
+    def get_next_plan_node(self):
+        for node in self.spark_nodes.values():
+            if node.state in ['ready', 'working'] and node.action == 'plan':
+                return node
+        return None
     
-    def get_todo_node(self, node=None, action=None):
+    def get_todo_node(self, node=None):
         # 查找todo节点: 从根节点开始，找到最深的第一个ready或working的节点
         if node is None:
             node = self.get_node(0)
