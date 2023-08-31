@@ -4,9 +4,9 @@ import datetime
 from tinydb import TinyDB, Query
 from GeneralAgent.llm import prompt_call, cos_sim, embedding_fun
 import logging
-
-ConceptNodeTypes = ['input', 'output', 'thought', 'plan', 'action']
-ConceptNodeStates = ['ready', 'done', 'cancel', 'fail'] # 状态只能从ready转移到其他三个中去
+from dataclasses import dataclass
+from typing import List
+from datetime import datetime
 
 def _get_memory_importance_score(concept):
     """获取记忆的重要性评分"""
@@ -37,37 +37,45 @@ def get_memory_importance_score(concept):
 str2date = lambda x: datetime.datetime.now() if (x is None) else datetime.datetime.strptime(x, '%Y-%m-%d %H:%M:%S')
 date2str = lambda x: x.strftime('%Y-%m-%d %H:%M:%S')
 
-# 记忆节点
-class ConceptNode:
-    @classmethod
-    def from_dict(cls, dict):
-        return cls(dict['type'], dict['index'], dict['concept'], dict['priority'], dict['create_at'], dict['last_access'], dict['state'], dict['from_nodes'], dict['to_nodes'])
+ConceptNodeTypes = ['input', 'output', 'thought', 'plan', 'action']
+ConceptNodeStates = ['ready', 'done', 'cancel', 'fail'] # 状态只能从ready转移到其他三个中去
 
-    def __init__(self, type, index, concept, priority, create_at=None, last_access=None, state='done', from_nodes=[], to_nodes=[]):
+
+# 记忆节点
+@dataclass
+class ConceptNode:
+    type: str
+    state: str = 'done'
+    index: int
+    concept: str
+    priority: float
+    create_at: datetime = None
+    last_access: datetime = None
+    from_nodes: List[int] = None
+    to_nodes: List[int] = None
+
+    def __post_init__(self):
         # 验证
-        assert type in ConceptNodeTypes
-        assert state in ConceptNodeStates
-        if type == 'plan':
-            assert concept.startswith('[plan]') or concept.startswith('[action]') or concept.startswith('[response]')
-        # 赋值
-        self.type = type    # string: input, output, thought, plan, action
-        self.index = index  # 索引 int
-        self.concept = concept  # 概念 string
-        self.concept_embedding = embedding_fun(concept) # 概念embedding ([float])
-        self.priority = priority    # 重要性 (float: 0~10)
-        self.create_at = str2date(create_at) # 创建时间, string
-        self.last_access = str2date(last_access) # 最新访问时间, string。最近再次访问过，容易被提取
-        self.state = state  # 状态 string: ready、done、cancel
-        self.from_nodes = from_nodes        # 来源 [index]
-        self.to_nodes = to_nodes        # 被引用 -> 一般都是计划实行情况 [index]
+        assert self.type in ConceptNodeTypes
+        assert self.state in ConceptNodeStates
+        if self.type == 'plan': assert self.concept.startswith('[plan]') or self.concept.startswith('[action]') or self.concept.startswith('[response]')
+        self.concept_embedding = embedding_fun(self.concept) # 概念embedding ([float])
+        self.create_at = str2date(self.create_at)
+        self.last_access = str2date(self.last_access)
+        if self.from_nodes is None:
+            self.from_nodes = []
+        if self.to_nodes is None:
+            self.to_nodes = []
 
     def __str__(self) -> str:
         return f'[{self.type}] {self.index} {self.state} {self.create_at} {self.concept}'
     
     def to_save_dict(self):
         value_dict = self.__dict__.copy()
-        value_dict['create_at'] = date2str(value_dict['create_at'])
-        value_dict['last_access'] = date2str(value_dict['last_access'])
+        if value_dict['create_at'] is not None:
+            value_dict['create_at'] = date2str(value_dict['create_at'])
+        if value_dict['last_access'] is not None:
+            value_dict['last_access'] = date2str(value_dict['last_access'])
         value_dict.pop('concept_embedding')
         return value_dict
 
