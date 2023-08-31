@@ -123,6 +123,13 @@ class CodeWorkspace:
         # 保存现场
         self._save()
 
+    def new_user_input_data(self, input_data):
+        input_data_names = [x for x in self.locals.keys() if x.startswith('user_input_data_')]
+        index = len(input_data_names)
+        name = f'user_input_data_{index}'
+        self.set_variable(name, input_data)
+        return name
+
     def get_code_sheet(self):
         # 获取代码清单
         return '\n\n'.join([str(code_block) for code_block in self.code_block_list])

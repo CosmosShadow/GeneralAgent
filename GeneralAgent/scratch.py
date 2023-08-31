@@ -178,7 +178,7 @@ class Scratch:
             if all([self.get_node(node_id).state == 'success' for node_id in parent.childrens]):
                 self.finish_node(parent)
     
-    def get_todo_node(self, node=None):
+    def get_todo_node(self, node=None, action=None):
         # 查找todo节点: 从根节点开始，找到最深的第一个ready或working的节点
         if node is None:
             node = self.get_node(0)
