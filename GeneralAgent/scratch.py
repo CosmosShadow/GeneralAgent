@@ -33,7 +33,7 @@ class SparkNode:
     def start_work(self):
         self.state = 'working'
 
-    def finish_work(self):
+    def success_work(self):
         self.state = 'success'
 
     def fail_work(self):
@@ -51,29 +51,33 @@ class SparkNode:
 class Scratch:
     def __init__(self, file_path='./memory.json'):
         self.db = TinyDB(file_path)
-        self.spark_node_list = [SparkNode(**node) for node in self.db.all()]
+        nodes = [SparkNode(**node) for node in self.db.all()]
+        self.spark_nodes = dict(zip([node.node_id for node in nodes], nodes))
         # 添加虚拟根节点
-        if len(self.spark_node_list) == 0:
+        if len(self.spark_nodes) == 0:
             root_node = SparkNode.new_root()
-            self.spark_node_list.append(root_node)
+            self.spark_nodes[root_node.node_id] = root_node
             self.db.insert(root_node.__dict__)
 
+    def new_node_id(self):
+        return max(self.spark_nodes.keys()) + 1
+
     def node_count(self):
-        return len(self.spark_node_list) - 1
+        return len(self.spark_nodes) - 1
 
     def add_node(self, node):
         # 保持节点，不说明位置，默认添加到根节点下
         root_node = self.get_node(0)
-        node.node_id = len(self.spark_node_list)
+        node.node_id = self.new_node_id()
         node.parent = root_node.node_id
         root_node.childrens.append(node.node_id)
         self.update_node(root_node)
         self.db.insert(node.__dict__)
-        self.spark_node_list.append(node)
+        self.spark_nodes[node.node_id] = node
     
     def add_node_after(self, last_node, node):
         # 添加节点id & parent, last_node: 前面的node, node: 要添加的node
-        node.node_id = len(self.spark_node_list)
+        node.node_id = self.new_node_id()
         node.parent = last_node.parent
         # 更新父节点关系
         parent = self.get_node(node.parent) if node.parent else None
@@ -82,19 +86,19 @@ class Scratch:
             self.update_node(parent)
         # 保存自己: 数据库 + 内存
         self.db.insert(node.__dict__)
-        self.spark_node_list.append(node)
+        self.spark_nodes[node.node_id] = node
         return node
     
     def add_node_in(self, parent_node, node):
         # 添加节点id & parent
-        node.node_id = len(self.spark_node_list)
+        node.node_id = self.new_node_id()
         node.parent = parent_node.node_id
         # 更新父节点关系
         parent_node.childrens.append(node.node_id)
         self.update_node(parent_node)
         # 保存自己: 数据库 + 内存
         self.db.insert(node.__dict__)
-        self.spark_node_list.append(node)
+        self.spark_nodes[node.node_id] = node
         return node
     
     def delete_node(self, node, update_parent=True):
@@ -109,7 +113,7 @@ class Scratch:
             self.delete_node(children, update_parent=False)
         # 删除自己: 数据库删除 + 内存删除
         self.db.remove(Query().node_id == node.node_id)
-        self.spark_node_list.remove(node)
+        self.spark_nodes.pop(node.node_id)
 
     def delete_after_node(self, node):
         # 删除节点后面的所有节点
@@ -124,7 +128,7 @@ class Scratch:
             self.update_node(parent)
     
     def get_node(self, node_id):
-        return self.spark_node_list[node_id]
+        return self.spark_nodes[node_id]
     
     def update_node(self, node):
         self.db.update(node.__dict__, Query().node_id == node.node_id)
@@ -163,3 +167,28 @@ class Scratch:
     def __str__(self) -> str:
         lines = self.get_all_description_of_node(self.get_node(0), depth=-1)
         return '\n'.join(lines)
+    
+    def finish_node(self, node):
+        # 节点自己完成
+        node.success_work()
+        self.update_node(node)
+        # check父节点是否需要完成
+        parent = self.get_node(node.parent) if node.parent else None
+        if parent:
+            if all([self.get_node(node_id).state == 'success' for node_id in parent.childrens]):
+                self.finish_node(parent)
+    
+    def get_todo_node(self, node=None):
+        # 查找todo节点: 从根节点开始，找到最深的第一个ready或working的节点
+        if node is None:
+            node = self.get_node(0)
+        if node.state in ['ready', 'working']:
+            for node_id in node.childrens:
+                child_todo_node = self.get_todo_node(self.get_node(node_id))
+                if child_todo_node is not None:
+                    return child_todo_node
+            if node.is_root():
+                return None
+            return node
+        else:
+            return None

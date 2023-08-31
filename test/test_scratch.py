@@ -38,18 +38,27 @@ def test_scratch():
     # 重新加载验证
     scratch = None
     scratch = Scratch()
-    # print(scratch)
+    print(scratch)
     assert_init_state(scratch)
     description_2 = str(scratch)
     assert description_1 == description_2
 
+    # 输出节点环境
     env = scratch.get_node_enviroment(node2)
+    print(env)
 
+    # 测试获取todo节点
+    todo_node = scratch.get_todo_node()
+    assert todo_node.node_id == 2
+
+    scratch.finish_node(todo_node)
+    assert scratch.get_todo_node().node_id == 3
+
+    # 删除节点
     scratch.delete_node(node3)
     assert scratch.node_count() == 3
     scratch.delete_after_node(node2)
     assert scratch.node_count() == 2
-
     
     if os.path.exists(file_path):
         os.remove(file_path)
