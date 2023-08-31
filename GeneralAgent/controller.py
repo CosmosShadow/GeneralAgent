@@ -37,23 +37,15 @@ class Controller:
             node = self.scratch.get_todo_node()
             if node is not None:
                 if node.type in ['input', 'plan']:
-                    self.plan(node)
-                    continue
+                    self.plan(node); continue
                 if node.type == 'output':
                     return self.output(node)
                 if node.type == 'answer':
-                    self.answer(node)
-                    continue
+                    self.answer(node); continue
                 if node.type == 'write_code':
-                    self.write_code(node)
-                    continue
+                    self.write_code(node); continue
                 if node.type == 'run_code':
-                    success, sys_stdio = self.run_code(node)
-                    if not success:
-                        new_node = SparkNode('system', 'plan', task='代码运行报错', input=sys_stdio, output=None)
-                        self.scratch.add_node_after(new_node, node)
-                        print('Error: run code fail')
-                    continue
+                    self.run_code(node); continue
                 assert False, f'未知的节点类型: {node.type}'
             else:
                 print('Error: no todo node')
@@ -97,14 +89,35 @@ class Controller:
         # 保存代码
         self.code_workspace.set_variable(node.output, code)
 
+        # TODO: 可能写不成功
+        success = True
+        reason = 'xxxxx'
+    
+        if success:
+            self.scratch.success_node(node)
+        else:
+            self.scratch.fail_node(node)
+            input = self.code_workspace.new_variable(reason)
+            new_node = SparkNode('system', 'plan', task='写代码报错', input=input, output=None)
+            self.scratch.add_node_after(new_node, node)
+            print('Error: write code fail')
+
     def run_code(self, node):
         # 提取代码
         code = self.code_workspace.get_variable(node.input)
         # 运行代码
         success, sys_stdio = self.code_workspace.run_code(code.task, code)
         # TODO: 如果失败，最多修复2次
-        # 添加新的节点不？
-        return success, sys_stdio
+
+        # 更新状态
+        if success:
+            self.scratch.success_node(node)
+        else:
+            self.scratch.fail_node(node)
+            input = self.code_workspace.new_variable(sys_stdio)
+            new_node = SparkNode('system', 'plan', task='代码运行报错', input=input, output=None)
+            self.scratch.add_node_after(new_node, node)
+            print('Error: run code fail')
 
     # def code_generate(self, command):
     #     # 根据命令，生成执行的代码

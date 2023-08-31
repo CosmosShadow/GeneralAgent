@@ -168,7 +168,7 @@ class Scratch:
         lines = self.get_all_description_of_node(self.get_node(0), depth=-1)
         return '\n'.join(lines)
     
-    def finish_node(self, node):
+    def success_node(self, node):
         # 节点自己完成
         node.success_work()
         self.update_node(node)
@@ -176,7 +176,12 @@ class Scratch:
         parent = self.get_node(node.parent) if node.parent else None
         if parent:
             if all([self.get_node(node_id).state == 'success' for node_id in parent.childrens]):
-                self.finish_node(parent)
+                self.success_node(parent)
+
+    def fail_node(self, node):
+        # 节点失败
+        node.fail_work()
+        self.update_node(node)
 
     def get_next_plan_node(self):
         for node in self.spark_nodes.values():

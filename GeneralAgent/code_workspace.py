@@ -123,10 +123,11 @@ class CodeWorkspace:
         # 保存现场
         self._save()
 
-    def new_user_input_data(self, input_data):
-        input_data_names = [x for x in self.locals.keys() if x.startswith('user_input_data_')]
+    def new_variable(self, input_data):
+        prefix = 'input_data_'
+        input_data_names = [x for x in self.locals.keys() if x.startswith('prefix')]
         index = len(input_data_names)
-        name = f'user_input_data_{index}'
+        name = f'{prefix}{index}'
         self.set_variable(name, input_data)
         return name
 
