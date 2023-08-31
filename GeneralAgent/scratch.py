@@ -1,37 +1,35 @@
 # 短期记忆(short-term memory)
-
+from dataclasses import dataclass
+from typing import List
 from tinydb import TinyDB, Query
 
 # 思维火花节点
+@dataclass
 class SparkNode:
-
-    @classmethod
-    def from_dict(cls, dict):
-        return cls(dict['node_id'], dict['role'], dict['action'], dict['state'], dict['task'], dict['input'], dict['output'], dict['parent'], dict['childrens'])
-
-    def __init__(self, node_id, role, action, state, task, input, output, parent=None, childrens=[]):
-        assert role in ['user', 'system', 'root']   # root 是虚拟根节点
-        assert action in ['input', 'output', 'plan', 'think', 'write_code', 'run_code']
-        assert state in ['ready', 'working', 'success', 'fail']
-        self.node_id = node_id
-        self.role = role
-        self.action = action
-        self.state = state
-        self.task = task
-        self.input = input
-        self.output = output
-        self.parent = parent
-        self.childrens = childrens
+    node_id: int
+    role: str
+    action: str
+    state: str
+    task: str
+    input: str
+    output: str
+    parent: int = None
+    childrens: List[int] = []
 
     def __str__(self):
         return f'role: {self.role}, action: {self.action}, state: {self.state}, task: {self.task}, input: {self.input}, output: {self.output}'
+    
+    def __post_init__(self):
+        assert self.role in ['user', 'system', 'root']   # root 是虚拟根节点
+        assert self.action in ['input', 'output', 'plan', 'think', 'write_code', 'run_code']
+        assert self.state in ['ready', 'working', 'success', 'fail']
 
 
 # 短期记忆
 class Scratch:
     def __init__(self, file_path='./memory.json'):
         self.db = TinyDB(file_path)
-        self.spark_node_list = [SparkNode(node) for node in self.db.all()]
+        self.spark_node_list = [SparkNode(**node) for node in self.db.all()]
         # 添加虚拟根节点
         if len(self.spark_node_list) == 0:
             self.add_node('root', 'input', 'ready', 'init', '', '', None, [])
