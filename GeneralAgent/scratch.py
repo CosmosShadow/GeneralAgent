@@ -6,23 +6,45 @@ from tinydb import TinyDB, Query
 # 思维火花节点
 @dataclass
 class SparkNode:
-    node_id: int
     role: str
     action: str
-    state: str
-    task: str
-    input: str
-    output: str
+    state: str = 'ready'
+
+    task: str = ''
+    input: str = None
+    output: str = None
+
+    node_id: int = None
     parent: int = None
-    childrens: List[int] = []
+    childrens: List[int] = None
 
     def __str__(self):
         return f'role: {self.role}, action: {self.action}, state: {self.state}, task: {self.task}, input: {self.input}, output: {self.output}'
     
+    def __repr__(self):
+        return str(self)
+    
     def __post_init__(self):
-        assert self.role in ['user', 'system', 'root']   # root 是虚拟根节点
-        assert self.action in ['input', 'output', 'plan', 'think', 'write_code', 'run_code']
-        assert self.state in ['ready', 'working', 'success', 'fail']
+        assert self.role in ['user', 'system', 'root'], self.role   # root 是虚拟根节点
+        assert self.action in ['root', 'input', 'output', 'plan', 'think', 'write_code', 'run_code'], self.action
+        assert self.state in ['ready', 'working', 'success', 'fail'], self.state
+        self.childrens = self.childrens if self.childrens else []
+
+    def start_work(self):
+        self.state = 'working'
+
+    def finish_work(self):
+        self.state = 'success'
+
+    def fail_work(self):
+        self.state = 'fail'
+
+    def is_root(self):
+        return self.role == 'root'
+    
+    @classmethod
+    def new_root(cls):
+        return cls(node_id=0, role='root', action='root', state='ready', task='', input='', output='', parent=None, childrens=[])
 
 
 # 短期记忆
@@ -32,13 +54,47 @@ class Scratch:
         self.spark_node_list = [SparkNode(**node) for node in self.db.all()]
         # 添加虚拟根节点
         if len(self.spark_node_list) == 0:
-            self.add_node('root', 'input', 'ready', 'init', '', '', None, [])
-    
-    def add_node(self, role, action, state, task, input, output, parent, childrens):
-        # TODO: parent和childrens需要设置
-        node_id = len(self.spark_node_list)
-        node = SparkNode(node_id, role, action, state, task, input, output, parent, childrens)
+            root_node = SparkNode.new_root()
+            self.spark_node_list.append(root_node)
+            self.db.insert(root_node.__dict__)
+
+    def node_count(self):
+        return len(self.spark_node_list) - 1
+
+    def add_node(self, node):
+        # 保持节点，不说明位置，默认添加到根节点下
+        root_node = self.get_node(0)
+        node.node_id = len(self.spark_node_list)
+        node.parent = root_node.node_id
+        root_node.childrens.append(node.node_id)
+        self.update_node(root_node)
         self.db.insert(node.__dict__)
+        self.spark_node_list.append(node)
+    
+    def add_node_after(self, last_node, node):
+        # 添加节点id & parent, last_node: 前面的node, node: 要添加的node
+        node.node_id = len(self.spark_node_list)
+        node.parent = last_node.parent
+        # 更新父节点关系
+        parent = self.get_node(node.parent) if node.parent else None
+        if parent:
+            parent.childrens.insert(parent.childrens.index(last_node.node_id)+1, node.node_id)
+            self.update_node(parent)
+        # 保存自己: 数据库 + 内存
+        self.db.insert(node.__dict__)
+        self.spark_node_list.append(node)
+        return node
+    
+    def add_node_in(self, parent_node, node):
+        # 添加节点id & parent
+        node.node_id = len(self.spark_node_list)
+        node.parent = parent_node.node_id
+        # 更新父节点关系
+        parent_node.childrens.append(node.node_id)
+        self.update_node(parent_node)
+        # 保存自己: 数据库 + 内存
+        self.db.insert(node.__dict__)
+        self.spark_node_list.append(node)
         return node
     
     def delete_node(self, node, update_parent=True):
@@ -51,8 +107,21 @@ class Scratch:
         childrens = [self.get_node(node_id) for node_id in node.childrens]
         for children in childrens:
             self.delete_node(children, update_parent=False)
-        # 删除自己
+        # 删除自己: 数据库删除 + 内存删除
         self.db.remove(Query().node_id == node.node_id)
+        self.spark_node_list.remove(node)
+
+    def delete_after_node(self, node):
+        # 删除节点后面的所有节点
+        parent = self.get_node(node.parent) if node.parent else None
+        if parent:
+            brothers = [self.get_node(node_id) for node_id in parent.childrens]
+            right_brothers = brothers[brothers.index(node)+1:]
+            for right_brother in right_brothers:
+                self.delete_node(right_brother, update_parent=False)
+                parent.childrens.remove(right_brother.node_id)
+            # 更新父节点
+            self.update_node(parent)
     
     def get_node(self, node_id):
         return self.spark_node_list[node_id]
@@ -65,7 +134,8 @@ class Scratch:
         lines = []
         parent = self.get_node(node.parent) if node.parent else None
         if parent:
-            lines.append(f'parent: {str(parent)}')
+            if not parent.is_root():
+                lines.append(f'parent: {str(parent)}')
             brothers = [self.get_node(node_id) for node_id in parent.childrens]
             left_brothers = brothers[:brothers.index(node)]
             right_brothers = brothers[brothers.index(node)+1:]
@@ -77,4 +147,19 @@ class Scratch:
         childrens = [self.get_node(node_id) for node_id in node.childrens]
         for children in childrens:
             lines.append(f'children: {str(children)}')
+        return '\n'.join(lines)
+    
+    def get_all_description_of_node(self, node, intend_char='    ', depth=0):
+        # 获取节点描述，包括子节点
+        lines = []
+        description = intend_char * depth + str(node)
+        if not node.is_root():
+            lines += [description]
+        for children_id in node.childrens:
+            children = self.get_node(children_id)
+            lines += self.get_all_description_of_node(children, intend_char, depth+1)
+        return lines
+    
+    def __str__(self) -> str:
+        lines = self.get_all_description_of_node(self.get_node(0), depth=-1)
         return '\n'.join(lines)
