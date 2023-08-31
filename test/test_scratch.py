@@ -44,6 +44,7 @@ def test_scratch():
     assert description_1 == description_2
 
     # 输出节点环境
+    node2 = scratch.get_node(2)
     env = scratch.get_node_enviroment(node2)
     print(env)
 
