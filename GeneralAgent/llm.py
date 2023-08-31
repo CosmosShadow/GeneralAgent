@@ -162,6 +162,7 @@ Response Format example: \n"""
 
 def prompt_call(prompt, variables, json_schema=None, force_run=False, think_deep=False):
     # 通过prompt将大模型异化成为函数，并可以通过json_schema返回格式化数据
+    prompt = prompt.strip()
     prompt = translate_eng(prompt)
     prompt = Template(prompt).render(**variables)
     if json_schema is not None:

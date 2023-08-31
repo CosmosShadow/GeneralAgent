@@ -1,8 +1,11 @@
 # 控制器
 # 用于控制整个系统的运行
 from memory import Memory, ConceptNode
+from scratch import Scratch, SparkNode
 from code import CodeWorkspace
 from tools import Tools
+from llm import prompt_call
+from prompts import write_code_prompt
 
 
 class Controller:
@@ -10,32 +13,42 @@ class Controller:
         # workspace: 工作空间
         self.workspace = workspace
         self.memory = Memory(f'{workspace}/memory.json')
+        self.scratch = Scratch(f'{workspace}/scratch.json')
         self.code_workspace = CodeWorkspace(f'{workspace}/code.bin')
         self.tools = Tools()
 
-    def input(self, user_input):
+    def run(self, input_data):
         pass
 
-    def _run_command(self, command):
-        # 输入命令(string)，生成代码并执行
-        retry_count = 3
-        # 生成代码
-        code = self._code_generate(command)
-        # 检查&修复代码
-        for index in range(retry_count):
-            check_success = self._code_check(command, code)
-            if check_success: break
-            if index == retry_count - 1: return False
-            code = self._code_fix(code, command=command)
-        # 执行代码&修复代码
-        for index in range(retry_count):
-            run_success, sys_stdio = self.code_workspace.run_code(command, code)
-            if run_success: break
-            if index == retry_count - 1: return False
-            code = self._code_fix(code, command=command, error=sys_stdio)
-        return run_success
+    # 'root', 'input', 'output', 'plan', 'think', 'write_code', 'run_code'
+    def input(self, node):
+        pass
 
-    def _code_generate(self, command):
+    def output(self, node):
+        pass
+
+    def plan(self, node):
+        pass
+
+    def think(self, node):
+        pass
+
+    def write_code(self, node):
+        # 写代码
+        node_env = self.scratch.get_node_enviroment(node)
+        variables = {'task': node.task, 'node_env': node_env}
+        code = prompt_call(write_code_prompt, variables, think_deep=True)
+        # 保存代码
+        self.code_workspace.set_variable(node.output, code)
+
+    def run_code(self, node):
+        # 提取代码
+        code = self.code_workspace.get_variable(node.input)
+        # 运行代码
+        run_success, sys_stdio = self.code_workspace.run_code(code.task, code)
+        return run_success, sys_stdio
+
+    def code_generate(self, command):
         # 根据命令，生成执行的代码
         # TODO
         code = ''

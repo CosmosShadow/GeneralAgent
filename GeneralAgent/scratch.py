@@ -49,7 +49,7 @@ class SparkNode:
 
 # 短期记忆
 class Scratch:
-    def __init__(self, file_path='./memory.json'):
+    def __init__(self, file_path='./scratch.json'):
         self.db = TinyDB(file_path)
         nodes = [SparkNode(**node) for node in self.db.all()]
         self.spark_nodes = dict(zip([node.node_id for node in nodes], nodes))

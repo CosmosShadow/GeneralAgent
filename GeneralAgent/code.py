@@ -123,7 +123,6 @@ class CodeWorkspace:
         # 保存现场
         self._save()
 
-
     def get_code_sheet(self):
         # 获取代码清单
         return '\n\n'.join([str(code_block) for code_block in self.code_block_list])
