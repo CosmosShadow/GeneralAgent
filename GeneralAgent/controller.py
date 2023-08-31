@@ -17,21 +17,9 @@ class Controller:
         self.code_workspace = CodeWorkspace(f'{workspace}/code.bin')
         self.tools = Tools()
 
-    # 'root', 'input', 'output', 'plan', 'think', 'write_code', 'run_code'
-
     def run(self, task, input_data=None, for_node_id=None):
         # 新增输入节点
         self.input(task, input_data, for_node_id)
-
-        # 不应该那么早执行plan: plan只是占位，由于output后用户输入，后面可能会调整plan
-        # # 计划
-        # while True:
-        #     plan_node = self.scratch.get_next_plan_node()
-        #     if plan_node is None:
-        #         break
-        #     else:
-        #         self.plan(plan_node)
-        
         # 运行
         while True:
             node = self.scratch.get_todo_node()
@@ -86,9 +74,9 @@ class Controller:
         node_env = self.scratch.get_node_enviroment(node)
         variables = {'task': node.task, 'node_env': node_env}
         code = prompt_call(write_code_prompt, variables, think_deep=True)
+        # TODO: 复合check一遍
         # 保存代码
         self.code_workspace.set_variable(node.output, code)
-
         # TODO: 可能写不成功
         success = True
         reason = 'xxxxx'
@@ -118,19 +106,3 @@ class Controller:
             new_node = SparkNode('system', 'plan', task='代码运行报错', input=input, output=None)
             self.scratch.add_node_after(new_node, node)
             print('Error: run code fail')
-
-    # def code_generate(self, command):
-    #     # 根据命令，生成执行的代码
-    #     # TODO
-    #     code = ''
-    #     return code
-
-    # def _code_check(self, command, code):
-    #     # TODO: 
-    #     # 验证代码是否可以执行，有没有什么问题
-    #     return True
-    
-    # def _code_fix(self, code, command=None, error=None):
-    #     # TODO: 
-    #     # 根据command，修复代码
-    #     return code
