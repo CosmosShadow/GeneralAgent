@@ -24,7 +24,7 @@ class Controller:
     def run(self, content, input_data=None, for_node_id=None, step_count=None):
         # 运行
         step = 0
-        if content is None:
+        if content is not None:
             # 新增输入节点
             self.input(content, input_data, for_node_id)
             step += 1
@@ -36,30 +36,31 @@ class Controller:
         while True:
             node = self.scratch.get_todo_node()
             if node is not None:
-                if node.type in ['input', 'plan']:
+                if node.action in ['input', 'plan']:
                     self.plan(node); 
                     step += 1; 
                     if step_count is not None and step == step_count: return
                     continue
-                if node.type == 'output':
+                if node.action == 'output':
                     return self.output(node)
-                if node.type == 'answer':
+                if node.action == 'answer':
                     self.answer(node); 
                     step += 1
                     if step_count is not None and step == step_count: return
                     continue
-                if node.type == 'write_code':
+                if node.action == 'write_code':
                     step += 1
                     if step_count is not None and step == step_count: return
                     self.write_code(node); continue
-                if node.type == 'run_code':
+                if node.action == 'run_code':
                     self.run_code(node); 
                     step += 1
                     if step_count is not None and step == step_count: return
                     continue
-                assert False, f'未知的节点类型: {node.type}'
+                assert False, f'未知的节点类型: {node.action}'
             else:
                 print('Error: no todo node')
+                print(self.scratch)
                 return '抱歉，发生错误。\n请问有什么可以帮你的吗？'
 
     def input(self, content, input_data=None, for_node_id=None):
@@ -88,12 +89,12 @@ class Controller:
 
     def plan(self, node):
         variables = {
-            'content': str(node), 
-            'old_plan': self.scratch.get_node_enviroment(),
+            'task': str(node), 
+            'old_plan': self.scratch.get_node_enviroment(node),
             'next_input_name': self.code_workspace.next_input_name(), 
             'next_output_name': self.code_workspace.next_output_name()
         }
-        new_plans = prompt_call(plan_prompt, plan_prompt_json_schema, variables, think_deep=True)
+        new_plans = prompt_call(plan_prompt, variables, plan_prompt_json_schema, force_run=True, think_deep=True)
         # TODO: 更新计划
 
     def answer(self, node):

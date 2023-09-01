@@ -44,6 +44,8 @@ def _llm_inference_messages(messages, think_deep=False):
         model = 'gpt-3.5-turbo-16k'
 
     print('\n' + '-' * 50 + f'<{model}>' + '-' * 50)
+    for message in messages:
+        print(f'[{message["role"]}] {message["content"]}')
 
     openai.api_key = OPENAI_API_KEY
     if model.startswith('gpt-4'):
@@ -52,10 +54,7 @@ def _llm_inference_messages(messages, think_deep=False):
     response = openai.ChatCompletion.create(model=model, messages=messages)
     result = response['choices'][0]['message']['content'].strip()
     
-    for message in messages:
-        print(f'[{message["role"]}] {message["content"]}')
     print(f'[response] {result}')
-
     print('-' * 50 + f'</{model}>' + '-' * 50 + '\n')
     
     return result
