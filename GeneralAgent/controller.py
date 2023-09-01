@@ -100,17 +100,25 @@ class Controller:
         # 更新计划
         self.scratch.update_plans(node, position, new_plans)
 
-    def answer(self, node):
-        pass
-
     def write_code(self, node):
         # 写代码
-        node_env = self.scratch.get_node_enviroment(node)
-        variables = {'content': node.content, 'node_env': node_env}
+        node_enviroment = self.scratch.get_node_enviroment(node)
+        python_libs = '\n'.join(['requests'])
+        functions = [
+            'google_search() # ',
+            
+        ]
+        python_funcs = '\n'.join(['google_search', 'wikipedia_search', 'scrape_web'])
+        variables = {
+            'python_libs': python_libs,
+            'python_funcs': python_funcs,
+            'task': node.content,
+            'task_enviroment': node_enviroment,
+            }
         code = prompt_call(write_code_prompt, variables, think_deep=True)
         # TODO: 复合check一遍
         # 保存代码
-        self.code_workspace.set_variable(node.output, code)
+        self.code_workspace.set_variable(node.output_name, code)
         # TODO: 可能写不成功
         success = True
         reason = 'xxxxx'
