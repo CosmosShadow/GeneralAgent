@@ -178,11 +178,15 @@ class Scratch:
         # 节点自己完成
         node.success_work()
         self.update_node(node)
-        # check父节点是否需要完成
+        # 父节点的最后一个节点
         parent = self.get_node_parent(node)
-        if parent:
-            if all([self.get_node(node_id).state == 'success' for node_id in parent.childrens]):
-                self.success_node(parent)
+        if parent and (not parent.is_root()) and (parent.childrens[-1] == node.node_id):
+            # 更新父节点的output值
+            if parent.action == 'output':
+                parent.output_name = node.input_name
+            else:
+                parent.output_name = node.output_name
+            self.success_node(parent)
 
     def fail_node(self, node):
         # 节点失败

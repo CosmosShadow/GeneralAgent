@@ -84,7 +84,7 @@ def llm_inference(prompt, force_run, think_deep=False):
     return llm_inference_messages(messages, force_run=force_run, think_deep=think_deep)
 
 def _translate_eng(text, force_run=False):
-    system_prompt = [{"role": "system", "content": f"You are a translator, translate the user's input to english. Do not translate the text {{{{}}}}"}]
+    system_prompt = [{"role": "system", "content": f"You are a translator, translate text below to english. Do not translate {{{{}}}}."}]
     messages = system_prompt + [{"role": "user", "content": text}]
     result = llm_inference_messages(messages, force_run=force_run)
     return result
