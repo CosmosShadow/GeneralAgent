@@ -8,6 +8,16 @@ from playwright.sync_api import sync_playwright
 from GeneralAgent.keys import SERPER_API_KEY
 
 def google_search(query):
+    """
+    google search with query, return a result in dict.
+    return:
+    {
+        "knowledgeGraph": {"title": "", "type": "", "website": "", "imageUrl": "", "description": "", "descriptionSource": "", "descriptionLink": "", "attributes": {"x": "x"}},
+        "organic": [{"title": "", "link": "", "snippet": "", "sitelinks": [{"title": "","link": ""}],"position": 1},{"title": "x", "link": "x", "snippet": "x","position": 2}],
+        "peopleAlsoAsk": [{"question": "","snippet": "","title": "","link": ""}],
+        "relatedSearches": [{"query": ""}]
+    }
+    """
     # 返回一个可以被json.loads加载的字符串
     url = "https://google.serper.dev/search"
     payload = json.dumps({"q": query})
@@ -111,7 +121,10 @@ def scrape_web(url: str) -> str:
 
 class Tools():
     def __init__(self):
-        self.funs = {}
-        self.funs['google_search'] = google_search
-        self.funs['wikipedia_search'] = wikipedia_search
-        self.funs['scrape_web'] = scrape_web
+        self.funs = []
+
+    def add_funs(self, funs):
+        self.funs += funs
+
+    def get_funs_description(self):
+        return [f.__doc__ for f in self.funs]

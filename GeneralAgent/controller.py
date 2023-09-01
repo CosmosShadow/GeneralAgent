@@ -105,8 +105,7 @@ class Controller:
         node_enviroment = self.scratch.get_node_enviroment(node)
         python_libs = '\n'.join(['requests'])
         functions = [
-            'google_search() # ',
-            
+            'google_search',
         ]
         python_funcs = '\n'.join(['google_search', 'wikipedia_search', 'scrape_web'])
         variables = {
