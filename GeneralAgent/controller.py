@@ -5,7 +5,7 @@ from scratch import Scratch, SparkNode
 from code_workspace import CodeWorkspace
 from tools import Tools
 from llm import prompt_call
-from prompts import write_code_prompt
+from prompts import plan_prompt, plan_prompt_json_schema, write_code_prompt
 
 
 class Controller:
@@ -51,7 +51,7 @@ class Controller:
             # 使用after，而不是in: in会造成过多的嵌套，且不好处理退出到上一级
             self.scratch.add_node_after(node, for_node)
             # 输入内容保存到上次输出节点的输出中
-            self.code_workspace.set_variable(for_node.output, input_data)
+            # self.code_workspace.set_variable(for_node.output, input_data)
         return node
 
     def output(self, node):
@@ -64,7 +64,14 @@ class Controller:
         return self.code_workspace.get_variable(node.input)
 
     def plan(self, node):
-        pass
+        variables = {
+            'task': node.task, 
+            'old_plan': self.scratch.get_node_enviroment(),
+            'next_input_name': self.code_workspace.next_input_name(), 
+            'next_output_name': self.code_workspace.next_output_name()
+        }
+        new_plans = prompt_call(plan_prompt, plan_prompt_json_schema, variables, think_deep=True)
+        # TODO
 
     def answer(self, node):
         pass

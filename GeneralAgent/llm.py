@@ -162,11 +162,10 @@ Response Format example: \n"""
 
 def prompt_call(prompt, variables, json_schema=None, force_run=False, think_deep=False):
     # 通过prompt将大模型异化成为函数，并可以通过json_schema返回格式化数据
-    prompt = prompt.strip()
-    prompt = translate_eng(prompt)
+    prompt = translate_eng(prompt.strip())
     prompt = Template(prompt).render(**variables)
     if json_schema is not None:
-        prompt += return_json_prompt + json_schema
+        prompt += return_json_prompt + json_schema.strip()
         result = llm_inference(prompt, force_run=force_run, think_deep=think_deep)
         return json.loads(fix_llm_json_str(result))
     else:

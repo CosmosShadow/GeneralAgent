@@ -1,23 +1,49 @@
 # --------------------------------------plan prompt--------------------------------------
 plan_prompt = \
 """
-你是一个计划制定者，根据任务和任务的上下文，制定一份计划
-计划由多个任务组成，每个任务包含以下参数:
+你是一个计划制定者，根据任务和任务的上下文计划，更新计划。
 
-role: str = 'user' | 'system' | 'root'
-action: str = 'input' | 'output' | 'plan' | 'answer' | 'write_code' | 'run_code'
-state: str = 'ready' | 'working' | 'success' | 'fail'
-task: str = '' # 任务描述
-input: str = None   # 输入内容的变量名称
-output: str = None  # 输出内容的变量名称
+# 任务参数:
+role: str = 'user' | 'system' | 'root'  # 任务的角色
+action: str = 'input' | 'output' | 'plan' | 'write_code' | 'run_code' # 功能类型
+state: str = 'ready' | 'working' | 'success' | 'fail' # 任务状态
+content: str = '' # 任务内容
+input_name: str = None   # 任务的输入，是变量名称
+output_name: str = None # 任务的输出，是变量名称
 
-action包含以下6种类型:
-# input: 接收用户的输入。该功能是被动的，只有用户输入时，才会触发，不能包含在计划中。
-# output: 输出内容给用户，内容可以是答案，也可以是咨询用户一些问题，输出内容给用户后，用户可以输入，输入内容会被保存到output的变量中。
-# plan: 根据任务，制定计划，主要用于一些比较整块的任务占位。运算plan时，会根据任务的上下文，利用所有技能(不包括input)来制定计划并自动执行。
-# answer: 通过大语言模型来回答问题。大语言模型是一个通用的推理器，给它一个问题，就会返回答案。限制是问题和回答加在一起，长度不能超过7000个单词。
-# write_code: 编写python代码，代码可以被run_code运行。代码可以直接访问task的input、output变量。
-# run_code: 在执行器中运行代码，执行器是有状态的，包括各个功能的输入和输出、代码执行的中间变量和函数。
+# 任务的action属性
+* input: 用户输入，被动功能，只有用户输入时，才会触发，不能包含在更新计划中。write_code中的代码、其他任务的参数，都可以直接访问input_name来获取值。
+* output: 输出content或者input_name的值给用户。content是直接回复用户，可能是答案，也可能是询问让用户来澄清需求；input_name是回复input_name的值。
+* plan: 根据content以及它所在的上下文计划，更新计划。
+* write_code: 根据content和任务所在的上下文计划，智能编写python代码。代码保存在output_name中，后续可被run_code运行。当
+* run_code: 在python执行器中运行代码(input_name的值)。
+
+# python执行器说明:
+* python执行器是联网的，可以通过各种库或者提供的函数，访问网络资源，如数据库、文件、网络等。
+* python执行器是有状态的，每次执行的代码可以访问和改写之前执行代码的变量、函数等。
+* python执行器是有限制的，不能访问和改写系统的变量、函数等。
+
+# 任务的input_name、output_name属性
+* input_name和output_name，可以直接通过名字，在其他任务中通过input_name、output_name，和write_code中的代码直接访问。
+* input_name的命名规则是: input_data_%d，最新可用的是: {{next_input_name}}
+* output_name的命名规则是: output_data_%d，最新可用的是{{next_output_name}}
+
+任务内容:
+```
+{{task}}
+```
+
+任务的上下文计划是:
+```
+{{old_plan}}
+```
+
+请只返回计划，不要返回任何其他内容
+
+"""
+
+plan_prompt_json_schema = \
+"""
 
 """
 
