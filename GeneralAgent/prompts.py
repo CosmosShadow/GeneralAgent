@@ -10,8 +10,8 @@ role: str = 'user' | 'system' | 'root'  # 任务的角色
 action: str = 'input' | 'output' | 'plan' | 'write_code' | 'run_code' # 功能类型
 state: str = 'ready' | 'working' | 'success' | 'fail' # 任务状态，新计划的state只能是ready，其他状态只能由系统更新
 content: str = '' # 任务内容
-input_name: str = None   # 任务的输入，是变量名称
-output_name: str = None # 任务的输出，是变量名称
+input_name: str = null   # 任务的输入，是变量名称
+output_name: str = null # 任务的输出，是变量名称
 
 # 任务的action
 * input: 用户输入，被动功能，只有用户输入时，才会触发，不能包含在更新计划中。write_code中的代码、其他任务的参数，都可以直接访问input_name来获取值。
@@ -39,14 +39,14 @@ output_name: str = None # 任务的输出，是变量名称
 ```
 
 新计划只能是被依次执行的一个列表，不能出现嵌套。当子任务非常复杂，使用atcion='plan'的子任务，未来会被计划和拆分运行。
-新计划，将会被添加到当前任务的后续(side)，或者当前任务的里面(inner)，使用position标识。原有的后续将会被删除，或者原有的里面将会被清空。
+新计划，将会被添加到当前任务的后续(after)，或者当前任务的里面(inner)，使用position标识。原有的后续将会被删除，或者原有的里面将会被清空。
 请只返回新计划列表(new_plans)，不要返回任何其他内容。
 由于新计划默认是ready状态，user是system，所以不需要返回state、user属性。
 """
 
 plan_prompt_json_schema = \
 """
-{'position': 'inner' | 'side', 'new_plans': [{'action': 'xxx', 'content': 'xxx', 'input_name': None | 'xxx', 'output_name': None | 'xxxx'}]}
+{"position": "inner" | "after", "new_plans": [{"action": "xxx", "content": "xxx", "input_name": null | "xxx", "output_name": null | "xxxx"}]}
 """
 
 # --------------------------------------write code prompt--------------------------------------

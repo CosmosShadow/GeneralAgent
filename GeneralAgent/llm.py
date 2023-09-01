@@ -67,6 +67,9 @@ def llm_inference_messages(messages, force_run=False, think_deep=False):
         result = llm_cache.get(key)
         if result is not None:
             return result
+        else:
+            print('no cache hitted')
+    print('key: ', key)
     result = _llm_inference_messages(messages, think_deep=think_deep)
     llm_cache.set(key, result)
     return result
@@ -139,14 +142,8 @@ def fix_llm_json_str(string):
                 return new_string
             except Exception as e:
                 print("fix_llm_json_str failed 3:", e)
-                
-                ctx = [{
-                    "role": "system",
-                    "content": """Do not change the specific content, fix the json, directly return the repaired JSON, without any explanation and dialogue.
-                    ```
-                    """+new_string+"""
-                    ```"""
-                }]
+                content = f"""Do not change the specific content, fix the json, directly return the repaired JSON (can be load by json.loads in Python), without any explanation and dialogue.\n```\n{new_string}\ n```"""
+                ctx = [{"role": "system", "content": content}]
 
                 message = llm_inference_messages(ctx, force_run=True)
                 pattern = r'```json(.*?)```'

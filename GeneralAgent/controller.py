@@ -94,8 +94,11 @@ class Controller:
             'next_input_name': self.code_workspace.next_input_name(), 
             'next_output_name': self.code_workspace.next_output_name()
         }
-        new_plans = prompt_call(plan_prompt, variables, plan_prompt_json_schema, force_run=True, think_deep=True)
-        # TODO: 更新计划
+        result = prompt_call(plan_prompt, variables, plan_prompt_json_schema, force_run=False, think_deep=True)
+        position = result['position']
+        new_plans = result['new_plans']
+        # 更新计划
+        self.scratch.update_plans(node, position, new_plans)
 
     def answer(self, node):
         pass

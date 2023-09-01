@@ -19,7 +19,7 @@ class SparkNode:
     childrens: List[int] = None
 
     def __str__(self):
-        return f'role: {self.role}, action: {self.action}, state: {self.state}, content: {self.content}, input: {self.input}, output: {self.output}'
+        return f'role: {self.role}, action: {self.action}, state: {self.state}, content: {self.content}, input: {self.input}, output: {self.output}, parent: {self.parent}'
     
     def __repr__(self):
         return str(self)
@@ -80,7 +80,7 @@ class Scratch:
         node.node_id = self.new_node_id()
         node.parent = last_node.parent
         # 更新父节点关系
-        parent = self.get_node(node.parent) if node.parent else None
+        parent = self.get_node_parent(node)
         if parent:
             parent.childrens.insert(parent.childrens.index(last_node.node_id)+1, node.node_id)
             self.update_node(parent)
@@ -103,7 +103,7 @@ class Scratch:
     
     def delete_node(self, node, update_parent=True):
         # 删除父节点关系
-        parent = self.get_node(node.parent) if node.parent else None
+        parent = self.get_node_parent(node)
         if parent and update_parent:
             parent.childrens.remove(node.node_id)
             self.update_node(parent)
@@ -117,7 +117,7 @@ class Scratch:
 
     def delete_after_node(self, node):
         # 删除节点后面的所有节点
-        parent = self.get_node(node.parent) if node.parent else None
+        parent = self.get_node_parent(node)
         if parent:
             brothers = [self.get_node(node_id) for node_id in parent.childrens]
             right_brothers = brothers[brothers.index(node)+1:]
@@ -130,13 +130,19 @@ class Scratch:
     def get_node(self, node_id):
         return self.spark_nodes[node_id]
     
+    def get_node_parent(self, node):
+        if node.parent is None:
+            return None
+        else:
+            return self.get_node(node.parent)
+    
     def update_node(self, node):
         self.db.update(node.__dict__, Query().node_id == node.node_id)
     
     def get_node_enviroment(self, node):
         # 获取节点环境，返回节点上左右下的节点描述(string)
         lines = []
-        parent = self.get_node(node.parent) if node.parent else None
+        parent = self.get_node_parent(node)
         if parent:
             if not parent.is_root():
                 lines.append(f'parent: {str(parent)}')
@@ -173,7 +179,7 @@ class Scratch:
         node.success_work()
         self.update_node(node)
         # check父节点是否需要完成
-        parent = self.get_node(node.parent) if node.parent else None
+        parent = self.get_node_parent(node)
         if parent:
             if all([self.get_node(node_id).state == 'success' for node_id in parent.childrens]):
                 self.success_node(parent)
@@ -181,6 +187,11 @@ class Scratch:
     def fail_node(self, node):
         # 节点失败
         node.fail_work()
+        self.update_node(node)
+
+    def start_todo_node(self, node):
+        # 节点开始工作
+        node.start_work()
         self.update_node(node)
 
     def get_next_plan_node(self):
@@ -203,3 +214,42 @@ class Scratch:
             return node
         else:
             return None
+        
+    def update_plans(self, current_node, posistion, new_plans):
+        if posistion == 'inner':
+            # 删除原有的子节点
+            childrens = [self.get_node(node_id) for node_id in current_node.childrens]
+            for children in childrens:
+                self.delete_node(children, update_parent=False)
+            # 添加新的子节点
+            for new_plan in new_plans:
+                new_node = SparkNode(**new_plan)
+                self.add_node_in(current_node, new_node)
+            # 自己状态切换成为working
+            self.start_todo_node(current_node)
+            return True
+        
+        if posistion == 'after':
+            parent = self.get_node_parent(current_node)
+
+            if parent:
+                brothers = [self.get_node(node_id) for node_id in parent.childrens]
+                right_brothers = brothers[brothers.index(current_node)+1:]
+                # 删除节点后续所有节点
+                for right_brother in right_brothers:
+                    self.delete_node(right_brother, update_parent=False)
+                    parent.childrens.remove(right_brother.node_id)
+                # 更新父节点
+                self.update_node(parent)
+                # 添加新的子节点
+                for new_plan in new_plans:
+                    new_node = SparkNode(**new_plan)
+                    self.add_node_after(current_node, new_node)
+                # 完成自己
+                self.success_node(current_node)
+                return True
+            else:
+                print('fail: update_plans, position is after, but parent is None')
+                return False
+        print(f'Warning: update_plans not implement. position {posistion} not in [inner, after]')
+        return False
