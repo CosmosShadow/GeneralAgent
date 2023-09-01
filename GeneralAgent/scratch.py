@@ -11,15 +11,15 @@ class SparkNode:
     state: str = 'ready'
 
     content: str = None
-    input: str = None
-    output: str = None
+    input_name: str = None
+    output_name: str = None
 
     node_id: int = None
     parent: int = None
     childrens: List[int] = None
 
     def __str__(self):
-        return f'role: {self.role}, action: {self.action}, state: {self.state}, content: {self.content}, input: {self.input}, output: {self.output}, parent: {self.parent}'
+        return f'[id]: {self.node_id} [role]: {self.role}, [action]: {self.action}, [state]: {self.state}, [content]: {self.content}, [input_name]: {self.input_name}, [output_name]: {self.output_name}, [parent]: {self.parent}'
     
     def __repr__(self):
         return str(self)
@@ -44,7 +44,7 @@ class SparkNode:
     
     @classmethod
     def new_root(cls):
-        return cls(node_id=0, role='root', action='root', state='ready', content='', input='', output='', parent=None, childrens=[])
+        return cls(node_id=0, role='root', action='root', state='ready', content='', input_name='', output_name='', parent=None, childrens=[])
 
 
 # 短期记忆
@@ -223,6 +223,8 @@ class Scratch:
                 self.delete_node(children, update_parent=False)
             # 添加新的子节点
             for new_plan in new_plans:
+                new_plan['role'] = 'system'
+                new_plan['state'] = 'ready'
                 new_node = SparkNode(**new_plan)
                 self.add_node_in(current_node, new_node)
             # 自己状态切换成为working
@@ -230,21 +232,23 @@ class Scratch:
             return True
         
         if posistion == 'after':
-            parent = self.get_node_parent(current_node)
+            parent_node = self.get_node_parent(current_node)
 
-            if parent:
-                brothers = [self.get_node(node_id) for node_id in parent.childrens]
+            if parent_node:
+                brothers = [self.get_node(node_id) for node_id in parent_node.childrens]
                 right_brothers = brothers[brothers.index(current_node)+1:]
                 # 删除节点后续所有节点
                 for right_brother in right_brothers:
                     self.delete_node(right_brother, update_parent=False)
-                    parent.childrens.remove(right_brother.node_id)
+                    parent_node.childrens.remove(right_brother.node_id)
                 # 更新父节点
-                self.update_node(parent)
+                self.update_node(parent_node)
                 # 添加新的子节点
                 for new_plan in new_plans:
+                    new_plan['role'] = 'system'
+                    new_plan['state'] = 'ready'
                     new_node = SparkNode(**new_plan)
-                    self.add_node_after(current_node, new_node)
+                    self.add_node_in(parent_node, new_node)
                 # 完成自己
                 self.success_node(current_node)
                 return True

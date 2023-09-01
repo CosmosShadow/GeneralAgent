@@ -1,1 +1,0 @@
-{"_default": {"1": {"role": "root", "action": "root", "state": "ready", "content": "", "input": "", "output": "", "node_id": 0, "parent": null, "childrens": [1]}, "2": {"role": "user", "action": "input", "state": "ready", "content": "\u5e2e\u6211\u8ba1\u7b970.99\u76841000\u6b21\u65b9", "input": null, "output": null, "node_id": 1, "parent": 0, "childrens": []}}}

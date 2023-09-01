@@ -31,7 +31,7 @@ def md5(string):
     if isinstance(string, str):
         return hashlib.md5(string.encode('utf-8')).hexdigest()
     else:
-        return hashlib.md5(json.dumps(string, sort_keys=True).encode('utf-8')).hexdigest()
+        return hashlib.md5(json.dumps(string).encode('utf-8')).hexdigest()
     
 
 llm_cache = TinyDBCache('./llm_cache.json')
@@ -66,6 +66,7 @@ def llm_inference_messages(messages, force_run=False, think_deep=False):
     if not force_run:
         result = llm_cache.get(key)
         if result is not None:
+            print(f'cache {key} hitted')
             return result
         else:
             print('no cache hitted')

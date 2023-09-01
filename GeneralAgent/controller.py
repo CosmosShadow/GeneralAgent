@@ -64,10 +64,10 @@ class Controller:
                 return '抱歉，发生错误。\n请问有什么可以帮你的吗？'
 
     def input(self, content, input_data=None, for_node_id=None):
-        input = None
+        input_name = None
         if input_data is not None:
-            input = self.code_workspace.new_user_input_data(input_data)
-        node = SparkNode('user', 'input', content=content, input=input)
+            input_name = self.code_workspace.new_user_input_data(input_data)
+        node = SparkNode(role='user', action='input', content=content, input_name=input_name)
         if for_node_id is None:
             self.scratch.add_node(node)
         else:
@@ -80,12 +80,13 @@ class Controller:
 
     def output(self, node):
         # 结果占位
-        self.code_workspace.set_variable(node.output, None)
+        self.code_workspace.set_variable(node.output_name, None)
         # 状态更新为success
         node.success_work()
         self.scratch.update_node(node)
         # 返回结果
-        return self.code_workspace.get_variable(node.input)
+        value = self.code_workspace.get_variable(node.input_name)
+        return value
 
     def plan(self, node):
         variables = {
@@ -119,14 +120,14 @@ class Controller:
             self.scratch.success_node(node)
         else:
             self.scratch.fail_node(node)
-            input = self.code_workspace.new_variable(reason)
-            new_node = SparkNode('system', 'plan', content='写代码报错', input=input, output=None)
+            input_name = self.code_workspace.new_variable(reason)
+            new_node = SparkNode('system', 'plan', content='写代码报错', input_name=input_name)
             self.scratch.add_node_after(new_node, node)
             print('Error: write code fail')
 
     def run_code(self, node):
         # 提取代码
-        code = self.code_workspace.get_variable(node.input)
+        code = self.code_workspace.get_variable(node.input_name)
         # 运行代码
         success, sys_stdio = self.code_workspace.run_code(code.content, code)
         # TODO: 如果失败，最多修复2次
@@ -136,7 +137,7 @@ class Controller:
             self.scratch.success_node(node)
         else:
             self.scratch.fail_node(node)
-            input = self.code_workspace.new_variable(sys_stdio)
-            new_node = SparkNode('system', 'plan', content='代码运行报错', input=input, output=None)
+            input_name = self.code_workspace.new_variable(sys_stdio)
+            new_node = SparkNode('system', 'plan', content='代码运行报错', input_name=input_name)
             self.scratch.add_node_after(new_node, node)
             print('Error: run code fail')
