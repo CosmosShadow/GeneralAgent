@@ -154,7 +154,7 @@ def fix_llm_json_str(string):
 
                 return message
 
-return_json_prompt = """\n\nYou should only directly respond in JSON format without explian as described below, that must be parsed by Python json.loads.
+return_json_prompt = """\n\nAttention: You should only directly respond in JSON format without explian as described below, that must be parsed by Python json.loads.
 Response Format example: \n"""
 
 def prompt_call(prompt, variables, json_schema=None, force_run=False, think_deep=False):

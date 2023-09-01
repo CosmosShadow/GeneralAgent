@@ -124,12 +124,12 @@ class CodeWorkspace:
         self._save()
 
     def new_variable(self, input_data):
-        name = self.next_input_name()
+        name = self.next_name()
         self.set_variable(name, input_data)
         return name
     
-    def next_input_name(self):
-        prefix = 'input_data_'
+    def next_name(self):
+        prefix = 'name_'
         input_data_names = [x for x in self.locals.keys() if x.startswith('prefix')]
         index = len(input_data_names)
         name = f'{prefix}{index}'
