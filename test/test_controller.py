@@ -10,10 +10,6 @@ def test_plan_1():
     controller = Controller(workspace='./test_workspace')
     controller.run('帮我计算0.99的1000次方', step_count=2)
     print(controller.scratch)
-    # [id]: 1 [role]: user, [action]: input, [state]: success, [content]: 帮我计算0.99的1000次方, [input_name]: None, [output_name]: None, [parent]: 0
-    # [id]: 2 [role]: system, [action]: write_code, [state]: ready, [content]: Calculate 0.99 power of 1000 and save it in the variable name_0, [input_name]: None, [output_name]: name_1, [parent]: 0
-    # [id]: 3 [role]: system, [action]: run_code, [state]: ready, [content]: None, [input_name]: name_1, [output_name]: None, [parent]: 0
-    # [id]: 4 [role]: system, [action]: output, [state]: ready, [content]: None, [input_name]: name_0, [output_name]: None, [parent]: 0
     if os.path.exists(workspace): shutil.rmtree(workspace)
 
 def test_plan_2():
@@ -22,8 +18,6 @@ def test_plan_2():
     controller = Controller(workspace='./test_workspace')
     controller.run('帮我写一份关于AIGC创业的商业计划', step_count=2)
     print(controller.scratch)
-    # [id]: 1 [role]: user, [action]: input, [state]: success, [content]: 帮我写一份关于AIGC创业的商业计划, [input_name]: None, [output_name]: None, [parent]: 0
-    # [id]: 2 [role]: system, [action]: output, [state]: ready, [content]: Could you please clarify the key points that you'd like included in the business plan about AIGC startup?, [input_name]: None, [output_name]: name_0, [parent]: 0
     if os.path.exists(workspace): shutil.rmtree(workspace)
 
 def test_plan_3():
@@ -32,14 +26,28 @@ def test_plan_3():
     controller = Controller(workspace='./test_workspace')
     controller.run('帮我找一下tesla最新的5条新闻', step_count=2)
     print(controller.scratch)
-    # [id]: 1 [role]: user, [action]: input, [state]: success, [content]: 帮我找一下tesla最新的5条新闻, [input_name]: None, [output_name]: None, [parent]: 0
-    # [id]: 2 [role]: system, [action]: write_code, [state]: ready, [content]: Find the latest 5 news about Tesla and save them in the variable name_0, [input_name]: None, [output_name]: name_1, [parent]: 0
-    # [id]: 3 [role]: system, [action]: run_code, [state]: ready, [content]: None, [input_name]: name_1, [output_name]: None, [parent]: 0
-    # [id]: 4 [role]: system, [action]: output, [state]: ready, [content]: None, [input_name]: name_0, [output_name]: None, [parent]: 0
     if os.path.exists(workspace): shutil.rmtree(workspace)
+
+# test_plan_1、test_plan_2、test_plan_3
+# cache 33f1b2856badb977b2e11c1d8ee859c6 hitted
+# cache fb160084a5014578338f7440d1e9cf3a hitted
+# [id]: 1 [role]: user, [action]: input, [state]: success, [content]: 帮我计算0.99的1000次方, [input_name]: None, [output_name]: None, [parent]: 0
+# [id]: 2 [role]: system, [action]: write_code, [state]: ready, [content]: 计算0.99的1000次方并把结果存在变量name_0中, [input_name]: None, [output_name]: name_0, [parent]: 0
+# [id]: 3 [role]: system, [action]: run_code, [state]: ready, [content]: None, [input_name]: name_0, [output_name]: None, [parent]: 0
+# [id]: 4 [role]: system, [action]: output, [state]: ready, [content]: None, [input_name]: name_0, [output_name]: None, [parent]: 0
+# cache 33f1b2856badb977b2e11c1d8ee859c6 hitted
+# cache 98fc1bbf5a30e4f12730d8b016cbb6e2 hitted
+# [id]: 1 [role]: user, [action]: input, [state]: success, [content]: 帮我写一份关于AIGC创业的商业计划, [input_name]: None, [output_name]: None, [parent]: 0
+# [id]: 2 [role]: system, [action]: output, [state]: ready, [content]: 您能不能对AIGC创业的特别要求详细一些，例如业务方向、时间线、人员规模、预期收益等？, [input_name]: None, [output_name]: name_0, [parent]: 0
+# cache 33f1b2856badb977b2e11c1d8ee859c6 hitted
+# cache 6772f64ce1cb1c6a4b491a042426e2bd hitted
+# [id]: 1 [role]: user, [action]: input, [state]: success, [content]: 帮我找一下tesla最新的5条新闻, [input_name]: None, [output_name]: None, [parent]: 0
+# [id]: 2 [role]: system, [action]: write_code, [state]: ready, [content]: Find the latest 5 news about tesla and save it in variable name_0, [input_name]: None, [output_name]: name_1, [parent]: 0
+# [id]: 3 [role]: system, [action]: run_code, [state]: ready, [content]: None, [input_name]: name_1, [output_name]: None, [parent]: 0
+# [id]: 4 [role]: system, [action]: output, [state]: ready, [content]: None, [input_name]: name_0, [output_name]: None, [parent]: 0
 
 
 if __name__ == '__main__':
-    # test_plan_1()
-    # test_plan_2()
+    test_plan_1()
+    test_plan_2()
     test_plan_3()
