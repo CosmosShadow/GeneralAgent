@@ -15,10 +15,10 @@ output_name: str = null # 任务的输出，是变量名称
 
 # 任务的action
 * input: 用户输入，被动功能，只有用户输入时，才会触发，不能包含在更新计划中。write_code中的代码、其他任务的参数，都可以直接访问input_name来获取值。
-* output: 输出content或者input_name的值给用户。content是直接回复用户，可能是答案，也可能是询问让用户来澄清需求。
+* output: 输出content或者input_name的值给用户。content是直接回复用户，可能是答案，也可能是询问让用户来澄清需求。input_name可以是从其他任务中获取的值，也可以是run_code任务执行代码后产生的变量。
 * plan: 根据content以及它所在的上下文计划，更新计划。
-* write_code: content是实现代码的需求，包括代码需要用到的输入输出变量名称和代码功能。后续系统执行write_code时，会通过content和上下文计划，生成python代码，并将代码保存在output_name的变量中。特别注意: 制定计划的时候，无需实现代码，只需要描述代码完成的任务即可。
-* run_code: 在python执行器中运行代码(input_name的值)。
+* write_code: content是详细的编码需求(不是代码)，包括编码的功能、输入和输出变量名称。计划完成后，系统会根据content和计划上下文生成代码，并将代码保存到output_name变量中。
+* run_code: 运行write_code任务被系统执行后产生的代码，即code任务的output_name变量。input_name参数是一个write_code任务的output_name。
 
 # python执行器:
 * 可以访问全球互联网，只能访问 ./ 目录下的文档
