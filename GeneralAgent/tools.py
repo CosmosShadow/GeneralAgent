@@ -110,9 +110,8 @@ def scrape_web(url: str) -> str:
 # 可以是markdown的文本、也可以是一块react的代码、json
 
 class Tools():
-    def __init__(self, send_message_fun):
+    def __init__(self):
         self.funs = {}
-        self.funs['send_message'] = send_message_fun
         self.funs['google_search'] = google_search
         self.funs['wikipedia_search'] = wikipedia_search
         self.funs['scrape_web'] = scrape_web

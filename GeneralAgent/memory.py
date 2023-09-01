@@ -45,10 +45,10 @@ ConceptNodeStates = ['ready', 'done', 'cancel', 'fail'] # 状态只能从ready�
 @dataclass
 class ConceptNode:
     type: str
-    state: str = 'done'
     index: int
     concept: str
     priority: float
+    state: str = 'done'
     create_at: datetime = None
     last_access: datetime = None
     from_nodes: List[int] = None
@@ -100,7 +100,7 @@ class Memory:
         # 计算优先级(重要性)
         priority = get_memory_importance_score(concept)
         
-        concept_node = ConceptNode(type, len(self.concept_nodes), concept, priority=priority, from_nodes=from_nodes)
+        concept_node = ConceptNode(type, index=len(self.concept_nodes), concept=concept, priority=priority, from_nodes=from_nodes)
         self.concept_nodes.append(concept_node)
         
         # 保存

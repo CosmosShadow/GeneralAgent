@@ -1,49 +1,72 @@
 # 控制器
 # 用于控制整个系统的运行
-from memory import Memory, ConceptNode
-from scratch import Scratch, SparkNode
-from code_workspace import CodeWorkspace
-from tools import Tools
-from llm import prompt_call
-from prompts import plan_prompt, plan_prompt_json_schema, write_code_prompt
+import os
+from GeneralAgent.memory import Memory, ConceptNode
+from GeneralAgent.scratch import Scratch, SparkNode
+from GeneralAgent.code_workspace import CodeWorkspace
+from GeneralAgent.tools import Tools
+from GeneralAgent.llm import prompt_call
+from GeneralAgent.prompts import plan_prompt, plan_prompt_json_schema, write_code_prompt
 
 
 class Controller:
     def __init__(self, workspace):
         # workspace: 工作空间
         self.workspace = workspace
+        # 如果目录不存在，则创建
+        if not os.path.exists(workspace):
+            os.makedirs(workspace)
         self.memory = Memory(f'{workspace}/memory.json')
         self.scratch = Scratch(f'{workspace}/scratch.json')
         self.code_workspace = CodeWorkspace(f'{workspace}/code.bin')
         self.tools = Tools()
 
-    def run(self, task, input_data=None, for_node_id=None):
-        # 新增输入节点
-        self.input(task, input_data, for_node_id)
+    def run(self, content, input_data=None, for_node_id=None, step_count=None):
+        # 运行
+        step = 0
+        if content is None:
+            # 新增输入节点
+            self.input(content, input_data, for_node_id)
+            step += 1
+        
+        # 判断是否退出
+        if step_count is not None and step == step_count: return
+        
         # 运行
         while True:
             node = self.scratch.get_todo_node()
             if node is not None:
                 if node.type in ['input', 'plan']:
-                    self.plan(node); continue
+                    self.plan(node); 
+                    step += 1; 
+                    if step_count is not None and step == step_count: return
+                    continue
                 if node.type == 'output':
                     return self.output(node)
                 if node.type == 'answer':
-                    self.answer(node); continue
+                    self.answer(node); 
+                    step += 1
+                    if step_count is not None and step == step_count: return
+                    continue
                 if node.type == 'write_code':
+                    step += 1
+                    if step_count is not None and step == step_count: return
                     self.write_code(node); continue
                 if node.type == 'run_code':
-                    self.run_code(node); continue
+                    self.run_code(node); 
+                    step += 1
+                    if step_count is not None and step == step_count: return
+                    continue
                 assert False, f'未知的节点类型: {node.type}'
             else:
                 print('Error: no todo node')
                 return '抱歉，发生错误。\n请问有什么可以帮你的吗？'
 
-    def input(self, task, input_data=None, for_node_id=None):
+    def input(self, content, input_data=None, for_node_id=None):
         input = None
         if input_data is not None:
             input = self.code_workspace.new_user_input_data(input_data)
-        node = SparkNode('user', 'input', task=task, input=input)
+        node = SparkNode('user', 'input', content=content, input=input)
         if for_node_id is None:
             self.scratch.add_node(node)
         else:
@@ -65,13 +88,13 @@ class Controller:
 
     def plan(self, node):
         variables = {
-            'task': node.task, 
+            'content': str(node), 
             'old_plan': self.scratch.get_node_enviroment(),
             'next_input_name': self.code_workspace.next_input_name(), 
             'next_output_name': self.code_workspace.next_output_name()
         }
         new_plans = prompt_call(plan_prompt, plan_prompt_json_schema, variables, think_deep=True)
-        # TODO
+        # TODO: 更新计划
 
     def answer(self, node):
         pass
@@ -79,7 +102,7 @@ class Controller:
     def write_code(self, node):
         # 写代码
         node_env = self.scratch.get_node_enviroment(node)
-        variables = {'task': node.task, 'node_env': node_env}
+        variables = {'content': node.content, 'node_env': node_env}
         code = prompt_call(write_code_prompt, variables, think_deep=True)
         # TODO: 复合check一遍
         # 保存代码
@@ -93,7 +116,7 @@ class Controller:
         else:
             self.scratch.fail_node(node)
             input = self.code_workspace.new_variable(reason)
-            new_node = SparkNode('system', 'plan', task='写代码报错', input=input, output=None)
+            new_node = SparkNode('system', 'plan', content='写代码报错', input=input, output=None)
             self.scratch.add_node_after(new_node, node)
             print('Error: write code fail')
 
@@ -101,7 +124,7 @@ class Controller:
         # 提取代码
         code = self.code_workspace.get_variable(node.input)
         # 运行代码
-        success, sys_stdio = self.code_workspace.run_code(code.task, code)
+        success, sys_stdio = self.code_workspace.run_code(code.content, code)
         # TODO: 如果失败，最多修复2次
 
         # 更新状态
@@ -110,6 +133,6 @@ class Controller:
         else:
             self.scratch.fail_node(node)
             input = self.code_workspace.new_variable(sys_stdio)
-            new_node = SparkNode('system', 'plan', task='代码运行报错', input=input, output=None)
+            new_node = SparkNode('system', 'plan', content='代码运行报错', input=input, output=None)
             self.scratch.add_node_after(new_node, node)
             print('Error: run code fail')

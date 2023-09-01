@@ -6,8 +6,8 @@ def test_scratch():
     if os.path.exists(file_path):
         os.remove(file_path)
     scratch = Scratch()
-    node1 = SparkNode(role='user', action='input', task='帮我计算0.99的1000次方')
-    node2 = SparkNode(role='system', action='write_code', task='计算0.99的1000次方，结果写到变量A中', output='code1')
+    node1 = SparkNode(role='user', action='input', content='帮我计算0.99的1000次方')
+    node2 = SparkNode(role='system', action='write_code', content='计算0.99的1000次方，结果写到变量A中', output='code1')
     node3 = SparkNode(role='system', action='run_code', input='code1')
     node4 = SparkNode(role='system', action='output', input='A')
     scratch.add_node(node1)

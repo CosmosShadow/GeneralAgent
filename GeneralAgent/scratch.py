@@ -10,7 +10,7 @@ class SparkNode:
     action: str
     state: str = 'ready'
 
-    task: str = ''
+    content: str = None
     input: str = None
     output: str = None
 
@@ -19,7 +19,7 @@ class SparkNode:
     childrens: List[int] = None
 
     def __str__(self):
-        return f'role: {self.role}, action: {self.action}, state: {self.state}, task: {self.task}, input: {self.input}, output: {self.output}'
+        return f'role: {self.role}, action: {self.action}, state: {self.state}, content: {self.content}, input: {self.input}, output: {self.output}'
     
     def __repr__(self):
         return str(self)
@@ -44,7 +44,7 @@ class SparkNode:
     
     @classmethod
     def new_root(cls):
-        return cls(node_id=0, role='root', action='root', state='ready', task='', input='', output='', parent=None, childrens=[])
+        return cls(node_id=0, role='root', action='root', state='ready', content='', input='', output='', parent=None, childrens=[])
 
 
 # 短期记忆
