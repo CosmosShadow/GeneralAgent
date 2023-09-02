@@ -80,8 +80,12 @@ class Controller:
         node.success_work()
         self.scratch.update_node(node)
         # 返回结果
-        value = self.code_workspace.get_variable(node.input_name)
-        return value
+        if node.content is not None:
+            print('output: ' + node.content)
+            return node.content
+        else:
+            value = self.code_workspace.get_variable(node.input_name)
+            return value
 
     def plan(self, node):
         print('<plan>')
