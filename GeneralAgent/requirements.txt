@@ -1,0 +1,7 @@
+requests
+tinydb
+openai
+jinja2
+numpy
+bs4
+playwright

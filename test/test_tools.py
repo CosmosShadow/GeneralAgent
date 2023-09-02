@@ -9,15 +9,14 @@ def test_google_search():
 
 def test_wikipedia_search():
     result = wikipedia_search('apple inc')
+    print(result)
     assert 'Steve Jobs' in result
 
 def test_scrape_web():
-    # url = 'https://www.baidu.com'
-    url = 'https://tongtianta.ai'
-    title, text, links = scrape_web(url)
-    assert title == '通天塔AI'
-    assert '通天塔AI' in text
-    assert links == []
+    url = 'https://www.baidu.com'
+    soup = scrape_web(url)
+    title = soup.title.string
+    assert '百度一下，你就知道' == title
 
 def test_Tools():
     tools = Tools()

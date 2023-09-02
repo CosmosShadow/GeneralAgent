@@ -46,8 +46,22 @@ def test_plan_3():
 # [id]: 3 [role]: system, [action]: run_code, [state]: ready, [content]: None, [input_name]: name_1, [output_name]: None, [parent]: 0
 # [id]: 4 [role]: system, [action]: output, [state]: ready, [content]: None, [input_name]: name_0, [output_name]: None, [parent]: 0
 
+def test_write_code_1():
+    workspace = './test_workspace'
+    if os.path.exists(workspace): shutil.rmtree(workspace)
+    controller = Controller(workspace='./test_workspace')
+    controller.run('帮我计算0.99的1000次方', step_count=3)
+    print(controller.scratch)
+    write_code_node = controller.scratch.get_node(2)
+    code = controller.code_workspace.get_variable(write_code_node.output_name)
+    print(code)
+    assert '0.99' in code
+    assert '1000' in code
+    if os.path.exists(workspace): shutil.rmtree(workspace)
+
 
 if __name__ == '__main__':
-    test_plan_1()
-    test_plan_2()
-    test_plan_3()
+    # test_plan_1()
+    # test_plan_2()
+    # test_plan_3()
+    test_write_code_1()

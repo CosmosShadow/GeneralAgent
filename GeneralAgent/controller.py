@@ -4,13 +4,13 @@ import os
 from GeneralAgent.memory import Memory, ConceptNode
 from GeneralAgent.scratch import Scratch, SparkNode
 from GeneralAgent.code_workspace import CodeWorkspace
-from GeneralAgent.tools import Tools
+from GeneralAgent.tools import Tools, google_search, wikipedia_search, scrape_web
 from GeneralAgent.llm import prompt_call
 from GeneralAgent.prompts import plan_prompt, plan_prompt_json_schema, write_code_prompt
 
 
 class Controller:
-    def __init__(self, workspace):
+    def __init__(self, workspace, tools=None):
         # workspace: 工作空间
         self.workspace = workspace
         # 如果目录不存在，则创建
@@ -19,7 +19,11 @@ class Controller:
         self.memory = Memory(f'{workspace}/memory.json')
         self.scratch = Scratch(f'{workspace}/scratch.json')
         self.code_workspace = CodeWorkspace(f'{workspace}/code.bin')
-        self.tools = Tools()
+        if tools is not None:
+            self.tools = tools
+        else:
+            self.tools = Tools()
+            self.tools.add_funs([google_search, wikipedia_search, scrape_web])
 
     def run(self, content, input_data=None, for_node_id=None, step_count=None):
         # 运行
@@ -33,30 +37,18 @@ class Controller:
         if step_count is not None and step == step_count: return
         
         # 运行
-        while True:
+        while (step_count is None or (step_count is not None and step < step_count)):
+            step += 1
             node = self.scratch.get_todo_node()
             if node is not None:
                 if node.action in ['input', 'plan']:
-                    self.plan(node); 
-                    step += 1; 
-                    if step_count is not None and step == step_count: return
-                    continue
+                    self.plan(node); continue
                 if node.action == 'output':
                     return self.output(node)
-                if node.action == 'answer':
-                    self.answer(node); 
-                    step += 1
-                    if step_count is not None and step == step_count: return
-                    continue
                 if node.action == 'write_code':
-                    step += 1
-                    if step_count is not None and step == step_count: return
                     self.write_code(node); continue
                 if node.action == 'run_code':
-                    self.run_code(node); 
-                    step += 1
-                    if step_count is not None and step == step_count: return
-                    continue
+                    self.run_code(node); continue
                 assert False, f'未知的节点类型: {node.action}'
             else:
                 print('Error: no todo node')
@@ -64,6 +56,7 @@ class Controller:
                 return '抱歉，发生错误。\n请问有什么可以帮你的吗？'
 
     def input(self, content, input_data=None, for_node_id=None):
+        print('<input>')
         input_name = None
         if input_data is not None:
             input_name = self.code_workspace.new_user_input_data(input_data)
@@ -79,6 +72,7 @@ class Controller:
         return node
 
     def output(self, node):
+        print('<output>')
         # 结果占位
         self.code_workspace.set_variable(node.output_name, None)
         # 状态更新为success
@@ -89,6 +83,7 @@ class Controller:
         return value
 
     def plan(self, node):
+        print('<plan>')
         variables = {
             'task': str(node), 
             'old_plan': self.scratch.get_node_enviroment(node),
@@ -101,13 +96,13 @@ class Controller:
         self.scratch.update_plans(node, position, new_plans)
 
     def write_code(self, node):
+        print('<write_code>')
         # 写代码
         node_enviroment = self.scratch.get_node_enviroment(node)
-        python_libs = '\n'.join(['requests'])
-        functions = [
-            'google_search',
-        ]
-        python_funcs = '\n'.join(['google_search', 'wikipedia_search', 'scrape_web'])
+        # 从 ./requirements.txt 中读取依赖库
+        python_libs = '\n'.join([line.strip() for line in open(os.path.join(os.path.dirname(__file__), 'requirements.txt'), 'r').readlines()])
+        # 从 ./tools.py 中读取函数
+        python_funcs = self.tools.get_funs_description()
         variables = {
             'python_libs': python_libs,
             'python_funcs': python_funcs,
@@ -132,10 +127,11 @@ class Controller:
             print('Error: write code fail')
 
     def run_code(self, node):
+        print('<run_code>')
         # 提取代码
         code = self.code_workspace.get_variable(node.input_name)
         # 运行代码
-        success, sys_stdio = self.code_workspace.run_code(code.content, code)
+        success, sys_stdio = self.code_workspace.run_code(node.content, code)
         # TODO: 如果失败，最多修复2次
 
         # 更新状态

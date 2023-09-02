@@ -7,7 +7,7 @@ from requests.compat import urljoin
 from playwright.sync_api import sync_playwright
 from GeneralAgent.keys import SERPER_API_KEY
 
-def google_search(query):
+def google_search(query: str) -> dict:
     """
     google search with query, return a result in dict.
     return:
@@ -29,8 +29,10 @@ def google_search(query):
     return response.text
 
 
-def wikipedia_search(query):
-    # 返回纯文本字符串
+def wikipedia_search(query: str) -> str:
+    """
+    wikipedia search with query, return a result in string
+    """
     import requests
     from bs4 import BeautifulSoup
 
@@ -74,50 +76,47 @@ def wikipedia_search(query):
     return obs
 
 
-def scrape_web(url: str) -> str:
-    """Scrape page title, content(string) and links([(text, link)]) from a webpage url"""
+def scrape_web(url: str) -> BeautifulSoup:
+    """
+    Scrape web page, return BeautifulSoup object soup when success, otherwise return None.
+    page title: soup.title.string
+    page text content: re.sub(r'<style.*?</style>', '', soup.get_text(), flags=re.DOTALL)
+    image urls: [image['src'] for image in soup.find_all('img')]
+    hyperlinks: [(link.text, urljoin(url, link["href"])) for link in soup.find_all("a", href=True) if urljoin(url, link["href"].startswith('http'))]
+    """
+    soup = None
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
-
         try:
             page.goto(url)
+            page.wait_for_load_state()
             html_content = page.content()
             soup = BeautifulSoup(html_content, "html.parser")
-
-            # for script in soup(["script", "style"]):
-            #     script.extract()
-            # text = soup.get_text()
-            # lines = (line.strip() for line in text.splitlines())
-            # chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-            # text = "\n".join(chunk for chunk in chunks if chunk)
-
-            # # 剔除掉文本中 <style xxx > xxx </style> 中所有内容
-            # import re
-            # text = re.sub(r'<style.*?</style>', '', text, flags=re.DOTALL)
-
-            title = page.title()
-            text = page.evaluate('document.body.innerText')
-            # text = page.evaluate('document.body.textContent')
-
-            # hyperlinks: [(text (link))]
-            hyperlinks = [(link.text, urljoin(url, link["href"])) for link in soup.find_all("a", href=True)]
-            hyperlinks = [(text, link) for (text, link) in hyperlinks if link.startswith('http')]
-
         except Exception as e:
-            title = None
-            text = f"Error: {str(e)}"
-            hyperlinks = []
+            import logging
+            logging.exception(e)
         finally:
             browser.close()
-
-    return title, text, hyperlinks
+    return soup
 
 
 # send_message_fun(type, content)
 # 发送消息的函数，参数为消息内容
 # type: text、react、json
 # 可以是markdown的文本、也可以是一块react的代码、json
+
+def get_function_signature(func):
+    """Returns a description string of function"""
+    import inspect
+    sig = inspect.signature(func)
+    # 获取函数签名，比如函数 def wikipedia_search(query: str):，则返回字符串 'def wikipedia_search(query: str):'
+    sig_str = str(sig)
+    desc = f"{func.__name__}{sig_str}"
+    if func.__doc__:
+        desc += func.__doc__
+    return desc
+
 
 class Tools():
     def __init__(self):
@@ -127,4 +126,4 @@ class Tools():
         self.funs += funs
 
     def get_funs_description(self):
-        return [f.__doc__ for f in self.funs]
+        return '\n\n'.join([get_function_signature(fun) for fun in self.funs])
