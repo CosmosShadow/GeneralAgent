@@ -46,7 +46,7 @@ def test_plan_3():
 # [id]: 3 [role]: system, [action]: run_code, [state]: ready, [content]: None, [input_name]: name_1, [output_name]: None, [parent]: 0
 # [id]: 4 [role]: system, [action]: output, [state]: ready, [content]: None, [input_name]: name_0, [output_name]: None, [parent]: 0
 
-def test_write_code_1():
+def test_math():
     # step
     # 1 input
     # 2 plan
@@ -67,9 +67,20 @@ def test_write_code_1():
     print(result)
     if os.path.exists(workspace): shutil.rmtree(workspace)
 
+def test_scrape_news():
+    # 测试抓取新闻
+    workspace = './test_workspace'
+    if os.path.exists(workspace): shutil.rmtree(workspace)
+    controller = Controller(workspace='./test_workspace')
+    result = controller.run('帮我找一下tesla最新的5条新闻', step_count=5)
+    print(controller.scratch)
+    print(result)
+    if os.path.exists(workspace): shutil.rmtree(workspace)
+
 
 if __name__ == '__main__':
     # test_plan_1()
     # test_plan_2()
     # test_plan_3()
-    test_write_code_1()
+    # test_math()
+    test_scrape_news()
