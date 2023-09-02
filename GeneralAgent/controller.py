@@ -44,7 +44,7 @@ class Controller:
                 if node.action in ['input', 'plan']:
                     self.plan(node); continue
                 if node.action == 'output':
-                    return self.output(node)
+                    return (node, self.output(node))
                 if node.action == 'write_code':
                     self.write_code(node); continue
                 if node.action == 'run_code':
@@ -54,6 +54,7 @@ class Controller:
                 print('Error: no todo node')
                 print(self.scratch)
                 return '抱歉，发生错误。\n请问有什么可以帮你的吗？'
+        return None
 
     def input(self, content, input_data=None, for_node_id=None):
         print('<input>')

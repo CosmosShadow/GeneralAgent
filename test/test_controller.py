@@ -77,6 +77,24 @@ def test_scrape_news():
     print(result)
     if os.path.exists(workspace): shutil.rmtree(workspace)
 
+def test_write_aigc_business_plan():
+    # 测试写一份商业计划
+    workspace = './test_workspace'
+    if os.path.exists(workspace): shutil.rmtree(workspace)
+    controller = Controller(workspace='./test_workspace')
+    # input_value = '帮我写一份关于AIGC创业的商业计划'
+    for_node_id = None
+    while True:
+        input_value = input('>>>')
+        result = controller.run(input_value, for_node_id=for_node_id, step_count=None)
+        if result is None:
+            break
+        else:
+            node, output_value = result
+            for_node_id = node.id
+        # print(controller.scratch)
+    if os.path.exists(workspace): shutil.rmtree(workspace)
+
 
 if __name__ == '__main__':
     # test_plan_1()
@@ -84,3 +102,4 @@ if __name__ == '__main__':
     # test_plan_3()
     # test_math()
     test_scrape_news()
+    test_write_aigc_business_plan()
