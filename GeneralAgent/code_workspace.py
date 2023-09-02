@@ -30,7 +30,7 @@ class CodeBlock:
 default_init_code = """
 import os
 import sys
-from GeneralAgent.tools import google_search, wikipedia_search, scrape_web, Tools
+from GeneralAgent.tools import google_search, wikipedia_search, scrape_web, Tools, llm
 """
 
 class CodeWorkspace:

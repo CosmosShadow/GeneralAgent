@@ -72,7 +72,7 @@ def test_scrape_news():
     workspace = './test_workspace'
     if os.path.exists(workspace): shutil.rmtree(workspace)
     controller = Controller(workspace='./test_workspace')
-    result = controller.run('帮我找一下tesla最新的5条新闻', step_count=5)
+    result = controller.run('帮我找一下tesla最新的5条新闻，中文返回给我', step_count=5)
     print(controller.scratch)
     print(result)
     if os.path.exists(workspace): shutil.rmtree(workspace)

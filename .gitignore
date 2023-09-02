@@ -4,3 +4,4 @@ GeneralAgent/prompt_en.json
 test/memory.json
 GeneralAgent/embedding_cache.json
 GeneralAgent/llm_cache.json
+test/data_0.json

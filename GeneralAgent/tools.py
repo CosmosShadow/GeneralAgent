@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from requests.compat import urljoin
 from playwright.sync_api import sync_playwright
 from GeneralAgent.keys import SERPER_API_KEY
+from GeneralAgent.llm import llm_inference
 
 def google_search(query: str) -> dict:
     """
@@ -26,7 +27,8 @@ def google_search(query: str) -> dict:
         'Content-Type': 'application/json'
     }
     response = requests.request("POST", url, headers=headers, data=payload)
-    return response.text
+    result = json.loads(response.text)
+    return result
 
 
 def wikipedia_search(query: str) -> str:
@@ -80,9 +82,9 @@ def scrape_web(url: str) -> BeautifulSoup:
     """
     Scrape web page, return BeautifulSoup object soup when success, otherwise return None.
     page title: soup.title.string
-    page text content: re.sub(r'<style.*?</style>', '', soup.get_text(), flags=re.DOTALL)
+    page text content: re.sub(r'<style.*?</style>', '', soup.get_text(), flags=re.DOTALL) (you should import re first)
     image urls: [image['src'] for image in soup.find_all('img')]
-    hyperlinks: [(link.text, urljoin(url, link["href"])) for link in soup.find_all("a", href=True) if urljoin(url, link["href"].startswith('http'))]
+    hyperlinks: [(link.text, urljoin(url, link["href"])) for link in soup.find_all("a", href=True) if urljoin(url, link["href"].startswith('http'))] (from requests.compat import urljoin first)
     """
     soup = None
     with sync_playwright() as p:
@@ -99,6 +101,13 @@ def scrape_web(url: str) -> BeautifulSoup:
         finally:
             browser.close()
     return soup
+
+def llm(question: str) -> str:
+    """
+    llm(large language model)，输入问题，返回答案，要求question和answer的长度和小于8000字。
+    比如: llm('翻译一下文字: 我爱中国') -> 'I love China'
+    """
+    return llm_inference(question, force_run=True, think_deep=False)
 
 
 # send_message_fun(type, content)

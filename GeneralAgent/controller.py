@@ -4,7 +4,7 @@ import os
 from GeneralAgent.memory import Memory, ConceptNode
 from GeneralAgent.scratch import Scratch, SparkNode
 from GeneralAgent.code_workspace import CodeWorkspace
-from GeneralAgent.tools import Tools, google_search, wikipedia_search, scrape_web
+from GeneralAgent.tools import Tools, google_search, wikipedia_search, scrape_web, llm
 from GeneralAgent.llm import prompt_call
 from GeneralAgent.prompts import plan_prompt, plan_prompt_json_schema, write_code_prompt
 
@@ -23,7 +23,7 @@ class Controller:
             self.tools = tools
         else:
             self.tools = Tools()
-            self.tools.add_funs([google_search, wikipedia_search, scrape_web])
+            self.tools.add_funs([google_search, wikipedia_search, scrape_web, llm])
 
     def run(self, content, input_data=None, for_node_id=None, step_count=None):
         # 运行
@@ -111,6 +111,8 @@ class Controller:
             'task_enviroment': node_enviroment,
             }
         code = prompt_call(write_code_prompt, variables, think_deep=True)
+        # 检查code字符中是否有 ```python ```，如果有，就去掉
+        code = code.replace('```python', '').replace('```', '')
         # TODO: 复合check一遍
         # 保存代码
         self.code_workspace.set_variable(node.output_name, code)
