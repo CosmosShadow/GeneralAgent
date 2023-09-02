@@ -124,21 +124,21 @@ class CodeWorkspace:
         self._save()
 
     def new_variable(self, input_data):
-        name = self.next_name()
+        name = self.next_data_name()
         self.set_variable(name, input_data)
         return name
     
-    def next_name(self):
-        prefix = 'name_'
-        input_data_names = [x for x in self.locals.keys() if x.startswith('prefix')]
-        index = len(input_data_names)
+    def next_code_name(self):
+        prefix = 'code_'
+        code_names = [x for x in self.locals.keys() if x.startswith('prefix')]
+        index = len(code_names)
         name = f'{prefix}{index}'
         return name
     
-    def next_output_name(self):
-        prefix = 'output_data_'
-        output_data_names = [x for x in self.locals.keys() if x.startswith('prefix')]
-        index = len(output_data_names)
+    def next_data_name(self):
+        prefix = 'data_'
+        input_data_names = [x for x in self.locals.keys() if x.startswith('prefix')]
+        index = len(input_data_names)
         name = f'{prefix}{index}'
         return name
 

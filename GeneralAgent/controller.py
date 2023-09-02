@@ -87,7 +87,8 @@ class Controller:
         variables = {
             'task': str(node), 
             'old_plan': self.scratch.get_node_enviroment(node),
-            'next_name': self.code_workspace.next_name(), 
+            'next_code_name': self.code_workspace.next_code_name(), 
+            'next_data_name': self.code_workspace.next_data_name()
         }
         result = prompt_call(plan_prompt, variables, plan_prompt_json_schema, force_run=False, think_deep=True)
         position = result['position']
