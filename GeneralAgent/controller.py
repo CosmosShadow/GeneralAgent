@@ -53,7 +53,8 @@ class Controller:
             else:
                 print('Error: no todo node')
                 print(self.scratch)
-                return '抱歉，发生错误。\n请问有什么可以帮你的吗？'
+                return None
+                # return '抱歉，发生错误。\n请问有什么可以帮你的吗？'
         return None
 
     def input(self, content, input_data=None, for_node_id=None):
@@ -67,15 +68,16 @@ class Controller:
         else:
             for_node = self.scratch.get_node(for_node_id)
             # 使用after，而不是in: in会造成过多的嵌套，且不好处理退出到上一级
-            self.scratch.add_node_after(node, for_node)
+            self.scratch.add_node_after(for_node, node)
             # 输入内容保存到上次输出节点的输出中
             # self.code_workspace.set_variable(for_node.output, input_data)
         return node
 
     def output(self, node):
         print('<output>')
-        # 结果占位
-        self.code_workspace.set_variable(node.output_name, None)
+        # 如果输出想要回复结果，结果占位
+        if node.output_name is not None:
+            self.code_workspace.set_variable(node.output_name, None)
         # 状态更新为success
         node.success_work()
         self.scratch.update_node(node)

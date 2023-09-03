@@ -116,6 +116,8 @@ class CodeWorkspace:
             return None
 
     def set_variable(self, var_name, var_value):
+        print('set_variable', var_name, var_value)
+        # raise ValueError('set_variable')
         self.locals[var_name] = var_value
         # 保存代码块
         code_block = CodeBlock(type='set', command=None, code=None, log=None, name=var_name, value=var_value)
@@ -129,6 +131,7 @@ class CodeWorkspace:
         return name
     
     def next_code_name(self):
+        print(self.locals)
         prefix = 'code_'
         code_names = [x for x in self.locals.keys() if x.startswith('prefix')]
         index = len(code_names)

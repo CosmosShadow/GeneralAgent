@@ -5,3 +5,6 @@ test/memory.json
 GeneralAgent/embedding_cache.json
 GeneralAgent/llm_cache.json
 test/data_0.json
+test/test_workspace/scratch.json
+test/test_workspace/memory.json
+test/test_workspace/code.bin
