@@ -57,7 +57,7 @@ def test_math():
     workspace = './test_workspace'
     if os.path.exists(workspace): shutil.rmtree(workspace)
     controller = Controller(workspace='./test_workspace')
-    result = controller.run('帮我计算0.99的1000次方', step_count=5)
+    node, result = controller.run('帮我计算0.99的1000次方', step_count=5)
     print(controller.scratch)
     write_code_node = controller.scratch.get_node(2)
     code = controller.code_workspace.get_variable(write_code_node.output_name)
@@ -73,39 +73,10 @@ def test_scrape_news():
     workspace = './test_workspace'
     if os.path.exists(workspace): shutil.rmtree(workspace)
     controller = Controller(workspace='./test_workspace')
-    result = controller.run('帮我找一下tesla最新的5条新闻，中文返回给我', step_count=5)
+    node, result = controller.run('帮我找一下tesla最新的5条新闻，中文返回给我', step_count=5)
     print(controller.scratch)
     print(result)
     if os.path.exists(workspace): shutil.rmtree(workspace)
-
-def test_write_aigc_business_plan():
-    # 测试写一份商业计划
-    workspace = './test_workspace'
-    if os.path.exists(workspace): shutil.rmtree(workspace)
-    controller = Controller(workspace='./test_workspace')
-    # input_value = '帮我写一份关于AIGC创业的商业计划'
-    for_node_id = None
-    try:
-        while True:
-            input_value = input('user >>> ')
-            result = controller.run(input_value, for_node_id=for_node_id, step_count=None)
-            if result is None:
-                break
-            else:
-                node, output_value = result
-                print('\nsystem>>> ' + str(output_value) + '\n')
-                print(controller.scratch)
-                for_node_id = node.node_id
-    except KeyboardInterrupt:
-        pass
-    finally:
-        # print(controller.scratch)
-        if os.path.exists(workspace): shutil.rmtree(workspace)
-
-    # 帮我写一份关于AIGC创业的商业计划
-    #  > 业务范围、目标市场、客户群体、竞争优势
-    # 业务范围是AI画画，用户输入描述，AI画画输出图片，目标市场是全球，客户群体是喜欢画画的人，竞争优势是AI画画的效果好
-    #  > 业务范围、目标市场、客户群体、竞争优势
 
 
 if __name__ == '__main__':
@@ -114,4 +85,4 @@ if __name__ == '__main__':
     # test_plan_3()
     # test_math()
     # test_scrape_news()
-    test_write_aigc_business_plan()
+    pass

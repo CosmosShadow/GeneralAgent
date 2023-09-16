@@ -1,5 +1,5 @@
 from base_setting import *
-from GeneralAgent.code import CodeWorkspace
+from GeneralAgent.code_workspace import CodeWorkspace
 import os
 
 init_code = """
@@ -28,9 +28,11 @@ def test_CodeWorkspace():
     # 工具: 爬取网页
     code = """
 url = 'https://tongtianta.ai'
-title, text, links = scrape_web(url)
+soup = scrape_web(url)
+title = soup.title.string
 """
     success, sys_stdout = code_workspace.run_code('scrape web', code)
+    # print(sys_stdout)
     assert success
     title = code_workspace.get_variable('title')
     assert title == '通天塔AI'
