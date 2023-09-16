@@ -64,7 +64,7 @@ def test_math():
     # print(code)
     assert '0.99' in code
     assert '1000' in code
-    assert result == 0.99 ** 1000
+    assert result == str(0.99 ** 1000)
     print(result)
     if os.path.exists(workspace): shutil.rmtree(workspace)
 

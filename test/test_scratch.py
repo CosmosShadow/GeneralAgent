@@ -5,7 +5,7 @@ def test_scratch():
     file_path='./memory.json'
     if os.path.exists(file_path):
         os.remove(file_path)
-    scratch = Scratch()
+    scratch = Scratch(file_path=file_path)
     node1 = SparkNode(role='user', action='input', content='帮我计算0.99的1000次方')
     node2 = SparkNode(role='system', action='write_code', content='计算0.99的1000次方，结果写到变量A中', output_name='code1')
     node3 = SparkNode(role='system', action='run_code', input_name='code1')
@@ -37,8 +37,10 @@ def test_scratch():
 
     # 重新加载验证
     scratch = None
-    scratch = Scratch()
+    scratch = Scratch(file_path=file_path)
+    print('--------scratch---------')
     print(scratch)
+    print('--------scratch---------')
     assert_init_state(scratch)
     description_2 = str(scratch)
     assert description_1 == description_2
@@ -46,19 +48,24 @@ def test_scratch():
     # 输出节点环境
     node2 = scratch.get_node(2)
     env = scratch.get_node_enviroment(node2)
+    print('-------env-------')
     print(env)
+    print('-------env-------')
 
     # 测试获取todo节点
     todo_node = scratch.get_todo_node()
     assert todo_node.node_id == 2
 
-    scratch.finish_node(todo_node)
+    scratch.success_node(todo_node)
     assert scratch.get_todo_node().node_id == 3
 
     # 删除节点
     scratch.delete_node(node3)
     assert scratch.node_count() == 3
     scratch.delete_after_node(node2)
+    print('--------scratch---------')
+    print(scratch)
+    print('--------scratch---------')
     assert scratch.node_count() == 2
     
     if os.path.exists(file_path):

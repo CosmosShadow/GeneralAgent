@@ -84,7 +84,7 @@ class Memory:
         # file_path: 存储路径，比如 xxx.json
         self.db = TinyDB(file_path)
         # 记忆内容
-        self.concept_nodes = [ConceptNode.from_dict(record) for record in self.db.all()]
+        self.concept_nodes = [ConceptNode(**record) for record in self.db.all()]
         # 重要性列表，用户触发反思
         self.new_priority_list_table = self.db.table('_new_priority_list')
         self.new_priority_list = [x['priority'] for x in self.new_priority_list_table.all()]
@@ -211,7 +211,7 @@ def get_insights_and_evidence(statement_list, topic=None):
         prompt = """Statements:\n{{statements}}\n\n根据上面的多条描述，能推理出来那些洞察？每条洞察有哪几条描述支持？\n洞察不能是单条描述，而是需要综合多条描述才能得出的洞察。如果没有洞察，就返回空。如果有多条，全部返回，且做多有2个洞察。"""
     else:
         prompt = """Topic: {{topic}}\nStatements:\n{{statements}}\n\n根据上面的多条描述，关于主题，能推理出来那些洞察？每条洞察有哪几条描述支持？\n洞察不能是单条描述，而是需要综合多条描述才能得出的洞察。如果没有洞察，就返回空。如果有多条，全部返回，且做多有2个洞察。"""
-    json_schema = '{"\{insight description\}": [\{evidence index\}]}'
+    json_schema = """{"\{insight description\}": [\{evidence index\}]}"""
     try:
         statements = "\n".join([str(index) + ') ' + statement for index, statement in enumerate(statement_list)])
         variables = {'statements': statements} if topic is None else {'statements': statements, 'topic': topic}
