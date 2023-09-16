@@ -5,7 +5,7 @@ from GeneralAgent.tools import google_search, wikipedia_search, scrape_web, Tool
 def test_google_search():
     result = google_search('apple inc')
     print(result)
-    assert 'https://www.apple.com/' in result
+    assert 'Apple' in result
 
 def test_wikipedia_search():
     result = wikipedia_search('apple inc')

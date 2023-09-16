@@ -1,5 +1,4 @@
 # 记忆
-import datetime
 # 存储所有记忆，优点是: 实时逐步序列化，即使程序崩溃了也记录了
 from tinydb import TinyDB, Query
 from GeneralAgent.llm import prompt_call, cos_sim, embedding_fun
@@ -34,7 +33,7 @@ def get_memory_importance_score(concept):
     print('Warning: get_memory_importance_score failed multi times, set priority to 5')
     return 5
 
-str2date = lambda x: datetime.datetime.now() if (x is None) else datetime.datetime.strptime(x, '%Y-%m-%d %H:%M:%S')
+str2date = lambda x: datetime.now() if (x is None) else datetime.strptime(x, '%Y-%m-%d %H:%M:%S')
 date2str = lambda x: x.strftime('%Y-%m-%d %H:%M:%S')
 
 ConceptNodeTypes = ['input', 'output', 'thought', 'plan', 'action']
@@ -123,12 +122,12 @@ class Memory:
     
     def update_concept(self, concept_node: ConceptNode):
         # 更新概念节点
-        concept_node.last_access = datetime.datetime.now()
+        concept_node.last_access = datetime.now()
         self.db.update(concept_node.to_save_dict(), Query().index == concept_node.index)
 
     def new_access(self, concept_node: ConceptNode):
         # 更新最新访问时间
-        concept_node.last_access = datetime.datetime.now()
+        concept_node.last_access = datetime.now()
         self.db.update(concept_node.to_save_dict(), Query().index == concept_node.index)
 
     def get_concepts_with_type(self, type):

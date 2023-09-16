@@ -56,7 +56,8 @@ def test_get_insights_and_evidence():
         print(insights)
 
 memory_path = './memory.json'
-def test_memory_create():
+
+def test_memory_create_and_retrieve():
     if os.path.exists(memory_path): os.remove(memory_path)
     memory = Memory(memory_path)
     memory.add_concept('action', '今天早上7点起床了')
@@ -81,13 +82,15 @@ def test_memory_create():
     # The speaker uses both Python and Javascript in their work, but they write more lines of Python code than Javascript
     # The speaker's work involves substantial coding, requiring them to write thousands of lines of code within a day
 
-def test_memory_retrieve():
+    # 检索
     memory = Memory(memory_path)
     nodes = memory.retrieve('今天吃了啥？', n_count=3)
     assert '吃' in nodes[0].concept
     assert '吃' in nodes[1].concept
     assert '吃' not in nodes[2].concept
     assert nodes[0].concept != nodes[1].concept
+
+    if os.path.exists(memory_path): os.remove(memory_path)
 
 
 
