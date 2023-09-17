@@ -61,7 +61,7 @@ class Controller:
         return None
 
     def insert_input(self, content, input_data=None, for_node_id=None):
-        print('<input>')
+        print('<insert_input>')
         input_name = None
         if input_data is not None:
             input_name = self.code_workspace.new_user_input_data(input_data)
@@ -78,7 +78,6 @@ class Controller:
     
     def input(self, node):
         print('<input>')
-        self.plan(node)
         variables = {
             'dialogue': self.scratch.get_node_enviroment(node)
         }
@@ -91,13 +90,13 @@ class Controller:
         if case == 'output':
             # 添加output节点
             new_node = SparkNode('system', 'output', content=content)
-            self.scratch.add_node_after(new_node, node)
+            self.scratch.add_node_after(node, new_node)
         elif case == 'continue':
             pass
         elif case == 'plan':
             # 添加plan节点
             new_node = SparkNode('system', 'plan', content=content)
-            self.scratch.add_node_after(new_node, node)
+            self.scratch.add_node_after(node, new_node)
 
     def output(self, node):
         print('<output>')
@@ -109,7 +108,7 @@ class Controller:
         self.scratch.update_node(node)
         # 返回结果
         if node.content is not None:
-            print('output: ' + node.content)
+            # print('output: ' + node.content)
             return node.content
         else:
             value = self.code_workspace.get_variable(node.input_name)

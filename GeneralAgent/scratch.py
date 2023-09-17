@@ -141,22 +141,24 @@ class Scratch:
     
     def get_node_enviroment(self, node):
         # 获取节点环境，返回节点上左右下的节点描述(string)
+        intent_char = '#'
+        get_intent = lambda index: intent_char * index + ' '
         lines = []
         parent = self.get_node_parent(node)
         if parent:
             if not parent.is_root():
-                lines.append(f'parent: {str(parent)}')
+                lines.append(get_intent(1) + str(parent))
             brothers = [self.get_node(node_id) for node_id in parent.childrens]
             left_brothers = brothers[:brothers.index(node)]
             right_brothers = brothers[brothers.index(node)+1:]
             for left_brother in left_brothers:
-                lines.append(f'left_brother: {str(left_brother)}')
-            lines.append('self: ' + str(node))
+                lines.append(get_intent(2) + str(left_brother))
+            lines.append('<current> ' + get_intent(2) + str(node))
+            childrens = [self.get_node(node_id) for node_id in node.childrens]
+            for children in childrens:
+                lines.append(get_intent(3) + str(children))
             for right_brother in right_brothers:
-                lines.append(f'right_brother: {str(right_brother)}')
-        childrens = [self.get_node(node_id) for node_id in node.childrens]
-        for children in childrens:
-            lines.append(f'children: {str(children)}')
+                lines.append(get_intent(2) + str(right_brother))
         return '\n'.join(lines)
     
     def get_all_description_of_node(self, node, intend_char='    ', depth=0):

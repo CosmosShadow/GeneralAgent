@@ -8,7 +8,8 @@ from tinydb import TinyDB, Query
 import re
 from numpy import dot
 from numpy.linalg import norm
-from GeneralAgent.keys import OPENAI_API_KEY, OPENAI_ORGANIZATION, OPENAI_API_BASE
+from GeneralAgent.keys import OPENAI_API_KEY, OPENAI_API_BASE
+# from GeneralAgent.keys import OPENAI_ORGANIZATION
 
 class TinyDBCache():
     def __init__(self, save_path):
@@ -48,8 +49,8 @@ def _llm_inference_messages(messages, think_deep=False):
         print(f'[{message["role"]}] {message["content"]}')
 
     openai.api_key = OPENAI_API_KEY
-    if model.startswith('gpt-4'):
-        openai.organization = OPENAI_ORGANIZATION
+    # if model.startswith('gpt-4'):
+    #     openai.organization = OPENAI_ORGANIZATION
     openai.api_base = OPENAI_API_BASE or 'https://api.openai.com/v1'
     response = openai.ChatCompletion.create(model=model, messages=messages)
     result = response['choices'][0]['message']['content'].strip()

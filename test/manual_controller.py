@@ -20,8 +20,8 @@ def test_write_aigc_business_plan():
                 break
             else:
                 node, output_value = result
-                print('\nsystem>>> ' + str(output_value) + '\n')
-                print(controller.scratch)
+                print('\nsys >>> ' + str(output_value) + '\n')
+                # print(controller.scratch)
                 for_node_id = node.node_id
     except KeyboardInterrupt:
         pass
