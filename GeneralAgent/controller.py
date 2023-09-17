@@ -6,6 +6,7 @@ from GeneralAgent.scratch import Scratch, SparkNode
 from GeneralAgent.code_workspace import CodeWorkspace
 from GeneralAgent.tools import Tools, google_search, wikipedia_search, scrape_web, llm
 from GeneralAgent.llm import prompt_call
+from GeneralAgent.prompts import input_prompt, input_prompt_json_schema
 from GeneralAgent.prompts import plan_prompt, plan_prompt_json_schema, write_code_prompt
 
 
@@ -30,7 +31,7 @@ class Controller:
         step = 0
         if content is not None:
             # 新增输入节点
-            self.input(content, input_data, for_node_id)
+            self.insert_input(content, input_data, for_node_id)
             step += 1
         
         # 判断是否退出
@@ -41,7 +42,9 @@ class Controller:
             step += 1
             node = self.scratch.get_todo_node()
             if node is not None:
-                if node.action in ['input', 'plan']:
+                if node.action == 'input':
+                    self.input(node); continue
+                if node.action == 'plan':
                     self.plan(node); continue
                 if node.action == 'output':
                     return (node, self.output(node))
@@ -57,7 +60,7 @@ class Controller:
                 # return '抱歉，发生错误。\n请问有什么可以帮你的吗？'
         return None
 
-    def input(self, content, input_data=None, for_node_id=None):
+    def insert_input(self, content, input_data=None, for_node_id=None):
         print('<input>')
         input_name = None
         if input_data is not None:
@@ -72,6 +75,29 @@ class Controller:
             # 输入内容保存到上次输出节点的输出中
             # self.code_workspace.set_variable(for_node.output, input_data)
         return node
+    
+    def input(self, node):
+        print('<input>')
+        self.plan(node)
+        variables = {
+            'dialogue': self.scratch.get_node_enviroment(node)
+        }
+        result = prompt_call(input_prompt, variables, input_prompt_json_schema, force_run=False, think_deep=True)
+        case = result['case']
+        content = result['content']
+        # 状态更新为success
+        node.success_work()
+        self.scratch.update_node(node)
+        if case == 'output':
+            # 添加output节点
+            new_node = SparkNode('system', 'output', content=content)
+            self.scratch.add_node_after(new_node, node)
+        elif case == 'continue':
+            pass
+        elif case == 'plan':
+            # 添加plan节点
+            new_node = SparkNode('system', 'plan', content=content)
+            self.scratch.add_node_after(new_node, node)
 
     def output(self, node):
         print('<output>')

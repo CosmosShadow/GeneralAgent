@@ -8,7 +8,7 @@ from tinydb import TinyDB, Query
 import re
 from numpy import dot
 from numpy.linalg import norm
-from GeneralAgent.keys import OPENAI_MODEL, OPENAI_API_KEY, OPENAI_ORGANIZATION, OPENAI_API_BASE
+from GeneralAgent.keys import OPENAI_API_KEY, OPENAI_ORGANIZATION, OPENAI_API_BASE
 
 class TinyDBCache():
     def __init__(self, save_path):
@@ -32,7 +32,7 @@ def md5(string):
         return hashlib.md5(string.encode('utf-8')).hexdigest()
     else:
         return hashlib.md5(json.dumps(string).encode('utf-8')).hexdigest()
-    
+
 
 llm_cache = TinyDBCache('./llm_cache.json')
 

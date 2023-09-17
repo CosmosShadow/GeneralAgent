@@ -1,5 +1,4 @@
 # OpenAI API for LLM inference and embedding
-OPENAI_MODEL = 'gpt-3.5-turbo-16k'
 OPENAI_API_KEY = 'sk-xxx'
 OPENAI_ORGANIZATION = 'org-xxx'
 OPENAI_API_BASE = None
