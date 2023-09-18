@@ -126,7 +126,10 @@ class Controller:
         position = result['position']
         new_plans = result['new_plans']
         # 更新计划
-        self.scratch.update_plans(node, position, new_plans)
+        success, new_names = self.scratch.update_plans(node, position, new_plans)
+        # 运算一次变量，让其占位
+        init_variable = lambda name:  "try:\n    %s\nexcept Exception as e:\n    %s=None\n" % (name, name)
+        self.code_workspace.run_code('init variable', '\n'.join([init_variable(x) for x in new_names]))
 
     def write_code(self, node):
         print('<write_code>')

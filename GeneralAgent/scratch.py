@@ -18,8 +18,11 @@ class SparkNode:
     parent: int = None
     childrens: List[int] = None
 
+    # def __str__(self):
+    #     return f'[id]: {self.node_id} [role]: {self.role}, [action]: {self.action}, [state]: {self.state}, [content]: {self.content}, [input_name]: {self.input_name}, [output_name]: {self.output_name}, [parent]: {self.parent}'
+
     def __str__(self):
-        return f'[id]: {self.node_id} [role]: {self.role}, [action]: {self.action}, [state]: {self.state}, [content]: {self.content}, [input_name]: {self.input_name}, [output_name]: {self.output_name}, [parent]: {self.parent}'
+        return f'{self.role} | {self.action} | {self.state} | {self.input_name} | {self.output_name} | {self.content}'
     
     def __repr__(self):
         return str(self)
@@ -141,24 +144,24 @@ class Scratch:
     
     def get_node_enviroment(self, node):
         # 获取节点环境，返回节点上左右下的节点描述(string)
-        intent_char = '#'
+        intent_char = '    '
         get_intent = lambda index: intent_char * index + ' '
         lines = []
         parent = self.get_node_parent(node)
         if parent:
             if not parent.is_root():
-                lines.append(get_intent(1) + str(parent))
+                lines.append(get_intent(0) + str(parent))
             brothers = [self.get_node(node_id) for node_id in parent.childrens]
             left_brothers = brothers[:brothers.index(node)]
             right_brothers = brothers[brothers.index(node)+1:]
             for left_brother in left_brothers:
-                lines.append(get_intent(2) + str(left_brother))
-            lines.append('<current> ' + get_intent(2) + str(node))
+                lines.append(get_intent(1) + str(left_brother))
+            lines.append(get_intent(1) + '[current] ' + str(node))
             childrens = [self.get_node(node_id) for node_id in node.childrens]
             for children in childrens:
-                lines.append(get_intent(3) + str(children))
+                lines.append(get_intent(2) + str(children))
             for right_brother in right_brothers:
-                lines.append(get_intent(2) + str(right_brother))
+                lines.append(get_intent(1) + str(right_brother))
         return '\n'.join(lines)
     
     def get_all_description_of_node(self, node, intend_char='    ', depth=0):
@@ -222,6 +225,8 @@ class Scratch:
             return None
         
     def update_plans(self, current_node, posistion, new_plans):
+        new_names = []
+
         if posistion == 'inner':
             # 删除原有的子节点
             childrens = [self.get_node(node_id) for node_id in current_node.childrens]
@@ -233,9 +238,13 @@ class Scratch:
                 new_plan['state'] = 'ready'
                 new_node = SparkNode(**new_plan)
                 self.add_node_in(current_node, new_node)
+                if new_node.input_name:
+                    new_names.append(new_node.input_name)
+                if new_node.output_name:
+                    new_names.append(new_node.output_name)
             # 自己状态切换成为working
             self.start_todo_node(current_node)
-            return True
+            return True, new_names
         
         if posistion == 'after':
             parent_node = self.get_node_parent(current_node)
@@ -255,11 +264,15 @@ class Scratch:
                     new_plan['state'] = 'ready'
                     new_node = SparkNode(**new_plan)
                     self.add_node_in(parent_node, new_node)
+                    if new_node.input_name:
+                        new_names.append(new_node.input_name)
+                    if new_node.output_name:
+                        new_names.append(new_node.output_name)
                 # 完成自己
                 self.success_node(current_node)
-                return True
+                return True, new_names
             else:
                 print('fail: update_plans, position is after, but parent is None')
-                return False
+                return False, new_names
         print(f'Warning: update_plans not implement. position {posistion} not in [inner, after]')
-        return False
+        return False, new_names

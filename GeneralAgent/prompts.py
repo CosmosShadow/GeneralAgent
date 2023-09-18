@@ -1,4 +1,4 @@
-# --------------------------------------plan prompt--------------------------------------
+# --------------------------------------input prompt--------------------------------------
 input_prompt = \
 """
 你是一个沟通Agent A，正在和用户交流，搭档计划执行Agent B，以完成任务。
@@ -41,28 +41,32 @@ input_prompt_json_schema = \
 {"case": "output" | "continue" | "plan", "content": "xxx"}
 """
 
+
+# --------------------------------------plan prompt--------------------------------------
+
 plan_prompt = \
 """
-你是一个计划制定者，根据任务和上下文计划，更新计划，以完成用户需求。
-当用户的需求不清晰和不完善时，优先询问用户澄清需求。
+你是一个计划制定者，根据任务上下文，更新计划，以完成用户需求。
 
-# 计划样式和规则
+# 任务参数 role | action | state | input_name | output_name | content
+* role: str = 'user' | 'system' | 'root'  # 任务的角色
+* action: str = 'input' | 'output' | 'plan' | 'write_code' | 'run_code' # 功能类型
+* state: str = 'ready' | 'working' | 'success' | 'fail' # 任务状态，新计划的state只能是ready，其他状态只能由系统更新
+* content: str = '' # 任务内容
+* input_name: str = null   # 任务的输入，是变量名称
+* output_name: str = null # 任务的输出，是变量名称
+
+# plan demo
 ```
-[id]: 1 [role]: user, [action]: input, [state]: success, [content]: 帮我计算0.99的1000次方, [input_name]: None, [output_name]: null, [parent]: 0
-    [id]: 2 [role]: system, [action]: write_code, [state]: ready, [content]: 计算0.99的1000次方，将结果转为字符串，保持到变量data_0中, [input_name]: None, [output_name]: code_0, [parent]: 1
-    [id]: 3 [role]: system, [action]: run_code, [state]: ready, [content]: None, [input_name]: code_0, [output_name]: None, [parent]: 1
-    [id]: 4 [role]: system, [action]: output, [state]: ready, [content]: None, [input_name]: data_0, [output_name]: None, [parent]: 1
+user<input><success>: None=>None, 帮我计算0.99的1000次方
+    [current] system<write_code><ready>: None=>code_0, 计算0.99的1000次方，将结果转为字符串，保持到变量data_0
+    system<run_code><ready>: code_0 => None, 
+    system<output><ready>: data_0 => None, 
 ```
+
 * 计划是列表和缩进的组合，每个任务占一行，缩进表示任务的层级关系。
+* [current] 表示当前执行的任务
 * 当父任务的最后一个子任务完成时，会将子任务的input_name(when action=='output')或者output_name设置成为父任务的output_name。
-
-# 任务参数:
-role: str = 'user' | 'system' | 'root'  # 任务的角色
-action: str = 'input' | 'output' | 'plan' | 'write_code' | 'run_code' # 功能类型
-state: str = 'ready' | 'working' | 'success' | 'fail' # 任务状态，新计划的state只能是ready，其他状态只能由系统更新
-content: str = '' # 任务内容
-input_name: str = null   # 任务的输入，是变量名称
-output_name: str = null # 任务的输出，是变量名称
 
 # 任务的action
 * input: 用户输入，内容保存在content或者input_name中。
@@ -93,18 +97,15 @@ output_name: str = null # 任务的输出，是变量名称
 # DEMO
 
 ## task: 
-[id]: 1 [role]: user, [action]: input, [state]: ready, [content]: 帮我计算1到1000的和, [input_name]: None, [output_name]: None, [parent]: 0
+```
+user | input | ready | None | None | 帮我计算1到1000的和
+```
 
 ## response:
 
 {"position": "after", "new_plans": [{"action": "write_code", "content": "计算1到1000的和，并转成字符串后保存在变量name_0中", "input_name": null, "output_name": "code_0"}, {"action": "run_code", "content": null, "input_name": "code_0", "output_name": null},{"action": "output", "content": null, "input_name": "name_0", "output_name": null}]}
 
-# 任务
-```
-{{task}}
-```
-
-# 任务的上下文计划
+# 任务上下文
 ```
 {{old_plan}}
 ```
@@ -139,11 +140,6 @@ write_code_prompt = \
 # 任务
 ```
 {{task}}
-```
-
-# 任务上下文: 
-```
-{{task_enviroment}} 
 ```
 
 Please only response the python code, no explain, no need start with ```python.
