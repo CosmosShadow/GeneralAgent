@@ -22,7 +22,7 @@ class SparkNode:
     #     return f'[id]: {self.node_id} [role]: {self.role}, [action]: {self.action}, [state]: {self.state}, [content]: {self.content}, [input_name]: {self.input_name}, [output_name]: {self.output_name}, [parent]: {self.parent}'
 
     def __str__(self):
-        return f'{self.role} | {self.action} | {self.state} | {self.input_name} | {self.output_name} | {self.content}'
+        return f'{self.role}<{self.action}><{self.state}>: {self.input_name} => {self.output_name}, {self.content}'
     
     def __repr__(self):
         return str(self)
@@ -146,22 +146,24 @@ class Scratch:
         # 获取节点环境，返回节点上左右下的节点描述(string)
         intent_char = '    '
         get_intent = lambda index: intent_char * index + ' '
+        intent_start_index = 0
         lines = []
         parent = self.get_node_parent(node)
         if parent:
             if not parent.is_root():
                 lines.append(get_intent(0) + str(parent))
+                intent_start_index = 1
             brothers = [self.get_node(node_id) for node_id in parent.childrens]
             left_brothers = brothers[:brothers.index(node)]
             right_brothers = brothers[brothers.index(node)+1:]
             for left_brother in left_brothers:
-                lines.append(get_intent(1) + str(left_brother))
-            lines.append(get_intent(1) + '[current] ' + str(node))
+                lines.append(get_intent(intent_start_index) + str(left_brother))
+            lines.append(get_intent(intent_start_index) + '[current] ' + str(node))
             childrens = [self.get_node(node_id) for node_id in node.childrens]
             for children in childrens:
-                lines.append(get_intent(2) + str(children))
+                lines.append(get_intent(intent_start_index+1) + str(children))
             for right_brother in right_brothers:
-                lines.append(get_intent(1) + str(right_brother))
+                lines.append(get_intent(intent_start_index) + str(right_brother))
         return '\n'.join(lines)
     
     def get_all_description_of_node(self, node, intend_char='    ', depth=0):

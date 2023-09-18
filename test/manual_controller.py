@@ -10,7 +10,7 @@ def test_write_aigc_business_plan():
     workspace = './test_workspace'
     if os.path.exists(workspace): shutil.rmtree(workspace)
     controller = Controller(workspace='./test_workspace')
-    # input_value = '帮我写一份关于AIGC创业的商业计划'
+    # input_value = '帮我写一份关于AI画画的商业计划'
     for_node_id = None
     try:
         while True:
@@ -31,7 +31,7 @@ def test_write_aigc_business_plan():
         # print(controller.scratch)
         if os.path.exists(workspace): shutil.rmtree(workspace)
 
-    # 帮我写一份关于AIGC创业的商业计划
+    # 帮我写一份关于AI画画的商业计划
     #  > 业务范围、目标市场、客户群体、竞争优势
     # 业务范围是AI画画，用户输入描述，AI画画输出图片，目标市场是全球，客户群体是喜欢画画的人，竞争优势是AI画画的效果好
     #  > 业务范围、目标市场、客户群体、竞争优势

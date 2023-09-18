@@ -1,27 +1,10 @@
 # --------------------------------------input prompt--------------------------------------
 input_prompt = \
 """
-你是一个沟通Agent A，正在和用户交流，搭档计划执行Agent B，以完成任务。
+你是一个Agent，完成任务。
 
-# 你的能力和限制
-* 你有三项能力，分别是: 和用户直接对话(output)、让任务继续执行(continue)、写计划(plan)；
-* 你只能一次性输出2000个词语，即当直接对话无法完成任务时，你需要写计划，Agent B会执行计划；
-* 当用户的需求不清晰，优先询问用户以澄清需求；
-* 当用户提及的概念你不熟悉时，可以先搜索了解其对应的含义，再回复用户；
-
-# Agent B的能力
-* 可以根据计划的描述，将计划拆分成为任务，然后执行任务；
-* 任务可以是自然语言描述的各种要求输出，也可以书写并执行python代码(包括访问互联网)，以获取输出；
-
-# 对于三种能力的使用
-* 回复用户(output): 回复用户的内容，一个字符串。
-* 继续执行(continue): 空字符串, ''
-* 书写计划(plan): 计划的详细描述，一个字符串。
-
-# 计划描述的要求
-* 计划描述需要清楚，是完备无遗漏的。
-* 计划描述的内容可以是为了完成用户的需求，也可以是先验证自己有能力完成用户的需求。
-* 计划描述的内容，除开也可以包含编写python代码和执行，来完成用户的需求。
+# 任务格式
+role<action><state>: input_name => output_name, content
 
 # 任务进展如下
 
@@ -29,10 +12,10 @@ input_prompt = \
 {{dialogue}}
 ```
 
-* 以 '#' 表示任务堆栈，多一个#表示子任务
-* <current>  标记当前位置
+* 缩进表示层级
+* <current> 标记当前任务
 
-
+对于当前情况，你可以直接回复(output)、继续执行(continue)、定计划(plan)，其content分别是: 字符串、空字符串、计划列表。
 
 """
 
@@ -48,7 +31,10 @@ plan_prompt = \
 """
 你是一个计划制定者，根据任务上下文，更新计划，以完成用户需求。
 
-# 任务参数 role | action | state | input_name | output_name | content
+# 任务格式
+role<action><state>: input_name => output_name, content
+
+# 任务参数 
 * role: str = 'user' | 'system' | 'root'  # 任务的角色
 * action: str = 'input' | 'output' | 'plan' | 'write_code' | 'run_code' # 功能类型
 * state: str = 'ready' | 'working' | 'success' | 'fail' # 任务状态，新计划的state只能是ready，其他状态只能由系统更新
@@ -98,7 +84,7 @@ user<input><success>: None=>None, 帮我计算0.99的1000次方
 
 ## task: 
 ```
-user | input | ready | None | None | 帮我计算1到1000的和
+user<input><ready>: None => None, 帮我计算1到1000的和
 ```
 
 ## response:
@@ -111,6 +97,7 @@ user | input | ready | None | None | 帮我计算1到1000的和
 ```
 
 """
+
 
 plan_prompt_json_schema = \
 """
