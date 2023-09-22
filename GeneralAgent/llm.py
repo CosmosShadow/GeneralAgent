@@ -40,6 +40,7 @@ def md5(obj):
 
 
 def llm_inference(messages):
+    # print(messages)
     global global_cache
     table = 'llm'
     key = md5(messages)
@@ -49,6 +50,7 @@ def llm_inference(messages):
     model = os.environ.get('OPENAI_API_MODEL', 'gpt-4')
     response = openai.ChatCompletion.create(model=model, messages=messages)
     result = response['choices'][0]['message']['content'].strip()
+    # print(result)
     global_cache.set(table, key, result)
     return result
 

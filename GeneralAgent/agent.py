@@ -20,7 +20,7 @@ class Agent:
             os.makedirs(workspace)
         self.memory = Memory(f'{workspace}/memory.json')
         self.interpreter = CodeInterpreter(f'{workspace}/code.bin')
-        self.tools = tools or Tools([scrape_web, llm])
+        self.tools = tools or Tools([])
 
     def run(self, input=None, for_node_id=None, output_recall=None):
         input_node = self.insert_node(input, for_node_id) if input is not None else None

@@ -24,12 +24,20 @@ class CodeInterpreter:
                 self.globals = data['globals']
 
     def save(self):
-        # remove non-serializable variables: __builtins__ and module
+        # remove __builtins__
         if '__builtins__' in self.globals:
             self.globals.__delitem__('__builtins__')
+        # remove module
+        # keys = list(self.globals.keys())
+        # for key in keys:
+        #     if str(type(self.globals[key])) == "<class 'module'>":
+        #         self.globals.__delitem__(key)
+        # remove non-serializable variables
         keys = list(self.globals.keys())
         for key in keys:
-            if str(type(self.globals[key])) == "<class 'module'>":
+            try:
+                pickle.dumps(self.globals[key])
+            except Exception as e:
                 self.globals.__delitem__(key)
         # save
         with open(self.serialize_path, 'wb') as f:
@@ -40,6 +48,9 @@ class CodeInterpreter:
         code = add_print(code)
         code = import_code + '\n' + code
         globals_backup = pickle.dumps(self.globals)
+        # print('-------<code>-------')
+        # print(code)
+        # print('-------</code>-------')
         output = io.StringIO()
         sys.stdout = output
         success = False
@@ -66,28 +77,12 @@ class CodeInterpreter:
     def set_variable(self, name, value):
         self.globals[name] = value
 
-
-# def add_print(code_str):
-#     """add print for varible line, for example: a = 1\na => a = 1\nprint(a)"""
-#     import re
-#     var_pattern = r'\b[a-zA-Z_]\w*\b\s*'
-#     lines = code_str.split('\n')
-#     for i, line in enumerate(lines):
-#         match = re.search(var_pattern, line)
-#         if match:
-#             var_name = match.group().strip()
-#             lines[i] = f'{var_name} = print({var_name})'
-#     new_code_str = '\n'.join(lines)
-#     return new_code_str
-
 def add_print(code_string):
     import re
-    # 匹配只有一个变量名称的行
     pattern = r'^(\s*)(\w+)(\s*)$'
     lines = code_string.split('\n')
     for i, line in enumerate(lines):
         match = re.match(pattern, line)
         if match:
-            # 在行开头加上print
             lines[i] = f'{match.group(1)}print({match.group(2)}){match.group(3)}'
     return '\n'.join(lines)
