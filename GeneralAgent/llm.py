@@ -9,7 +9,7 @@ import re
 from numpy import dot
 from numpy.linalg import norm
 from GeneralAgent.keys import OPENAI_API_KEY, OPENAI_API_BASE
-# from GeneralAgent.keys import OPENAI_ORGANIZATION
+import logging
 
 class TinyDBCache():
     def __init__(self, save_path):
@@ -42,21 +42,22 @@ def _llm_inference_messages(messages, think_deep=False):
     if think_deep:
         model = 'gpt-4'
     else:
-        model = 'gpt-3.5-turbo-16k'
+        model = 'gpt-3.5-turbo'
 
-    print('\n' + '-' * 50 + f'<{model}>' + '-' * 50)
+    logging.info('\n' + '-' * 50 + f'<{model}>' + '-' * 50)
     for message in messages:
-        print(f'[{message["role"]}] {message["content"]}')
+        logging.info(f'[{message["role"]}] {message["content"]}')
 
     openai.api_key = OPENAI_API_KEY
     # if model.startswith('gpt-4'):
     #     openai.organization = OPENAI_ORGANIZATION
     openai.api_base = OPENAI_API_BASE or 'https://api.openai.com/v1'
     response = openai.ChatCompletion.create(model=model, messages=messages)
+    # logging.info(response)
     result = response['choices'][0]['message']['content'].strip()
     
-    print(f'[response] {result}')
-    print('-' * 50 + f'</{model}>' + '-' * 50 + '\n')
+    logging.info(f'[response] {result}')
+    logging.info('-' * 50 + f'</{model}>' + '-' * 50 + '\n')
     
     return result
 
@@ -67,11 +68,11 @@ def llm_inference_messages(messages, force_run=False, think_deep=False):
     if not force_run:
         result = llm_cache.get(key)
         if result is not None:
-            print(f'cache {key} hitted')
+            logging.info(f'cache {key} hitted')
             return result
         else:
-            print('no cache hitted')
-    print('key: ', key)
+            logging.info('no cache hitted')
+    logging.info('key: ', key)
     result = _llm_inference_messages(messages, think_deep=think_deep)
     llm_cache.set(key, result)
     return result
@@ -85,9 +86,8 @@ def llm_inference(prompt, force_run, think_deep=False):
     return llm_inference_messages(messages, force_run=force_run, think_deep=think_deep)
 
 def _translate_eng(text, force_run=False):
-    system_prompt = [{"role": "system", "content": f"You are a translator, translate text below to english. Do not translate {{{{}}}}."}]
-    messages = system_prompt + [{"role": "user", "content": text}]
-    result = llm_inference_messages(messages, force_run=force_run)
+    prompt = "将下面-----------包围起来的内容翻译成英文，不要翻译{{{{}}}，不要输出-----------\n-----------\n" + text + "\n-----------"
+    result = llm_inference(prompt, force_run=force_run)
     return result
 
 def is_english(text):
@@ -127,7 +127,7 @@ def fix_llm_json_str(string):
         json.loads(new_string)
         return new_string
     except Exception as e:
-        print("fix_llm_json_str failed 1:", e)
+        logging.info("fix_llm_json_str failed 1:", e)
         try:
             pattern = r'```json(.*?)```'
             match = re.findall(pattern, new_string, re.DOTALL)
@@ -137,17 +137,17 @@ def fix_llm_json_str(string):
             json.loads(new_string)
             return new_string
         except Exception as e:
-            print("fix_llm_json_str failed 2:", e)
+            logging.info("fix_llm_json_str failed 2:", e)
             try:
                 new_string = new_string.replace("\n", "\\n")
                 json.loads(new_string)
                 return new_string
             except Exception as e:
-                print("fix_llm_json_str failed 3:", e)
+                logging.info("fix_llm_json_str failed 3:", e)
                 content = f"""Do not change the specific content, fix the json, directly return the repaired JSON (can be load by json.loads in Python), without any explanation and dialogue.\n```\n{new_string}\ n```"""
                 ctx = [{"role": "system", "content": content}]
 
-                message = llm_inference_messages(ctx, force_run=True)
+                message = llm_inference_messages(ctx, force_run=False)
                 pattern = r'```json(.*?)```'
                 match = re.findall(pattern, message, re.DOTALL)
                 if match:
@@ -168,6 +168,10 @@ def prompt_call(prompt, variables, json_schema=None, force_run=False, think_deep
         return json.loads(fix_llm_json_str(result))
     else:
         return llm_inference(prompt, force_run=force_run, think_deep=think_deep)
+    
+def translate_and_render(prompt, variables):
+    prompt = translate_eng(prompt.strip())
+    return Template(prompt).render(**variables)
 
 
 embedding_cache = TinyDBCache('./embedding_cache.json')
@@ -189,3 +193,26 @@ def embedding_fun(text):
 def cos_sim(a, b): 
     # This function calculates the cosine similarity (scalar value) between two input vectors 'a' and 'b' (1-D array object), and return the similarity.
     return dot(a, b)/(norm(a)*norm(b))
+
+def num_tokens_from_string(str):
+    """Calculate and return the token count in a given string."""
+    import tiktoken
+    encoding = tiktoken.get_encoding("cl100k_base")
+    tokens = encoding.encode(str)
+    return len(tokens)
+
+def num_tokens_from_messages(messages):
+    "Calculate and return the total number of tokens in the provided messages."
+    import tiktoken
+    encoding = tiktoken.get_encoding("cl100k_base")
+    tokens_per_message = 4
+    tokens_per_name = 1
+    num_tokens = 0
+    for message in messages:
+        num_tokens += tokens_per_message
+        for key, value in message.items():
+            num_tokens += len(encoding.encode(value))
+            if key == "name":
+                num_tokens += tokens_per_name
+    num_tokens += 3  # every reply is primed with <|start|>assistant<|message|>
+    return num_tokens

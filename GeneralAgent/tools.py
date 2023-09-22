@@ -10,16 +10,8 @@ from GeneralAgent.llm import llm_inference
 
 def google_search(query: str) -> dict:
     """
-    google search with query, return a result in dict.
-    return:
-    {
-        "knowledgeGraph": {"title": "", "type": "", "website": "", "imageUrl": "", "description": "", "descriptionSource": "", "descriptionLink": "", "attributes": {"x": "x"}},
-        "organic": [{"title": "", "link": "", "snippet": "", "sitelinks": [{"title": "","link": ""}],"position": 1},{"title": "x", "link": "x", "snippet": "x","position": 2}],
-        "peopleAlsoAsk": [{"question": "","snippet": "","title": "","link": ""}],
-        "relatedSearches": [{"query": ""}]
-    }
+    google search with query, return a result in list like [{"title": "xx", "link": "xx", "snippet": "xx"}]
     """
-    # 返回一个可以被json.loads加载的字符串
     url = "https://google.serper.dev/search"
     payload = json.dumps({"q": query})
     headers = {
@@ -28,7 +20,9 @@ def google_search(query: str) -> dict:
     }
     response = requests.request("POST", url, headers=headers, data=payload)
     result = json.loads(response.text)
-    return result
+    # 提取organic的title、link、snippet
+    organic = [{'title': item['title'], 'link': item['link'], 'snippet': item['snippet']} for item in result['organic']]
+    return organic
 
 
 def wikipedia_search(query: str) -> str:
@@ -80,13 +74,16 @@ def wikipedia_search(query: str) -> str:
 
 def scrape_web(url: str) -> BeautifulSoup:
     """
+    Scrape web page, return (title: str, text: str, image_urls: [str], hyperlinks: [str]) when success, otherwise return None.
+    """
+    """
     Scrape web page, return BeautifulSoup object soup when success, otherwise return None.
     page title: soup.title.string
     page text content: re.sub(r'<style.*?</style>', '', soup.get_text(), flags=re.DOTALL) (you should import re first)
     image urls: [image['src'] for image in soup.find_all('img')]
     hyperlinks: [(link.text, urljoin(url, link["href"])) for link in soup.find_all("a", href=True) if urljoin(url, link["href"].startswith('http'))] (from requests.compat import urljoin first)
     """
-    soup = None
+    import re
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
@@ -95,18 +92,20 @@ def scrape_web(url: str) -> BeautifulSoup:
             page.wait_for_load_state()
             html_content = page.content()
             soup = BeautifulSoup(html_content, "html.parser")
+            title = soup.title.string
+            text = re.sub(r'<style.*?</style>', '', soup.get_text(), flags=re.DOTALL)
+            image_urls = [image['src'] for image in soup.find_all('img')]
+            hyperlinks = [(link.text, urljoin(url, link["href"])) for link in soup.find_all("a", href=True) if urljoin(url, link["href"]).startswith('http')]
+            return soup, title, text, image_urls, hyperlinks
         except Exception as e:
             import logging
             logging.exception(e)
         finally:
             browser.close()
-    return soup
+    return None
 
 def llm(question: str) -> str:
-    """
-    llm(large language model)，输入问题，返回答案，要求question和answer的长度和小于8000字。
-    比如: llm('翻译一下文字: 我爱中国') -> 'I love China'
-    """
+    """ llm(large language model)，输入问题，返回答案。question和answer的长度和小于8000字。比如: llm('翻译一下文字: 我爱中国') -> 'I love China' """
     return llm_inference(question, force_run=True, think_deep=False)
 
 
