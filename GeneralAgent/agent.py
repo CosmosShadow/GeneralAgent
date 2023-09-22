@@ -58,6 +58,7 @@ class Agent:
         }
         system_prompt = Template(general_agent_prompt).render(**system_variables)
         messages = [{'role': 'system', 'content': system_prompt}] + self.memory.get_related_messages_for_node(node)
+        # TODO: when messages exceed limit
         llm_response = llm_inference_messages(messages, force_run=False, think_deep=True)
 
         # answer node

@@ -78,48 +78,11 @@ def llm_inference_messages(messages, force_run=False, think_deep=False):
     return result
 
 
-
 def llm_inference(prompt, force_run, think_deep=False):
     # 缓存
     system_prompt = [{"role": "system", "content": 'You are a helpful assistant.'}]
     messages = system_prompt + [{"role": "user", "content": prompt}]
     return llm_inference_messages(messages, force_run=force_run, think_deep=think_deep)
-
-def _translate_eng(text, force_run=False):
-    prompt = "将下面-----------包围起来的内容翻译成英文，不要翻译{{{{}}}，不要输出-----------\n-----------\n" + text + "\n-----------"
-    result = llm_inference(prompt, force_run=force_run)
-    return result
-
-def is_english(text):
-    """Check if a string is an English string."""
-    import string
-    # Remove all whitespace characters
-    text = ''.join(text.split())
-    # Check if all characters are in the ASCII range
-    if all(ord(c) < 128 for c in text):
-        # Check if the string contains any non-English characters
-        for c in text:
-            if c not in string.ascii_letters and c not in string.punctuation and c not in string.digits and c not in string.whitespace:
-                return False
-        return True
-    else:
-        return False
-
-
-def translate_eng(text):
-    # 如果是英文，返回原文，不缓存
-    if is_english(text):
-        return text
-    else:
-        en = _translate_eng(text, force_run=False)
-        retry_count = 0
-        while retry_count < 3 and re.findall(r'{{.*?}}', text) != re.findall(r'{{.*?}}', en):
-            en = _translate_eng(text, force_run=True)
-            retry_count += 1
-        if re.findall(r'{{.*?}}', text) != re.findall(r'{{.*?}}', en):
-            raise Exception(f"translate_eng failed: {text} -> {en}")
-        return en
-
 
 def fix_llm_json_str(string):
     new_string = string.strip()
@@ -160,7 +123,6 @@ Response Format example: \n"""
 
 def prompt_call(prompt, variables, json_schema=None, force_run=False, think_deep=False):
     # 通过prompt将大模型异化成为函数，并可以通过json_schema返回格式化数据
-    prompt = translate_eng(prompt.strip())
     prompt = Template(prompt).render(**variables)
     if json_schema is not None:
         prompt += return_json_prompt + json_schema.strip()
@@ -168,10 +130,6 @@ def prompt_call(prompt, variables, json_schema=None, force_run=False, think_deep
         return json.loads(fix_llm_json_str(result))
     else:
         return llm_inference(prompt, force_run=force_run, think_deep=think_deep)
-    
-def translate_and_render(prompt, variables):
-    prompt = translate_eng(prompt.strip())
-    return Template(prompt).render(**variables)
 
 
 embedding_cache = TinyDBCache('./embedding_cache.json')
