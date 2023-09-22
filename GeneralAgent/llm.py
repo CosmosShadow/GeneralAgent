@@ -6,11 +6,16 @@ from tinydb import TinyDB, Query
 from numpy.linalg import norm
 
 class TinyDBCache():
-    def __init__(self, save_path):
-        save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), save_path)
-        self.db = TinyDB(save_path)
+    def __init__(self):
+        LLM_CACHE = os.environ.get('LLM_CACHE', 'no')
+        if LLM_CACHE in ['yes', 'y', 'YES']:
+            self.db = TinyDB(os.path.join(os.path.dirname(os.path.abspath(__file__)), './cache.json'))
+        else:
+            self.db = None
 
     def get(self, table, key):
+        if self.db is None:
+            return None
         result = self.db.table(table).get(Query().key == key)
         if result is not None:
             return result['value']
@@ -18,9 +23,12 @@ class TinyDBCache():
             return None
 
     def set(self, table, key, value):
+        if self.db is None:
+            return
         self.db.table(table).upsert({'key': key, 'value': value}, Query().key == key)
 
-global_cache = TinyDBCache('./cache.json')
+
+global_cache = TinyDBCache()
 
 
 def md5(obj):

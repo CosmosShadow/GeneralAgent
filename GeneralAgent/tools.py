@@ -1,16 +1,20 @@
 # 工具集，code可以操作的东西
+import os
 import json
 import requests
 from bs4 import BeautifulSoup
 from requests.compat import urljoin
 from playwright.sync_api import sync_playwright
-from GeneralAgent.keys import SERPER_API_KEY
 from GeneralAgent.llm import llm_inference
 
 def google_search(query: str) -> dict:
     """
     google search with query, return a result in list like [{"title": "xx", "link": "xx", "snippet": "xx"}]
     """
+    SERPER_API_KEY = os.environ.get('SERPER_API_KEY', None)
+    if SERPER_API_KEY is None:
+        print('Please set SERPER_API_KEY in environment variable first.')
+        return None
     url = "https://google.serper.dev/search"
     payload = json.dumps({"q": query})
     headers = {
