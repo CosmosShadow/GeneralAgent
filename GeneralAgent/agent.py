@@ -6,7 +6,7 @@ import os, re
 from jinja2 import Template
 from collections import OrderedDict
 from GeneralAgent.prompts import general_agent_prompt
-from GeneralAgent.llm import llm_inference_messages
+from GeneralAgent.llm import llm_inference
 from GeneralAgent.memory import Memory, MemoryNode
 from GeneralAgent.interpreter import CodeInterpreter
 from GeneralAgent.tools import Tools, scrape_web, llm
@@ -23,7 +23,7 @@ class Agent:
         self.tools = tools or Tools([scrape_web, llm])
 
     def run(self, input=None, for_node_id=None, output_recall=None):
-        input_node = self.insert_input(input, for_node_id) if input is not None else None
+        input_node = self.insert_node(input, for_node_id) if input is not None else None
         todo_node = self.memory.get_todo_node() or input_node
         while todo_node is not None:
             if len(todo_node.childrens) > 0 and self.memory.is_all_children_success(todo_node):
@@ -38,7 +38,7 @@ class Agent:
             todo_node = self.memory.get_todo_node()
         return None
 
-    def insert_input(self, input, for_node_id=None):
+    def insert_node(self, input, for_node_id=None):
         node = MemoryNode(role='user', action='input', content=input)
         if for_node_id is None:
             self.memory.add_node(node)
@@ -59,7 +59,7 @@ class Agent:
         system_prompt = Template(general_agent_prompt).render(**system_variables)
         messages = [{'role': 'system', 'content': system_prompt}] + self.memory.get_related_messages_for_node(node)
         # TODO: when messages exceed limit
-        llm_response = llm_inference_messages(messages, force_run=False, think_deep=True)
+        llm_response = llm_inference(messages, force_run=False, think_deep=True)
 
         # answer node
         answer_node = MemoryNode(role='system', action='answer', content=llm_response)

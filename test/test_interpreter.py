@@ -1,5 +1,5 @@
 from base_setting import *
-from GeneralAgent.code_workspace import CodeWorkspace
+from GeneralAgent.interpreter import CodeInterpreter
 import os
 
 init_code = """
@@ -10,19 +10,19 @@ from GeneralAgent.tools import google_search, wikipedia_search, scrape_web, Tool
 from GeneralAgent.llm import prompt_call
 """
 
-def test_CodeWorkspace():
-    serialize_path = './test_code_workspace.pkl'
+def test_CodeInterpreter():
+    serialize_path = './test_interpreter.bin'
     if os.path.exists(serialize_path): os.remove(serialize_path)
 
     # 基础
-    code_workspace = CodeWorkspace(serialize_path, init_code)
-    success, sys_stdout = code_workspace.run_code('hello world', 'print("hello world")')
+    interpreter = CodeInterpreter(serialize_path, init_code)
+    success, sys_stdout = interpreter.run_code('hello world', 'print("hello world")')
     # print(success, sys_stdout)
 
     # 表达式
-    code_workspace.set_variable('a', 10)
-    success, sys_stdout = code_workspace.run_code('add self', 'a += 1')
-    a = code_workspace.get_variable('a')
+    interpreter.set_variable('a', 10)
+    success, sys_stdout = interpreter.run_code('add self', 'a += 1')
+    a = interpreter.get_variable('a')
     assert a == 11
 
     # 工具: 爬取网页
@@ -31,10 +31,10 @@ url = 'https://tongtianta.ai'
 soup = scrape_web(url)
 title = soup.title.string
 """
-    success, sys_stdout = code_workspace.run_code('scrape web', code)
+    success, sys_stdout = interpreter.run_code('scrape web', code)
     # print(sys_stdout)
     assert success
-    title = code_workspace.get_variable('title')
+    title = interpreter.get_variable('title')
     assert title == '通天塔AI'
 
     # 工具: 大模型
@@ -45,9 +45,9 @@ json_schema = \"\"\" {"source": "{text to translate}","translated": "{the transl
 result = prompt_call(prompt, variables, json_schema)
 """
     # print(code)
-    success, sys_stdout = code_workspace.run_code('prompt call', code)
+    success, sys_stdout = interpreter.run_code('prompt call', code)
     assert success
-    result = code_workspace.get_variable('result')
+    result = interpreter.get_variable('result')
     # print(result)
     assert result['source'] == 'I love china'
     assert result['translated'] == '我爱中国'
@@ -58,4 +58,4 @@ result = prompt_call(prompt, variables, json_schema)
 
 
 if __name__ == '__main__':
-    test_CodeWorkspace()
+    test_CodeInterpreter()

@@ -9,3 +9,4 @@ test/test_workspace/scratch.json
 test/test_workspace/memory.json
 test/test_workspace/code.bin
 test/scratch.json
+GeneralAgent/.env

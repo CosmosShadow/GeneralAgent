@@ -1,15 +1,12 @@
-# 测试Controller
 from base_setting import *
 import os
 import shutil
-from GeneralAgent.controller import Controller
-from GeneralAgent.scratch import SparkNode
+from GeneralAgent.agent import Agent
 
 def test_write_aigc_business_plan():
-    # 测试写一份商业计划
     workspace = './test_workspace'
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    controller = Controller(workspace='./test_workspace')
+    controller = Agent(workspace='./test_workspace')
     # input_value = '帮我写一份关于AI画画的商业计划'
     for_node_id = None
     try:
@@ -20,15 +17,10 @@ def test_write_aigc_business_plan():
                 break
             else:
                 node, output_value = result
-                print('-'*50 + '<controller.scratch>' + '-'*50)
-                print(controller.scratch)
-                print('-'*50 + '</controller.scratch>' + '-'*50)
-                print('\nsys >>> ' + str(output_value) + '\n')
                 for_node_id = node.node_id
     except KeyboardInterrupt:
         pass
     finally:
-        # print(controller.scratch)
         if os.path.exists(workspace): shutil.rmtree(workspace)
 
     # 帮我写一份关于AI画画的商业计划
@@ -38,9 +30,4 @@ def test_write_aigc_business_plan():
 
 
 if __name__ == '__main__':
-    # test_plan_1()
-    # test_plan_2()
-    # test_plan_3()
-    # test_math()
-    # test_scrape_news()
     test_write_aigc_business_plan()

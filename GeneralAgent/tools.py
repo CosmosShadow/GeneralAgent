@@ -1,6 +1,5 @@
 # 工具集，code可以操作的东西
 import json
-import os
 import requests
 from bs4 import BeautifulSoup
 from requests.compat import urljoin
@@ -106,7 +105,9 @@ def scrape_web(url: str) -> BeautifulSoup:
 
 def llm(question: str) -> str:
     """ llm(large language model)，输入问题，返回答案。question和answer的长度和小于8000字。比如: llm('翻译一下文字: 我爱中国') -> 'I love China' """
-    return llm_inference(question, force_run=True, think_deep=False)
+    system_prompt = [{"role": "system", "content": 'You are a helpful assistant.'}]
+    messages = system_prompt + [{"role": "user", "content": question}]
+    return llm_inference(messages)
 
 
 # send_message_fun(type, content)
