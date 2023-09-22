@@ -1,4 +1,5 @@
-# 控制器: 用于控制整个系统的运行
+# Agent
+
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -7,24 +8,17 @@ from jinja2 import Template
 from GeneralAgent.prompts import general_agent_prompt
 from GeneralAgent.llm import llm_inference_messages
 from GeneralAgent.memory import Memory, MemoryNode
-from GeneralAgent.code_interpreter import CodeInterpreter
+from GeneralAgent.interpreter import CodeInterpreter
 from GeneralAgent.tools import Tools, google_search, wikipedia_search, scrape_web, llm
-
 
 class Agent:
     def __init__(self, workspace, tools=None):
-        # workspace: 工作空间
         self.workspace = workspace
-        # 如果目录不存在，则创建
         if not os.path.exists(workspace):
             os.makedirs(workspace)
         self.memory = Memory(f'{workspace}/memory.json')
         self.code_workspace = CodeInterpreter(f'{workspace}/code.bin')
-        if tools is not None:
-            self.tools = tools
-        else:
-            self.tools = Tools()
-            self.tools.add_funs([google_search, wikipedia_search, scrape_web, llm])
+        self.tools = tools or Tools([google_search, wikipedia_search, scrape_web, llm])
 
     def run(self, content, for_node_id=None, send_message_recall=None):
         # 新增输入节点

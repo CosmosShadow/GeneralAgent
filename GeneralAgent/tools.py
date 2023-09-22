@@ -127,8 +127,8 @@ def get_function_signature(func):
 
 
 class Tools():
-    def __init__(self):
-        self.funs = []
+    def __init__(self, funs=[]):
+        self.funs = funs
 
     def add_funs(self, funs):
         self.funs += funs
