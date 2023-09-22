@@ -27,29 +27,31 @@ def test_structure_plan():
     assert len(plan_dict[key0]) == 1
     assert len(plan_dict[key1]) == 0
 
+def test_math():
+    pass
 
 def test_plan_1():
     workspace = './test_workspace'
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    controller = Agent(workspace='./test_workspace')
-    controller.run('帮我计算0.99的1000次方', step_count=2)
-    print(controller.memory)
+    agent = Agent(workspace='./test_workspace')
+    agent.run('帮我计算0.99的1000次方', step_count=2)
+    print(agent.memory)
     if os.path.exists(workspace): shutil.rmtree(workspace)
 
 def test_plan_2():
     workspace = './test_workspace'
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    controller = Agent(workspace='./test_workspace')
-    controller.run('帮我写一份关于AIGC创业的商业计划', step_count=2)
-    print(controller.memory)
+    agent = Agent(workspace='./test_workspace')
+    agent.run('帮我写一份关于AIGC创业的商业计划', step_count=2)
+    print(agent.memory)
     if os.path.exists(workspace): shutil.rmtree(workspace)
 
 def test_plan_3():
     workspace = './test_workspace'
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    controller = Agent(workspace='./test_workspace')
-    controller.run('帮我找一下tesla最新的5条新闻', step_count=2)
-    print(controller.memory)
+    agent = Agent(workspace='./test_workspace')
+    agent.run('帮我找一下tesla最新的5条新闻', step_count=2)
+    print(agent.memory)
     if os.path.exists(workspace): shutil.rmtree(workspace)
 
 def test_math():
@@ -61,11 +63,11 @@ def test_math():
     # 5 return value
     workspace = './test_workspace'
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    controller = Agent(workspace='./test_workspace')
-    node, result = controller.run('帮我计算0.99的1000次方', step_count=5)
-    print(controller.memory)
-    write_code_node = controller.memory.get_node(2)
-    code = controller.code_workspace.get_variable(write_code_node.output_name)
+    agent = Agent(workspace='./test_workspace')
+    node, result = agent.run('帮我计算0.99的1000次方', step_count=5)
+    print(agent.memory)
+    write_code_node = agent.memory.get_node(2)
+    code = agent.code_workspace.get_variable(write_code_node.output_name)
     # print(code)
     assert '0.99' in code
     assert '1000' in code
@@ -77,9 +79,9 @@ def test_scrape_news():
     # 测试抓取新闻
     workspace = './test_workspace'
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    controller = Agent(workspace='./test_workspace')
-    node, result = controller.run('帮我找一下tesla最新的5条新闻，中文返回给我', step_count=5)
-    print(controller.memory)
+    agent = Agent(workspace='./test_workspace')
+    node, result = agent.run('帮我找一下tesla最新的5条新闻，中文返回给我', step_count=5)
+    print(agent.memory)
     print(result)
     if os.path.exists(workspace): shutil.rmtree(workspace)
 

@@ -14,8 +14,8 @@ from GeneralAgent.tools import Tools, scrape_web, llm
 
 class Agent:
     def __init__(self, workspace, tools=None, max_plan_depth=4):
-        self.workspace = workspace
         self.max_plan_depth = max_plan_depth
+        self.workspace = workspace
         if not os.path.exists(workspace):
             os.makedirs(workspace)
         self.memory = Memory(f'{workspace}/memory.json')
