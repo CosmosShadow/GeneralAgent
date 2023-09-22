@@ -50,7 +50,8 @@ class Agent:
         return node
     
     def execute_node(self, node):
-        python_libs = ', '.join([line.strip() for line in open(os.path.join(os.path.dirname(__file__), 'requirements.txt'), 'r').readlines()])
+        # python_libs = ', '.join([line.strip() for line in open(os.path.join(os.path.dirname(__file__), 'requirements.txt'), 'r').readlines()])
+        python_libs = ''
         python_funcs = self.tools.get_funs_description()
         system_variables = {
             'python_libs': python_libs,
