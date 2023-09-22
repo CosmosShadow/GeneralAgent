@@ -1,13 +1,19 @@
 from base_setting import *
-from GeneralAgent.interpreter import CodeInterpreter
-import os
+from GeneralAgent.interpreter import CodeInterpreter, add_print
 
-init_code = """
-import os
-import sys
-sys.path.append('../')
-from GeneralAgent.tools import google_search, wikipedia_search, scrape_web, Tools
-from GeneralAgent.llm import prompt_call
+def test_add_print():
+    code = """
+a = 1
+a
+    c
+try:
+"""
+    code = add_print(code)
+    assert code == """
+a = 1
+print(a)
+    print(c)
+try:
 """
 
 def test_CodeInterpreter():
@@ -15,7 +21,7 @@ def test_CodeInterpreter():
     if os.path.exists(serialize_path): os.remove(serialize_path)
 
     # 基础
-    interpreter = CodeInterpreter(serialize_path, init_code)
+    interpreter = CodeInterpreter(serialize_path)
     success, sys_stdout = interpreter.run_code('hello world', 'print("hello world")')
     # print(success, sys_stdout)
 
@@ -58,4 +64,5 @@ result = prompt_call(prompt, variables, json_schema)
 
 
 if __name__ == '__main__':
-    test_CodeInterpreter()
+    test_add_print()
+    # test_CodeInterpreter()

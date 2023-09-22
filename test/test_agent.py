@@ -28,7 +28,13 @@ def test_structure_plan():
     assert len(plan_dict[key1]) == 0
 
 def test_math():
-    pass
+    workspace = './test_workspace'
+    if os.path.exists(workspace): shutil.rmtree(workspace)
+    agent = Agent(workspace='./test_workspace')
+    def _output_recall(result):
+        print(result)
+        assert '4.317124741065786e-05' in result
+    for_node_id = agent.run('帮我计算0.99的1000次方', output_recall=_output_recall)
 
 def test_plan_1():
     workspace = './test_workspace'
@@ -54,27 +60,6 @@ def test_plan_3():
     print(agent.memory)
     if os.path.exists(workspace): shutil.rmtree(workspace)
 
-def test_math():
-    # step
-    # 1 input
-    # 2 plan
-    # 3 write code
-    # 4 run code
-    # 5 return value
-    workspace = './test_workspace'
-    if os.path.exists(workspace): shutil.rmtree(workspace)
-    agent = Agent(workspace='./test_workspace')
-    node, result = agent.run('帮我计算0.99的1000次方', step_count=5)
-    print(agent.memory)
-    write_code_node = agent.memory.get_node(2)
-    code = agent.code_workspace.get_variable(write_code_node.output_name)
-    # print(code)
-    assert '0.99' in code
-    assert '1000' in code
-    assert result == str(0.99 ** 1000)
-    print(result)
-    if os.path.exists(workspace): shutil.rmtree(workspace)
-
 def test_scrape_news():
     # 测试抓取新闻
     workspace = './test_workspace'
@@ -92,4 +77,5 @@ if __name__ == '__main__':
     # test_plan_3()
     # test_math()
     # test_scrape_news()
-    test_structure_plan()
+    # test_structure_plan()
+    test_math()

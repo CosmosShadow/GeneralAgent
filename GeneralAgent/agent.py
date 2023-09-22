@@ -60,7 +60,7 @@ class Agent:
         system_prompt = Template(general_agent_prompt).render(**system_variables)
         messages = [{'role': 'system', 'content': system_prompt}] + self.memory.get_related_messages_for_node(node)
         # TODO: when messages exceed limit
-        llm_response = llm_inference(messages, force_run=False, think_deep=True)
+        llm_response = llm_inference(messages)
 
         # answer node
         answer_node = MemoryNode(role='system', action='answer', content=llm_response)
@@ -84,17 +84,16 @@ class Agent:
     def run_code_in_text(self, string):
         pattern = re.compile(r'```python\n(.*?)\n```', re.DOTALL)
         matches = pattern.findall(string)
-        for match in matches:
-            success, sys_out = self.interpreter.run_code('replace_python_code_blocks', match)
+        for code in matches:
+            success, sys_out = self.interpreter.run_code(code)
             # TODO: when success is False, do something
-            string = string.replace('```python\n{}\n```'.format(match), sys_out)
+            string = string.replace('```python\n{}\n```'.format(code), sys_out)
         return string
     
     def replace_variable_in_text(self, string):
         pattern = re.compile(r'#\$(.*?)\$#', re.DOTALL)
         matches = pattern.findall(string)
         for match in matches:
-            logging.info('replace_variable_in_text: ' + match)
             value = self.interpreter.get_variable(match)
             if value is not None:
                 string = string.replace('#${}$#'.format(match), str(value))
