@@ -200,33 +200,6 @@ class Memory:
     
     def update_node(self, node):
         self.db.update(node.__dict__, Query().node_id == node.node_id)
-
-    def get_messages_for_node(self, node, head_token_limit=2000, brother_token_limit=2000):
-        parent = self.get_node_parent(node)
-        # 遍历head
-        head_messages = []
-        head = parent
-        while not head.is_root():
-            if num_tokens_from_messages([head.get_message()] + head_messages) < head_token_limit:
-                head_messages = [head.get_message()] + head_messages
-                head = self.get_node_parent(head)
-            else:
-                break
-        # 取合适的left brothers
-        brother_messages = []
-        brothers = [self.get_node(node_id) for node_id in parent.childrens]
-        left_brothers = brothers[:brothers.index(node)]
-        left_brothers.reverse()
-        for left_brother in left_brothers:
-            if num_tokens_from_messages([left_brother.get_message()] + brother_messages) < brother_token_limit:
-                brother_messages = [left_brother.get_message()] + brother_messages
-            else:
-                break
-        # 自身的message
-        self_message = node.get_message()
-        # 合并: heads + brothers + self
-        messages = head_messages + brother_messages + [self_message]
-        return messages
     
     def get_related_nodes_for_node(self, node):
         # 获取相关的节点
