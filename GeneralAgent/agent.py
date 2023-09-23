@@ -99,7 +99,6 @@ class Agent:
         matches = pattern.findall(string)
         for code in matches:
             success, sys_out = self.interpreter.run_code(code)
-            # TODO: when success is False, do something
             string = string.replace('```python\n{}\n```'.format(code), sys_out)
         return string
     
