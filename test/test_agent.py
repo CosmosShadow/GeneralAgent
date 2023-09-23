@@ -1,6 +1,8 @@
 from base_setting import *
 import os
+import pytest
 import shutil
+import asyncio
 from GeneralAgent.agent import Agent, check_has_ask, structure_plan
 
 def test_check_has_ask():
@@ -30,28 +32,35 @@ def test_math():
     workspace = './test_workspace'
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = Agent(workspace='./test_workspace')
-    def _output_recall(result):
-        print(result)
+    async def _output_recall(result):
+        # print(result)
         assert '4.317124741065786e-05' in result
-    for_node_id = agent.run('Help me calculate 0.99 raised to the 1000th power', output_recall=_output_recall)
-    assert for_node_id == None
+        agent.stop()
+    async def run_agent():
+        for_node_id = await agent.run('Help me calculate 0.99 raised to the 1000th power', output_recall=_output_recall)
+        assert for_node_id == None
+    asyncio.run(run_agent())
 
-def test_write_file():
+@pytest.mark.asyncio
+async def test_write_file():
     target_path = './a.txt'
     if os.path.exists(target_path):
         os.remove(target_path)
     workspace = './test_workspace'
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = Agent(workspace='./test_workspace')
-    def _output_recall(result):
-        print(str(result)[:500])
-    for_node_id = agent.run('Introduce Chengdu and write it to the file a.txt', output_recall=_output_recall)
+    async def _output_recall(result):
+        # print(str(result)[:500])
+        agent.stop()
+    for_node_id = await agent.run('Introduce Chengdu and write it to the file a.txt', output_recall=_output_recall)
+    assert for_node_id == None
     assert os.path.exists(target_path)
     with open(target_path, 'r') as f:
         content = f.read()
         assert 'Chengdu' in content
 
-def test_read_file():
+@pytest.mark.asyncio
+async def test_read_file():
     content = """Chengdu, the capital of China's southwest Sichuan Province, is famed for being the home of cute giant pandas. Apart from the Panda Research base, Chengdu has a lot of other attractions. It is known for its spicy Sichuan cuisine and ancient history, including the site of the ancient Jinsha civilization and the Three Kingdoms-era Wuhou Shrine. The city also features beautiful natural landscapes such as Mount Qingcheng and the Dujiangyan Irrigation System, both UNESCO World Heritage Sites."""
     target_path = './b.txt'
     if os.path.exists(target_path):
@@ -61,27 +70,28 @@ def test_read_file():
     workspace = './test_workspace'
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = Agent(workspace='./test_workspace')
-    def _output_recall(result):
-        print(str(result)[:500])
+    async def _output_recall(result):
+        # print(str(result)[:500])
         assert 'Chengdu' in result
-    for_node_id = agent.run('Read the file b.txt and tell me the summary', output_recall=_output_recall)
+        agent.stop()
+    for_node_id = await agent.run('Read the file b.txt and tell me the summary', output_recall=_output_recall)
     assert for_node_id == None
 
-def test_scrape_news():
-    # 测试抓取新闻
-    workspace = './test_workspace'
-    if os.path.exists(workspace): shutil.rmtree(workspace)
-    agent = Agent(workspace='./test_workspace')
-    node, result = agent.run('帮我找一下tesla最新的5条新闻，中文返回给我', step_count=5)
-    print(agent.memory)
-    print(result)
-    if os.path.exists(workspace): shutil.rmtree(workspace)
+# def test_scrape_news():
+#     # 测试抓取新闻
+#     workspace = './test_workspace'
+#     if os.path.exists(workspace): shutil.rmtree(workspace)
+#     agent = Agent(workspace='./test_workspace')
+#     node, result = agent.run('帮我找一下tesla最新的5条新闻，中文返回给我', step_count=5)
+#     print(agent.memory)
+#     print(result)
+#     if os.path.exists(workspace): shutil.rmtree(workspace)
 
 
 if __name__ == '__main__':
     # test_check_has_ask()
     # test_structure_plan()
     # test_math()
-    # test_write_file()
-    test_read_file()
+    # asyncio.run(test_write_file())
+    asyncio.run(test_read_file())
     # test_scrape_news()
