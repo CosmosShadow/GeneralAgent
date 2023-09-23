@@ -30,7 +30,7 @@ def test_structure_plan():
 
 @pytest.mark.asyncio
 async def test_math():
-    workspace = './test_workspace'
+    workspace = './data/test_workspace'
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = Agent(workspace='./test_workspace')
     async def _output_recall(result):
@@ -45,7 +45,7 @@ async def test_write_file():
     target_path = './a.txt'
     if os.path.exists(target_path):
         os.remove(target_path)
-    workspace = './test_workspace'
+    workspace = './data/test_workspace'
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = Agent(workspace='./test_workspace')
     async def _output_recall(result):
@@ -66,7 +66,7 @@ async def test_read_file():
         os.remove(target_path)
     with open(target_path, 'w') as f:
         f.write(content)
-    workspace = './test_workspace'
+    workspace = './data/test_workspace'
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = Agent(workspace='./test_workspace')
     async def _output_recall(result):
@@ -78,7 +78,7 @@ async def test_read_file():
 
 # def test_scrape_news():
 #     # 测试抓取新闻
-#     workspace = './test_workspace'
+#     workspace = './data/test_workspace'
 #     if os.path.exists(workspace): shutil.rmtree(workspace)
 #     agent = Agent(workspace='./test_workspace')
 #     node, result = agent.run('帮我找一下tesla最新的5条新闻，中文返回给我', step_count=5)
