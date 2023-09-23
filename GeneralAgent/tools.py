@@ -1,8 +1,5 @@
 import os
 import json
-import requests
-from bs4 import BeautifulSoup
-from GeneralAgent.llm import llm_inference
 
 class Tools():
     def __init__(self, funs=[]):
@@ -19,6 +16,7 @@ def google_search(query: str) -> dict:
     """
     google search with query, return a result in list like [{"title": "xx", "link": "xx", "snippet": "xx"}]
     """
+    import requests
     SERPER_API_KEY = os.environ.get('SERPER_API_KEY', None)
     if SERPER_API_KEY is None:
         print('Please set SERPER_API_KEY in environment variable first.')
@@ -83,7 +81,7 @@ def wikipedia_search(query: str) -> str:
     return obs
 
 
-def scrape_web(url: str) -> BeautifulSoup:
+def scrape_web(url: str) -> (str, str, [str], [str]):
     """
     Scrape web page, return (title: str, text: str, image_urls: [str], hyperlinks: [str]) when success, otherwise return None.
     """
@@ -97,6 +95,7 @@ def scrape_web(url: str) -> BeautifulSoup:
     import re
     from playwright.sync_api import sync_playwright
     from requests.compat import urljoin
+    from bs4 import BeautifulSoup
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
@@ -116,13 +115,6 @@ def scrape_web(url: str) -> BeautifulSoup:
         finally:
             browser.close()
     return None
-
-
-def llm(question: str) -> str:
-    """ llm(large language model), answer any question. eg. llm('1 + 1 = ?'), return 2."""
-    system_prompt = [{"role": "system", "content": 'You are a helpful assistant.'}]
-    messages = system_prompt + [{"role": "user", "content": question}]
-    return llm_inference(messages)
 
 
 def get_function_signature(func):
