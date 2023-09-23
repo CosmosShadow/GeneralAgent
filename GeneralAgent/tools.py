@@ -77,7 +77,7 @@ def wikipedia_search(query: str) -> str:
 
 def scrape_web(url: str) -> BeautifulSoup:
     """
-    Scrape web page, return (title: str, text: str, image_urls: [str]) when success, otherwise return None.
+    Scrape web page, return (title: str, text: str, image_urls: [str], hyperlinks: [str]) when success, otherwise return None.
     """
     """
     Scrape web page, return BeautifulSoup object soup when success, otherwise return None.
@@ -99,7 +99,7 @@ def scrape_web(url: str) -> BeautifulSoup:
             text = str(re.sub(r'<style.*?</style>', '', soup.get_text(), flags=re.DOTALL))
             image_urls = [str(image['src']) for image in soup.find_all('img')]
             hyperlinks = [(str(link.text), str(urljoin(url, link["href"]))) for link in soup.find_all("a", href=True) if urljoin(url, link["href"]).startswith('http')]
-            return [title, text, image_urls, hyperlinks]
+            return (title, text, image_urls, hyperlinks)
         except Exception as e:
             import logging
             logging.exception(e)

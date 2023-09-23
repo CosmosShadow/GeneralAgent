@@ -10,3 +10,4 @@ test/scratch.json
 test/memory.json
 test/a.txt
 test/b.txt
+test/test_interpreter.bin
