@@ -28,7 +28,8 @@ def test_structure_plan():
     assert len(plan_dict[key0]) == 1
     assert len(plan_dict[key1]) == 0
 
-def test_math():
+@pytest.mark.asyncio
+async def test_math():
     workspace = './test_workspace'
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = Agent(workspace='./test_workspace')
@@ -36,10 +37,8 @@ def test_math():
         # print(result)
         assert '4.317124741065786e-05' in result
         agent.stop()
-    async def run_agent():
-        for_node_id = await agent.run('Help me calculate 0.99 raised to the 1000th power', output_recall=_output_recall)
-        assert for_node_id == None
-    asyncio.run(run_agent())
+    for_node_id = await agent.run('Help me calculate 0.99 raised to the 1000th power', output_recall=_output_recall)
+    assert for_node_id == None
 
 @pytest.mark.asyncio
 async def test_write_file():
