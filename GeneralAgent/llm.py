@@ -1,7 +1,7 @@
 import os
 import json
 import openai
-from numpy import dot
+import numpy as np
 from tinydb import TinyDB, Query
 from numpy.linalg import norm
 
@@ -71,9 +71,11 @@ def embedding_fun(text):
     global_cache.set(table, key, embedding)
     return embedding
 
-def cos_sim(a, b): 
+def cos_sim(a, b):
     # This function calculates the cosine similarity (scalar value) between two input vectors 'a' and 'b' (1-D array object), and return the similarity.
-    return dot(a, b)/(norm(a)*norm(b))
+    a = a if isinstance(a, np.ndarray) else np.array(a)
+    b = b if isinstance(b, np.ndarray) else np.array(b)
+    return np.dot(a, b)/(norm(a)*norm(b))
 
 def num_tokens_from_string(str):
     """Calculate and return the token count in a given string."""

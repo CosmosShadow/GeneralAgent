@@ -7,10 +7,10 @@ def test_google_search():
     import json
     assert 'apple' in json.dumps(result)
 
-# def test_wikipedia_search():
-#     result = wikipedia_search('apple inc')
-#     print(result)
-#     assert 'Steve Jobs' in result
+def test_wikipedia_search():
+    result = wikipedia_search('apple inc')
+    print(result)
+    assert 'Steve Jobs' in result
 
 def test_scrape_web():
     url = 'https://www.baidu.com'

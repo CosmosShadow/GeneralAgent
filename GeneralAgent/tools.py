@@ -1,11 +1,19 @@
-# 工具集，code可以操作的东西
 import os
 import json
 import requests
 from bs4 import BeautifulSoup
-from requests.compat import urljoin
-from playwright.sync_api import sync_playwright
 from GeneralAgent.llm import llm_inference
+
+class Tools():
+    def __init__(self, funs=[]):
+        self.funs = funs
+
+    def add_funs(self, funs):
+        self.funs += funs
+
+    def get_funs_description(self):
+        return '\n\n'.join([get_function_signature(fun) for fun in self.funs])
+
 
 def google_search(query: str) -> dict:
     """
@@ -87,6 +95,8 @@ def scrape_web(url: str) -> BeautifulSoup:
     hyperlinks: [(link.text, urljoin(url, link["href"])) for link in soup.find_all("a", href=True) if urljoin(url, link["href"].startswith('http'))] (from requests.compat import urljoin first)
     """
     import re
+    from playwright.sync_api import sync_playwright
+    from requests.compat import urljoin
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
@@ -107,36 +117,21 @@ def scrape_web(url: str) -> BeautifulSoup:
             browser.close()
     return None
 
+
 def llm(question: str) -> str:
-    """ llm(large language model)，输入问题，返回答案。question和answer的长度和小于8000字。比如: llm('翻译一下文字: 我爱中国') -> 'I love China' """
+    """ llm(large language model), answer any question. eg. llm('1 + 1 = ?'), return 2."""
     system_prompt = [{"role": "system", "content": 'You are a helpful assistant.'}]
     messages = system_prompt + [{"role": "user", "content": question}]
     return llm_inference(messages)
 
 
-# send_message_fun(type, content)
-# 发送消息的函数，参数为消息内容
-# type: text、react、json
-# 可以是markdown的文本、也可以是一块react的代码、json
-
 def get_function_signature(func):
     """Returns a description string of function"""
     import inspect
     sig = inspect.signature(func)
-    # 获取函数签名，比如函数 def wikipedia_search(query: str):，则返回字符串 'def wikipedia_search(query: str):'
     sig_str = str(sig)
     desc = f"{func.__name__}{sig_str}"
     if func.__doc__:
         desc += func.__doc__
     return desc
 
-
-class Tools():
-    def __init__(self, funs=[]):
-        self.funs = funs
-
-    def add_funs(self, funs):
-        self.funs += funs
-
-    def get_funs_description(self):
-        return '\n\n'.join([get_function_signature(fun) for fun in self.funs])

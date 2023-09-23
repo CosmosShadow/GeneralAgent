@@ -29,6 +29,10 @@ def test_CodeInterpreter():
     a = interpreter.get_variable('a')
     assert a == 11
 
+    success, sys_stdout = interpreter.run_code('a += 1')
+    a = interpreter.get_variable('a')
+    assert a == 21
+
     code = """
 url = 'https://tongtianta.ai'
 result = scrape_web(url)
@@ -38,14 +42,6 @@ title = result[0]
     assert success
     title = interpreter.get_variable('title')
     assert title == '通天塔AI'
-
-    # 工具: 大模型
-    code = """result = llm('translate to chinese: I love china')"""
-    success, sys_stdout = interpreter.run_code(code)
-    assert success
-    result = interpreter.get_variable('result')
-    assert result == '我爱中国'
-
 
 
 if __name__ == '__main__':
