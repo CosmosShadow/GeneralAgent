@@ -3,7 +3,6 @@
 import os, re
 import asyncio
 import logging
-logging.basicConfig(level=logging.INFO)
 from jinja2 import Template
 from collections import OrderedDict
 from GeneralAgent.prompts import general_agent_prompt

@@ -52,7 +52,7 @@ async def test_write_file():
     async def _output_recall(result):
         # print(str(result)[:500])
         agent.stop()
-    for_node_id = await agent.run('Introduce Chengdu and write it to the file a.txt', output_recall=_output_recall)
+    for_node_id = await agent.run('Write the description of Chengdu to the file a.txt', output_recall=_output_recall)
     assert for_node_id == None
     assert os.path.exists(target_path)
     with open(target_path, 'r') as f:
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     # test_check_has_ask()
     # test_structure_plan()
     # test_math()
-    # asyncio.run(test_write_file())
+    asyncio.run(test_write_file())
     # asyncio.run(test_read_file())
     # test_scrape_news()
-    asyncio.run(test_tool_use())
+    # asyncio.run(test_tool_use())
