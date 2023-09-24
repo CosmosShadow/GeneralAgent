@@ -70,8 +70,8 @@ async def test_read_file():
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = Agent(workspace=workspace)
     async def _output_recall(result):
-        # print(str(result)[:500])
-        assert 'Chengdu' in result
+        # print(str(result))
+        assert 'Mount Qingcheng' in result
         agent.stop()
     for_node_id = await agent.run('Read the file b.txt and tell me the summary', output_recall=_output_recall)
     assert for_node_id == None
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     # test_check_has_ask()
     # test_structure_plan()
     # test_math()
-    asyncio.run(test_write_file())
-    # asyncio.run(test_read_file())
+    # asyncio.run(test_write_file())
+    asyncio.run(test_read_file())
     # test_scrape_news()
     # asyncio.run(test_tool_use())

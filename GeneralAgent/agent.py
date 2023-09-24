@@ -9,6 +9,7 @@ from GeneralAgent.prompts import general_agent_prompt
 from GeneralAgent.llm import llm_inference
 from GeneralAgent.memory import Memory, MemoryNode
 from GeneralAgent.interpreter import CodeInterpreter
+from GeneralAgent.interpreter import FileInterperter
 from GeneralAgent.tools import Tools
 
 
@@ -19,7 +20,8 @@ class Agent:
         if not os.path.exists(workspace):
             os.makedirs(workspace)
         self.memory = Memory(f'{workspace}/memory.json')
-        self.interpreter = CodeInterpreter(f'{workspace}/code.bin')
+        self.code_interpreter = CodeInterpreter(f'{workspace}/code.bin')
+        self.file_interpreter = FileInterperter('./')
         self.tools = tools or Tools([])
         self.is_running = False
         self.stop_event = asyncio.Event()
@@ -78,8 +80,9 @@ class Agent:
         answer_node = MemoryNode(role='system', action='answer', content=llm_response)
         self.memory.add_node_after(node, answer_node)
         
-        # process: code -> variable -> plan -> ask
-        result = self._run_code_in_text(llm_response)
+        # process: file -> code -> variable -> plan -> ask
+        result = self.file_interpreter.parse(llm_response)
+        result = self._run_code_in_text(result)
         result = self._replace_variable_in_text(result)
         has_plan, result = self._extract_plan_in_text(answer_node, result)
         has_ask, result = check_has_ask(result)
@@ -92,12 +95,14 @@ class Agent:
         is_stop = has_ask
         
         return result, answer_node, is_stop
-        
+    
+    
+
     def _run_code_in_text(self, string):
         pattern = re.compile(r'```python\n(.*?)\n```', re.DOTALL)
         matches = pattern.findall(string)
         for code in matches:
-            success, sys_out = self.interpreter.run_code(code)
+            success, sys_out = self.code_interpreter.run_code(code)
             string = string.replace('```python\n{}\n```'.format(code), sys_out)
         return string
     
@@ -105,7 +110,7 @@ class Agent:
         pattern = re.compile(r'#\$(.*?)\$#', re.DOTALL)
         matches = pattern.findall(string)
         for match in matches:
-            value = self.interpreter.get_variable(match)
+            value = self.code_interpreter.get_variable(match)
             if value is not None:
                 string = string.replace('#${}$#'.format(match), str(value))
         return string

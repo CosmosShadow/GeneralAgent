@@ -86,3 +86,95 @@ def add_print(code_string):
         if match:
             lines[i] = f'{match.group(1)}print({match.group(2)}){match.group(3)}'
     return '\n'.join(lines)
+
+
+class FileInterperter:
+    def __init__(self, workspace) -> None:
+        self.workspace = workspace
+
+    def parse(self, string):
+        # File Operation
+        # * start: ###file write|delete|read start_index end_index file_path
+        # * content: between start and end, the content of the file. If it is read, it will be automatically replaced with the content of the file. empty if delete.
+        # * end: ###endfile
+        # * start_index and end_index are the index of the file, starting from 0, lastest is -1
+        # * file_path is the path of the file, relative to the current directory
+        # * Example
+        #     "write hello world to the end of the file"
+        #     ###file write -1 -1 ./test.txt
+        #     hello world
+        #     ###endfile
+
+        #     "read the entire file"
+        #     ###file read 0 -1 ./test.txt
+        #     xxxx
+        #     ###endfile
+            
+        #     "delete line 2 to 4"
+        #     ###file delete 2 4 ./test.txt
+        #     ###endfile
+        import re
+        pattern = re.compile(r'###file (.*?)(\n.*?)?\n###endfile', re.DOTALL)
+        matches = pattern.findall(string)
+        for match in matches:
+            operation = match[0].split(' ')
+            start_index = int(operation[1])
+            end_index = int(operation[2])
+            file_path = operation[3]
+            if operation[0] == 'write':
+                content = match[1].lstrip('\n') if match[1] else ''
+                self._write_file(file_path, content, start_index, end_index)
+            elif operation[0] == 'delete':
+                self._delete_file(file_path, start_index, end_index)
+            elif operation[0] == 'read':
+                content = self._read_file(file_path, start_index, end_index)
+                # logging.debug(content)
+                # logging.debug('###file {}\n{}\n###endfile'.format(match[0], match[1]))
+                # logging.debug('###file {}\n{}\n{}\n###endfile'.format(match[0], match[1], content))
+                # print('###file {}{}\n{}\n###endfile'.format(match[0], match[1], content))
+                string = string.replace('###file {}{}\n###endfile'.format(match[0], match[1]), '###file {}{}\n{}\n###endfile'.format(match[0], match[1], content))
+        return string
+    
+    def _write_file(self, file_path, content, start_index, end_index):
+        file_path = os.path.join(self.workspace, file_path)
+        if not os.path.exists(file_path):
+            with open(file_path, 'w') as f:
+                f.write('')
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+        if start_index == -1:
+            start_index = len(lines)
+        if end_index == -1:
+            end_index = len(lines)
+        lines = lines[:start_index] + [content] + lines[end_index+1:]
+        with open(file_path, 'w') as f:
+            f.writelines(lines)
+
+    def _delete_file(self, file_path, start_index, end_index):
+        file_path = os.path.join(self.workspace, file_path)
+        if not os.path.exists(file_path):
+            with open(file_path, 'w') as f:
+                f.write('')
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+        if start_index == -1:
+            start_index = len(lines)
+        if end_index == -1:
+            end_index = len(lines)
+        lines = lines[:start_index] + lines[end_index+1:]
+        with open(file_path, 'w') as f:
+            f.writelines(lines)
+
+    def _read_file(self, file_path, start_index, end_index):
+        file_path = os.path.join(self.workspace, file_path)
+        if not os.path.exists(file_path):
+            with open(file_path, 'w') as f:
+                f.write('')
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+        if start_index == -1:
+            start_index = len(lines)
+        if end_index == -1:
+            end_index = len(lines)
+        content = '\n'.join(lines[start_index:end_index+1])
+        return content
