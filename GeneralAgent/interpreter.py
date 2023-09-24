@@ -48,9 +48,9 @@ class CodeInterpreter:
         code = add_print(code)
         code = import_code + '\n' + code
         globals_backup = pickle.dumps(self.globals)
-        print('-------<code>-------')
-        print(code)
-        print('-------</code>-------')
+        # print('-------<code>-------')
+        # print(code)
+        # print('-------</code>-------')
         output = io.StringIO()
         sys.stdout = output
         success = False

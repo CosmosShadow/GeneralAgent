@@ -85,37 +85,24 @@ def scrape_web(url: str) -> (str, str, [str], [str]):
     """
     Scrape web page, return (title: str, text: str, image_urls: [str], hyperlinks: [str]) when success, otherwise return None.
     """
-    """
-    Scrape web page, return BeautifulSoup object soup when success, otherwise return None.
-    page title: soup.title.string
-    page text content: re.sub(r'<style.*?</style>', '', soup.get_text(), flags=re.DOTALL) (you should import re first)
-    image urls: [image['src'] for image in soup.find_all('img')]
-    hyperlinks: [(link.text, urljoin(url, link["href"])) for link in soup.find_all("a", href=True) if urljoin(url, link["href"].startswith('http'))] (from requests.compat import urljoin first)
-    """
+    # TODO: use selenium
     import re
-    from playwright.sync_api import sync_playwright
-    from requests.compat import urljoin
+    import requests
     from bs4 import BeautifulSoup
-    with sync_playwright() as p:
-        browser = p.chromium.launch()
-        page = browser.new_page()
-        try:
-            page.goto(url)
-            page.wait_for_load_state()
-            html_content = page.content()
-            soup = BeautifulSoup(html_content, "html.parser")
-            title = str(soup.title.string)
-            text = str(re.sub(r'<style.*?</style>', '', soup.get_text(), flags=re.DOTALL))
-            image_urls = [str(image['src']) for image in soup.find_all('img')]
-            hyperlinks = [(str(link.text), str(urljoin(url, link["href"]))) for link in soup.find_all("a", href=True) if urljoin(url, link["href"]).startswith('http')]
-            return (title, text, image_urls, hyperlinks)
-        except Exception as e:
-            import logging
-            logging.exception(e)
-        finally:
-            browser.close()
+    from requests.compat import urljoin
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.content, "html.parser")
+        title = str(soup.title.string)
+        text = str(re.sub(r'<style.*?</style>', '', soup.get_text(), flags=re.DOTALL))
+        image_urls = [str(image['src']) for image in soup.find_all('img')]
+        hyperlinks = [(str(link.text), str(urljoin(url, link["href"]))) for link in soup.find_all("a", href=True) if urljoin(url, link["href"]).startswith('http')]
+        return (title, text, image_urls, hyperlinks)
+    except Exception as e:
+        import logging
+        logging.exception(e)
     return None
-
 
 def get_function_signature(func):
     """Returns a description string of function"""
@@ -126,4 +113,3 @@ def get_function_signature(func):
     if func.__doc__:
         desc += func.__doc__
     return desc
-

@@ -81,7 +81,7 @@ async def test_tool_use():
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = Agent(workspace=workspace, tools=Tools([scrape_web]))
     async def _output_recall(result):
-        print(str(result)[:500])
+        # print(str(result)[:500])
         assert 'AI' in result
         agent.stop()
     for_node_id = await agent.run("what's the tiltle of web page https://tongtianta.ai ?", output_recall=_output_recall)

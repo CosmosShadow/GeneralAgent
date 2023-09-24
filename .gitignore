@@ -5,9 +5,13 @@ GeneralAgent/.env
 GeneralAgent/cache.json
 
 test/data_0.json
-test/test_workspace/*
+test/data/test_workspace/*
 test/scratch.json
 test/memory.json
 test/a.txt
 test/b.txt
 test/test_interpreter.bin
+test/data/test_workspace/memory.json
+test/data/test_workspace/memory.json
+test/test_workspace/memory.json
+test/data/test_workspace/memory.json
