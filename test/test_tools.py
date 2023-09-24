@@ -1,4 +1,5 @@
 from base_setting import *
+import pytest
 from GeneralAgent.tools import google_search, wikipedia_search, scrape_web, Tools
 
 def test_Tools():
@@ -19,9 +20,10 @@ def test_wikipedia_search():
     print(result)
     assert 'Steve Jobs' in result
 
-def test_scrape_web():
+@pytest.mark.asyncio
+async def test_scrape_web():
     url = 'https://tongtianta.ai'
-    result = scrape_web(url)
+    result = await scrape_web(url)
     title = result[0]
     assert 'AI' in title
 

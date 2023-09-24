@@ -8,7 +8,7 @@ import logging
 import_code = """
 import os, sys, math
 sys.path.append('../')
-from GeneralAgent.tools import google_search, wikipedia_search, scrape_web, llm
+from GeneralAgent.tools import google_search, wikipedia_search, scrape_web
 """
 
 class CodeInterpreter:
@@ -48,9 +48,9 @@ class CodeInterpreter:
         code = add_print(code)
         code = import_code + '\n' + code
         globals_backup = pickle.dumps(self.globals)
-        # print('-------<code>-------')
-        # print(code)
-        # print('-------</code>-------')
+        print('-------<code>-------')
+        print(code)
+        print('-------</code>-------')
         output = io.StringIO()
         sys.stdout = output
         success = False
