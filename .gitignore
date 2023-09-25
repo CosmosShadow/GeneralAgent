@@ -15,3 +15,5 @@ test/data/test_workspace/memory.json
 test/data/test_workspace/memory.json
 test/test_workspace/memory.json
 test/data/test_workspace/memory.json
+test/tetris.py
+test/tetris.py.bak
