@@ -11,6 +11,23 @@ sys.path.append('../')
 from GeneralAgent.tools import google_search, wikipedia_search, scrape_web
 """
 
+class BashInterperter:
+    def __init__(self, workspace) -> None:
+        self.workspace = workspace
+
+    def parse(self, string):
+        # ```runbash\nxxx\n```
+        import re
+        pattern = re.compile(r'```runbash\n(.*?)\n```', re.DOTALL)
+        matches = pattern.findall(string)
+        for match in matches:
+            self._run_bash(match)
+        return string
+
+    def _run_bash(self, content):
+        import os
+        os.system(content)
+
 class PythonInterpreter:
     def __init__(self, serialize_path):
         self.globals = {}  # global variables shared by all code
@@ -43,6 +60,15 @@ class PythonInterpreter:
         with open(self.serialize_path, 'wb') as f:
             data = {'globals': self.globals}
             f.write(pickle.dumps(data))
+
+    def parse(self, string):
+        import re
+        pattern = re.compile(r'```runpython\n(.*?)\n```', re.DOTALL)
+        matches = pattern.findall(string)
+        for code in matches:
+            success, sys_out = self.run_code(code)
+            string = string.replace('```runpython\n{}\n```'.format(code), sys_out)
+        return string
     
     def run_code(self, code):
         code = add_print(code)
