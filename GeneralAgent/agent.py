@@ -85,7 +85,7 @@ class Agent:
         # process: file -> bash -> code -> plan -> ask
         result = llm_response
         result = self.file_interpreter.parse(result)
-        result = self.bash_interpreter.parse(result)
+        result, sys_out = self.bash_interpreter.parse(result)
         result = self.python_interpreter.parse(result)
         has_plan, result = self._extract_plan_in_text(answer_node, result)
         has_ask, result = check_has_ask(result)

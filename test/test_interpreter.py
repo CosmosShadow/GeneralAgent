@@ -1,22 +1,24 @@
 from base_setting import *
-from GeneralAgent.interpreter import PythonInterpreter, add_print
+from GeneralAgent.interpreter import PythonInterpreter
+from GeneralAgent.interpreter import BashInterperter
 
-def test_add_print():
+
+def test_python_interpreter():
+    # test add print
     code = """
 a = 1
 a
     c
 try:
 """
-    code = add_print(code)
+    code = PythonInterpreter.add_print(code)
     assert code == """
 a = 1
 print(a)
     print(c)
 try:
 """
-
-def test_PythonInterpreter():
+    # test run
     serialize_path = './test_interpreter.bin'
     if os.path.exists(serialize_path): os.remove(serialize_path)
 
@@ -44,6 +46,15 @@ title = result[0]
     assert title == '通天塔AI'
 
 
+def test_bash_interperter():
+    interpreter = BashInterperter()
+    result, sys_out = interpreter.parse("""```runbash\npython ./data/hello.py\n```""")
+    # print(result)
+    # print(sys_out)
+    assert 'hello world' in sys_out
+
+
 if __name__ == '__main__':
     # test_add_print()
-    test_PythonInterpreter()
+    # test_python_interpreter()
+    test_bash_interperter()

@@ -91,6 +91,10 @@ async def test_tool_use():
     for_node_id = await agent.run("what's the tiltle of web page https://tongtianta.ai ?", output_recall=_output_recall)
     assert for_node_id == None
 
+@pytest.mark.asyncio
+async def test_bash_interperter():
+    pass
+
 # def test_scrape_news():
 #     # 测试抓取新闻
 #     if os.path.exists(workspace): shutil.rmtree(workspace)

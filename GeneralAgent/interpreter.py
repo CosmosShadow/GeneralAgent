@@ -12,7 +12,7 @@ from GeneralAgent.tools import google_search, wikipedia_search, scrape_web
 """
 
 class BashInterperter:
-    def __init__(self, workspace) -> None:
+    def __init__(self, workspace='./') -> None:
         self.workspace = workspace
 
     def parse(self, string):
@@ -20,13 +20,22 @@ class BashInterperter:
         import re
         pattern = re.compile(r'```runbash\n(.*?)\n```', re.DOTALL)
         matches = pattern.findall(string)
+        sys_out = None
         for match in matches:
-            self._run_bash(match)
-        return string
+            sys_out = self._run_bash(match)
+        return string, sys_out
 
     def _run_bash(self, content):
-        import os
-        os.system(content)
+        import subprocess
+        if 'python ' in content:
+            content = content.replace('python ', 'python3 ')
+        p = subprocess.Popen(content, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        sys_out, err = p.communicate()
+        sys_out = sys_out.decode('utf-8')
+        return sys_out
+        # alternative: os.system('ls')
+
+
 
 class PythonInterpreter:
     def __init__(self, serialize_path):
@@ -71,7 +80,7 @@ class PythonInterpreter:
         return string
     
     def run_code(self, code):
-        code = add_print(code)
+        code = self.add_print(code)
         code = import_code + '\n' + code
         globals_backup = pickle.dumps(self.globals)
         logging.debug('-------<code>-------')
@@ -103,15 +112,16 @@ class PythonInterpreter:
     def set_variable(self, name, value):
         self.globals[name] = value
 
-def add_print(code_string):
-    import re
-    pattern = r'^(\s*)(\w+)(\s*)$'
-    lines = code_string.split('\n')
-    for i, line in enumerate(lines):
-        match = re.match(pattern, line)
-        if match:
-            lines[i] = f'{match.group(1)}print({match.group(2)}){match.group(3)}'
-    return '\n'.join(lines)
+    @classmethod
+    def add_print(cls, code_string):
+        import re
+        pattern = r'^(\s*)(\w+)(\s*)$'
+        lines = code_string.split('\n')
+        for i, line in enumerate(lines):
+            match = re.match(pattern, line)
+            if match:
+                lines[i] = f'{match.group(1)}print({match.group(2)}){match.group(3)}'
+        return '\n'.join(lines)
 
 
 class FileInterperter:
