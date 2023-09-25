@@ -29,5 +29,5 @@ async def terminal_interactive_agent():
         # 写一个带GUI界面的俄罗斯方块游戏，python实现，保存在当前目录下，并运行起来
 
 if __name__ == '__main__':
-    system_prompt_token_count()
-    # asyncio.run(terminal_interactive_agent())
+    # system_prompt_token_count()
+    asyncio.run(terminal_interactive_agent())

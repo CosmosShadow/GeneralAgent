@@ -136,6 +136,10 @@ class FileInterperter:
         return string
     
     def _write_file(self, file_path, content, start_index, end_index):
+        # if .py file, remove ```python  and ``` pair
+        if file_path.endswith('.py'):
+            content = content.replace('```python', '')
+            content = content.replace('```', '')
         file_path = os.path.join(self.workspace, file_path)
         if not os.path.exists(file_path):
             with open(file_path, 'w') as f:
