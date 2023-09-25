@@ -12,6 +12,7 @@ def system_prompt_token_count():
     count = num_tokens_from_string(general_agent_prompt)
     print(count)
     # 649 tokens, it's long
+    # 419 tokens
 
 async def terminal_interactive_agent():
     if os.path.exists(workspace): shutil.rmtree(workspace)
@@ -28,5 +29,5 @@ async def terminal_interactive_agent():
         # 写一个带GUI界面的俄罗斯方块游戏，python实现，保存在当前目录下，并运行起来
 
 if __name__ == '__main__':
-    # system_prompt_token_count()
-    asyncio.run(terminal_interactive_agent())
+    system_prompt_token_count()
+    # asyncio.run(terminal_interactive_agent())
