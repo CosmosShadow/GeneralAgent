@@ -4,6 +4,7 @@ import openai
 import numpy as np
 from tinydb import TinyDB, Query
 from numpy.linalg import norm
+import logging
 
 class TinyDBCache():
     def __init__(self):
@@ -40,7 +41,7 @@ def md5(obj):
 
 
 def llm_inference(messages):
-    # print(messages)
+    logging.info(messages)
     global global_cache
     table = 'llm'
     key = md5(messages)
@@ -50,7 +51,7 @@ def llm_inference(messages):
     model = os.environ.get('OPENAI_API_MODEL', 'gpt-4')
     response = openai.ChatCompletion.create(model=model, messages=messages)
     result = response['choices'][0]['message']['content'].strip()
-    # print(result)
+    logging.info(result)
     global_cache.set(table, key, result)
     return result
 

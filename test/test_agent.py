@@ -44,7 +44,7 @@ async def test_math():
 
 @pytest.mark.asyncio
 async def test_write_file():
-    target_path = './a.txt'
+    target_path = './data/a.txt'
     if os.path.exists(target_path):
         os.remove(target_path)
     if os.path.exists(workspace): shutil.rmtree(workspace)
@@ -58,11 +58,13 @@ async def test_write_file():
     with open(target_path, 'r') as f:
         content = f.read()
         assert 'Chengdu' in content
+    if os.path.exists(target_path):
+        os.remove(target_path)
 
 @pytest.mark.asyncio
 async def test_read_file():
     content = """Chengdu, the capital of China's southwest Sichuan Province, is famed for being the home of cute giant pandas. Apart from the Panda Research base, Chengdu has a lot of other attractions. It is known for its spicy Sichuan cuisine and ancient history, including the site of the ancient Jinsha civilization and the Three Kingdoms-era Wuhou Shrine. The city also features beautiful natural landscapes such as Mount Qingcheng and the Dujiangyan Irrigation System, both UNESCO World Heritage Sites."""
-    target_path = './b.txt'
+    target_path = './data/b.txt'
     if os.path.exists(target_path):
         os.remove(target_path)
     with open(target_path, 'w') as f:
@@ -75,6 +77,8 @@ async def test_read_file():
         agent.stop()
     for_node_id = await agent.run('Read the file b.txt and tell me the summary', output_recall=_output_recall)
     assert for_node_id == None
+    if os.path.exists(target_path):
+        os.remove(target_path)
 
 @pytest.mark.asyncio
 async def test_tool_use():

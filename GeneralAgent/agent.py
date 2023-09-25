@@ -99,11 +99,11 @@ class Agent:
     
 
     def _run_code_in_text(self, string):
-        pattern = re.compile(r'```python\n(.*?)\n```', re.DOTALL)
+        pattern = re.compile(r'```runpython\n(.*?)\n```', re.DOTALL)
         matches = pattern.findall(string)
         for code in matches:
             success, sys_out = self.code_interpreter.run_code(code)
-            string = string.replace('```python\n{}\n```'.format(code), sys_out)
+            string = string.replace('```runpython\n{}\n```'.format(code), sys_out)
         return string
     
     def _replace_variable_in_text(self, string):
