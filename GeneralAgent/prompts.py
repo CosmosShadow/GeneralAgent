@@ -29,6 +29,10 @@ You are a helpful assistant, completing the user's needs as much as possible and
 * end: ###endfile
 * content: between start and end, the content of the file. If it is read, it will be automatically replaced with the content of the file. empty if delete.
 * start_index and end_index are the index of the file, starting from 0, lastest is -1
+* example:
+    ###file write 0 -1 ./test.txt
+    hello world
+    ###endfile
 
 
 # DEMO 1
