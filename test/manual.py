@@ -27,8 +27,7 @@ async def terminal_interactive_agent():
     while True:
         input_conent = input('[input]\n')
         for_node_id = await agent.run(input_conent, for_node_id=for_node_id, output_recall=_output_recall)
-        # >>>写个详细的python版本带GUI的俄罗斯方块游戏到本地文件。不用询问我细节，你自由发挥。
-        # >>>运行它呢
+        # >>>不使用计划，直接帮我一次性写个俄罗斯方块游戏代码，保存在本地，要求python实现，带GUI界面。
 
 if __name__ == '__main__':
     # system_prompt_token_count()

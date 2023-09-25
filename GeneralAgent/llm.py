@@ -39,6 +39,8 @@ def md5(obj):
     else:
         return hashlib.md5(json.dumps(obj).encode('utf-8')).hexdigest()
 
+import time
+import random
 
 def llm_inference(messages):
     logging.info(messages)
@@ -47,7 +49,11 @@ def llm_inference(messages):
     key = md5(messages)
     result = global_cache.get(table, key)
     if result is not None:
-        print(result)
+        # replay, same as before
+        print('[output]')
+        for x in result.split(' '):
+            time.sleep(random.random() * 0.05)
+            print(x, end=' ', flush=True)
         return result
     model = os.environ.get('OPENAI_API_MODEL', 'gpt-4')
     response = openai.ChatCompletion.create(model=model, messages=messages, stream=True)

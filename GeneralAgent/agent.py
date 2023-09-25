@@ -75,7 +75,9 @@ class Agent:
         }
         system_prompt = Template(general_agent_prompt).render(**system_variables)
         messages = [{'role': 'system', 'content': system_prompt}] + self.memory.get_related_messages_for_node(node)
-        # TODO: when messages exceed limit
+        # TODO: when messages exceed limit, cut it
+        # if len(messages) > 6:
+        #     messages = messages[:2] + messages[-4:]
         llm_response = llm_inference(messages)
 
         # answer node
@@ -96,7 +98,7 @@ class Agent:
             self.memory.success_node(answer_node)
 
         if sys_out is not None and sys_out.strip() != '':
-            new_node = MemoryNode(role='system', action='answer', content=sys_out)
+            new_node = MemoryNode(role='user', action='input', content=sys_out)
             self.memory.add_node_after(answer_node, new_node)
 
         is_stop = has_ask

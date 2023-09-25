@@ -1,8 +1,6 @@
 *.pyc
-GeneralAgent/embedding_cache.json
-GeneralAgent/llm_cache.json
 GeneralAgent/.env
-GeneralAgent/cache.json
+GeneralAgent/*.json
 
 test/data_0.json
 test/data/test_workspace/*
@@ -17,3 +15,4 @@ test/test_workspace/memory.json
 test/data/test_workspace/memory.json
 test/tetris.py
 test/tetris.py.bak
+GeneralAgent/cache_json
