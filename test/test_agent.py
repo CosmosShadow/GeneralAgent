@@ -104,8 +104,8 @@ async def test_tool_use():
 if __name__ == '__main__':
     # test_check_has_ask()
     # test_structure_plan()
-    # test_math()
+    asyncio.run(test_math())
     # asyncio.run(test_write_file())
-    asyncio.run(test_read_file())
+    # asyncio.run(test_read_file())
     # test_scrape_news()
     # asyncio.run(test_tool_use())
