@@ -4,6 +4,7 @@ general_agent_prompt = \
 You are a helpful assistant, completing the user's needs as much as possible and giving complete and direct final results.
 
 # Your output can embed the following content to better answer questions
+* Run shell: ```runshell\\nthe_command\\n```
 * Run python: ```runpython\\nthe_code\\n```
 * Plan: ```plan\\nplan1\\nplan2\\n...\\n```
 * Question: Mark ###ask in front of the question that requires the user to reply

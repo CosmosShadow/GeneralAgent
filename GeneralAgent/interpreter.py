@@ -11,7 +11,7 @@ sys.path.append('../')
 from GeneralAgent.tools import google_search, wikipedia_search, scrape_web
 """
 
-class CodeInterpreter:
+class PythonInterpreter:
     def __init__(self, serialize_path):
         self.globals = {}  # global variables shared by all code
         self.serialize_path = serialize_path

@@ -1,5 +1,5 @@
 from base_setting import *
-from GeneralAgent.interpreter import CodeInterpreter, add_print
+from GeneralAgent.interpreter import PythonInterpreter, add_print
 
 def test_add_print():
     code = """
@@ -16,11 +16,11 @@ print(a)
 try:
 """
 
-def test_CodeInterpreter():
+def test_PythonInterpreter():
     serialize_path = './test_interpreter.bin'
     if os.path.exists(serialize_path): os.remove(serialize_path)
 
-    interpreter = CodeInterpreter(serialize_path)
+    interpreter = PythonInterpreter(serialize_path)
     success, sys_stdout = interpreter.run_code('print("hello world")')
     assert sys_stdout.strip() == 'hello world'
 
@@ -46,4 +46,4 @@ title = result[0]
 
 if __name__ == '__main__':
     # test_add_print()
-    test_CodeInterpreter()
+    test_PythonInterpreter()

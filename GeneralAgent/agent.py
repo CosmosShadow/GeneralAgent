@@ -8,7 +8,7 @@ from collections import OrderedDict
 from GeneralAgent.prompts import general_agent_prompt
 from GeneralAgent.llm import llm_inference
 from GeneralAgent.memory import Memory, MemoryNode
-from GeneralAgent.interpreter import CodeInterpreter
+from GeneralAgent.interpreter import PythonInterpreter
 from GeneralAgent.interpreter import FileInterperter
 from GeneralAgent.tools import Tools
 
@@ -20,7 +20,7 @@ class Agent:
         if not os.path.exists(workspace):
             os.makedirs(workspace)
         self.memory = Memory(f'{workspace}/memory.json')
-        self.code_interpreter = CodeInterpreter(f'{workspace}/code.bin')
+        self.code_interpreter = PythonInterpreter(f'{workspace}/code.bin')
         self.file_interpreter = FileInterperter('./')
         self.tools = tools or Tools([])
         self.is_running = False
@@ -83,7 +83,7 @@ class Agent:
         # process: file -> code -> variable -> plan -> ask
         result = self.file_interpreter.parse(llm_response)
         result = self._run_code_in_text(result)
-        result = self._replace_variable_in_text(result)
+        # result = self._replace_variable_in_text(result)
         has_plan, result = self._extract_plan_in_text(answer_node, result)
         has_ask, result = check_has_ask(result)
         result = result.replace('\n\n', '\n').strip()
@@ -96,8 +96,6 @@ class Agent:
         
         return result, answer_node, is_stop
     
-    
-
     def _run_code_in_text(self, string):
         pattern = re.compile(r'```runpython\n(.*?)\n```', re.DOTALL)
         matches = pattern.findall(string)
@@ -106,14 +104,14 @@ class Agent:
             string = string.replace('```runpython\n{}\n```'.format(code), sys_out)
         return string
     
-    def _replace_variable_in_text(self, string):
-        pattern = re.compile(r'#\$(.*?)\$#', re.DOTALL)
-        matches = pattern.findall(string)
-        for match in matches:
-            value = self.code_interpreter.get_variable(match)
-            if value is not None:
-                string = string.replace('#${}$#'.format(match), str(value))
-        return string
+    # def _replace_variable_in_text(self, string):
+    #     pattern = re.compile(r'#\$(.*?)\$#', re.DOTALL)
+    #     matches = pattern.findall(string)
+    #     for match in matches:
+    #         value = self.code_interpreter.get_variable(match)
+    #         if value is not None:
+    #             string = string.replace('#${}$#'.format(match), str(value))
+    #     return string
 
     def _extract_plan_in_text(self, current_node, string):
         has_plan = False
