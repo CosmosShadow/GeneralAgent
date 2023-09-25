@@ -16,9 +16,10 @@ class BashInterperter:
         self.workspace = workspace
 
     def parse(self, string):
-        # ```runbash\nxxx\n```
+        # ```runshell\nxxx\n```
+        # logging.info(string)
         import re
-        pattern = re.compile(r'```runbash\n(.*?)\n```', re.DOTALL)
+        pattern = re.compile(r'```runshell\n(.*?)\n```', re.DOTALL)
         matches = pattern.findall(string)
         sys_out = None
         for match in matches:
@@ -26,12 +27,18 @@ class BashInterperter:
         return string, sys_out
 
     def _run_bash(self, content):
+        sys_out = ''
         import subprocess
         if 'python ' in content:
             content = content.replace('python ', 'python3 ')
-        p = subprocess.Popen(content, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        sys_out, err = p.communicate()
-        sys_out = sys_out.decode('utf-8')
+        try:
+            p = subprocess.Popen(content, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        except:
+            pass
+        finally:
+            sys_out, err = p.communicate()
+            sys_out = sys_out.decode('utf-8')
+        print('\n' + sys_out + '\n')
         return sys_out
         # alternative: os.system('ls')
 

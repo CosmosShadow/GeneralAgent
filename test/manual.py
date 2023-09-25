@@ -13,20 +13,22 @@ def system_prompt_token_count():
     print(count)
     # 649 tokens, it's long
     # 419 tokens
+    # now: 432 tokens
 
 async def terminal_interactive_agent():
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = Agent(workspace=workspace)
     async def _output_recall(result):
-        print('-----<output>------')
-        print(result)
-        print('-----</output>------')
+        # print('-----<output>------')
+        # print(result)
+        # print('-----</output>------')
+        pass
     for_node_id = None
     while True:
-        input_conent = input('>>>')
+        input_conent = input('[input]\n')
         for_node_id = await agent.run(input_conent, for_node_id=for_node_id, output_recall=_output_recall)
-        # 不用做计划，写一个用python语言实现的带GUI界面的俄罗斯方块游戏，保存在当前目录下。不用询问我，直接做就行了。
-        # 写一个带GUI界面的俄罗斯方块游戏，python实现，保存在当前目录下，并运行起来
+        # >>>写个详细的python版本带GUI的俄罗斯方块游戏到本地文件。不用询问我细节，你自由发挥。
+        # >>>运行它呢
 
 if __name__ == '__main__':
     # system_prompt_token_count()

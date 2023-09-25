@@ -47,10 +47,21 @@ def llm_inference(messages):
     key = md5(messages)
     result = global_cache.get(table, key)
     if result is not None:
+        print(result)
         return result
     model = os.environ.get('OPENAI_API_MODEL', 'gpt-4')
-    response = openai.ChatCompletion.create(model=model, messages=messages)
-    result = response['choices'][0]['message']['content'].strip()
+    response = openai.ChatCompletion.create(model=model, messages=messages, stream=True)
+    result = ''
+    print('[output]')
+    for chunk in response:
+        try:
+            token = chunk['choices'][0]['delta']['content']
+            result += token
+            print(token, end='', flush=True)
+        except Exception as e:
+            pass
+    print('\n', end='', flush=True)
+    # result = response['choices'][0]['message']['content'].strip()
     logging.info(result)
     global_cache.set(table, key, result)
     return result

@@ -47,8 +47,8 @@ class MemoryNode:
 
 
 class Memory:
-    def __init__(self, file_path='./memory.json'):
-        self.db = TinyDB(file_path)
+    def __init__(self, serialize_path='./memory.json'):
+        self.db = TinyDB(serialize_path)
         nodes = [MemoryNode(**node) for node in self.db.all()]
         self.spark_nodes = dict(zip([node.node_id for node in nodes], nodes))
         # add root node

@@ -20,8 +20,8 @@ class Agent:
         self.workspace = workspace
         if not os.path.exists(workspace):
             os.makedirs(workspace)
-        self.memory = Memory(f'{workspace}/memory.json')
-        self.python_interpreter = PythonInterpreter(f'{workspace}/code.bin')
+        self.memory = Memory(serialize_path=f'{workspace}/memory.json')
+        self.python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
         self.bash_interpreter = BashInterperter('./')
         self.file_interpreter = FileInterperter('./')
         self.tools = tools or Tools([])
@@ -94,6 +94,10 @@ class Agent:
         self.memory.success_node(node)
         if not has_plan:
             self.memory.success_node(answer_node)
+
+        if sys_out is not None and sys_out.strip() != '':
+            new_node = MemoryNode(role='system', action='answer', content=sys_out)
+            self.memory.add_node_after(answer_node, new_node)
 
         is_stop = has_ask
         
