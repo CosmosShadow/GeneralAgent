@@ -31,5 +31,5 @@ async def terminal_interactive_agent():
         # >>>不使用计划，直接帮我一次性写个俄罗斯方块游戏代码，保存在本地，要求python实现，带GUI界面。
 
 if __name__ == '__main__':
-    system_prompt_token_count()
-    # asyncio.run(terminal_interactive_agent())
+    # system_prompt_token_count()
+    asyncio.run(terminal_interactive_agent())
