@@ -160,26 +160,19 @@ def structure_plan(data):
 
 
 def get_os_version():
-    # 判断当前操作系统
     system = platform.system()
-
     if system == 'Windows':
-        # Windows系统
         version = platform.version()
         return f"Windows version: {version}"
     elif system == 'Darwin':
-        # macOS系统
         version = platform.mac_ver()[0]
         return f"macOS version: {version}"
     elif system == 'Linux':
-        # Linux系统
         dist = platform.linux_distribution()
         if dist[0] == 'CentOS':
-            # CentOS系统
             version = dist[1]
             return f"CentOS version: {version}"
         elif dist[0] == 'Ubuntu':
-            # Ubuntu系统
             version = dist[1]
             return f"Ubuntu version: {version}"
     else:
