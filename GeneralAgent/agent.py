@@ -71,6 +71,7 @@ class Agent:
         python_libs = ', '.join([line.strip() for line in open(os.path.join(os.path.dirname(__file__), '../requirements.txt'), 'r').readlines()])
         python_funcs = self.tools.get_funs_description()
         system_variables = {
+            'os': 'macOS',
             'python_libs': python_libs,
             'python_funcs': python_funcs
         }
@@ -112,15 +113,6 @@ class Agent:
         is_stop = has_ask
         
         return result, answer_node, is_stop
-    
-    # def _replace_variable_in_text(self, string):
-    #     pattern = re.compile(r'#\$(.*?)\$#', re.DOTALL)
-    #     matches = pattern.findall(string)
-    #     for match in matches:
-    #         value = self.python_interpreter.get_variable(match)
-    #         if value is not None:
-    #             string = string.replace('#${}$#'.format(match), str(value))
-    #     return string
 
     def _extract_plan_in_text(self, current_node, string):
         has_plan = False
