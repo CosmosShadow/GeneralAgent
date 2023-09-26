@@ -6,3 +6,4 @@ numpy
 bs4
 playwright
 retrying
+pymupdf
