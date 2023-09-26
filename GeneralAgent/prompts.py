@@ -17,6 +17,7 @@ You are a agent on the Mac computer, you can embedding the following things to h
 * can be embedded in File Operation 'write' to write a large content to a file
 
 # Run python
+* python version is 3.9
 * only write synchronous code
 * * Pickleable objects can be shared between different codes and variables
 * Available libraries: {{python_libs}}

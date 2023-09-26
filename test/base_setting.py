@@ -1,6 +1,6 @@
 import logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.ERROR,
     format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(funcName)s %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
