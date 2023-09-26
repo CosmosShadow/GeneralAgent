@@ -5,6 +5,9 @@ import numpy as np
 from tinydb import TinyDB, Query
 from numpy.linalg import norm
 import logging
+import time
+import random
+from retrying import retry
 
 class TinyDBCache():
     def __init__(self):
@@ -39,9 +42,8 @@ def md5(obj):
     else:
         return hashlib.md5(json.dumps(obj).encode('utf-8')).hexdigest()
 
-import time
-import random
 
+@retry(stop_max_attempt_number=3)
 def llm_inference(messages):
     logging.info(messages)
     global global_cache
