@@ -58,7 +58,7 @@ def llm_inference(messages):
             print(x, end=' ', flush=True)
         print('', end='\n', flush=True)
         return result
-    model = os.environ.get('OPENAI_API_MODEL', 'gpt-4')
+    model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
     response = openai.ChatCompletion.create(model=model, messages=messages, stream=True)
     result = ''
     print('[output]')
