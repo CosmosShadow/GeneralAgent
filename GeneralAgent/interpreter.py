@@ -42,6 +42,36 @@ class BashInterperter:
         return sys_out
         # alternative: os.system('ls')
 
+class AppleScriptInterperter:
+    def parse(self, string):
+        # ```runapplescript\nxxx\n```
+        # logging.info(string)
+        import re
+        pattern = re.compile(r'```runapplescript\n(.*?)\n```', re.DOTALL)
+        matches = pattern.findall(string)
+        sys_out = None
+        for match in matches:
+            sys_out = self._run_applescript(match)
+            # 替换掉```runapplescript\nxxx\n```，替换成执行结果
+            string = string.replace('```runapplescript\n{}\n```'.format(match), sys_out)
+        return string, sys_out
+
+    def _run_applescript(self, content):
+        content = content.replace('"', '\\"')
+        sys_out = ''
+        import subprocess
+        try:
+            p = subprocess.Popen('osascript -e "{}"'.format(content), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        except:
+            pass
+        finally:
+            sys_out, err = p.communicate()
+            sys_out = sys_out.decode('utf-8')
+        sys_out = sys_out.strip()
+        if sys_out == '':
+            print('run successfully')
+        return sys_out
+        # alternative: os.system('ls')
 
 
 class PythonInterpreter:
@@ -79,12 +109,14 @@ class PythonInterpreter:
 
     def parse(self, string):
         import re
+        sys_out = ''
         pattern = re.compile(r'```runpython\n(.*?)\n```', re.DOTALL)
         matches = pattern.findall(string)
         for code in matches:
             success, sys_out = self.run_code(code)
             string = string.replace('```runpython\n{}\n```'.format(code), sys_out)
-        return string
+            print(sys_out)
+        return string, sys_out
     
     def run_code(self, code):
         code = self.add_print(code)
@@ -93,6 +125,7 @@ class PythonInterpreter:
         logging.debug('-------<code>-------')
         logging.debug(code)
         logging.debug('-------</code>-------')
+        sys_stdout = ''
         output = io.StringIO()
         sys.stdout = output
         success = False
@@ -101,9 +134,12 @@ class PythonInterpreter:
             success = True
         except Exception as e:
             logging.exception(e)
+            # 获取全部输出的日志
+            import traceback
+            sys_stdout += traceback.format_exc()
             self.globals = pickle.loads(globals_backup)
         finally:
-            sys_stdout = output.getvalue()
+            sys_stdout += output.getvalue()
             sys.stdout = sys.__stdout__
         if success:
             self.save()

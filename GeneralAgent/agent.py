@@ -11,6 +11,7 @@ from GeneralAgent.memory import Memory, MemoryNode
 from GeneralAgent.interpreter import PythonInterpreter
 from GeneralAgent.interpreter import FileInterperter
 from GeneralAgent.interpreter import BashInterperter
+from GeneralAgent.interpreter import AppleScriptInterperter
 from GeneralAgent.tools import Tools
 
 
@@ -23,6 +24,7 @@ class Agent:
         self.memory = Memory(serialize_path=f'{workspace}/memory.json')
         self.python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
         self.bash_interpreter = BashInterperter('./')
+        self.applescript_interpreter = AppleScriptInterperter()
         self.file_interpreter = FileInterperter('./')
         self.tools = tools or Tools([])
         self.is_running = False
@@ -84,11 +86,12 @@ class Agent:
         answer_node = MemoryNode(role='system', action='answer', content=llm_response)
         self.memory.add_node_after(node, answer_node)
         
-        # process: file -> bash -> code -> plan -> ask
+        # process: file -> applescript -> bash -> code -> plan -> ask
         result = llm_response
         result = self.file_interpreter.parse(result)
-        result, sys_out = self.bash_interpreter.parse(result)
-        result = self.python_interpreter.parse(result)
+        result, appple_sys_out = self.applescript_interpreter.parse(result)
+        result, bash_sys_out = self.bash_interpreter.parse(result)
+        result, python_sys_out = self.python_interpreter.parse(result)
         has_plan, result = self._extract_plan_in_text(answer_node, result)
         has_ask, result = check_has_ask(result)
         result = result.replace('\n\n', '\n').strip()
@@ -97,8 +100,14 @@ class Agent:
         if not has_plan:
             self.memory.success_node(answer_node)
 
-        if sys_out is not None and sys_out.strip() != '':
-            new_node = MemoryNode(role='user', action='input', content=sys_out)
+        if appple_sys_out is not None and appple_sys_out.strip() != '':
+            new_node = MemoryNode(role='user', action='input', content=appple_sys_out)
+            self.memory.add_node_after(answer_node, new_node)
+        if bash_sys_out is not None and bash_sys_out.strip() != '':
+            new_node = MemoryNode(role='user', action='input', content=bash_sys_out)
+            self.memory.add_node_after(answer_node, new_node)
+        if python_sys_out is not None and python_sys_out.strip() != '' and 'Traceback' in python_sys_out:
+            new_node = MemoryNode(role='user', action='input', content=python_sys_out)
             self.memory.add_node_after(answer_node, new_node)
 
         is_stop = has_ask
