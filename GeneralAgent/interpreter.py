@@ -133,7 +133,7 @@ class PythonInterpreter:
             exec(code, self.globals)
             success = True
         except Exception as e:
-            logging.exception(e)
+            # logging.exception(e)
             # 获取全部输出的日志
             import traceback
             sys_stdout += traceback.format_exc()
