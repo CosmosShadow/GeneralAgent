@@ -2,10 +2,10 @@ from base_setting import *
 from GeneralAgent.memory import Memory, MemoryNode
 
 def test_memory():
-    file_path='./data/memory.json'
-    if os.path.exists(file_path):
-        os.remove(file_path)
-    memory = Memory(file_path=file_path)
+    serialize_path='./data/memory.json'
+    if os.path.exists(serialize_path):
+        os.remove(serialize_path)
+    memory = Memory(serialize_path=serialize_path)
     node1 = MemoryNode(role='user', action='input', content='node1')
     node2 = MemoryNode(role='system', action='answer', content='node2')
     node3 = MemoryNode(role='system', action='answer', content='node3')
@@ -37,7 +37,7 @@ def test_memory():
 
     # load from serialized file
     memory = None
-    memory = Memory(file_path=file_path)
+    memory = Memory(serialize_path=serialize_path)
     _assert_init_state(memory)
     description_2 = str(memory)
     assert description_1 == description_2
@@ -54,8 +54,8 @@ def test_memory():
     memory.success_node(todo_node)
     assert memory.get_todo_node().node_id == 3
     
-    if os.path.exists(file_path):
-        os.remove(file_path)
+    if os.path.exists(serialize_path):
+        os.remove(serialize_path)
 
 if __name__ == '__main__':
     test_memory()
