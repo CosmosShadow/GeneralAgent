@@ -54,7 +54,7 @@ def llm_inference(messages):
         # replay, same as before
         print('[output]')
         for x in result.split(' '):
-            time.sleep(random.random() * 0.05)
+            # time.sleep(random.random() * 0.01)
             print(x, end=' ', flush=True)
         print('', end='\n', flush=True)
         return result

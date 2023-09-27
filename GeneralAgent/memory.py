@@ -146,7 +146,6 @@ class Memory:
         nodes_with_position = self.get_related_nodes_for_node(node)
         messages = [_get_message(node, position) for position, node in nodes_with_position]
         if node.action == 'plan':
-            # messages[-1]['content'] = '完善这个topic的细节: ' + messages[-1]['content']
             messages[-1]['content'] = 'Improve the details of this topic:: ' + messages[-1]['content']
         return messages
     
