@@ -1,6 +1,7 @@
 from base_setting import *
-import re
-from GeneralAgent.interpreter import BashInterperter, PythonInterpreter, AppleScriptInterpreter
+from GeneralAgent.interpreter import BashInterperter, AppleScriptInterpreter, PythonInterpreter
+from GeneralAgent.interpreter import FileInterpreter, PlanInterpreter, AskInterpreter
+
 
 def test_bash_interperter():
     interpreter = BashInterperter()
@@ -53,11 +54,48 @@ title = result[0]
     title = interpreter.get_variable('title')
     assert title == '通天塔AI'
 
+def test_applescript_interpreter():
+    interpreter = AppleScriptInterpreter()
+    content = """```applescript
+tell application "Safari"
+    activate
+    open location "https://tongtianta.ai"
+end tell
+```"""
+    output, is_stop = interpreter.parse(content)
+    assert is_stop is False
+    assert output.strip() == 'run successfully'
+
 def test_file_interpreter():
-    pass
+    interpreter = FileInterpreter('./')
+    content = """
+###file write 0 -1 ./data/a.py
+print('a')
+###endfile
+"""
+    output, is_stop = interpreter.parse(content)
+    assert is_stop is False
+    assert output.strip() == 'write successfully'
+
+    content = """
+###file read 0 1 ./data/a.py
+###endfile
+"""
+    output, is_stop = interpreter.parse(content)
+    assert is_stop is False
+    assert output.strip() == "[0]print('a')"
+
+    content = """
+###file delete 0 1 ./data/a.py
+###endfile
+"""
+    output, is_stop = interpreter.parse(content)
+    assert is_stop is False
+    assert output.strip() == 'delete successfully'
 
 
 if __name__ == '__main__':
     test_python_interpreter()
     test_bash_interperter()
-    # test_file_interpreter()
+    test_applescript_interpreter()
+    test_file_interpreter()

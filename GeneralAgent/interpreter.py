@@ -58,7 +58,7 @@ class AppleScriptInterpreter(Interperter):
         match = pattern.search(string)
         assert match is not None
         sys_out = self._run_applescript(match.group(1))
-        return sys_out.strip()
+        return sys_out.strip(), False
 
     def _run_applescript(self, content):
         content = content.replace('"', '\\"')
@@ -73,8 +73,8 @@ class AppleScriptInterpreter(Interperter):
             sys_out = sys_out.decode('utf-8')
         sys_out = sys_out.strip()
         if sys_out == '':
-            print('run successfully')
-        return sys_out, False
+            sys_out = 'run successfully'
+        return sys_out
 
 default_import_code = """
 import os, sys, math
@@ -243,7 +243,8 @@ class FileInterpreter(Interperter):
         if end_index == -1:
             end_index = len(lines)
         content = ''
-        for index in range(start_index, end_index+1):
+        end_index = min(end_index + 1, len(lines))
+        for index in range(start_index, end_index):
             new_add = f'[{index}]{lines[index]}\n'
             if len(content + new_add) > 2000:
                 left_count = len(lines) - index
