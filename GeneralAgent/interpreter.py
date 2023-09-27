@@ -1,25 +1,37 @@
 # Interpreter
+import re, io, os, sys
 import pickle
-import os
-import io
-import sys
 import logging
+from collections import OrderedDict
+from GeneralAgent.memory import MemoryNode
+import abc
 
 
-class BashInterperter:
+class Interperter(metaclass=abc.ABCMeta):
+    @property
+    @abc.abstractmethod
+    def match_template(self) -> bool:
+        pass
+
+    @abc.abstractmethod
+    def parse(self, string):
+        pass
+
+
+class BashInterperter(Interperter):
     def __init__(self, workspace='./') -> None:
         self.workspace = workspace
 
+    @property
+    def match_template(self):
+        return '```shell\n(.*?)\n```'
+
     def parse(self, string):
-        # ```shell\nxxx\n```
-        # logging.info(string)
-        import re
-        pattern = re.compile(r'```shell\n(.*?)\n```', re.DOTALL)
-        matches = pattern.findall(string)
-        sys_out = None
-        for match in matches:
-            sys_out = self._run_bash(match)
-        return string, sys_out
+        pattern = re.compile(self.match_template, re.DOTALL)
+        match = pattern.search(string)
+        assert match is not None
+        output = self._run_bash(match.group(1))
+        return output.strip()
 
     def _run_bash(self, content):
         sys_out = ''
@@ -33,23 +45,19 @@ class BashInterperter:
         finally:
             sys_out, err = p.communicate()
             sys_out = sys_out.decode('utf-8')
-        print('\n' + sys_out + '\n')
         return sys_out
-        # alternative: os.system('ls')
 
-class AppleScriptInterperter:
+class AppleScriptInterpreter(Interperter):
+    @property
+    def match_template(self):
+        return '```applescript\n(.*?)\n```'
+    
     def parse(self, string):
-        # ```applescript\nxxx\n```
-        # logging.info(string)
-        import re
-        pattern = re.compile(r'```applescript\n(.*?)\n```', re.DOTALL)
-        matches = pattern.findall(string)
-        sys_out = None
-        for match in matches:
-            sys_out = self._run_applescript(match)
-            # 替换掉```applescript\nxxx\n```，替换成执行结果
-            string = string.replace('```applescript\n{}\n```'.format(match), sys_out)
-        return string, sys_out
+        pattern = re.compile(self.match_template, re.DOTALL)
+        match = pattern.search(string)
+        assert match is not None
+        sys_out = self._run_applescript(match.group(1))
+        return sys_out.strip()
 
     def _run_applescript(self, content):
         content = content.replace('"', '\\"')
@@ -66,7 +74,6 @@ class AppleScriptInterperter:
         if sys_out == '':
             print('run successfully')
         return sys_out
-        # alternative: os.system('ls')
 
 import_code = """
 import os, sys, math
@@ -74,7 +81,7 @@ sys.path.append('../')
 from GeneralAgent.tools import google_search, wikipedia_search, scrape_web
 """
 
-class PythonInterpreter:
+class PythonInterpreter(Interperter):
     def __init__(self, serialize_path):
         self.globals = {}  # global variables shared by all code
         self.serialize_path = serialize_path
@@ -86,16 +93,14 @@ class PythonInterpreter:
                 data = pickle.loads(f.read())
                 self.globals = data['globals']
 
+    @property
+    def match_template(self):
+        return '```python\n(.*?)\n```'
+
     def save(self):
-        # remove __builtins__
+        # remove all unpickleable objects
         if '__builtins__' in self.globals:
             self.globals.__delitem__('__builtins__')
-        # remove module
-        # keys = list(self.globals.keys())
-        # for key in keys:
-        #     if str(type(self.globals[key])) == "<class 'module'>":
-        #         self.globals.__delitem__(key)
-        # remove non-serializable variables
         keys = list(self.globals.keys())
         for key in keys:
             try:
@@ -108,23 +113,18 @@ class PythonInterpreter:
             f.write(pickle.dumps(data))
 
     def parse(self, string):
-        import re
         sys_out = ''
-        pattern = re.compile(r'```python\n(.*?)\n```', re.DOTALL)
-        matches = pattern.findall(string)
-        for code in matches:
-            success, sys_out = self.run_code(code)
-            string = string.replace('```python\n{}\n```'.format(code), sys_out)
-            print(sys_out)
-        return string, sys_out
-    
+        pattern = re.compile(self.match_template, re.DOTALL)
+        match = pattern.search(string)
+        assert match is not None
+        sys_out = self.run_code(match.group(1))
+        return sys_out.strip()
+
     def run_code(self, code):
         code = self.add_print(code)
         code = import_code + '\n' + code
         globals_backup = pickle.dumps(self.globals)
-        logging.debug('-------<code>-------')
         logging.debug(code)
-        logging.debug('-------</code>-------')
         sys_stdout = ''
         output = io.StringIO()
         sys.stdout = output
@@ -133,8 +133,6 @@ class PythonInterpreter:
             exec(code, self.globals)
             success = True
         except Exception as e:
-            # logging.exception(e)
-            # 获取全部输出的日志
             import traceback
             sys_stdout += traceback.format_exc()
             self.globals = pickle.loads(globals_backup)
@@ -143,7 +141,10 @@ class PythonInterpreter:
             sys.stdout = sys.__stdout__
         if success:
             self.save()
-        return success, sys_stdout
+        sys_stdout = sys_stdout.strip()
+        if sys_stdout == '':
+            sys_stdout = 'run successfully'
+        return sys_stdout
 
     def get_variable(self, name):
         if name in self.globals:
@@ -157,7 +158,6 @@ class PythonInterpreter:
 
     @classmethod
     def add_print(cls, code_string):
-        import re
         pattern = r'^(\s*)(\w+)(\s*)$'
         lines = code_string.split('\n')
         for i, line in enumerate(lines):
@@ -167,28 +167,32 @@ class PythonInterpreter:
         return '\n'.join(lines)
 
 
-class FileInterperter:
+class FileInterpreter(Interperter):
     def __init__(self, workspace) -> None:
         self.workspace = workspace
 
+    @property
+    def match_template(self):
+        return '###file (.*?)(\n.*?)?\n###endfile'
+
     def parse(self, string):
-        import re
-        pattern = re.compile(r'###file (.*?)(\n.*?)?\n###endfile', re.DOTALL)
-        matches = pattern.findall(string)
-        for match in matches:
-            operation = match[0].split(' ')
-            start_index = int(operation[1])
-            end_index = int(operation[2])
-            file_path = operation[3]
-            if operation[0] == 'write':
-                content = match[1].lstrip('\n') if match[1] else ''
-                self._write_file(file_path, content, start_index, end_index)
-            elif operation[0] == 'delete':
-                self._delete_file(file_path, start_index, end_index)
-            elif operation[0] == 'read':
-                content = self._read_file(file_path, start_index, end_index)
-                string = string.replace('###file {}{}\n###endfile'.format(match[0], match[1]), '###file {}{}\n{}\n###endfile'.format(match[0], match[1], content))
-        return string
+        pattern = re.compile(self.match_template, re.DOTALL)
+        match = pattern.search(string)
+        assert match is not None
+        operation = match.group(1).split(' ')
+        start_index = int(operation[1])
+        end_index = int(operation[2])
+        file_path = operation[3]
+        if operation[0] == 'write':
+            content = match.group(2).lstrip('\n') if match.group(2) else ''
+            self._write_file(file_path, content, start_index, end_index)
+            return 'write successfully'
+        elif operation[0] == 'delete':
+            self._delete_file(file_path, start_index, end_index)
+            return 'delete successfully'
+        elif operation[0] == 'read':
+            content = self._read_file(file_path, start_index, end_index)
+            return content
     
     def _write_file(self, file_path, content, start_index, end_index):
         # if .py file, remove ```python  and ``` pair
@@ -235,5 +239,55 @@ class FileInterperter:
             start_index = len(lines)
         if end_index == -1:
             end_index = len(lines)
-        content = '\n'.join(lines[start_index:end_index+1])
-        return content
+        content = ''
+        for index in range(start_index, end_index+1):
+            new_add = f'[{index}]{lines[index]}\n'
+            if len(content + new_add) > 2000:
+                left_count = len(lines) - index
+                content += f'...\n[there are {left_count} lines left]'
+                break
+            content += new_add
+        return content.strip()
+    
+
+class PlanInterpreter(Interperter):
+    def __init__(self, memory, max_plan_depth) -> None:
+        self.memory = memory
+        self.max_plan_depth = max_plan_depth
+
+    @property
+    def match_template(self):
+        return '```runplan\n(.*?)\n```'
+    
+    def parse(self, string):
+        pattern = re.compile(self.match_template, re.DOTALL)
+        match = pattern.search(string)
+        assert match is not None
+        plan_dict = self.structure_plan(match.group(1).strip())
+        current_node = self.memory.current_node
+        self.add_plans_for_node(current_node, plan_dict)
+        return ''
+    
+    def add_plans_for_node(self, node:MemoryNode, plan_dict):
+        if self.memory.get_node_level(node) >= self.max_plan_depth:
+            return
+        for k, v in plan_dict.items():
+            new_node = MemoryNode(role='system', action='plan', content=k.strip())
+            self.memory.add_node_in(node, new_node)
+            if len(v) > 0:
+                self.add_plans_for_node(new_node, v)
+
+    @classmethod
+    def structure_plan(cls, data):
+        structured_data = OrderedDict()
+        current_section = [structured_data]
+        for line in data.split('\n'):
+            if not line.strip():
+                continue
+            depth = line.count('    ')
+            section = line.strip()
+            while depth < len(current_section) - 1:
+                current_section.pop()
+            current_section[-1][section] = OrderedDict()
+            current_section.append(current_section[-1][section])
+        return structured_data

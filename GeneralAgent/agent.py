@@ -6,32 +6,32 @@ import logging
 import datetime
 import platform
 from jinja2 import Template
-from collections import OrderedDict
+
 from GeneralAgent.prompts import general_agent_prompt
 from GeneralAgent.llm import llm_inference
-from GeneralAgent.memory import Memory, MemoryNode
-from GeneralAgent.interpreter import PythonInterpreter
-from GeneralAgent.interpreter import FileInterperter
-from GeneralAgent.interpreter import BashInterperter
-from GeneralAgent.interpreter import AppleScriptInterperter
 from GeneralAgent.tools import Tools
+from GeneralAgent.memory import Memory, MemoryNode
+from GeneralAgent.interpreter import Interpreter, PythonInterpreter, FileInterpreter, BashInterperter, AppleScriptInterpreter, PlanInterpreter
 
 
 class Agent:
     def __init__(self, workspace, tools=None, max_plan_depth=4):
-        self.max_plan_depth = max_plan_depth
         self.workspace = workspace
         if not os.path.exists(workspace):
             os.makedirs(workspace)
         self.memory = Memory(serialize_path=f'{workspace}/memory.json')
-        self.python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
-        self.bash_interpreter = BashInterperter('./')
-        self.applescript_interpreter = AppleScriptInterperter()
-        self.file_interpreter = FileInterperter('./')
         self.tools = tools or Tools([])
         self.is_running = False
         self.stop_event = asyncio.Event()
         self.os_version = get_os_version()
+
+        self.python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
+        self.bash_interpreter = BashInterperter('./')
+        self.applescript_interpreter = AppleScriptInterpreter()
+        self.file_interpreter = FileInterpreter('./')
+        self.plan_interperter = PlanInterpreter(self.memory, max_plan_depth)
+        self.interpreters = [self.python_interpreter, self.bash_interpreter, self.applescript_interpreter, self.file_interpreter, self.plan_interperter]
+
 
     async def run(self, input=None, for_node_id=None, output_recall=None):
         self.is_running = True
@@ -82,20 +82,33 @@ class Agent:
         }
         system_prompt = Template(general_agent_prompt).render(**system_variables)
         messages = [{'role': 'system', 'content': system_prompt}] + self.memory.get_related_messages_for_node(node)
-        # TODO: when messages exceed limit, cut it
-        llm_response = llm_inference(messages)
 
-        # answer node
-        answer_node = MemoryNode(role='system', action='answer', content=llm_response)
+        # add answer node and set current node
+        answer_node = MemoryNode(role='system', action='answer', content='')
         self.memory.add_node_after(node, answer_node)
+        self.memory.set_current_node(answer_node)
+
+        # TODO: when messages exceed limit, cut it
+
+        result = ''
+        response = llm_inference(messages)
+        for token in response:
+            if token is None: break
+            result += token
+            for interpreter in self.interpreters:
+                match = re.compile(interpreter.match_template, re.DOTALL).search(result)
+                if match is not None:
+                    output = interpreter.parse(result)
+                    result = result.strip() + '\n' + output.strip()
+                    break
         
         # process: file -> applescript -> bash -> code -> plan -> ask
-        result = llm_response
+        
         result = self.file_interpreter.parse(result)
         result, apple_sys_out = self.applescript_interpreter.parse(result)
         result, bash_sys_out = self.bash_interpreter.parse(result)
         result, python_sys_out = self.python_interpreter.parse(result)
-        has_plan, result = self._extract_plan_in_text(answer_node, result)
+        resutl = self.plan_interperter.parse(result)
         has_ask, result = check_has_ask(result)
         result = result.replace('\n\n', '\n').strip()
 
@@ -117,26 +130,6 @@ class Agent:
         
         return result, answer_node, is_stop
 
-    def _extract_plan_in_text(self, current_node, string):
-        has_plan = False
-        pattern = re.compile(r'```runplan(.*?)```', re.DOTALL)
-        matches = pattern.findall(string)
-        for match in matches:
-            has_plan = True
-            plan_dict = structure_plan(match.strip())
-            self.add_plans_for_node(current_node, plan_dict)
-            string = string.replace('```runplan{}```'.format(match), match)
-        return has_plan, string
-    
-    def add_plans_for_node(self, node:MemoryNode, plan_dict):
-        if self.memory.get_node_level(node) >= self.max_plan_depth:
-            return
-        for k, v in plan_dict.items():
-            new_node = MemoryNode(role='system', action='plan', content=k.strip())
-            self.memory.add_node_in(node, new_node)
-            if len(v) > 0:
-                self.add_plans_for_node(new_node, v)
-
 
 def check_has_ask(string):
     pattern = re.compile(r'```ask', re.DOTALL)
@@ -144,20 +137,6 @@ def check_has_ask(string):
     string = pattern.sub('', string)
     return has_ask, string
 
-
-def structure_plan(data):
-    structured_data = OrderedDict()
-    current_section = [structured_data]
-    for line in data.split('\n'):
-        if not line.strip():
-            continue
-        depth = line.count('    ')
-        section = line.strip()
-        while depth < len(current_section) - 1:
-            current_section.pop()
-        current_section[-1][section] = OrderedDict()
-        current_section.append(current_section[-1][section])
-    return structured_data
 
 
 def get_os_version():

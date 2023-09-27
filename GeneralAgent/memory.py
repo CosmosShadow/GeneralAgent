@@ -56,6 +56,10 @@ class Memory:
             root_node = MemoryNode.new_root()
             self.spark_nodes[root_node.node_id] = root_node
             self.db.insert(root_node.__dict__)
+        self.current_node = None
+
+    def set_current_node(self, current_node):
+        self.current_node = current_node
 
     def new_node_id(self):
         return max(self.spark_nodes.keys()) + 1
