@@ -16,8 +16,7 @@ def default_output_recall(output):
     if output is not None:
         print(output, end='', flush=True)
     else:
-        print()
-        print('[output end]\n', end='', flush=True)
+        print('\n[output end]\n', end='', flush=True)
 
 
 class Agent:
@@ -43,13 +42,9 @@ class Agent:
         input_node = self._insert_node(input, for_node_id) if input is not None else None
         todo_node = self.memory.get_todo_node() or input_node
         while todo_node is not None:
-            print(todo_node)
             new_node, is_stop = await self._execute_node(todo_node, output_recall)
             if is_stop:
                 return new_node.node_id
-            print('------memory--------')
-            print(self.memory)
-            print('------memory--------')
             todo_node = self.memory.get_todo_node()
             await asyncio.sleep(0)
             if self.stop_event.is_set():
@@ -105,14 +100,18 @@ class Agent:
                     if match is not None:
                         output, is_stop = interpreter.parse(result)
                         await output_recall(output)
+                        is_stop = True
                         break
+                if is_stop:
+                    break
             await output_recall(None)
-            # update answer node
+            # update current node and answer node
             answer_node.content = result
             self.memory.success_node(node)
             self.memory.success_node(answer_node)
             return answer_node, is_stop
         except Exception as e:
+            # if fail, recover
             logging.exception(e)
             await output_recall(result)
             self.memory.delete_node(answer_node)
