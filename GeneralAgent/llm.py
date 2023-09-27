@@ -49,11 +49,11 @@ def llm_inference(messages):
     key = md5(messages)
     result = global_cache.get(table, key)
     if result is not None:
+        # print('cache hitted')
         for x in result.split(' '):
             yield x + ' '
         yield '\n'
         yield None
-        return
     else:
         model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
         response = openai.ChatCompletion.create(model=model, messages=messages, stream=True)
@@ -61,15 +61,15 @@ def llm_inference(messages):
         for chunk in response:
             try:
                 token = chunk['choices'][0]['delta']['content']
+                # print(token, end='', flush=True)
                 result += token
-                print(token, end='', flush=True)
+                global_cache.set(table, key, result)
                 yield token
             except Exception as e:
+                # print(e)
                 pass
-        yield None
         logging.info(result)
-        global_cache.set(table, key, result)
-        return
+        yield None
 
 
 def embedding_fun(text):
@@ -79,6 +79,7 @@ def embedding_fun(text):
     key = md5(text)
     embedding = global_cache.get(table, key)
     if embedding is not None:
+        # print('embedding cache hitted')
         return embedding
     texts = [text]
     import openai

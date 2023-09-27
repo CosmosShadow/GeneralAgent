@@ -19,6 +19,8 @@ def test_llm_inference():
     ]
     result = ''
     for x in llm_inference(messages):
+        if x is None:
+            break
         result += x
     assert '2' in result
 
@@ -29,6 +31,9 @@ def test_llm_inference_break():
     ]
     result = ''
     for x in llm_inference(messages):
+        if x is None:
+            break
+        # print(x, end='', flush=True)
         result += x
         if len(result) > 10:
             break
@@ -43,6 +48,6 @@ def test_llm_inference_break():
 
 
 if __name__ == '__main__':
-    # test_embedding_fun()
-    # test_llm_inference()
+    test_embedding_fun()
+    test_llm_inference()
     test_llm_inference_break()
