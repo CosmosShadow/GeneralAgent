@@ -49,7 +49,7 @@ def llm_inference(messages):
     key = md5(messages)
     result = global_cache.get(table, key)
     if result is not None:
-        # print('cache hitted')
+        print('llm_inference cache hitted')
         for x in result.split(' '):
             yield x + ' '
         yield '\n'

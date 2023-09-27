@@ -18,7 +18,7 @@ async def test_math():
             nonlocal result
             result += token
             print(token, end='', flush=True)
-    for_node_id = await agent.run('Help me calculate 0.99 raised to the 1000th power', output_recall=_output_recall)
+    for_node_id = await agent.run('calculate 0.99 ** 1000', output_recall=_output_recall)
     assert '4.317124741065786e-05' in result
     assert for_node_id == None
 

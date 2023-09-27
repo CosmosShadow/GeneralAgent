@@ -70,7 +70,13 @@ class Agent:
     async def _execute_node(self, node, output_recall):
         python_libs = ', '.join([line.strip() for line in open(os.path.join(os.path.dirname(__file__), '../requirements.txt'), 'r').readlines()])
         python_funcs = self.tools.get_funs_description()
-        now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        # set time same all the time if cache is on
+        if os.environ.get('LLM_CACHE', 'no') in ['yes', 'y', 'YES']:
+            now = '2023-09-27 00:00:00'
+        else:    
+            now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
         system_variables = {
             'now': now,
             'os_version': self.os_version,

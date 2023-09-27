@@ -29,6 +29,7 @@ async def terminal_interactive_agent():
         input_conent = input('[input]\n')
         print('[output]\n', end='', flush=True)
         for_node_id = await agent.run(input_conent, for_node_id=for_node_id, output_recall=_output_recall)
+        # calculate 0.99 ** 1000
         # 不使用计划，直接帮我一次性写个俄罗斯方块游戏代码，保存在本地，要求python实现，带GUI界面。
         # plan
         # 帮我写一份AI画画产品的商业计划书框架，用于天使轮投资，不清晰的地方，你合理设计，不用询问我。
