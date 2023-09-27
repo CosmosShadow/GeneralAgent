@@ -5,11 +5,6 @@ import io
 import sys
 import logging
 
-import_code = """
-import os, sys, math
-sys.path.append('../')
-from GeneralAgent.tools import google_search, wikipedia_search, scrape_web
-"""
 
 class BashInterperter:
     def __init__(self, workspace='./') -> None:
@@ -73,6 +68,11 @@ class AppleScriptInterperter:
         return sys_out
         # alternative: os.system('ls')
 
+import_code = """
+import os, sys, math
+sys.path.append('../')
+from GeneralAgent.tools import google_search, wikipedia_search, scrape_web
+"""
 
 class PythonInterpreter:
     def __init__(self, serialize_path):
@@ -187,10 +187,6 @@ class FileInterperter:
                 self._delete_file(file_path, start_index, end_index)
             elif operation[0] == 'read':
                 content = self._read_file(file_path, start_index, end_index)
-                # logging.debug(content)
-                # logging.debug('###file {}\n{}\n###endfile'.format(match[0], match[1]))
-                # logging.debug('###file {}\n{}\n{}\n###endfile'.format(match[0], match[1], content))
-                # print('###file {}{}\n{}\n###endfile'.format(match[0], match[1], content))
                 string = string.replace('###file {}{}\n###endfile'.format(match[0], match[1]), '###file {}{}\n{}\n###endfile'.format(match[0], match[1], content))
         return string
     

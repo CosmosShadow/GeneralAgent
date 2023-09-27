@@ -3,6 +3,7 @@
 import os, re
 import asyncio
 import logging
+import datetime
 import platform
 from jinja2 import Template
 from collections import OrderedDict
@@ -72,7 +73,9 @@ class Agent:
     def _execute_node(self, node):
         python_libs = ', '.join([line.strip() for line in open(os.path.join(os.path.dirname(__file__), '../requirements.txt'), 'r').readlines()])
         python_funcs = self.tools.get_funs_description()
+        now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         system_variables = {
+            'now': now,
             'os_version': self.os_version,
             'python_libs': python_libs,
             'python_funcs': python_funcs
