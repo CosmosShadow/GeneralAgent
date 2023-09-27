@@ -80,8 +80,6 @@ class Agent:
         system_prompt = Template(general_agent_prompt).render(**system_variables)
         messages = [{'role': 'system', 'content': system_prompt}] + self.memory.get_related_messages_for_node(node)
         # TODO: when messages exceed limit, cut it
-        # if len(messages) > 6:
-        #     messages = messages[:2] + messages[-4:]
         llm_response = llm_inference(messages)
 
         # answer node
@@ -91,7 +89,7 @@ class Agent:
         # process: file -> applescript -> bash -> code -> plan -> ask
         result = llm_response
         result = self.file_interpreter.parse(result)
-        result, appple_sys_out = self.applescript_interpreter.parse(result)
+        result, apple_sys_out = self.applescript_interpreter.parse(result)
         result, bash_sys_out = self.bash_interpreter.parse(result)
         result, python_sys_out = self.python_interpreter.parse(result)
         has_plan, result = self._extract_plan_in_text(answer_node, result)
@@ -102,8 +100,8 @@ class Agent:
         if not has_plan:
             self.memory.success_node(answer_node)
 
-        if appple_sys_out is not None and appple_sys_out.strip() != '':
-            new_node = MemoryNode(role='user', action='input', content=appple_sys_out)
+        if apple_sys_out is not None and apple_sys_out.strip() != '':
+            new_node = MemoryNode(role='user', action='input', content=apple_sys_out)
             self.memory.add_node_after(answer_node, new_node)
         if bash_sys_out is not None and bash_sys_out.strip() != '':
             new_node = MemoryNode(role='user', action='input', content=bash_sys_out)
