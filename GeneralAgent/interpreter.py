@@ -16,10 +16,10 @@ class BashInterperter:
         self.workspace = workspace
 
     def parse(self, string):
-        # ```runshell\nxxx\n```
+        # ```shell\nxxx\n```
         # logging.info(string)
         import re
-        pattern = re.compile(r'```runshell\n(.*?)\n```', re.DOTALL)
+        pattern = re.compile(r'```shell\n(.*?)\n```', re.DOTALL)
         matches = pattern.findall(string)
         sys_out = None
         for match in matches:
@@ -44,16 +44,16 @@ class BashInterperter:
 
 class AppleScriptInterperter:
     def parse(self, string):
-        # ```runapplescript\nxxx\n```
+        # ```applescript\nxxx\n```
         # logging.info(string)
         import re
-        pattern = re.compile(r'```runapplescript\n(.*?)\n```', re.DOTALL)
+        pattern = re.compile(r'```applescript\n(.*?)\n```', re.DOTALL)
         matches = pattern.findall(string)
         sys_out = None
         for match in matches:
             sys_out = self._run_applescript(match)
-            # 替换掉```runapplescript\nxxx\n```，替换成执行结果
-            string = string.replace('```runapplescript\n{}\n```'.format(match), sys_out)
+            # 替换掉```applescript\nxxx\n```，替换成执行结果
+            string = string.replace('```applescript\n{}\n```'.format(match), sys_out)
         return string, sys_out
 
     def _run_applescript(self, content):
@@ -110,11 +110,11 @@ class PythonInterpreter:
     def parse(self, string):
         import re
         sys_out = ''
-        pattern = re.compile(r'```runpython\n(.*?)\n```', re.DOTALL)
+        pattern = re.compile(r'```python\n(.*?)\n```', re.DOTALL)
         matches = pattern.findall(string)
         for code in matches:
             success, sys_out = self.run_code(code)
-            string = string.replace('```runpython\n{}\n```'.format(code), sys_out)
+            string = string.replace('```python\n{}\n```'.format(code), sys_out)
             print(sys_out)
         return string, sys_out
     

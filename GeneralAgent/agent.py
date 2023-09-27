@@ -118,13 +118,13 @@ class Agent:
 
     def _extract_plan_in_text(self, current_node, string):
         has_plan = False
-        pattern = re.compile(r'```plan(.*?)```', re.DOTALL)
+        pattern = re.compile(r'```runplan(.*?)```', re.DOTALL)
         matches = pattern.findall(string)
         for match in matches:
             has_plan = True
             plan_dict = structure_plan(match.strip())
             self.add_plans_for_node(current_node, plan_dict)
-            string = string.replace('```plan{}```'.format(match), match)
+            string = string.replace('```runplan{}```'.format(match), match)
         return has_plan, string
     
     def add_plans_for_node(self, node:MemoryNode, plan_dict):
@@ -138,7 +138,7 @@ class Agent:
 
 
 def check_has_ask(string):
-    pattern = re.compile(r'###ask', re.DOTALL)
+    pattern = re.compile(r'```ask', re.DOTALL)
     has_ask = pattern.search(string) is not None
     string = pattern.sub('', string)
     return has_ask, string
