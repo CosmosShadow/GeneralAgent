@@ -51,29 +51,27 @@ def llm_inference(messages):
     key = md5(messages)
     result = global_cache.get(table, key)
     if result is not None:
-        # replay, same as before
-        print('[output]')
         for x in result.split(' '):
-            # time.sleep(random.random() * 0.01)
-            print(x, end=' ', flush=True)
-        print('', end='\n', flush=True)
-        return result
-    model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
-    response = openai.ChatCompletion.create(model=model, messages=messages, stream=True)
-    result = ''
-    print('[output]')
-    for chunk in response:
-        try:
-            token = chunk['choices'][0]['delta']['content']
-            result += token
-            print(token, end='', flush=True)
-        except Exception as e:
-            pass
-    print('\n', end='', flush=True)
-    # result = response['choices'][0]['message']['content'].strip()
-    logging.info(result)
-    global_cache.set(table, key, result)
-    return result
+            yield x + ' '
+        yield '\n'
+        yield None
+        return
+    else:
+        model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
+        response = openai.ChatCompletion.create(model=model, messages=messages, stream=True)
+        result = ''
+        for chunk in response:
+            try:
+                token = chunk['choices'][0]['delta']['content']
+                result += token
+                print(token, end='', flush=True)
+                yield token
+            except Exception as e:
+                pass
+        yield None
+        logging.info(result)
+        global_cache.set(table, key, result)
+        return
 
 
 def embedding_fun(text):

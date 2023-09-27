@@ -17,10 +17,32 @@ def test_llm_inference():
         {'role': 'system', 'content': 'you are a helpful assistant'},
         {'role': 'user', 'content': '1 + 1 = ?'},
     ]
-    result = llm_inference(messages)
+    result = ''
+    for x in llm_inference(messages):
+        result += x
     assert '2' in result
+
+def test_llm_inference_break():
+    messages = [
+        {'role': 'system', 'content': 'you are a helpful assistant'},
+        {'role': 'user', 'content': 'describle the Chengdu'},
+    ]
+    result = ''
+    for x in llm_inference(messages):
+        result += x
+        if len(result) > 10:
+            break
+    assert len(result) > 10
+
+    result = ''
+    for x in llm_inference(messages):
+        result += x
+        if len(result) > 10:
+            break
+    assert len(result) > 10
 
 
 if __name__ == '__main__':
-    test_embedding_fun()
-    test_llm_inference()
+    # test_embedding_fun()
+    # test_llm_inference()
+    test_llm_inference_break()
