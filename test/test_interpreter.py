@@ -23,38 +23,35 @@ try:
     if os.path.exists(serialize_path): os.remove(serialize_path)
 
     interpreter = PythonInterpreter(serialize_path)
-    success, sys_stdout = interpreter.run_code('print("hello world")')
+    sys_stdout = interpreter.run_code('print("hello world")')
     assert sys_stdout.strip() == 'hello world'
 
     interpreter.set_variable('a', 10)
-    success, sys_stdout = interpreter.run_code('a += 1')
+    sys_stdout = interpreter.run_code('a += 1')
     a = interpreter.get_variable('a')
     assert a == 11
 
-    success, sys_stdout = interpreter.run_code('a += 1')
+    sys_stdout = interpreter.run_code('a += 1')
     a = interpreter.get_variable('a')
-    assert a == 21
+    assert a == 12
 
     code = """
 url = 'https://tongtianta.ai'
 result = scrape_web(url)
 title = result[0]
 """
-    success, sys_stdout = interpreter.run_code(code)
-    assert success
+    sys_stdout = interpreter.run_code(code)
     title = interpreter.get_variable('title')
     assert title == '通天塔AI'
 
 
 def test_bash_interperter():
     interpreter = BashInterperter()
-    result, sys_out = interpreter.parse("""```runbash\npython ./data/hello.py\n```""")
-    # print(result)
-    # print(sys_out)
-    assert 'hello world' in sys_out
+    output, is_stop = interpreter.parse("""```shell\npython ./data/hello.py\n```""")
+    assert 'hello world' in output
+    assert is_stop is False
 
 
 if __name__ == '__main__':
-    # test_add_print()
-    # test_python_interpreter()
+    test_python_interpreter()
     test_bash_interperter()
