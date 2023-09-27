@@ -63,6 +63,10 @@ class Memory:
 
     def new_node_id(self):
         return max(self.spark_nodes.keys()) + 1
+    
+    def node_count(self):
+        # ignore root node
+        return len(self.spark_nodes.keys()) - 1
         
     def is_all_children_success(self, node):
         # check if all childrens of node are success

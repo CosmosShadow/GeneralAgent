@@ -1,7 +1,7 @@
 from base_setting import *
 from GeneralAgent.interpreter import BashInterperter, AppleScriptInterpreter, PythonInterpreter
 from GeneralAgent.interpreter import FileInterpreter, PlanInterpreter, AskInterpreter
-
+from GeneralAgent.memory import Memory, MemoryNode
 
 def test_bash_interperter():
     interpreter = BashInterperter()
@@ -26,7 +26,7 @@ print(a)
 try:
 """
     # test run
-    serialize_path = './test_interpreter.bin'
+    serialize_path = './data/test_interpreter.bin'
     if os.path.exists(serialize_path): os.remove(serialize_path)
 
     interpreter = PythonInterpreter(serialize_path)
@@ -59,7 +59,7 @@ def test_applescript_interpreter():
     content = """```applescript
 tell application "Safari"
     activate
-    open location "https://tongtianta.ai"
+    open location "https://www.google.com"
 end tell
 ```"""
     output, is_stop = interpreter.parse(content)
@@ -93,9 +93,31 @@ print('a')
     assert is_stop is False
     assert output.strip() == 'delete successfully'
 
+def test_plan_interpreter():
+    serialize_path = './data/plan_memory.json'
+    if os.path.exists(serialize_path): os.remove(serialize_path)
+    memory = Memory(serialize_path)
+    node = MemoryNode('user', 'input', content='hello world')
+    memory.add_node(node)
+    memory.set_current_node(node)
+    interpreter = PlanInterpreter(memory, max_plan_depth=4)
+    content = """
+```runplan
+- [ ] 任务1
+- [ ] 任务2
+```
+"""
+    output, is_stop = interpreter.parse(content)
+    assert output == ''
+    assert is_stop is False
+    assert memory.node_count() == 3
+
+
+
 
 if __name__ == '__main__':
     test_python_interpreter()
     test_bash_interperter()
     test_applescript_interpreter()
     test_file_interpreter()
+    test_plan_interpreter()

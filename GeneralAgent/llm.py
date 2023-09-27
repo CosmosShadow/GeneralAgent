@@ -5,8 +5,6 @@ import numpy as np
 from tinydb import TinyDB, Query
 from numpy.linalg import norm
 import logging
-import time
-import random
 from retrying import retry
 
 class TinyDBCache():
