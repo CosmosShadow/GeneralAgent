@@ -76,15 +76,16 @@ class AppleScriptInterpreter(Interperter):
             print('run successfully')
         return sys_out, False
 
-import_code = """
+default_import_code = """
 import os, sys, math
 sys.path.append('../')
 from GeneralAgent.tools import google_search, wikipedia_search, scrape_web
 """
 
 class PythonInterpreter(Interperter):
-    def __init__(self, serialize_path):
+    def __init__(self, serialize_path, import_code=default_import_code):
         self.globals = {}  # global variables shared by all code
+        self.import_code = import_code
         self.serialize_path = serialize_path
         self.load()
 
@@ -123,7 +124,7 @@ class PythonInterpreter(Interperter):
 
     def run_code(self, code):
         code = self.add_print(code)
-        code = import_code + '\n' + code
+        code = self.import_code + '\n' + code
         globals_backup = pickle.dumps(self.globals)
         logging.debug(code)
         sys_stdout = ''
