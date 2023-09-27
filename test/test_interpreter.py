@@ -45,14 +45,14 @@ try:
 
     code = """
 ```python
-url = 'https://tongtianta.ai'
+url = 'https://www.google.com'
 result = scrape_web(url)
 title = result[0]
 ```
 """
     sys_stdout, is_stop = interpreter.parse(code)
     title = interpreter.get_variable('title')
-    assert title == '通天塔AI'
+    assert title == 'Google'
 
 def test_applescript_interpreter():
     interpreter = AppleScriptInterpreter()
@@ -112,7 +112,16 @@ def test_plan_interpreter():
     assert is_stop is False
     assert memory.node_count() == 3
 
-
+def test_ask_interpreter():
+    interpreter = AskInterpreter()
+    content = """
+```ask
+who are your?
+```
+"""
+    output, is_stop = interpreter.parse(content)
+    assert output == ''
+    assert is_stop is True
 
 
 if __name__ == '__main__':
@@ -121,3 +130,4 @@ if __name__ == '__main__':
     test_applescript_interpreter()
     test_file_interpreter()
     test_plan_interpreter()
+    test_ask_interpreter()
