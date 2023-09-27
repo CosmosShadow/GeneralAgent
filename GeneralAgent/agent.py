@@ -43,9 +43,13 @@ class Agent:
         input_node = self._insert_node(input, for_node_id) if input is not None else None
         todo_node = self.memory.get_todo_node() or input_node
         while todo_node is not None:
-            new_node, is_stop = self._execute_node(todo_node, output_recall)
+            print(todo_node)
+            new_node, is_stop = await self._execute_node(todo_node, output_recall)
             if is_stop:
-                return new_node.node_id        
+                return new_node.node_id
+            print('------memory--------')
+            print(self.memory)
+            print('------memory--------')
             todo_node = self.memory.get_todo_node()
             await asyncio.sleep(0)
             if self.stop_event.is_set():
@@ -88,26 +92,33 @@ class Agent:
 
         # TODO: when messages exceed limit, cut it
 
-        result = ''
-        is_stop = False
-        response = llm_inference(messages)
-        for token in response:
-            if token is None: break
-            result += token
-            output_recall(token)
-            for interpreter in self.interpreters:
-                match = re.compile(interpreter.match_template, re.DOTALL).search(result)
-                if match is not None:
-                    output, is_stop = interpreter.parse(result)
-                    output_recall(output)
-                    break
-        output_recall(None)
+        try:
+            result = ''
+            is_stop = False
+            response = llm_inference(messages)
+            for token in response:
+                if token is None: break
+                result += token
+                await output_recall(token)
+                for interpreter in self.interpreters:
+                    match = re.compile(interpreter.match_template, re.DOTALL).search(result)
+                    if match is not None:
+                        output, is_stop = interpreter.parse(result)
+                        await output_recall(output)
+                        break
+            await output_recall(None)
+            # update answer node
+            answer_node.content = result
+            self.memory.success_node(node)
+            self.memory.success_node(answer_node)
+            return answer_node, is_stop
+        except Exception as e:
+            logging.exception(e)
+            await output_recall(result)
+            self.memory.delete_node(answer_node)
+            return node, is_stop
         
-        # update answer node
-        answer_node.content = result
-        self.memory.success_node(answer_node)
-
-        return result, answer_node, is_stop
+        
 
 
 def get_os_version():

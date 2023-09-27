@@ -83,6 +83,19 @@ class Memory:
         self.update_node(root_node)
         self.db.insert(node.__dict__)
         self.spark_nodes[node.node_id] = node
+
+    def delete_node(self, node):
+        # delete node and all its childrens
+        for children_id in node.childrens:
+            children = self.get_node(children_id)
+            self.delete_node(children)
+        parent = self.get_node_parent(node)
+        if parent:
+            parent.childrens.remove(node.node_id)
+            self.update_node(parent)
+        self.db.remove(Query().node_id == node.node_id)
+        del self.spark_nodes[node.node_id]
+
     
     def add_node_after(self, last_node, node):
         # add node after last_node

@@ -66,8 +66,8 @@ def llm_inference(messages):
                 global_cache.set(table, key, result)
                 yield token
             except Exception as e:
-                # print(e)
-                pass
+                print('llm_inference error')
+                print(e)
         logging.info(result)
         yield None
 
