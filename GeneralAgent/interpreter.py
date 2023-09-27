@@ -14,7 +14,8 @@ class Interperter(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def parse(self, string):
+    def parse(self, string) -> (str, bool):
+        # return output, is_stop
         pass
 
 
@@ -31,7 +32,7 @@ class BashInterperter(Interperter):
         match = pattern.search(string)
         assert match is not None
         output = self._run_bash(match.group(1))
-        return output.strip()
+        return output.strip(), False
 
     def _run_bash(self, content):
         sys_out = ''
@@ -73,7 +74,7 @@ class AppleScriptInterpreter(Interperter):
         sys_out = sys_out.strip()
         if sys_out == '':
             print('run successfully')
-        return sys_out
+        return sys_out, False
 
 import_code = """
 import os, sys, math
@@ -118,7 +119,7 @@ class PythonInterpreter(Interperter):
         match = pattern.search(string)
         assert match is not None
         sys_out = self.run_code(match.group(1))
-        return sys_out.strip()
+        return sys_out.strip(), False
 
     def run_code(self, code):
         code = self.add_print(code)
@@ -176,6 +177,7 @@ class FileInterpreter(Interperter):
         return '###file (.*?)(\n.*?)?\n###endfile'
 
     def parse(self, string):
+        is_stop = False
         pattern = re.compile(self.match_template, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
@@ -186,13 +188,13 @@ class FileInterpreter(Interperter):
         if operation[0] == 'write':
             content = match.group(2).lstrip('\n') if match.group(2) else ''
             self._write_file(file_path, content, start_index, end_index)
-            return 'write successfully'
+            return 'write successfully', is_stop
         elif operation[0] == 'delete':
             self._delete_file(file_path, start_index, end_index)
-            return 'delete successfully'
+            return 'delete successfully', is_stop
         elif operation[0] == 'read':
             content = self._read_file(file_path, start_index, end_index)
-            return content
+            return content, is_stop
     
     def _write_file(self, file_path, content, start_index, end_index):
         # if .py file, remove ```python  and ``` pair
@@ -266,7 +268,7 @@ class PlanInterpreter(Interperter):
         plan_dict = self.structure_plan(match.group(1).strip())
         current_node = self.memory.current_node
         self.add_plans_for_node(current_node, plan_dict)
-        return ''
+        return '', False
     
     def add_plans_for_node(self, node:MemoryNode, plan_dict):
         if self.memory.get_node_level(node) >= self.max_plan_depth:
@@ -291,3 +293,15 @@ class PlanInterpreter(Interperter):
             current_section[-1][section] = OrderedDict()
             current_section.append(current_section[-1][section])
         return structured_data
+    
+class AskInterpreter(Interperter):
+    @property
+    def match_template(self):
+        return '```ask\n(.*?)\n```'
+    
+    def parse(self, string):
+        pattern = re.compile(self.match_template, re.DOTALL)
+        match = pattern.search(string)
+        assert match is not None
+        question = match.group(1).strip()
+        return '', True

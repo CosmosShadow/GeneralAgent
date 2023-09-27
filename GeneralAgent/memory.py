@@ -171,12 +171,12 @@ class Memory:
         node.success_work()
         self.update_node(node)
     
-    def get_todo_node(self, node=None):
+    def _get_todo_node(self, node=None):
         # get the first ready node in the tree of node
         if node is None:
             node = self.get_node(0)
         for node_id in node.childrens:
-            child = self.get_todo_node(self.get_node(node_id))
+            child = self._get_todo_node(self.get_node(node_id))
             if child is not None:
                 return child
         if node.is_root():
@@ -184,3 +184,11 @@ class Memory:
         if node.state in ['ready']:
             return node
         return None
+    
+    def get_todo_node(self):
+        todo_node = self._get_todo_node()
+        # if all childrens of todo_node are success, success todo_node
+        if todo_node is not None and len(todo_node.childrens) > 0 and self.memory.is_all_children_success(todo_node):
+            self.success_node(todo_node)
+            return self.get_todo_node()
+        return todo_node
