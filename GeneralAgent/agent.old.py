@@ -10,7 +10,7 @@ from GeneralAgent.prompts import general_agent_prompt
 from GeneralAgent.llm import llm_inference
 from GeneralAgent.tools import Tools
 from GeneralAgent.memory import Memory, MemoryNode
-from GeneralAgent.interpreter import PythonInterpreter, FileInterpreter, BashInterperter, AppleScriptInterpreter, PlanInterpreter, AskInterpreter, TextPlanInterpreter
+from GeneralAgent.interpreter import PythonInterpreter, FileInterpreter, BashInterperter, AppleScriptInterpreter, PlanInterpreter, AskInterpreter
 
 def default_output_recall(output):
     if output is not None:
@@ -34,9 +34,8 @@ class Agent:
         self.applescript_interpreter = AppleScriptInterpreter()
         self.file_interpreter = FileInterpreter('./')
         self.plan_interperter = PlanInterpreter(self.memory, max_plan_depth)
-        self.text_plan_interpreter = TextPlanInterpreter()
         self.ask_interpreter = AskInterpreter()
-        self.interpreters = [self.python_interpreter, self.bash_interpreter, self.applescript_interpreter, self.file_interpreter, self.ask_interpreter]
+        self.interpreters = [self.python_interpreter, self.bash_interpreter, self.applescript_interpreter, self.file_interpreter, self.plan_interperter, self.ask_interpreter]
 
     async def run(self, input=None, for_node_id=None, output_recall=default_output_recall):
         self.is_running = True
@@ -102,20 +101,15 @@ class Agent:
                 if token is None: break
                 result += token
                 await output_recall(token)
-                match_break = False
                 for interpreter in self.interpreters:
                     match = re.compile(interpreter.match_template, re.DOTALL).search(result)
                     if match is not None:
                         output, is_stop = interpreter.parse(result)
-                        await output_recall('\n' + output + '\n')
-                        match_break = True
+                        await output_recall(output)
+                        is_stop = True
                         break
-                if match_break: break
-
-            plan_match = re.compile(self.text_plan_interpreter.match_template, re.DOTALL).search(result)
-            if plan_match is not None:
-                _, _ = self.text_plan_interpreter.parse(result)
-
+                if is_stop:
+                    break
             await output_recall(None)
             # update current node and answer node
             answer_node.content = result
