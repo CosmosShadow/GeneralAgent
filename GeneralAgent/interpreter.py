@@ -175,7 +175,7 @@ class FileInterpreter(Interperter):
 
     @property
     def match_template(self):
-        return '###file (.*?)(\n.*?)?\n###endfile'
+        return '###file (.*?)(\n.*?)?###endfile'
 
     def parse(self, string):
         is_stop = False
@@ -296,6 +296,41 @@ class PlanInterpreter(Interperter):
             current_section.append(current_section[-1][section])
         return structured_data
     
+
+class TextPlanInterpreter(Interperter):
+    def __init__(self, serialize_path='./plan.txt') -> None:
+        self.serialize_path = serialize_path
+
+    @property
+    def match_template(self):
+        return '```plan\n(.*?)\n```'
+    
+    def parse(self, string):
+        pattern = re.compile(self.match_template, re.DOTALL)
+        match = pattern.search(string)
+        assert match is not None
+        content = match.group(1).strip()
+        if content == '':
+            if os.path.exists(self.serialize_path):
+                os.remove(self.serialize_path)
+            return '', True
+        with open(self.serialize_path, 'w') as f:
+            f.write(content)
+        return '', False
+    
+    def get_plan(self):
+        content = ''
+        if not os.path.exists(self.serialize_path):
+            content = ''
+        with open(self.serialize_path, 'r') as f:
+            content = f.read()
+        content = content.strip()
+        if content == "":
+            return f"```plan\n```", False
+        else:
+            return f"```plan\n{content}\n```", True
+    
+
 class AskInterpreter(Interperter):
     @property
     def match_template(self):
