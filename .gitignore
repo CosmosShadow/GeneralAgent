@@ -14,3 +14,4 @@ GeneralAgent/cache_json
 test/data/plan_memory.json
 test/data/test_interpreter.bin
 test/data/b.txt
+test/data/a.txt

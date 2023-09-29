@@ -3,7 +3,7 @@ calculate 0.99 ** 1000
 
 ## file
 [input 1]
-Write the description of Chengdu to the file ./data/a.txt
+Write the description of Chengdu to the file ./data/a.txt in one step
 [input 2]
 what is in ./data/a.txt
 

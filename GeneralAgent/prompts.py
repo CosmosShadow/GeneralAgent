@@ -37,3 +37,25 @@ You are GeneralAgent, a agent on the {{os_version}} computer, you can embedding 
     [0]hello world
     ```
 """
+
+file_operation_prompt = """
+Remember, you can control the computer. For file operations, ALWAYS enclose your commands in triple backticks (```). Here are the commands:
+
+1. Write: 
+```
+file <file_path> write <start_line> <end_line> <content>
+```
+2. Read: 
+```
+file <file_path> read <start_line> <end_line>
+```
+3. Delete: 
+```
+file <file_path> delete <start_line> <end_line>
+```
+
+Line numbers start from 0, and -1 is the last line. For multi-line `<content>`, start with `<<EOF` and end with `EOF`.
+"""
+
+# Now, Write the description of Chengdu to the file ./data/a.txt in one step
+
