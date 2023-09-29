@@ -261,25 +261,27 @@ class PlanInterpreter(Interperter):
 
     @property
     def match_template(self):
-        return '```runplan\n(.*?)\n```'
+        return '```runplan(.*?)?\n(.*?)\n```'
     
     def parse(self, string):
         pattern = re.compile(self.match_template, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
-        plan_dict = self.structure_plan(match.group(1).strip())
+        prefix = match.group(1).strip()
+        structure_data = match.group(2).strip()
+        plan_dict = self.structure_plan(structure_data)
         current_node = self.memory.current_node
-        self.add_plans_for_node(current_node, plan_dict)
+        self.add_plans_for_node(current_node, plan_dict, prefix)
         return '', False
     
-    def add_plans_for_node(self, node:MemoryNode, plan_dict):
+    def add_plans_for_node(self, node:MemoryNode, plan_dict, prefix):
         if self.memory.get_node_level(node) >= self.max_plan_depth:
             return
         for k, v in plan_dict.items():
-            new_node = MemoryNode(role='system', action='plan', content=k.strip())
+            new_node = MemoryNode(role='system', action='plan', content=k.strip(), prefix=prefix)
             self.memory.add_node_in(node, new_node)
             if len(v) > 0:
-                self.add_plans_for_node(new_node, v)
+                self.add_plans_for_node(new_node, v, prefix)
 
     @classmethod
     def structure_plan(cls, data):
@@ -295,40 +297,6 @@ class PlanInterpreter(Interperter):
             current_section[-1][section] = OrderedDict()
             current_section.append(current_section[-1][section])
         return structured_data
-    
-
-class TextPlanInterpreter(Interperter):
-    def __init__(self, serialize_path='./plan.txt') -> None:
-        self.serialize_path = serialize_path
-
-    @property
-    def match_template(self):
-        return '```plan\n(.*?)\n```'
-    
-    def parse(self, string):
-        pattern = re.compile(self.match_template, re.DOTALL)
-        match = pattern.search(string)
-        assert match is not None
-        content = match.group(1).strip()
-        if content == '':
-            if os.path.exists(self.serialize_path):
-                os.remove(self.serialize_path)
-            return '', True
-        with open(self.serialize_path, 'w') as f:
-            f.write(content)
-        return '', False
-    
-    def get_plan(self):
-        content = ''
-        if not os.path.exists(self.serialize_path):
-            content = ''
-        with open(self.serialize_path, 'r') as f:
-            content = f.read()
-        content = content.strip()
-        if content == "":
-            return f"```plan\n```", False
-        else:
-            return f"```plan\n{content}\n```", True
     
 
 class AskInterpreter(Interperter):

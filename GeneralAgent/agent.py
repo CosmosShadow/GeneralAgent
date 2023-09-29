@@ -10,7 +10,8 @@ from GeneralAgent.prompts import general_agent_prompt
 from GeneralAgent.llm import llm_inference
 from GeneralAgent.tools import Tools
 from GeneralAgent.memory import Memory, MemoryNode
-from GeneralAgent.interpreter import PythonInterpreter, FileInterpreter, BashInterperter, AppleScriptInterpreter, PlanInterpreter, AskInterpreter
+from GeneralAgent.interpreter import PlanInterpreter
+from GeneralAgent.interpreter import PythonInterpreter, FileInterpreter, BashInterperter, AppleScriptInterpreter, AskInterpreter
 
 def default_output_recall(output):
     if output is not None:
@@ -29,17 +30,34 @@ class Agent:
         self.is_running = False
         self.stop_event = asyncio.Event()
         self.os_version = get_os_version()
+
+        # input interpreters
+        self.plan_interperter = PlanInterpreter(self.memory, max_plan_depth)
+        self.input_interpreters = [self.plan_interperter]
+
+        # output interpreters
         self.python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
         self.bash_interpreter = BashInterperter('./')
         self.applescript_interpreter = AppleScriptInterpreter()
         self.file_interpreter = FileInterpreter('./')
-        self.plan_interperter = PlanInterpreter(self.memory, max_plan_depth)
         self.ask_interpreter = AskInterpreter()
-        self.interpreters = [self.python_interpreter, self.bash_interpreter, self.applescript_interpreter, self.file_interpreter, self.plan_interperter, self.ask_interpreter]
+        self.output_interpreters = [self.python_interpreter, self.bash_interpreter, self.applescript_interpreter, self.file_interpreter, self.ask_interpreter]
 
     async def run(self, input=None, for_node_id=None, output_recall=default_output_recall):
         self.is_running = True
         input_node = self._insert_node(input, for_node_id) if input is not None else None
+
+        # input interpreter
+        if input_node is not None:
+            self.memory.set_current_node(input_node)
+            for interpreter in self.input_interpreters:
+                match = re.compile(interpreter.match_template, re.DOTALL).search(input_node.content)
+                if match is not None:
+                    logging.info('interpreter: ' + interpreter.__class__.__name__)
+                    interpreter.parse(input_node.content)
+                    break
+
+        # execute todo node from memory
         todo_node = self.memory.get_todo_node() or input_node
         logging.debug(self.memory)
         while todo_node is not None:
@@ -68,7 +86,6 @@ class Agent:
             for_node = self.memory.get_node(for_node_id)
             self.memory.add_node_after(for_node, node)
             self.memory.success_node(for_node)
-            self.memory.success_node(node) 
         return node
     
     async def _execute_node(self, node, output_recall):
@@ -95,6 +112,9 @@ class Agent:
         self.memory.add_node_after(node, answer_node)
         self.memory.set_current_node(answer_node)
 
+        if node.action == 'plan':
+            await output_recall(f'\n[{node.content}]\n')
+
         # TODO: when messages exceed limit, cut it
 
         try:
@@ -106,7 +126,7 @@ class Agent:
                 if token is None: break
                 result += token
                 await output_recall(token)
-                for interpreter in self.interpreters:
+                for interpreter in self.output_interpreters:
                     match = re.compile(interpreter.match_template, re.DOTALL).search(result)
                     if match is not None:
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
@@ -128,8 +148,6 @@ class Agent:
             await output_recall(result)
             self.memory.delete_node(answer_node)
             return node, is_stop
-        
-        
 
 
 def get_os_version():

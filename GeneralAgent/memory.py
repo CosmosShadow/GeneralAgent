@@ -10,6 +10,7 @@ class MemoryNode:
     action: str
     state: str = 'ready'
     content: str = None
+    prefix: str = None
     node_id: int = None
     parent: int = None
     childrens: List[int] = None
@@ -158,16 +159,16 @@ class Memory:
         ancestors = self.get_related_nodes_for_node(parent) if not parent.is_root() else []
         return ancestors + left_brothers + [('direct', node)]
     
-    def get_related_messages_for_node(self, node):
+    def get_related_messages_for_node(self, node: MemoryNode):
         def _get_message(node, position='direct'):
-            content = node.content
+            content = node.content if node.prefix is None else node.prefix + ' ' + node.content
             if position == 'brother' and node.action == 'plan' and len(node.childrens) > 0:
                 content = node.content + ' [detail ...]'
             return {'role': node.role, 'content': content}
         nodes_with_position = self.get_related_nodes_for_node(node)
         messages = [_get_message(node, position) for position, node in nodes_with_position]
-        if node.action == 'plan':
-            messages[-1]['content'] = 'Improve the details of this topic:: ' + messages[-1]['content']
+        # if node.action == 'plan':
+        #     messages[-1]['content'] = 'Improve the details of this topic:: ' + messages[-1]['content']
         return messages
     
     def get_all_description_of_node(self, node, intend_char='    ', depth=0):
@@ -205,7 +206,7 @@ class Memory:
     def get_todo_node(self):
         todo_node = self._get_todo_node()
         # if all childrens of todo_node are success, success todo_node
-        if todo_node is not None and len(todo_node.childrens) > 0 and self.memory.is_all_children_success(todo_node):
+        if todo_node is not None and len(todo_node.childrens) > 0 and self.is_all_children_success(todo_node):
             self.success_node(todo_node)
             return self.get_todo_node()
         return todo_node
