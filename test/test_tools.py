@@ -20,10 +20,9 @@ def test_wikipedia_search():
     print(result)
     assert 'Steve Jobs' in result
 
-@pytest.mark.asyncio
-async def test_scrape_web():
+def test_scrape_web():
     url = 'https://tongtianta.ai'
-    result = await scrape_web(url)
+    result = scrape_web(url)
     title = result[0]
     assert 'AI' in title
 
