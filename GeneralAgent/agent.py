@@ -41,8 +41,12 @@ class Agent:
         self.is_running = True
         input_node = self._insert_node(input, for_node_id) if input is not None else None
         todo_node = self.memory.get_todo_node() or input_node
+        logging.debug(self.memory)
         while todo_node is not None:
             new_node, is_stop = await self._execute_node(todo_node, output_recall)
+            logging.debug(self.memory)
+            logging.debug(new_node)
+            logging.debug(is_stop)
             if is_stop:
                 return new_node.node_id
             todo_node = self.memory.get_todo_node()
@@ -96,6 +100,7 @@ class Agent:
         try:
             result = ''
             is_stop = False
+            is_break = False
             response = llm_inference(messages)
             for token in response:
                 if token is None: break
@@ -104,11 +109,12 @@ class Agent:
                 for interpreter in self.interpreters:
                     match = re.compile(interpreter.match_template, re.DOTALL).search(result)
                     if match is not None:
+                        logging.info('interpreter: ' + interpreter.__class__.__name__)
                         output, is_stop = interpreter.parse(result)
-                        await output_recall(output)
-                        is_stop = True
+                        await output_recall('\n' + output + '\n')
+                        is_break = True
                         break
-                if is_stop:
+                if is_break:
                     break
             await output_recall(None)
             # update current node and answer node
