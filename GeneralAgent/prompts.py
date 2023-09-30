@@ -1,6 +1,6 @@
 # Prompt for general agent
 # general_agent_prompt
-agent_prompt_prefix = \
+prompt_prefix = \
 """
 Now: {{now}}
 You are GeneralAgent, a agent on the {{os_version}} computer. Remember, you can control the computer.
@@ -40,7 +40,7 @@ python_prompt = """
 ```
 """
 
-file_operation_prompt_old = """
+file_prompt_old = """
 # File Operation
 * prefix: ###file write|delete|read start_index end_index file_path
 * content: the content to write, empty if delete and read
@@ -59,7 +59,7 @@ file_operation_prompt_old = """
     ```
 """
 
-file_operation_prompt = """
+file_prompt_new = """
 # For file operations, ALWAYS enclose your commands in triple backticks (```). Here are the commands:
 
 1. Write: 
@@ -78,5 +78,5 @@ file <file_path> delete <start_line> <end_line>
 Line numbers start from 0, and -1 is the last line. For multi-line `<content>`, start with `<<EOF` and end with `EOF`.
 """
 
-general_agent_prompt = '\n\n'.join([agent_prompt_prefix, applescript_promt, shell_prompt, ask_prompt, python_prompt, file_operation_prompt])
+general_agent_prompt = '\n\n'.join([prefix_prompt, applescript_promt, shell_prompt, ask_prompt, python_prompt, file_prompt])
 # Now, Write the description of Chengdu to the file ./data/a.txt in one step

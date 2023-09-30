@@ -1,10 +1,10 @@
 from base_setting import *
-from GeneralAgent.interpreter import BashInterperter, AppleScriptInterpreter, PythonInterpreter
+from GeneralAgent.interpreter import ShellInterpreter, AppleScriptInterpreter, PythonInterpreter
 from GeneralAgent.interpreter import FileInterpreter, PlanInterpreter, AskInterpreter
 from GeneralAgent.memory import Memory, MemoryNode
 
 def test_bash_interperter():
-    interpreter = BashInterperter()
+    interpreter = ShellInterpreter()
     output, is_stop = interpreter.parse("""```shell\npython ./data/hello.py\n```""")
     assert 'hello world' in output
     assert is_stop is False

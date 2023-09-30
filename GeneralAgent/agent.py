@@ -1,18 +1,37 @@
 # Agent
-
 import os, re
 import asyncio
 import logging
 import datetime
 import platform
 from jinja2 import Template
-from GeneralAgent.prompts import general_agent_prompt
+from GeneralAgent.prompts import prompt_prefix
 from GeneralAgent.llm import llm_inference
 from GeneralAgent.tools import Tools
 from GeneralAgent.memory import Memory, MemoryNode
 from GeneralAgent.interpreter import PlanInterpreter
-from GeneralAgent.interpreter import PythonInterpreter, FileInterpreter, BashInterperter, AppleScriptInterpreter, AskInterpreter
+from GeneralAgent.interpreter import PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, AskInterpreter
+from GeneralAgent.interpreter import FileInterpreterNew as FileInterpreter
 
+def get_os_version():
+    system = platform.system()
+    if system == 'Windows':
+        version = platform.version()
+        return f"Windows version: {version}"
+    elif system == 'Darwin':
+        version = platform.mac_ver()[0]
+        return f"macOS version: {version}"
+    elif system == 'Linux':
+        dist = platform.linux_distribution()
+        if dist[0] == 'CentOS':
+            version = dist[1]
+            return f"CentOS version: {version}"
+        elif dist[0] == 'Ubuntu':
+            version = dist[1]
+            return f"Ubuntu version: {version}"
+    else:
+        return "Unknown system"
+    
 def default_output_recall(output):
     if output is not None:
         print(output, end='', flush=True)
@@ -37,11 +56,12 @@ class Agent:
 
         # output interpreters
         self.python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
-        self.bash_interpreter = BashInterperter('./')
+        self.bash_interpreter = ShellInterpreter('./')
         self.applescript_interpreter = AppleScriptInterpreter()
         self.file_interpreter = FileInterpreter('./')
         self.ask_interpreter = AskInterpreter()
         self.output_interpreters = [self.python_interpreter, self.bash_interpreter, self.applescript_interpreter, self.file_interpreter, self.ask_interpreter]
+        self.llm_prompt = '\n\n'.join([prompt_prefix] + [interpreter.prompt for interpreter in self.output_interpreters])
 
     async def run(self, input=None, for_node_id=None, output_recall=default_output_recall):
         self.is_running = True
@@ -104,7 +124,7 @@ class Agent:
             'python_libs': python_libs,
             'python_funcs': python_funcs
         }
-        system_prompt = Template(general_agent_prompt).render(**system_variables)
+        system_prompt = Template(self.llm_prompt).render(**system_variables)
         messages = [{'role': 'system', 'content': system_prompt}] + self.memory.get_related_messages_for_node(node)
 
         # add answer node and set current node
@@ -148,23 +168,3 @@ class Agent:
             await output_recall(result)
             self.memory.delete_node(answer_node)
             return node, is_stop
-
-
-def get_os_version():
-    system = platform.system()
-    if system == 'Windows':
-        version = platform.version()
-        return f"Windows version: {version}"
-    elif system == 'Darwin':
-        version = platform.mac_ver()[0]
-        return f"macOS version: {version}"
-    elif system == 'Linux':
-        dist = platform.linux_distribution()
-        if dist[0] == 'CentOS':
-            version = dist[1]
-            return f"CentOS version: {version}"
-        elif dist[0] == 'Ubuntu':
-            version = dist[1]
-            return f"Ubuntu version: {version}"
-    else:
-        return "Unknown system"

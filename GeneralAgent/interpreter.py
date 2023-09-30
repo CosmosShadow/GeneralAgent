@@ -5,9 +5,14 @@ import logging
 from collections import OrderedDict
 from GeneralAgent.memory import MemoryNode
 import abc
-
+from prompts import applescript_promt, shell_prompt, ask_prompt, python_prompt, file_prompt_new, file_prompt_old
 
 class Interperter(metaclass=abc.ABCMeta):
+    @property
+    @abc.abstractmethod
+    def prompt(self) -> str:
+        pass
+
     @property
     @abc.abstractmethod
     def match_template(self) -> bool:
@@ -19,9 +24,13 @@ class Interperter(metaclass=abc.ABCMeta):
         pass
 
 
-class BashInterperter(Interperter):
+class ShellInterpreter(Interperter):
     def __init__(self, workspace='./') -> None:
         self.workspace = workspace
+
+    @property
+    def prompt(self):
+        return shell_prompt
 
     @property
     def match_template(self):
@@ -49,6 +58,10 @@ class BashInterperter(Interperter):
         return sys_out
 
 class AppleScriptInterpreter(Interperter):
+    @property
+    def prompt(self) -> str:
+        return applescript_promt
+    
     @property
     def match_template(self):
         return '```applescript\n(.*?)\n```'
@@ -94,6 +107,10 @@ class PythonInterpreter(Interperter):
             with open(self.serialize_path, 'rb') as f:
                 data = pickle.loads(f.read())
                 self.globals = data['globals']
+
+    @property
+    def prompt(self) -> str:
+        return python_prompt
 
     @property
     def match_template(self):
@@ -169,33 +186,9 @@ class PythonInterpreter(Interperter):
         return '\n'.join(lines)
 
 
-class FileInterpreter(Interperter):
+class FileInterpreterBase(Interperter):
     def __init__(self, workspace) -> None:
         self.workspace = workspace
-
-    @property
-    def match_template(self):
-        return '###file (.*?)(\n.*?)?###endfile'
-
-    def parse(self, string):
-        is_stop = False
-        pattern = re.compile(self.match_template, re.DOTALL)
-        match = pattern.search(string)
-        assert match is not None
-        operation = match.group(1).split(' ')
-        start_index = int(operation[1])
-        end_index = int(operation[2])
-        file_path = operation[3]
-        if operation[0] == 'write':
-            content = match.group(2).lstrip('\n') if match.group(2) else ''
-            self._write_file(file_path, content, start_index, end_index)
-            return 'write successfully', is_stop
-        elif operation[0] == 'delete':
-            self._delete_file(file_path, start_index, end_index)
-            return 'delete successfully', is_stop
-        elif operation[0] == 'read':
-            content = self._read_file(file_path, start_index, end_index)
-            return content, is_stop
     
     def _write_file(self, file_path, content, start_index, end_index):
         # if .py file, remove ```python  and ``` pair
@@ -252,12 +245,79 @@ class FileInterpreter(Interperter):
                 break
             content += new_add
         return content.strip()
+
+
+class FileInterpreterOld(FileInterpreterBase):
+    @property
+    def prompt(self) -> str:
+        return file_prompt_old
+
+    @property
+    def match_template(self):
+        return '###file (.*?)(\n.*?)?###endfile'
+
+    def parse(self, string):
+        is_stop = False
+        pattern = re.compile(self.match_template, re.DOTALL)
+        match = pattern.search(string)
+        assert match is not None
+        operation = match.group(1).split(' ')
+        start_index = int(operation[1])
+        end_index = int(operation[2])
+        file_path = operation[3]
+        if operation[0] == 'write':
+            content = match.group(2).lstrip('\n') if match.group(2) else ''
+            self._write_file(file_path, content, start_index, end_index)
+            return 'write successfully', is_stop
+        elif operation[0] == 'delete':
+            self._delete_file(file_path, start_index, end_index)
+            return 'delete successfully', is_stop
+        elif operation[0] == 'read':
+            content = self._read_file(file_path, start_index, end_index)
+            return content, is_stop
+        
+class FileInterpreterNew(FileInterpreterBase):
+    @property
+    def prompt(self) -> str:
+        return file_prompt_new
+
+    @property
+    def match_template(self):
+        return '```file (.*?) (write|read|delete) (-?\d+) (-?\d+)(.*?)```'
+
+    def parse(self, string):
+        match = re.search(self.match_template, string, re.DOTALL)
+        assert match is not None
+        file_path = match.group(1)
+        operation = match.group(2)
+        start_line = int(match.group(3))
+        end_line = int(match.group(4))
+        content = match.group(5).strip()
+        if content.startswith('<<EOF'):
+            content = content[5:].strip()
+        if content.endswith('EOF'):
+            content = content[:-3].strip()
+        # file_path, operation, start_line, end_line, content
+        is_stop = False
+        if operation[0] == 'write':
+            self._write_file(file_path, content, start_line, end_line)
+            return 'write successfully', is_stop
+        elif operation[0] == 'delete':
+            self._delete_file(file_path, start_line, end_line)
+            return 'delete successfully', is_stop
+        elif operation[0] == 'read':
+            content = self._read_file(file_path, start_line, end_line)
+            return content, is_stop
     
 
 class PlanInterpreter(Interperter):
     def __init__(self, memory, max_plan_depth) -> None:
         self.memory = memory
         self.max_plan_depth = max_plan_depth
+
+    @property
+    def prompt(self) -> str:
+        return ''
 
     @property
     def match_template(self):
@@ -300,6 +360,10 @@ class PlanInterpreter(Interperter):
     
 
 class AskInterpreter(Interperter):
+    @property
+    def prompt(self) -> str:
+        return ask_prompt
+    
     @property
     def match_template(self):
         return '```ask\n(.*?)\n```'
