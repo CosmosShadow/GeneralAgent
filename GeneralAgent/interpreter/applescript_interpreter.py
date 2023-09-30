@@ -1,5 +1,5 @@
 import re
-from .interpreter import Interperter
+from .interpreter import Interpreter
 
 applescript_promt = """
 # Run applescript
@@ -7,7 +7,7 @@ applescript_promt = """
 * the command will be executed to control the computer if it is a macOS computer
 """
 
-class AppleScriptInterpreter(Interperter):
+class AppleScriptInterpreter(Interpreter):
     def prompt(self, messages) -> str:
         return applescript_promt
     

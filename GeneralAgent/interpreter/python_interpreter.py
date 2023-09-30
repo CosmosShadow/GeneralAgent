@@ -2,7 +2,7 @@ import re, io, os, sys
 import pickle
 import logging
 from jinja2 import Template
-from .interpreter import Interperter
+from .interpreter import Interpreter
 
 python_prompt = """
 # Run python
@@ -27,7 +27,7 @@ from GeneralAgent.tools import google_search, wikipedia_search, scrape_web
 
 from GeneralAgent.tools import Tools
 
-class PythonInterpreter(Interperter):
+class PythonInterpreter(Interpreter):
     def __init__(self, serialize_path, tools=None, import_code=default_import_code):
         self.globals = {}  # global variables shared by all code
         self.import_code = import_code
@@ -42,7 +42,7 @@ class PythonInterpreter(Interperter):
                 self.globals = data['globals']
 
     def prompt(self, messages) -> str:
-        python_libs = ', '.join([line.strip() for line in open(os.path.join(os.path.dirname(__file__), '../requirements.txt'), 'r').readlines()])
+        python_libs = ', '.join([line.strip() for line in open(os.path.join(os.path.dirname(__file__), '../../requirements.txt'), 'r').readlines()])
         python_funcs = self.tools.get_funs_description()
         variables = {
             'python_libs': python_libs,

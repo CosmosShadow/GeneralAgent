@@ -1,10 +1,10 @@
 import re
 from collections import OrderedDict
-from .interpreter import Interperter
+from .interpreter import Interpreter
 from GeneralAgent.memory import MemoryNode
     
 
-class PlanInterpreter(Interperter):
+class PlanInterpreter(Interpreter):
     def __init__(self, memory, max_plan_depth=4) -> None:
         self.memory = memory
         self.max_plan_depth = max_plan_depth

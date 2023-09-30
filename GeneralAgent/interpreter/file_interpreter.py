@@ -1,5 +1,5 @@
 import re, os
-from .interpreter import Interperter
+from .interpreter import Interpreter
 
 file_prompt = """
 # For file operations, ALWAYS enclose your commands in triple backticks (```). Here are the commands:
@@ -22,7 +22,7 @@ Read will print the content of the file with [line numbers] prefixed.
 """
 
 
-class FileInterpreter(Interperter):
+class FileInterpreter(Interpreter):
     def __init__(self, workspace) -> None:
         self.workspace = workspace
 

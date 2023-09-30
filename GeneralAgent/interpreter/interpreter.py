@@ -2,8 +2,7 @@
 import abc
 import re
 
-
-class Interperter(metaclass=abc.ABCMeta):
+class Interpreter(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def prompt(self, messages) -> str:
         pass

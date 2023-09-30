@@ -2,7 +2,7 @@ import os
 import datetime
 import platform
 from jinja2 import Template
-from .interpreter import Interperter
+from .interpreter import Interpreter
 
 system_role_prompt = \
 """
@@ -12,7 +12,7 @@ you can embedding the following things to help the user:
 """
 
 # system prompt role
-class RoleInterpreter(Interperter):
+class RoleInterpreter(Interpreter):
     def __init__(self) -> None:
         self.os_version = self.get_os_version()
 

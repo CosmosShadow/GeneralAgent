@@ -1,5 +1,5 @@
 import re
-from .interpreter import Interperter
+from .interpreter import Interpreter
 
 shell_prompt = """
 # Run shell
@@ -7,7 +7,7 @@ shell_prompt = """
 * the command will be executed
 """
 
-class ShellInterpreter(Interperter):
+class ShellInterpreter(Interpreter):
     def __init__(self, workspace='./') -> None:
         self.workspace = workspace
 
