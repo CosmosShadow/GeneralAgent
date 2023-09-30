@@ -1,16 +1,19 @@
 # Interpreter
+import abc
 import re, io, os, sys
 import pickle
 import logging
+import datetime
+import platform
+from jinja2 import Template
 from collections import OrderedDict
 from GeneralAgent.memory import MemoryNode
-import abc
-from prompts import applescript_promt, shell_prompt, ask_prompt, python_prompt, file_prompt_new, file_prompt_old
+from prompts import prompt_prefix, applescript_promt, shell_prompt, ask_prompt, python_prompt, file_prompt_new, file_prompt_old
+
 
 class Interperter(metaclass=abc.ABCMeta):
-    @property
     @abc.abstractmethod
-    def prompt(self) -> str:
+    def prompt(self, messages) -> str:
         pass
 
     @property
@@ -18,18 +21,79 @@ class Interperter(metaclass=abc.ABCMeta):
     def match_template(self) -> bool:
         pass
 
+    def match(self, string) -> bool:
+        match = re.compile(self.match_template, re.DOTALL).search(string)
+        if match is not None:
+            return True
+        else:
+            return False
+
     @abc.abstractmethod
     def parse(self, string) -> (str, bool):
         # return output, is_stop
         pass
 
 
+class PrefixInterpreter(Interperter):
+    def __init__(self) -> None:
+        self.os_version = self.get_os_version()
+
+    @classmethod
+    def get_os_version(cls):
+        system = platform.system()
+        if system == 'Windows':
+            version = platform.version()
+            return f"Windows version: {version}"
+        elif system == 'Darwin':
+            version = platform.mac_ver()[0]
+            return f"macOS version: {version}"
+        elif system == 'Linux':
+            dist = platform.linux_distribution()
+            if dist[0] == 'CentOS':
+                version = dist[1]
+                return f"CentOS version: {version}"
+            elif dist[0] == 'Ubuntu':
+                version = dist[1]
+                return f"Ubuntu version: {version}"
+        else:
+            return "Unknown system"
+
+    def prompt(self, messages) -> str:
+        if os.environ.get('LLM_CACHE', 'no') in ['yes', 'y', 'YES']:
+            now = '2023-09-27 00:00:00'
+        else:    
+            now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        data = {
+            'now': now,
+            'os_version': self.os_version
+        }
+        the_prompt = Template(prompt_prefix).render(**data)
+        return the_prompt
+
+    @property
+    def match_template(self):
+        return ''
+    
+    def match(self):
+        return False
+    
+    def parse(self, string):
+        pattern = re.compile(self.match_template, re.DOTALL)
+        match = pattern.search(string)
+        assert match is not None
+        prefix = match.group(1).strip()
+        content = match.group(2).strip()
+        current_node = self.memory.current_node
+        new_node = MemoryNode(role='system', action='prefix', content=content, prefix=prefix)
+        self.memory.add_node_in(current_node, new_node)
+        return '', False
+
+
 class ShellInterpreter(Interperter):
     def __init__(self, workspace='./') -> None:
         self.workspace = workspace
 
-    @property
-    def prompt(self):
+    def prompt(self, messages) -> str:
         return shell_prompt
 
     @property
@@ -57,9 +121,9 @@ class ShellInterpreter(Interperter):
             sys_out = sys_out.decode('utf-8')
         return sys_out
 
+
 class AppleScriptInterpreter(Interperter):
-    @property
-    def prompt(self) -> str:
+    def prompt(self, messages) -> str:
         return applescript_promt
     
     @property
@@ -95,11 +159,14 @@ sys.path.append('../')
 from GeneralAgent.tools import google_search, wikipedia_search, scrape_web
 """
 
+from GeneralAgent.tools import Tools
+
 class PythonInterpreter(Interperter):
-    def __init__(self, serialize_path, import_code=default_import_code):
+    def __init__(self, serialize_path, tools=None, import_code=default_import_code):
         self.globals = {}  # global variables shared by all code
         self.import_code = import_code
         self.serialize_path = serialize_path
+        self.tools = tools or Tools([])
         self.load()
 
     def load(self):
@@ -108,9 +175,14 @@ class PythonInterpreter(Interperter):
                 data = pickle.loads(f.read())
                 self.globals = data['globals']
 
-    @property
-    def prompt(self) -> str:
-        return python_prompt
+    def prompt(self, messages) -> str:
+        python_libs = ', '.join([line.strip() for line in open(os.path.join(os.path.dirname(__file__), '../requirements.txt'), 'r').readlines()])
+        python_funcs = self.tools.get_funs_description()
+        variables = {
+            'python_libs': python_libs,
+            'python_funcs': python_funcs
+        }
+        return Template(python_prompt).render(**variables)
 
     @property
     def match_template(self):
@@ -248,8 +320,7 @@ class FileInterpreterBase(Interperter):
 
 
 class FileInterpreterOld(FileInterpreterBase):
-    @property
-    def prompt(self) -> str:
+    def prompt(self, messages) -> str:
         return file_prompt_old
 
     @property
@@ -275,10 +346,10 @@ class FileInterpreterOld(FileInterpreterBase):
         elif operation[0] == 'read':
             content = self._read_file(file_path, start_index, end_index)
             return content, is_stop
-        
+
+
 class FileInterpreterNew(FileInterpreterBase):
-    @property
-    def prompt(self) -> str:
+    def prompt(self, messages) -> str:
         return file_prompt_new
 
     @property
@@ -311,12 +382,11 @@ class FileInterpreterNew(FileInterpreterBase):
     
 
 class PlanInterpreter(Interperter):
-    def __init__(self, memory, max_plan_depth) -> None:
+    def __init__(self, memory, max_plan_depth=4) -> None:
         self.memory = memory
         self.max_plan_depth = max_plan_depth
 
-    @property
-    def prompt(self) -> str:
+    def prompt(self, messages) -> str:
         return ''
 
     @property
@@ -357,11 +427,10 @@ class PlanInterpreter(Interperter):
             current_section[-1][section] = OrderedDict()
             current_section.append(current_section[-1][section])
         return structured_data
-    
+
 
 class AskInterpreter(Interperter):
-    @property
-    def prompt(self) -> str:
+    def prompt(self, messages) -> str:
         return ask_prompt
     
     @property
