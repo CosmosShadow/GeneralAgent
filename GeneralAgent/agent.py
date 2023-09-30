@@ -5,10 +5,9 @@ import logging
 from GeneralAgent.llm import llm_inference
 from GeneralAgent.memory import Memory, MemoryNode
 from GeneralAgent.interpreter import PlanInterpreter
-from GeneralAgent.interpreter import PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, AskInterpreter, PrefixInterpreter
-from GeneralAgent.interpreter import FileInterpreterNew as FileInterpreter
+from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, AskInterpreter, FileInterpreter
 
-    
+
 def default_output_recall(output):
     if output is not None:
         print(output, end='', flush=True)
@@ -36,14 +35,14 @@ class Agent:
         if output_interpreters is not None:
             assert isinstance(output_interpreters, list)
             assert len(output_interpreters) > 0
-            # the first interpreter must be PrefixInterpreter
-            if not isinstance(output_interpreters[0], PrefixInterpreter):
-                prefix_interpreter = PrefixInterpreter()
+            # the first interpreter must be RoleInterpreter
+            if not isinstance(output_interpreters[0], RoleInterpreter):
+                prefix_interpreter = RoleInterpreter()
                 self.output_interpreters = [prefix_interpreter] + output_interpreters
             else:
                 self.output_interpreters = output_interpreters
         else:
-            prefix_interpreter = PrefixInterpreter()
+            prefix_interpreter = RoleInterpreter()
             python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
             bash_interpreter = ShellInterpreter('./')
             applescript_interpreter = AppleScriptInterpreter()

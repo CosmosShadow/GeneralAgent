@@ -5,7 +5,7 @@ import shutil
 import asyncio
 from GeneralAgent.agent import Agent
 from GeneralAgent.tools import Tools, scrape_web
-from GeneralAgent.interpreter import PrefixInterpreter, PythonInterpreter
+from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter
 
 workspace = './data/test_workspace'
 
@@ -70,7 +70,7 @@ async def test_read_file():
 @pytest.mark.asyncio
 async def test_tool_use():
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    prefix_interpreter = PrefixInterpreter()
+    prefix_interpreter = RoleInterpreter()
     python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin', tools=Tools([scrape_web]))
     agent = Agent(workspace=workspace, output_interpreters=[python_interpreter])
     result = ''
