@@ -77,6 +77,4 @@ file <file_path> delete <start_line> <end_line>
 
 Line numbers start from 0, and -1 is the last line. For multi-line `<content>`, start with `<<EOF` and end with `EOF`.
 """
-
-general_agent_prompt = '\n\n'.join([prefix_prompt, applescript_promt, shell_prompt, ask_prompt, python_prompt, file_prompt])
 # Now, Write the description of Chengdu to the file ./data/a.txt in one step

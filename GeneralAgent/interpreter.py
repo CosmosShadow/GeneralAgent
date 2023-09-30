@@ -8,7 +8,7 @@ import platform
 from jinja2 import Template
 from collections import OrderedDict
 from GeneralAgent.memory import MemoryNode
-from prompts import prompt_prefix, applescript_promt, shell_prompt, ask_prompt, python_prompt, file_prompt_new, file_prompt_old
+from GeneralAgent.prompts import prompt_prefix, applescript_promt, shell_prompt, ask_prompt, python_prompt, file_prompt_new, file_prompt_old
 
 
 class Interperter(metaclass=abc.ABCMeta):
@@ -74,7 +74,7 @@ class PrefixInterpreter(Interperter):
     def match_template(self):
         return ''
     
-    def match(self):
+    def match(self, string):
         return False
     
     def parse(self, string):

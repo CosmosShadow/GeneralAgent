@@ -1,6 +1,5 @@
 from base_setting import *
 from GeneralAgent.llm import num_tokens_from_string
-from GeneralAgent.prompts import general_agent_prompt
 import os
 import shutil
 import asyncio
@@ -9,7 +8,7 @@ from GeneralAgent.agent import Agent
 workspace = './data/test_workspace'
 
 def system_prompt_token_count():
-    count = num_tokens_from_string(general_agent_prompt)
+    count = num_tokens_from_string('')
     print(count)
     # 649 tokens, it's long
     # 419 tokens

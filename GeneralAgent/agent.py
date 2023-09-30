@@ -5,7 +5,7 @@ import logging
 from GeneralAgent.llm import llm_inference
 from GeneralAgent.memory import Memory, MemoryNode
 from GeneralAgent.interpreter import PlanInterpreter
-from GeneralAgent.interpreter import PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, AskInterpreter
+from GeneralAgent.interpreter import PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, AskInterpreter, PrefixInterpreter
 from GeneralAgent.interpreter import FileInterpreterNew as FileInterpreter
 
     
@@ -36,12 +36,13 @@ class Agent:
         if output_interpreters is not None:
             self.output_interpreters = output_interpreters
         else:
+            prefix_interpreter = PrefixInterpreter()
             python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
             bash_interpreter = ShellInterpreter('./')
             applescript_interpreter = AppleScriptInterpreter()
             file_interpreter = FileInterpreter('./')
             ask_interpreter = AskInterpreter()
-            self.output_interpreters = [python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter, ask_interpreter]
+            self.output_interpreters = [prefix_interpreter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter, ask_interpreter]
 
     async def run(self, input=None, for_node_id=None, output_recall=default_output_recall):
         self.is_running = True
@@ -113,8 +114,7 @@ class Agent:
                 result += token
                 await output_recall(token)
                 for interpreter in self.output_interpreters:
-                    match = re.compile(interpreter.match_template, re.DOTALL).search(result)
-                    if match is not None:
+                    if interpreter.match(result):
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
                         output, is_stop = interpreter.parse(result)
                         await output_recall('\n' + output + '\n')
