@@ -354,7 +354,7 @@ class FileInterpreterNew(FileInterpreterBase):
 
     @property
     def match_template(self):
-        return '```file (.*?) (write|read|delete) (-?\d+) (-?\d+)(.*?)```'
+        return '```\nfile (.*?) (write|read|delete) (-?\d+) (-?\d+)(.*?)```'
 
     def parse(self, string):
         match = re.search(self.match_template, string, re.DOTALL)
@@ -370,13 +370,13 @@ class FileInterpreterNew(FileInterpreterBase):
             content = content[:-3].strip()
         # file_path, operation, start_line, end_line, content
         is_stop = False
-        if operation[0] == 'write':
+        if operation == 'write':
             self._write_file(file_path, content, start_line, end_line)
             return 'write successfully', is_stop
-        elif operation[0] == 'delete':
+        elif operation == 'delete':
             self._delete_file(file_path, start_line, end_line)
             return 'delete successfully', is_stop
-        elif operation[0] == 'read':
+        elif operation == 'read':
             content = self._read_file(file_path, start_line, end_line)
             return content, is_stop
     
