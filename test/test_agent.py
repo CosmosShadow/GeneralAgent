@@ -70,7 +70,6 @@ async def test_read_file():
 @pytest.mark.asyncio
 async def test_tool_use():
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    prefix_interpreter = RoleInterpreter()
     python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin', tools=Tools([scrape_web]))
     agent = Agent(workspace=workspace, output_interpreters=[python_interpreter])
     result = ''
@@ -82,6 +81,7 @@ async def test_tool_use():
     for_node_id = await agent.run("what's the tiltle of web page https://tongtianta.ai ?", output_recall=_output_recall)
     assert 'AI' in result
     assert for_node_id == None
+
 
 @pytest.mark.asyncio
 async def test_bash_interperter():

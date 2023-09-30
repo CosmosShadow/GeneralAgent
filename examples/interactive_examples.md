@@ -25,3 +25,6 @@ Help me write a business plan framework for an AI painting product for angel rou
 set dark mode
 [input 2]
 trun back
+
+## write a ppt
+help me write a ppt ./data/hello.pptx: 1 page with 'hello world'

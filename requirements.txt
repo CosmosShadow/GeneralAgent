@@ -7,3 +7,4 @@ bs4
 playwright
 retrying
 pymupdf
+python-pptx
