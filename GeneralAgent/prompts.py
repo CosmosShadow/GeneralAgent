@@ -28,6 +28,7 @@ ask_prompt = """
 
 python_prompt = """
 # Run python
+* use print to output
 * format is : ```python\\nthe_code\\n```
 * the code will be executed
 * python version is 3.9
