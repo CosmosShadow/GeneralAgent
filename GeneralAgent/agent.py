@@ -34,7 +34,14 @@ class Agent:
 
         # output interpreters
         if output_interpreters is not None:
-            self.output_interpreters = output_interpreters
+            assert isinstance(output_interpreters, list)
+            assert len(output_interpreters) > 0
+            # the first interpreter must be PrefixInterpreter
+            if not isinstance(output_interpreters[0], PrefixInterpreter):
+                prefix_interpreter = PrefixInterpreter()
+                self.output_interpreters = [prefix_interpreter] + output_interpreters
+            else:
+                self.output_interpreters = output_interpreters
         else:
             prefix_interpreter = PrefixInterpreter()
             python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')

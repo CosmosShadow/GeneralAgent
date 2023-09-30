@@ -43,7 +43,7 @@ def md5(obj):
 
 @retry(stop_max_attempt_number=3)
 def llm_inference(messages):
-    logging.info(messages)
+    logging.debug(messages)
     global global_cache
     table = 'llm'
     key = md5(messages)

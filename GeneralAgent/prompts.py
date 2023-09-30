@@ -3,7 +3,7 @@
 prompt_prefix = \
 """
 Now: {{now}}
-You are GeneralAgent, a agent on the {{os_version}} computer. Remember, you can control the computer.
+You are GeneralAgent, a agent on the {{os_version}} computer. Remember, you can control the computer and access the internet.
 you can embedding the following things to help the user:
 """
 
@@ -35,7 +35,7 @@ python_prompt = """
 * only write synchronous code
 * * Pickleable objects can be shared between different codes and variables
 * Available libraries: {{python_libs}}
-* Available functions (already imported):
+* You can use the built-in functions already implemented(already imported):
 ```
 {{python_funcs}}
 ```
@@ -77,5 +77,6 @@ file <file_path> delete <start_line> <end_line>
 ```
 
 Line numbers start from 0, and -1 is the last line. For multi-line `<content>`, start with `<<EOF` and end with `EOF`.
+Read will print the content of the file with [line numbers] prefixed.
 """
 # Now, Write the description of Chengdu to the file ./data/a.txt in one step

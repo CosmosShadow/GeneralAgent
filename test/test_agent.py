@@ -5,6 +5,7 @@ import shutil
 import asyncio
 from GeneralAgent.agent import Agent
 from GeneralAgent.tools import Tools, scrape_web
+from GeneralAgent.interpreter import PrefixInterpreter, PythonInterpreter
 
 workspace = './data/test_workspace'
 
@@ -69,7 +70,9 @@ async def test_read_file():
 @pytest.mark.asyncio
 async def test_tool_use():
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    agent = Agent(workspace=workspace, tools=Tools([scrape_web]))
+    prefix_interpreter = PrefixInterpreter()
+    python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin', tools=Tools([scrape_web]))
+    agent = Agent(workspace=workspace, output_interpreters=[python_interpreter])
     result = ''
     async def _output_recall(token):
         if token is not None:

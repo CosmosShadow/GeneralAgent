@@ -81,7 +81,7 @@ def wikipedia_search(query: str) -> str:
     return obs
 
 
-def scrape_web(url: str) -> (str, str, [str], [str]):
+def scrape_web(url: str):
     """
     Scrape web page, return (title: str, text: str, image_urls: [str], hyperlinks: [str]) when success, otherwise return None.
     """
