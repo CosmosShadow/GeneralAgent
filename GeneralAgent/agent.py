@@ -16,7 +16,12 @@ def default_output_recall(output):
 
 
 class Agent:
-    def __init__(self, workspace, input_interpreters=None, output_interpreters=None):
+    def __init__(self, 
+                 workspace, 
+                 input_interpreters=None, 
+                 output_interpreters=None,
+                 retrieve_interpreters=[],
+                 ):
         if not os.path.exists(workspace):
             os.makedirs(workspace)
         self.memory = Memory(serialize_path=f'{workspace}/memory.json')
@@ -30,6 +35,9 @@ class Agent:
         else:
             plan_interperter = PlanInterpreter(self.memory)
             self.input_interpreters = [plan_interperter]
+
+        # retrieve interpreters
+        self.retrieve_interpreters = retrieve_interpreters
 
         # output interpreters
         if output_interpreters is not None:
@@ -49,6 +57,10 @@ class Agent:
             file_interpreter = FileInterpreter('./')
             ask_interpreter = AskInterpreter()
             self.output_interpreters = [prefix_interpreter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter, ask_interpreter]
+
+    def information(self):
+        # describe input、output、retrieve interpreters
+        pass
 
     async def run(self, input=None, for_node_id=None, output_recall=default_output_recall):
         self.is_running = True
@@ -99,9 +111,12 @@ class Agent:
         # construct system prompt
         messages = self.memory.get_related_messages_for_node(node)
         system_prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.output_interpreters])
-        messages = [{'role': 'system', 'content': system_prompt}] + messages
+        retrieve_prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.retrieve_interpreters])
+        all_messages = [{'role': 'system', 'content': system_prompt}]
+        if len(retrieve_prompt.strip()) > 0:
+            all_messages.append({'role': 'system', 'content': 'Background information: \n' + retrieve_prompt})
+        all_messages += messages
         # TODO: when messages exceed limit, cut it
-
         # add answer node and set current node
         answer_node = MemoryNode(role='system', action='answer', content='')
         self.memory.add_node_after(node, answer_node)
@@ -114,7 +129,7 @@ class Agent:
             result = ''
             is_stop = False
             is_break = False
-            response = llm_inference(messages)
+            response = llm_inference(all_messages)
             for token in response:
                 if token is None: break
                 result += token

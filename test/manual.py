@@ -33,6 +33,7 @@ async def terminal_interactive_agent():
         else:
             print()
     for_node_id = None
+    print('Enter twice to input end | 两次回车结束输入')
     while True:
         input_conent = get_input()
         print('[output]\n', end='', flush=True)

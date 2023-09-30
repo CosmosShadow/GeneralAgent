@@ -3,9 +3,8 @@ import abc
 import re
 
 class Interpreter(metaclass=abc.ABCMeta):
-    @abc.abstractmethod
     def prompt(self, messages) -> str:
-        pass
+        return ''
 
     @property
     @abc.abstractmethod
