@@ -35,7 +35,7 @@ python_prompt = """
 * only write synchronous code
 * * Pickleable objects can be shared between different codes and variables
 * Available libraries: {{python_libs}}
-* You can use the built-in functions already implemented(already imported):
+* The following functions can be used in code (already implemented and imported for you):
 ```
 {{python_funcs}}
 ```
