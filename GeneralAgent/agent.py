@@ -124,6 +124,7 @@ class Agent:
                     if interpreter.match(result):
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
                         output, is_stop = interpreter.parse(result)
+                        result += '\n' + output.strip() + '\n'
                         await output_recall('\n' + output + '\n')
                         is_break = True
                         break
@@ -132,8 +133,11 @@ class Agent:
             await output_recall(None)
             # update current node and answer node
             answer_node.content = result
+            self.memory.update_node(answer_node)
             self.memory.success_node(node)
-            self.memory.success_node(answer_node)
+            # llm run end with any interpreter, success the node
+            if not is_break:
+                self.memory.success_node(answer_node)
             return answer_node, is_stop
         except Exception as e:
             # if fail, recover
