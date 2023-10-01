@@ -88,6 +88,22 @@ def embedding_fun(text):
     global_cache.set(table, key, embedding)
     return embedding
 
+
+@retry(stop_max_attempt_number=3)
+def _embedding_batch(texts):
+    import openai
+    resp = openai.Embedding.create(input=texts, engine="text-embedding-ada-002")
+    embeddings = [x['embedding'] for x in resp['data']]
+    return embeddings
+
+
+def embedding_batch(texts):
+    results = []
+    for index in range(0, len(texts), 100):
+        embeddings = _embedding_batch(texts[index:index+100])
+        results += embeddings
+    return embeddings
+
 def cos_sim(a, b):
     # This function calculates the cosine similarity (scalar value) between two input vectors 'a' and 'b' (1-D array object), and return the similarity.
     a = a if isinstance(a, np.ndarray) else np.array(a)
