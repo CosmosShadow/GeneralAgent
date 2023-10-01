@@ -101,7 +101,7 @@ class ReadInterpreter(Interpreter):
     def prompt(self, messages) -> str:
         # when collection is empty, return empty string
         if self.collection.count() == 0:
-            return '', False
+            return ''
         
         querys = []
         for x in messages[-self.useful_msg_count:]:
