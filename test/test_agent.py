@@ -12,7 +12,7 @@ workspace = './data/test_workspace'
 @pytest.mark.asyncio
 async def test_math():
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    agent = Agent(workspace=workspace)
+    agent = Agent.default_agent(workspace=workspace)
     result = ''
     async def _output_recall(token):
         if token is not None:
@@ -29,7 +29,7 @@ async def test_write_file():
     if os.path.exists(target_path):
         os.remove(target_path)
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    agent = Agent(workspace=workspace)
+    agent = Agent.default_agent(workspace=workspace)
     result = ''
     async def _output_recall(token):
         if token is not None:
@@ -54,7 +54,7 @@ async def test_read_file():
     with open(target_path, 'w') as f:
         f.write(content)
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    agent = Agent(workspace=workspace)
+    agent = Agent.default_agent(workspace=workspace)
     result = ''
     async def _output_recall(token):
         if token is not None:
@@ -71,7 +71,7 @@ async def test_read_file():
 async def test_tool_use():
     if os.path.exists(workspace): shutil.rmtree(workspace)
     python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin', tools=Tools([scrape_web]))
-    agent = Agent(workspace=workspace, output_interpreters=[python_interpreter])
+    agent = Agent(workspace=workspace, output_interpreters=[RoleInterpreter(), python_interpreter])
     result = ''
     async def _output_recall(token):
         if token is not None:

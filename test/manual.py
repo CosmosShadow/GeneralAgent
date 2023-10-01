@@ -26,7 +26,7 @@ def get_input():
 
 async def terminal_interactive_agent():
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    agent = Agent(workspace=workspace)
+    agent = Agent.default_agent(workspace=workspace)
     async def _output_recall(token):
         if token is not None:
             print(token, end='', flush=True)

@@ -4,7 +4,7 @@ import asyncio
 import logging
 from GeneralAgent.llm import llm_inference
 from GeneralAgent.memory import Memory, MemoryNode
-from GeneralAgent.interpreter import PlanInterpreter
+from GeneralAgent.interpreter import PlanInterpreter, ReadInterpreter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, AskInterpreter, FileInterpreter
 
 
@@ -17,46 +17,56 @@ def default_output_recall(output):
 
 class Agent:
     def __init__(self, 
-                 workspace, 
-                 input_interpreters=None, 
-                 output_interpreters=None,
-                 retrieve_interpreters=[],
+                 memory=None,
+                 input_interpreters=[],
+                 output_interpreters=[],
+                 retrieve_interpreters=[]
                  ):
-        if not os.path.exists(workspace):
-            os.makedirs(workspace)
-        self.memory = Memory(serialize_path=f'{workspace}/memory.json')
-        
         self.is_running = False
         self.stop_event = asyncio.Event()
 
-        # input interpreters
-        if input_interpreters is not None:
-            self.input_interpreters = input_interpreters
-        else:
-            plan_interperter = PlanInterpreter(self.memory)
-            self.input_interpreters = [plan_interperter]
-
-        # retrieve interpreters
+        self.memory = memory or Memory()
+        self.input_interpreters = input_interpreters
         self.retrieve_interpreters = retrieve_interpreters
-
-        # output interpreters
-        if output_interpreters is not None:
-            assert isinstance(output_interpreters, list)
-            assert len(output_interpreters) > 0
-            # the first interpreter must be RoleInterpreter
+        self.output_interpreters = output_interpreters
+        
+        # the first must be role interpreter
+        if len(output_interpreters) > 0:
             if not isinstance(output_interpreters[0], RoleInterpreter):
-                prefix_interpreter = RoleInterpreter()
-                self.output_interpreters = [prefix_interpreter] + output_interpreters
-            else:
-                self.output_interpreters = output_interpreters
-        else:
-            prefix_interpreter = RoleInterpreter()
-            python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
-            bash_interpreter = ShellInterpreter('./')
-            applescript_interpreter = AppleScriptInterpreter()
-            file_interpreter = FileInterpreter('./')
-            ask_interpreter = AskInterpreter()
-            self.output_interpreters = [prefix_interpreter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter, ask_interpreter]
+                self.output_interpreters.insert(0, RoleInterpreter())
+
+    @classmethod
+    def default_agent(cls, workspace):
+        if not os.path.exists(workspace):
+            os.makedirs(workspace)
+        # memory
+        memory = Memory(serialize_path=f'{workspace}/memory.json')
+        # input interpreter
+        plan_interperter = PlanInterpreter(memory)
+        read_interpreter = ReadInterpreter()
+        input_interpreters = [plan_interperter, read_interpreter]
+        # retrieve interpreter
+        retrieve_interpreters = [read_interpreter]
+        # output interpreter
+        role_interpreter = RoleInterpreter()
+        python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
+        bash_interpreter = ShellInterpreter('./')
+        applescript_interpreter = AppleScriptInterpreter()
+        file_interpreter = FileInterpreter('./')
+        ask_interpreter = AskInterpreter()
+        output_interpreters = [role_interpreter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter, ask_interpreter]
+        # 
+        return cls(memory, input_interpreters, output_interpreters, retrieve_interpreters)
+    
+    @classmethod
+    def act_as_llm(cls, workspace):
+        if not os.path.exists(workspace):
+            os.makedirs(workspace)
+        memory = Memory(serialize_path=f'{workspace}/memory.json')
+        input_interpreters = []
+        retrieve_interpreters = []
+        output_interpreters = [RoleInterpreter()]
+        return cls(memory, input_interpreters, output_interpreters, retrieve_interpreters)
 
     def information(self):
         # describe input、output、retrieve interpreters
