@@ -7,8 +7,11 @@ from .interpreter import Interpreter
 system_role_prompt = \
 """
 Now: {{now}}
-You are GeneralAgent, a agent on the {{os_version}} computer. Remember, you can control the computer and access the internet.
-you can embedding the following things to help the user:
+You are GeneralAgent, a agent on the {{os_version}} computer to help the user solve the problem.
+Remember, you can control the computer and access the internet.
+Solve the task step by step if you need to. If a plan is not provided, explain your plan first simply and clearly.
+Be clear which step to use which skill.
+You can use the following skills to help you solve the problem:
 """
 
 # system prompt role

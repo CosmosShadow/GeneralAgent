@@ -25,7 +25,7 @@ class PlanInterpreter(Interpreter):
         plan_dict = self.structure_plan(structure_data)
         current_node = self.memory.current_node
         self.add_plans_for_node(current_node, plan_dict, prefix)
-        return '', False
+        return string, False
     
     def add_plans_for_node(self, node:MemoryNode, plan_dict, prefix):
         if self.memory.get_node_level(node) >= self.max_plan_depth:

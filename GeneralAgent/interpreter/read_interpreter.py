@@ -99,6 +99,10 @@ class ReadInterpreter(Interpreter):
         self.collection = self.client.get_or_create_collection(name="read", metadata={"hnsw:space": "cosine"})
 
     def prompt(self, messages) -> str:
+        # when collection is empty, return empty string
+        if self.collection.count() == 0:
+            return '', False
+        
         querys = []
         for x in messages[-self.useful_msg_count:]:
             querys += _text_to_paragraphs(x['content'])
@@ -150,7 +154,9 @@ class ReadInterpreter(Interpreter):
                     paragraphs = _text_to_paragraphs(text)
                 except Exception as e:
                     logging.exception(e)
-                    information.append(str(e))
+                    information.append(f'read the content of file {file_path} fails: ' + str(e))
+            if len(paragraphs) > 0:
+                information.append(f'The content of file {file_path} is: ' + '\n'.join(paragraphs)[:100] + '\n......')
             embeddings = embedding_batch(paragraphs)
             logging.debug(paragraphs[:2])
             logging.debug(embeddings[:2])
@@ -160,4 +166,5 @@ class ReadInterpreter(Interpreter):
                 metadatas=[{'file_path': file_path} for _ in paragraphs],
                 ids=[file_path+str(i) for i in range(len(paragraphs))],
             )
-        return '\n'.join(information).strip(), False
+        string += '\n' + '\n'.join(information)
+        return string, False

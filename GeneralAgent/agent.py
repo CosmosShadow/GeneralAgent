@@ -2,6 +2,7 @@
 import os, re
 import asyncio
 import logging
+import shutil
 from GeneralAgent.llm import llm_inference
 from GeneralAgent.memory import Memory, MemoryNode
 from GeneralAgent.interpreter import PlanInterpreter, ReadInterpreter
@@ -37,13 +38,15 @@ class Agent:
 
     @classmethod
     def default_agent(cls, workspace):
-        if not os.path.exists(workspace):
-            os.makedirs(workspace)
+        # new workspace
+        if os.path.exists(workspace):
+            shutil.rmtree(workspace)
+        os.makedirs(workspace)
         # memory
         memory = Memory(serialize_path=f'{workspace}/memory.json')
         # input interpreter
         plan_interperter = PlanInterpreter(memory)
-        read_interpreter = ReadInterpreter()
+        read_interpreter = ReadInterpreter(serialize_path=f'{workspace}/read_interperter/')
         input_interpreters = [plan_interperter, read_interpreter]
         # retrieve interpreter
         retrieve_interpreters = [read_interpreter]
@@ -78,13 +81,22 @@ class Agent:
 
         # input interpreter
         if input_node is not None:
+            input_content = input
+            input_stop = False
             self.memory.set_current_node(input_node)
             for interpreter in self.input_interpreters:
-                match = re.compile(interpreter.match_template, re.DOTALL).search(input_node.content)
+                match = re.compile(interpreter.match_template, re.DOTALL).search(input_content)
                 if match is not None:
                     logging.info('interpreter: ' + interpreter.__class__.__name__)
-                    interpreter.parse(input_node.content)
-                    break
+                    input_content, case_is_stop = interpreter.parse(input_content)
+                    if case_is_stop:
+                        input_stop = True
+            input_node.content = input_content
+            self.memory.update_node(input_node)
+            if input_stop:
+                self.memory.success_node(input_node)
+                self.is_running = False
+                return input_node.node_id
 
         # execute todo node from memory
         todo_node = self.memory.get_todo_node() or input_node
