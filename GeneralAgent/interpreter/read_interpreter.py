@@ -2,6 +2,7 @@
 import re
 from .interpreter import Interpreter
 import chromadb
+import logging
 from GeneralAgent.llm import embedding_batch, num_tokens_from_string
 
 def _split_text(text, max_len):
@@ -64,7 +65,31 @@ def _text_to_paragraphs(text, max_len=510):
     results = [x.strip() for x in results if len(x.strip()) > 0]
     return results
 
+def read_pdf(file_path):
+    import fitz
+    doc = fitz.open(file_path)
+    documents = []
+    for page in doc:
+        documents.append(page.get_text())
+    return '\n'.join(documents)
 
+def read_ppt(file_path):
+    import pptx
+    prs = pptx.Presentation(file_path)
+    documents = []
+    for slide in prs.slides:
+        for shape in slide.shapes:
+            if hasattr(shape, "text"):
+                documents.append(shape.text)
+    return '\n'.join(documents)
+
+def read_docx(file_path):
+    import docx
+    doc = docx.Document(file_path)
+    documents = []
+    for para in doc.paragraphs:
+        documents.append(para.text)
+    return '\n'.join(documents)
 
 class ReadInterpreter(Interpreter):
     def __init__(self, serialize_path='./read_data/', prompt_max_length=1000, useful_msg_count=2) -> None:
@@ -82,10 +107,15 @@ class ReadInterpreter(Interpreter):
             query_embeddings=query_embeddings,
             n_results=2,
         )
+        # extract distances and documents
         distances = [x for z in result['distances'] for x in z]
         documents = [x for z in result['documents'] for x in z]
-        # sort and filter distance < 100
-        documents = [x for _, x in filter(sorted(zip(distances, documents), key=lambda x: x[0]), lambda x: x[0] < 100)]
+
+        # sort distances and documents by distance
+        sorted_docs = sorted(list(zip(distances, documents)), key=lambda x: x[0])
+
+        # filter documents with distance < 100
+        filtered_docs = [x for d, x in sorted_docs if d < 100]
         # texts token count should less than prompt_max_length
         texts = []
         texts_token_count = 0
@@ -100,18 +130,34 @@ class ReadInterpreter(Interpreter):
         return '```read\n(.*?)\n```'
     
     def parse(self, string):
+        information = []
         pattern = re.compile(self.match_template, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
         file_paths = match.group(1).strip().split('\n')
-        paragraphs = []
         for file_path in file_paths:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                text = f.read()
-                paragraphs += _text_to_paragraphs(text)
-        embeddings = embedding_batch(paragraphs)
-        self.collection.add(
-            documents=paragraphs,
-            embeddings=embeddings,
-            metadatas=[{} for _ in paragraphs],
-        )
+            paragraphs = []
+            if file_path.endswith('.pdf'):
+                paragraphs = _text_to_paragraphs(read_pdf(file_path))
+            elif file_path.endswith('.pptx'):
+                paragraphs = _text_to_paragraphs(read_ppt(file_path))
+            elif file_path.endswith('.docx'):
+                paragraphs = _text_to_paragraphs(read_docx(file_path))
+            else:
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        text = f.read()
+                    paragraphs = _text_to_paragraphs(text)
+                except Exception as e:
+                    logging.exception(e)
+                    information.append(str(e))
+            embeddings = embedding_batch(paragraphs)
+            logging.debug(paragraphs[:2])
+            logging.debug(embeddings[:2])
+            self.collection.add(
+                documents=paragraphs,
+                embeddings=embeddings,
+                metadatas=[{'file_path': file_path} for _ in paragraphs],
+                ids=[file_path+str(i) for i in range(len(paragraphs))],
+            )
+        return '\n'.join(information).strip(), False

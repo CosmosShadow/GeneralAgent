@@ -8,3 +8,4 @@ playwright
 retrying
 pymupdf
 python-pptx
+python-docx

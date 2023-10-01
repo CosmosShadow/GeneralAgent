@@ -102,7 +102,7 @@ def embedding_batch(texts):
     for index in range(0, len(texts), 100):
         embeddings = _embedding_batch(texts[index:index+100])
         results += embeddings
-    return embeddings
+    return results
 
 def cos_sim(a, b):
     # This function calculates the cosine similarity (scalar value) between two input vectors 'a' and 'b' (1-D array object), and return the similarity.

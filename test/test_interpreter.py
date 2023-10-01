@@ -1,6 +1,6 @@
 from base_setting import *
 from GeneralAgent.interpreter import ShellInterpreter, AppleScriptInterpreter, PythonInterpreter
-from GeneralAgent.interpreter import FileInterpreterOld, FileInterpreterNew, PlanInterpreter, AskInterpreter
+from GeneralAgent.interpreter import FileInterpreter, PlanInterpreter, AskInterpreter
 from GeneralAgent.memory import Memory, MemoryNode
 
 def test_bash_interperter():
@@ -66,36 +66,8 @@ end tell
     assert is_stop is False
     assert output.strip() == 'run successfully'
 
-def test_file_interpreter_old():
-    interpreter = FileInterpreterOld('./')
-    content = """
-###file write 0 -1 ./data/a.py
-print('a')
-###endfile
-"""
-    output, is_stop = interpreter.parse(content)
-    assert is_stop is False
-    assert output.strip() == 'write successfully'
-
-    content = """
-###file read 0 1 ./data/a.py
-###endfile
-"""
-    output, is_stop = interpreter.parse(content)
-    assert is_stop is False
-    assert output.strip() == "[0]print('a')"
-
-    content = """
-###file delete 0 1 ./data/a.py
-###endfile
-"""
-    output, is_stop = interpreter.parse(content)
-    assert is_stop is False
-    assert output.strip() == 'delete successfully'
-
-
 def test_file_interpreter_new():
-    interpreter = FileInterpreterNew('./')
+    interpreter = FileInterpreter('./')
     content = """
 To write the description of Chengdu to the file ./data/a.txt in one step, you can use the following command:
 
