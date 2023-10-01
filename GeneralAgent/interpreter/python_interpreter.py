@@ -118,6 +118,8 @@ class PythonInterpreter(Interpreter):
         pattern = r'^(\s*)(\w+)(\s*)$'
         lines = code_string.split('\n')
         for i, line in enumerate(lines):
+            if line.strip() in """False, None, True, and, as, assert, async, await, break, class, continue, def, del, elif, else, except, finally, for, from, global, if, import, in, is, lambda, nonlocal, not, or, pass, raise, return, try, while, with, yield""":
+                continue
             match = re.match(pattern, line)
             if match:
                 lines[i] = f'{match.group(1)}print({match.group(2)}){match.group(3)}'
