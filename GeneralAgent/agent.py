@@ -94,6 +94,7 @@ class Agent:
             input_node.content = input_content
             self.memory.update_node(input_node)
             if input_stop:
+                output_recall(input_content)
                 self.memory.success_node(input_node)
                 self.is_running = False
                 return input_node.node_id

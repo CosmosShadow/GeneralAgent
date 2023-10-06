@@ -1,15 +1,10 @@
 from base_setting import *
-from GeneralAgent.llm import num_tokens_from_string
 import os
 import shutil
 import asyncio
 from GeneralAgent.agent import Agent
 
 workspace = './data/test_workspace'
-
-def system_prompt_token_count():
-    count = num_tokens_from_string('')
-    print(count)
 
 # input multi lines, enter twice to end
 def get_input():
@@ -24,7 +19,7 @@ def get_input():
     text = '\n'.join(lines)
     return text
 
-async def terminal_interactive_agent():
+async def main():
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = Agent.default_agent(workspace=workspace)
     async def _output_recall(token):
@@ -41,4 +36,4 @@ async def terminal_interactive_agent():
         
 
 if __name__ == '__main__':
-    asyncio.run(terminal_interactive_agent())
+    asyncio.run(main())

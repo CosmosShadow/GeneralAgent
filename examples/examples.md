@@ -29,13 +29,13 @@ trun back
 ## write a ppt
 help me write a ppt ./data/hello.pptx: 1 page with 'hello world'
 
-## read
+## read for retrieve
 [input 1]
 ```read
 ./data/Nougat_piece.pdf
 ```
 [input 2]
-what is the advantage of the Model?
+what is the advantage of the model Nougat?
 
 ## stock compare
 What date is today? Compare the year-to-date gain for META and TESLA.
