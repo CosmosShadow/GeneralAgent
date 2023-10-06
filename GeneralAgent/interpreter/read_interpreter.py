@@ -166,5 +166,9 @@ class ReadInterpreter(Interpreter):
                 metadatas=[{'file_path': file_path} for _ in paragraphs],
                 ids=[file_path+str(i) for i in range(len(paragraphs))],
             )
-        string += '\n' + '\n'.join(information)
-        return string, False
+        stop = False
+        if string.replace(match.group(0), '').strip() == '':
+            stop = True
+        info = '\n'.join(information)
+        string = f'\n{string}\n```{info}```\n'
+        return string, stop
