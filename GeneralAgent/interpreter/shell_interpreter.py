@@ -1,5 +1,6 @@
 import re
 from .interpreter import Interpreter
+from GeneralAgent.utils import confirm_to_run
 
 shell_prompt = """
 # Run shell
@@ -22,8 +23,11 @@ class ShellInterpreter(Interpreter):
         pattern = re.compile(self.match_template, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
-        output = self._run_bash(match.group(1))
-        return output.strip(), False
+        if confirm_to_run():
+            output = self._run_bash(match.group(1))
+            return output.strip(), False
+        else:
+            return '', False
 
     def _run_bash(self, content):
         sys_out = ''

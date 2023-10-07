@@ -71,9 +71,18 @@ class Agent:
         # describe input、output、retrieve interpreters
         pass
 
-    async def run(self, input=None, for_node_id=None, output_recall=default_output_recall):
+    async def run(self, input=None, input_for_memory_node_id=-1, output_recall=default_output_recall):
+        """
+        input: str, user's new input, None means continue to run where it stopped
+        input_for_memory_node_id: int, -1 means input is not from memory, None means input new, otherwise input is for memory node
+        output_recall: async function, output_recall(content: str) -> None
+        """
+        if input_for_memory_node_id == -1:
+            memory_node_id = self.memory.current_node.node_id if self.memory.current_node is not None else None
+        else:
+            memory_node_id = input_for_memory_node_id
         self.is_running = True
-        input_node = self._insert_node(input, for_node_id) if input is not None else None
+        input_node = self._insert_node(input, memory_node_id) if input is not None else None
 
         # input interpreter
         if input_node is not None:
@@ -116,13 +125,13 @@ class Agent:
     def stop(self):
         self.stop_event.set()
 
-    def _insert_node(self, input, for_node_id=None):
+    def _insert_node(self, input, memory_node_id=None):
         node = MemoryNode(role='user', action='input', content=input)
-        if for_node_id is None:
+        if memory_node_id is None:
             logging.debug(self.memory)
             self.memory.add_node(node)
         else:
-            for_node = self.memory.get_node(for_node_id)
+            for_node = self.memory.get_node(memory_node_id)
             self.memory.add_node_after(for_node, node)
             self.memory.success_node(for_node)
         return node

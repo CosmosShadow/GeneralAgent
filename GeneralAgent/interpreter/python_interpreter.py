@@ -3,6 +3,7 @@ import pickle
 import logging
 from jinja2 import Template
 from .interpreter import Interpreter
+from GeneralAgent.utils import confirm_to_run
 
 python_prompt = """
 # Run python
@@ -74,8 +75,11 @@ class PythonInterpreter(Interpreter):
         pattern = re.compile(self.match_template, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
-        sys_out = self.run_code(match.group(1))
-        return sys_out.strip(), False
+        if confirm_to_run():
+            sys_out = self.run_code(match.group(1))
+            return sys_out.strip(), False
+        else:
+            return '', False
 
     def run_code(self, code):
         code = self.add_print(code)

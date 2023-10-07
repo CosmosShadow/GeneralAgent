@@ -21,7 +21,7 @@ setup(
     author_email="lichenarthurdata@gmail.com",
     license="Apache 2.0",
     keywords="generalagent agent gpt llm",
-    packages=find_packages(include='GeneralAgent.*'),
+    packages=find_packages(),
     platforms="any",
     python_requires=">=3.7",
     install_requires=requirements

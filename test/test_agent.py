@@ -19,9 +19,9 @@ async def test_math():
             nonlocal result
             result += token
             print(token, end='', flush=True)
-    for_node_id = await agent.run('calculate 0.99 ** 1000', output_recall=_output_recall)
+    memory_node_id = await agent.run('calculate 0.99 ** 1000', output_recall=_output_recall)
     assert '4.317124741065786e-05' in result
-    assert for_node_id == None
+    assert memory_node_id == None
 
 @pytest.mark.asyncio
 async def test_write_file():
@@ -36,8 +36,8 @@ async def test_write_file():
             nonlocal result
             result += token
             print(token, end='', flush=True)
-    for_node_id = await agent.run('Write the description of Chengdu to the file ./data/a.txt', output_recall=_output_recall)
-    assert for_node_id == None
+    memory_node_id = await agent.run('Write the description of Chengdu to the file ./data/a.txt', output_recall=_output_recall)
+    assert memory_node_id == None
     assert os.path.exists(target_path)
     with open(target_path, 'r') as f:
         content = f.read()
@@ -61,9 +61,9 @@ async def test_read_file():
             nonlocal result
             result += token
             print(token, end='', flush=True)
-    for_node_id = await agent.run('what is in ./data/b.txt', output_recall=_output_recall)
+    memory_node_id = await agent.run('what is in ./data/b.txt', output_recall=_output_recall)
     assert 'Mount Qingcheng' in result
-    assert for_node_id == None
+    assert memory_node_id == None
     if os.path.exists(target_path):
         os.remove(target_path)
 
@@ -78,9 +78,9 @@ async def test_tool_use():
             nonlocal result
             result += token
             print(token, end='', flush=True)
-    for_node_id = await agent.run("what's the tiltle of web page https://tongtianta.ai ?", output_recall=_output_recall)
+    memory_node_id = await agent.run("what's the tiltle of web page https://tongtianta.ai ?", output_recall=_output_recall)
     assert 'AI' in result
-    assert for_node_id == None
+    assert memory_node_id == None
 
 
 @pytest.mark.asyncio
