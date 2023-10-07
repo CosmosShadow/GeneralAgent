@@ -35,7 +35,7 @@ class Agent:
                 self.output_interpreters.insert(0, RoleInterpreter())
 
     @classmethod
-    def default_agent(cls, workspace):
+    def default(cls, workspace):
         if not os.path.exists(workspace):
             os.makedirs(workspace)
         # memory

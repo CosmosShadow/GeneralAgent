@@ -52,6 +52,6 @@ GeneralAgent
 ```python
 from GeneralAgent.agent import Agent
 workspace = './test'
-agent = Agent.default_agent(workspace=workspace)
+agent = Agent.default(workspace=workspace)
 
 ```

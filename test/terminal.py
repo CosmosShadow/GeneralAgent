@@ -7,7 +7,7 @@ from GeneralAgent.utils import default_get_input
 async def main(workspace):
     if not os.path.exists(workspace):
         os.mkdir(workspace)
-    agent = Agent.default_agent(workspace=workspace)
+    agent = Agent.default(workspace=workspace)
     for_node_id = None
     print('Enter twice to input end | 两次回车结束输入')
     while True:
