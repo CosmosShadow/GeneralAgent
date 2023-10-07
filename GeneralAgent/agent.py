@@ -5,7 +5,7 @@ import logging
 import shutil
 from GeneralAgent.llm import llm_inference
 from GeneralAgent.memory import Memory, MemoryNode
-from GeneralAgent.interpreter import PlanInterpreter, ReadInterpreter
+from GeneralAgent.interpreter import PlanInterpreter, RetrieveInterpreter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, AskInterpreter, FileInterpreter
 
 
@@ -18,6 +18,7 @@ def default_output_recall(output):
 
 class Agent:
     def __init__(self, 
+                 workspace='./',
                  memory=None,
                  input_interpreters=[],
                  output_interpreters=[],
@@ -30,7 +31,7 @@ class Agent:
         if not OPENAI_API_KEY.startswith('sk-'):
             raise ValueError('enviroment variable OPENAI_API_KEY is not set correctly')
 
-        self.memory = memory or Memory()
+        self.memory = memory or Memory(serialize_path=f'{workspace}/memory.json')
         self.input_interpreters = input_interpreters
         self.retrieve_interpreters = retrieve_interpreters
         self.output_interpreters = output_interpreters
@@ -50,16 +51,16 @@ class Agent:
         memory = Memory(serialize_path=f'{workspace}/memory.json')
         # input interpreter
         plan_interperter = PlanInterpreter(memory)
-        read_interpreter = ReadInterpreter(serialize_path=f'{workspace}/read_interperter/')
+        read_interpreter = RetrieveInterpreter(serialize_path=f'{workspace}/read_interperter/')
         input_interpreters = [plan_interperter, read_interpreter]
         # retrieve interpreter
         retrieve_interpreters = [read_interpreter]
         # output interpreter
         role_interpreter = RoleInterpreter()
         python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
-        bash_interpreter = ShellInterpreter('./')
+        bash_interpreter = ShellInterpreter(workspace)
         applescript_interpreter = AppleScriptInterpreter()
-        file_interpreter = FileInterpreter('./')
+        file_interpreter = FileInterpreter(workspace)
         ask_interpreter = AskInterpreter()
         output_interpreters = [role_interpreter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter, ask_interpreter]
         # 
@@ -74,6 +75,10 @@ class Agent:
         retrieve_interpreters = []
         output_interpreters = [RoleInterpreter()]
         return cls(memory, input_interpreters, output_interpreters, retrieve_interpreters)
+    
+    @classmethod
+    def load_from_config(cls, config):
+        pass
 
     def information(self):
         # describe input、output、retrieve interpreters

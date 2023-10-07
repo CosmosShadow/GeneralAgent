@@ -19,8 +19,9 @@ def get_input():
     text = '\n'.join(lines)
     return text
 
-async def main():
-    if os.path.exists(workspace): shutil.rmtree(workspace)
+async def main(new=False):
+    if new and os.path.exists(workspace): 
+        shutil.rmtree(workspace)
     agent = Agent.default_agent(workspace=workspace)
     async def _output_recall(token):
         if token is not None:
@@ -36,4 +37,9 @@ async def main():
         
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    # 读取参数，如果有new，就传入
+    new = False
+    if len(sys.argv) > 1:
+        if sys.argv[1] == 'new':
+            new = True
+    asyncio.run(main(new=new))

@@ -91,7 +91,7 @@ def read_docx(file_path):
         documents.append(para.text)
     return '\n'.join(documents)
 
-class ReadInterpreter(Interpreter):
+class RetrieveInterpreter(Interpreter):
     def __init__(self, serialize_path='./read_data/', prompt_max_length=1000, useful_msg_count=2) -> None:
         self.prompt_max_length = prompt_max_length
         self.useful_msg_count = useful_msg_count
@@ -119,7 +119,7 @@ class ReadInterpreter(Interpreter):
         sorted_docs = sorted(list(zip(distances, documents)), key=lambda x: x[0])
 
         # filter documents with distance < 100
-        filtered_docs = [x for d, x in sorted_docs if d < 100]
+        documents = [x for d, x in sorted_docs if d < 100]
         # texts token count should less than prompt_max_length
         texts = []
         texts_token_count = 0

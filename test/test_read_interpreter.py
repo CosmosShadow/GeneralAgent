@@ -1,6 +1,6 @@
 from base_setting import *
 import shutil
-from GeneralAgent.interpreter import ReadInterpreter
+from GeneralAgent.interpreter import RetrieveInterpreter
 
 content = """
 ```read
@@ -13,7 +13,7 @@ def test_read_interpreter():
     if os.path.exists(workspace):
         shutil.rmtree(workspace)
     
-    interpreter = ReadInterpreter(serialize_path=workspace)
+    interpreter = RetrieveInterpreter(serialize_path=workspace)
     interpreter.parse(content)
 
     messages = [
