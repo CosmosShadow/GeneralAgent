@@ -4,10 +4,6 @@ GeneralAgent/*.json
 
 test/data_0.json
 test/data/test_workspace/*
-test/data/test_workspace/memory.json
-test/data/test_workspace/memory.json
-test/test_workspace/memory.json
-test/data/test_workspace/memory.json
 test/tetris.py
 test/tetris.py.bak
 GeneralAgent/cache_json
@@ -21,3 +17,5 @@ test/.env
 build/*
 dist/*
 GeneralAgent.egg-info*
+test/multi_lines_input/*
+test/multi_lines_input/*

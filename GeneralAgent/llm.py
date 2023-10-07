@@ -60,17 +60,13 @@ def llm_inference(messages):
         response = openai.ChatCompletion.create(model=model, messages=messages, stream=True)
         result = ''
         for chunk in response:
-            try:
+            if chunk['choices'][0]['finish_reason'] is None:
                 token = chunk['choices'][0]['delta']['content']
-                # print(token, end='', flush=True)
                 result += token
                 global_cache.set(table, key, result)
                 yield token
-            except Exception as e:
-                pass
         logging.info(result)
         yield None
-
 
 def embedding_fun(text):
     # embedding the texts(list of string), and return a list of embedding for every string

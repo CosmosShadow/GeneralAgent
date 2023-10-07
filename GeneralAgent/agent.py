@@ -187,4 +187,4 @@ class Agent:
             logging.exception(e)
             await output_recall(result)
             self.memory.delete_node(answer_node)
-            return node, is_stop
+            return node, True

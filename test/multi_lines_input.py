@@ -1,3 +1,4 @@
+from base_setting import *
 import os, sys
 import asyncio
 from GeneralAgent.agent import Agent
@@ -14,7 +15,7 @@ async def main(workspace):
         await agent.run(input_conent)
 
 if __name__ == '__main__':
-    workspace = './data/test_workspace'
+    workspace = './multi_lines_input'
     if len(sys.argv) > 1:
         workspace = sys.argv[1]
     asyncio.run(main(workspace))

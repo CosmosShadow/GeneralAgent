@@ -22,15 +22,24 @@ python_prompt = """
 
 default_import_code = """
 import os, sys, math
-sys.path.append('../')
 from GeneralAgent.tools import google_search, wikipedia_search, scrape_web
 """
+
+default_libs = ["requests", "tinydb", "openai", "jinja2", "numpy", "bs4", "playwright", "retrying", "pymupdf", "python-pptx", "python-docx", "yfinance"]
 
 from GeneralAgent.tools import Tools
 
 class PythonInterpreter(Interpreter):
-    def __init__(self, serialize_path, tools=None, import_code=default_import_code):
+    def __init__(self, serialize_path:str, tools:Tools=None, libs:[str]=default_libs, import_code:str=default_import_code):
+        """
+        Args:
+            serialize_path (str): path to save the global variables
+            tools (Tools, optional): tools to use. Defaults to None.
+            libs ([str], optional): libraries to import. Defaults to default_libs.
+            import_code (str, optional): code to import. The tools used should be imported. Defaults to default_import_code.
+        """
         self.globals = {}  # global variables shared by all code
+        self.python_libs = libs
         self.import_code = import_code
         self.serialize_path = serialize_path
         self.tools = tools or Tools([])
@@ -43,7 +52,7 @@ class PythonInterpreter(Interpreter):
                 self.globals = data['globals']
 
     def prompt(self, messages) -> str:
-        python_libs = ', '.join([line.strip() for line in open(os.path.join(os.path.dirname(__file__), '../../requirements.txt'), 'r').readlines()])
+        python_libs = ', '.join(self.python_libs)
         python_funcs = self.tools.get_funs_description()
         variables = {
             'python_libs': python_libs,

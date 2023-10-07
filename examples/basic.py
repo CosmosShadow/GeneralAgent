@@ -2,9 +2,9 @@ import asyncio
 from GeneralAgent.agent import Agent
 
 async def main():
-    agent = Agent.default()
+    agent = Agent.default('./basic')
     while True:
-        input_conent = input()
+        input_conent = input('>>>')
         await agent.run(input_conent)
 
 if __name__ == '__main__':
