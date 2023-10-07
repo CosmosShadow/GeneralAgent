@@ -6,6 +6,10 @@
 <a href="README.md"><img src="https://img.shields.io/badge/document-English-blue.svg" alt="EN doc"></a>
 </p>
 
+## Architecture
+
+![Architecture](docs/images/Architecture.png)
+
 ## Features
 
   - Agent with GPT-3.5 is stable
@@ -18,11 +22,6 @@
       - Python: write python code to 解决数学、访问网络、本地文件操作等工作
       - AppleScript: Control your Mac computer
       - Shell
-
-## Architecture
-
-![Architecture](docs/images/Architecture.png)
-
 
 ## 安装
 
