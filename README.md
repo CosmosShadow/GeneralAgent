@@ -6,7 +6,7 @@
 <a href="README.md"><img src="https://img.shields.io/badge/document-English-blue.svg" alt="EN doc"></a>
 </p>
 
-## 特性
+## Features
 
   - Agent with GPT-3.5 is stable
   - Use GeneralAgent simply as use ChatGPT
@@ -19,9 +19,9 @@
       - AppleScript: Control your Mac computer
       - Shell
 
-## 架构
+## Architecture
 
-![架构](docs/images/架构.png)
+![Architecture](docs/images/Architecture.png)
 
 
 ## 安装

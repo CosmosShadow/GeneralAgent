@@ -5,23 +5,29 @@
 <a href="docs/README_CN.md"><img src="https://img.shields.io/badge/文档-中文版-blue.svg" alt="CN doc"></a>
 <a href="README.md"><img src="https://img.shields.io/badge/document-English-blue.svg" alt="EN doc"></a>
 </p>
+## 架构
+
+![架构](./images/Architecture.png)
+
+
+
+
 
 ## 特性
 
-  - Agent with GPT-3.5 is stable
-  - Use GeneralAgent simply as use ChatGPT
-  - Stacked Memory and Plan
+  - 从Agent本身的视角来构建Agent
+  - 兼容GPT3.5，当然GPT-4更好
+  - 像使用ChatGPT一样，使用GeneralAgent
+  - 堆栈记忆和计划
   - Input Interpreter
   - Retrieve Interpreter
   - Output Interpreter
-      - File Operation at line level: read、write、delete
-      - Python: write python code to 解决数学、访问网络、本地文件操作等工作
-      - AppleScript: Control your Mac computer
-      - Shell
+      - 文件行级别操作: 读取、写入、删除
+      - python执行: 数学计算、访问网络、本地文件操作等
+      - AppleScript执行: 操作Mac电脑完成各种任务，比如Dark模式切换、网站打开、发送邮件等
+      - Shell: 
 
-## 架构
 
-![架构](docs/images/架构.png)
 
 
 ## 安装
