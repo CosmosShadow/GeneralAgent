@@ -26,6 +26,10 @@ class Agent:
         self.is_running = False
         self.stop_event = asyncio.Event()
 
+        OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
+        if not OPENAI_API_KEY.startswith('sk-'):
+            raise ValueError('enviroment variable OPENAI_API_KEY is not set correctly')
+
         self.memory = memory or Memory()
         self.input_interpreters = input_interpreters
         self.retrieve_interpreters = retrieve_interpreters

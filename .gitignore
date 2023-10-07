@@ -16,3 +16,4 @@ test/data/test_interpreter.bin
 test/data/b.txt
 test/data/a.txt
 test/data/hello.pptx
+test/.env

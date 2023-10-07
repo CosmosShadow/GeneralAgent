@@ -11,7 +11,8 @@ class TinyDBCache():
     def __init__(self):
         LLM_CACHE = os.environ.get('LLM_CACHE', 'no')
         if LLM_CACHE in ['yes', 'y', 'YES']:
-            self.db = TinyDB(os.path.join(os.path.dirname(os.path.abspath(__file__)), './cache.json'))
+            LLM_CACHE_PATH = os.environ.get('LLM_CACHE_PATH', './llm_cache.json')
+            self.db = TinyDB(LLM_CACHE_PATH)
         else:
             self.db = None
 

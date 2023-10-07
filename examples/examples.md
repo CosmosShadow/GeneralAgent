@@ -1,3 +1,9 @@
+## run in terminal
+
+```shell
+python terminal.py
+```
+
 ## math
 calculate 0.99 ** 1000
 
