@@ -43,18 +43,16 @@ class Agent:
 
     @classmethod
     def default_agent(cls, workspace):
-        # new workspace
-        if os.path.exists(workspace):
-            shutil.rmtree(workspace)
-        os.makedirs(workspace)
+        if not os.path.exists(workspace):
+            os.makedirs(workspace)
         # memory
         memory = Memory(serialize_path=f'{workspace}/memory.json')
         # input interpreter
         plan_interperter = PlanInterpreter(memory)
-        read_interpreter = RetrieveInterpreter(serialize_path=f'{workspace}/read_interperter/')
-        input_interpreters = [plan_interperter, read_interpreter]
+        retrieve_interpreter = RetrieveInterpreter(serialize_path=f'{workspace}/read_interperter/')
+        input_interpreters = [plan_interperter, retrieve_interpreter]
         # retrieve interpreter
-        retrieve_interpreters = [read_interpreter]
+        retrieve_interpreters = [retrieve_interpreter]
         # output interpreter
         role_interpreter = RoleInterpreter()
         python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
@@ -64,7 +62,7 @@ class Agent:
         ask_interpreter = AskInterpreter()
         output_interpreters = [role_interpreter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter, ask_interpreter]
         # 
-        return cls(memory, input_interpreters, output_interpreters, retrieve_interpreters)
+        return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters)
     
     @classmethod
     def act_as_llm(cls, workspace):
@@ -74,11 +72,7 @@ class Agent:
         input_interpreters = []
         retrieve_interpreters = []
         output_interpreters = [RoleInterpreter()]
-        return cls(memory, input_interpreters, output_interpreters, retrieve_interpreters)
-    
-    @classmethod
-    def load_from_config(cls, config):
-        pass
+        return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters)
 
     def information(self):
         # describe input、output、retrieve interpreters
@@ -103,7 +97,7 @@ class Agent:
             input_node.content = input_content
             self.memory.update_node(input_node)
             if input_stop:
-                output_recall(input_content)
+                await output_recall(input_content)
                 self.memory.success_node(input_node)
                 self.is_running = False
                 return input_node.node_id
@@ -132,6 +126,7 @@ class Agent:
     def _insert_node(self, input, for_node_id=None):
         node = MemoryNode(role='user', action='input', content=input)
         if for_node_id is None:
+            logging.debug(self.memory)
             self.memory.add_node(node)
         else:
             for_node = self.memory.get_node(for_node_id)

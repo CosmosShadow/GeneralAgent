@@ -20,7 +20,8 @@ def get_input():
     return text
 
 async def main(new=False):
-    if new and os.path.exists(workspace): 
+    if new and os.path.exists(workspace):
+        print('renew workspace ' + workspace)
         shutil.rmtree(workspace)
     agent = Agent.default_agent(workspace=workspace)
     async def _output_recall(token):
@@ -34,7 +35,7 @@ async def main(new=False):
         input_conent = get_input()
         print('[output]\n', end='', flush=True)
         for_node_id = await agent.run(input_conent, for_node_id=for_node_id, output_recall=_output_recall)
-        
+
 
 if __name__ == '__main__':
     # 读取参数，如果有new，就传入

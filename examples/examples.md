@@ -1,6 +1,8 @@
 ## run in terminal
 
 ```shell
+python termianl.py new
+# or continue last session
 python terminal.py
 ```
 

@@ -10,3 +10,4 @@ pymupdf
 python-pptx
 python-docx
 yfinance
+beautifulsoup4
