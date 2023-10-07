@@ -21,7 +21,7 @@
       - File Operation at line level: read、write、delete
       - Python: write python code to 解决数学、访问网络、本地文件操作等工作
       - AppleScript: Control your Mac computer
-      - Shell
+      - Shell: Control your computer
 
 ## 安装
 

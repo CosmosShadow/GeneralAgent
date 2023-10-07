@@ -11,8 +11,6 @@
 
 
 
-
-
 ## 特性
 
   - 从Agent本身的视角来构建Agent
@@ -58,7 +56,15 @@ GeneralAgent
 
 ```python
 from GeneralAgent.agent import Agent
-workspace = './test'
-agent = Agent.default_agent(workspace=workspace)
-
+agent = Agent.default_agent(workspace='./test')
+while True:
+  question = input()
+	agent.run(question)
 ```
+
+
+
+## 加入我们
+
+微信扫码
+
