@@ -2,18 +2,11 @@
 import os, re
 import asyncio
 import logging
-import shutil
+from GeneralAgent.utils import default_get_input, default_output_recall
 from GeneralAgent.llm import llm_inference
 from GeneralAgent.memory import Memory, MemoryNode
 from GeneralAgent.interpreter import PlanInterpreter, RetrieveInterpreter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, AskInterpreter, FileInterpreter
-
-
-def default_output_recall(output):
-    if output is not None:
-        print(output, end='', flush=True)
-    else:
-        print('\n[output end]\n', end='', flush=True)
 
 
 class Agent:
