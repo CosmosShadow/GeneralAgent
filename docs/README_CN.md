@@ -1,5 +1,5 @@
 # GeneralAgent: From LLM to Agent
-<p align="center">简单、通用、统一、兼容基础 LLM 的 Agent</p>
+<p align="center">一个简单、通用的Agent框架</p>
 
 <p align="center">
 <a href="docs/README_CN.md"><img src="https://img.shields.io/badge/文档-中文版-blue.svg" alt="CN doc"></a>
@@ -32,12 +32,6 @@
 
 
 
-## 警告!
-
-默认情况下，GeneralAgent可能会由用户触发或者自动执行一些比较危险的操作，比如文件删除等。
-
-
-
 
 ## 安装
 
@@ -51,6 +45,39 @@ pip install GeneralAgent
 git clone https://github.com/CosmosShadow/GeneralAgent
 cd GeneralAgent
 python setup.py install
+```
+
+
+
+## 环境变量
+
+参考 [test/.env.example](test/.env.example)
+
+必须
+
+```shell
+# 配置OpenAI的API Key
+export OPENAI_API_KEY='xx'
+```
+
+非必须
+
+```shell
+# OpenAI Request URL
+export OPENAI_API_BASE='https://api.openai.com/v1'
+# MLL Model, defualt gpt-3.5-turbo
+export OPENAI_API_MODEL='gpt-3.5-turbo'
+
+# cache llm inference and embedding, useful when develop and debug
+export LLM_CACHE='no' # otherwise yes
+export LLM_CACHE_PATH='./llm_cache.json'
+
+# google search tool at https://google.serper.dev
+export SERPER_API_KEY='xxx'
+
+# 是否自动运行python、shell、applescript等代码
+# 默认否: n
+export AUTO_RUN='y' # y or n
 ```
 
 
