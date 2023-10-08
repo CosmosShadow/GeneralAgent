@@ -11,7 +11,7 @@ A simple, general, customizable Agent framework
 ![Architecture](./docs/images/Architecture.png)
 
 * LLM serves as the brain, and Interpreters serve as sensors such as hands, feet, and eyes, forming a general agent.
-* Let a single LLM understand the overall situation, make all your wishes come true, and GPT-3.5 can also run stably
+* Let a single LLM understand the overall situation, thoughts become actions in nature, and GPT-3.5 can also run stably
 * Support serialization, including memory, interpreter state (such as python), plan, recall content, etc.
 * Customize the agent by customizing three parsers: input, output, and recall
 
