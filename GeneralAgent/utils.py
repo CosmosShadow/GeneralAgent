@@ -1,4 +1,6 @@
-import os, sys
+import os
+import logging
+
 
 def default_get_input():
     "input multi lines, end with two empty lines"
@@ -32,3 +34,21 @@ def confirm_to_run():
             return False
         else:
             print('Please input y or n')
+
+def set_logging_level(log_level):
+    log_level = log_level.upper()
+    if log_level == 'DEBUG':
+        level = logging.DEBUG
+    elif log_level == 'INFO':
+        level = logging.INFO
+    elif log_level == 'WARNING':
+        level = logging.WARNING
+    elif log_level == 'ERROR':
+        level = logging.ERROR
+    else:
+        level = logging.ERROR
+    logging.basicConfig(
+        level=level,
+        format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(funcName)s %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )

@@ -185,7 +185,7 @@ class Agent:
         except Exception as e:
             # if fail, recover
             logging.exception(e)
-            await output_recall(result)
+            await output_recall(str(e))
             self.memory.delete_node(answer_node)
             self.memory.set_current_node(node)
             return node, True

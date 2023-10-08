@@ -53,6 +53,8 @@ not necessary
 export OPENAI_API_BASE='https://api.openai.com/v1'
 # MLL Model, defualt gpt-3.5-turbo
 export OPENAI_API_MODEL='gpt-3.5-turbo'
+# model temperature, default 0.5
+TEMPERATURE=0.5
 
 # cache llm inference and embedding, useful when develop and debug
 export LLM_CACHE='no' # otherwise yes
@@ -64,6 +66,7 @@ export SERPER_API_KEY='xxx'
 # Whether to automatically run python, shell, applescript and other codes
 # Default no: n
 export AUTO_RUN='y' # y or n
+
 ```
 
 
@@ -79,12 +82,9 @@ GeneralAgent
 Optional parameters:
 
 ```shell
-GeneralAgent --workspace ./test --logging DEBUG --auto_run --new --model gpt-4
-# worksapce: Set workspace directory, default ./general_agent/data
-# logging: set logging level: DEBUG, INFO, WARNING, ERROR, default ERROR
-# auto_run: Enable auto run code like python、shell、applescript
+GeneralAgent --workspace ./test --new
+# worksapce: Set workspace directory, default ./general_agent_data
 # new: if workspace exists, create a new workspace
-# model: OpenAI model, default gpt-3.5-turbo, you can use others
 ```
 
 
