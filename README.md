@@ -7,6 +7,7 @@
 <p align='center'>
 A simple, general, customizable Agent framework
 </p>
+
 ![Architecture](./docs/images/Architecture.png)
 
 * LLM serves as the brain, and Interpreters serve as sensors such as hands, feet, and eyes, forming a general agent.

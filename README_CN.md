@@ -7,6 +7,7 @@
 <p align='center'>
 一个简单、通用、可定制的Agent框架
 </p>
+
 ![架构](./docs/images/Architecture.png)
 
 * LLM作为大脑，Interpreters作为手脚、眼睛等传感器，构成一个通用的agent
