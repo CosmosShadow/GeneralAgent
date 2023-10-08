@@ -70,9 +70,7 @@ export AUTO_RUN='y' # y or n
 
 ## Usage
 
-### Command Line
-
-Use in command line
+### Terminal
 
 ```bash
 GeneralAgent
