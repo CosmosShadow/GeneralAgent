@@ -5,26 +5,25 @@
 <img src="https://img.shields.io/static/v1?label=license&message=MIT&color=white&style=flat" alt="License"/>
 </p>
 <p align='center'>
-A simple, general, customizable Agent framework
+一个简单、通用、可定制的Agent框架
 </p>
-![Architecture](./docs/images/Architecture.png)
+![架构](./docs/images/Architecture.png)
 
-* LLM serves as the brain, and Interpreters serve as sensors such as hands, feet, and eyes, forming a general agent.
-* Let a single LLM understand the overall situation, make all your wishes come true, and GPT-3.5 can also run stably
-* Support serialization, including memory, interpreter state (such as python), plan, recall content, etc.
-* Customize the agent by customizing three parsers: input, output, and recall
+* LLM作为大脑，Interpreters作为手脚、眼睛等传感器，构成一个通用的agent
+* 让单一LLM了解全局、心想事成、GPT-3.5也能稳定运行
+* 支持序列化，包括记忆、解释器状态(比如python)、计划、召回内容等
+* 通过定制输入、输出、召回三种解析器，定制agent
 
 
 
-## Installation
 
-install from pip:
+## 安装
 
 ```bash
 pip install GeneralAgent
 ```
 
-install from source code:
+或者
 
 ```shell
 git clone https://github.com/CosmosShadow/GeneralAgent
@@ -34,16 +33,16 @@ python setup.py install
 
 
 
-## Configuration
+## 配置
 
-Configure necessary environment variables ([test/.env.example](test/.env.example))
+配置必须的环境变量 ([test/.env.example](test/.env.example))
 
 ```shell
-# Configure OpenAI API Key
+# 配置OpenAI的API Key
 export OPENAI_API_KEY='xx'
 ```
 
-not necessary
+非必须
 
 ```shell
 # OpenAI Request URL
@@ -58,24 +57,24 @@ export LLM_CACHE_PATH='./llm_cache.json'
 # google search tool at https://google.serper.dev
 export SERPER_API_KEY='xxx'
 
-# Whether to automatically run python, shell, applescript and other codes
-# Default no: n
+# 是否自动运行python、shell、applescript等代码
+# 默认否: n
 export AUTO_RUN='y' # y or n
 ```
 
 
 
-## Use
+## 使用
 
-### Command Line
+### 命令行
 
-Use in command line
+在命令行中使用
 
 ```bash
 GeneralAgent
 ```
 
-Optional parameters:
+可选参数:
 
 ```shell
 GeneralAgent --workspace ./test --logging DEBUG --auto_run --new --model gpt-4
@@ -90,9 +89,9 @@ GeneralAgent --workspace ./test --logging DEBUG --auto_run --new --model gpt-4
 
 ### Python
 
-#### Basic LLM functions
+#### 基础LLM功能
 
-  Reference: [examples/act_as_llm.py](examples/act_as_llm.py)
+ 参考: [examples/act_as_llm.py](examples/act_as_llm.py)
 
 ```python
 import asyncio
@@ -110,9 +109,9 @@ if __name__ == '__main__':
 
 
 
-#### Default Agent
+#### 默认Agent
 
- Reference: [examples/default_agent.py](examples/default_agent.py)
+ 参考: [examples/default_agent.py](examples/default_agent.py)
 
 ```python
 import asyncio
@@ -130,9 +129,9 @@ if __name__ == '__main__':
 
 
 
-#### Custom Interpreter
+#### 定制解析器
 
-Reference: [examples/custom.py](examples/custom.py)
+参考: [examples/custom.py](examples/custom.py)
 
 ```python
 import re
@@ -180,9 +179,9 @@ if __name__ == '__main__':
 
 
 
-#### Custom output
+#### 定制输出
 
-Reference: [examples/custom_output.py](examples/custom_output.py)
+参考: [examples/custom_output.py](examples/custom_output.py)
 
 ```python
 import asyncio
@@ -206,9 +205,9 @@ if __name__ == '__main__':
 
 
 
-#### Serialization
+#### 序列化
 
-All the status of the agent is saved in the workspace directory in real time and only needs to be reloaded.
+agent的所有状态实时保存在workspace目录下，只需重新加载即可.
 
 ```python
 agent = Agent.default(workspace='./test')
@@ -223,14 +222,24 @@ await agent.run('What is my Name?')
 
 
 
-### Built-in interpreter
+### 内置解析器
 
-* File Interperter: Read, write, delete by line, can support code writing, etc.
-* Plan Interpreter: Complete multi-step complex tasks, such as completing a business plan, through stack memory and planning
-* Retrieve Interpreter: Retrieve the document after embedding it
+* File Interperter: 按行进行 读取、写入、删除，能够支持比如代码编写等
+* Plan Interpreter: 通过堆栈记忆和计划，完成多个步骤的复杂任务，比如完成一份商业计划书
+* Retrieve Interpreter: 对文档进行embedding后进行检索
 * Python Interpreter
-  * Can complete mathematical calculations, access the network, file operations (PDF to pictures, write PPT, batch conversion of picture formats...), etc.
-  * Python code snippets share the same namespace, that is, they can access each other's variables, functions, and all other serializable content.
-  * Tool usage: Able to call various tool APIs, model APIs, etc.
-* AppleScript Interpreter: Operate the Mac operating system to achieve tasks such as switching to Dark mode, opening websites, and sending emails.
-* Shell Interpreter: Operate the computer to install docker, node.js, python libraries, set up scheduled tasks and other tasks
+    * 可以完成数学计算、访问网络、文件操作(PDF转图片、写PPT、图片格式批量转换...)等
+    * python代码片段间共享同一个命名空间，即可以互相访问变量、函数等所有可以序列化的内容
+    * 工具使用: 能够调用各种工具API、模型API等
+* AppleScript Interpreter: 操作Mac操作系统，实现Dark模式切换、网站打开、发送邮件等任务
+* Shell Interpreter: 操作电脑，实现安装docker、node.js、python库，设置定时任务等任务
+
+
+
+## 加入我们
+
+微信扫码
+
+<p align="center">
+<img src="./docs/images/wechat.jpg" alt="wechat" width=400/>
+</p>

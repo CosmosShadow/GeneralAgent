@@ -24,5 +24,10 @@ setup(
     packages=find_packages(),
     platforms="any",
     python_requires=">=3.7",
-    install_requires=requirements
+    install_requires=requirements,
+    entry_points={
+        'console_scripts': [
+            'GeneralAgent=GeneralAgent.cli:main',
+        ],
+    },
 )
