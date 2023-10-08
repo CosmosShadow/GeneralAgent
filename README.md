@@ -66,7 +66,7 @@ export AUTO_RUN='y' # y or n
 
 
 
-## Use
+## Usage
 
 ### Command Line
 
@@ -93,7 +93,7 @@ GeneralAgent --workspace ./test --logging DEBUG --auto_run --new --model gpt-4
 
 #### Basic LLM functions
 
-  Reference: [examples/act_as_llm.py](examples/act_as_llm.py)
+[examples/act_as_llm.py](examples/act_as_llm.py)
 
 ```python
 import asyncio
@@ -113,7 +113,7 @@ if __name__ == '__main__':
 
 #### Default Agent
 
- Reference: [examples/default_agent.py](examples/default_agent.py)
+[examples/default_agent.py](examples/default_agent.py)
 
 ```python
 import asyncio
@@ -132,8 +132,7 @@ if __name__ == '__main__':
 
 
 #### Custom Interpreter
-
-Reference: [examples/custom.py](examples/custom.py)
+[examples/custom.py](examples/custom.py)
 
 ```python
 import re
@@ -182,8 +181,7 @@ if __name__ == '__main__':
 
 
 #### Custom output
-
-Reference: [examples/custom_output.py](examples/custom_output.py)
+[examples/custom_output.py](examples/custom_output.py)
 
 ```python
 import asyncio

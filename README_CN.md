@@ -92,7 +92,7 @@ GeneralAgent --workspace ./test --logging DEBUG --auto_run --new --model gpt-4
 
 #### 基础LLM功能
 
- 参考: [examples/act_as_llm.py](examples/act_as_llm.py)
+[examples/act_as_llm.py](examples/act_as_llm.py)
 
 ```python
 import asyncio
@@ -112,7 +112,7 @@ if __name__ == '__main__':
 
 #### 默认Agent
 
- 参考: [examples/default_agent.py](examples/default_agent.py)
+[examples/default_agent.py](examples/default_agent.py)
 
 ```python
 import asyncio
@@ -132,7 +132,7 @@ if __name__ == '__main__':
 
 #### 定制解析器
 
-参考: [examples/custom.py](examples/custom.py)
+[examples/custom.py](examples/custom.py)
 
 ```python
 import re
@@ -182,7 +182,7 @@ if __name__ == '__main__':
 
 #### 定制输出
 
-参考: [examples/custom_output.py](examples/custom_output.py)
+[examples/custom_output.py](examples/custom_output.py)
 
 ```python
 import asyncio
