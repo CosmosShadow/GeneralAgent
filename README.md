@@ -42,41 +42,6 @@ python setup.py install
 ```
 
 
-
-## Configuration
-
-Configure necessary environment variables defined in ([.env.example](.env.example))
-
-```shell
-# Configure OpenAI API Key
-export OPENAI_API_KEY='xx'
-```
-
-not necessary
-
-```shell
-# OpenAI Request URL
-export OPENAI_API_BASE='https://api.openai.com/v1'
-# MLL Model, defualt gpt-3.5-turbo
-export OPENAI_API_MODEL='gpt-3.5-turbo'
-# model temperature, default 0.5
-TEMPERATURE=0.5
-
-# cache llm inference and embedding, useful when develop and debug
-export LLM_CACHE='no' # otherwise yes
-export LLM_CACHE_PATH='./llm_cache.json'
-
-# google search tool at https://google.serper.dev
-export SERPER_API_KEY='xxx'
-
-# Whether to automatically run python, shell, applescript and other codes
-# Default no: n
-export AUTO_RUN='y' # y or n
-
-```
-
-
-
 ## Usage
 
 ### Terminal
@@ -88,9 +53,10 @@ GeneralAgent
 Optional parameters:
 
 ```shell
-GeneralAgent --workspace ./test --new
-# worksapce: Set workspace directory, default ./general_agent_data
-# new: if workspace exists, create a new workspace
+GeneralAgent --workspace ./test --new --auto_run
+# worksapce: Set workspace directory, default ./general_agent
+# new: if workspace exists, create a new workspace, like ./general_agent_2023xxx
+# auto_run: if auto_run, the agent will run the code automatically, default no
 ```
 
 
@@ -317,4 +283,32 @@ agent = None
 agent = Agent.default(workspace('./test'))
 await agent.run('What is my Name?')
 # expect to output Chen Li
+```
+
+## Configuration
+
+Configure Agent by enviroment variables defined in ([.env.example](.env.example))
+
+```shell
+# Configure OpenAI API Key
+export OPENAI_API_KEY='xx'
+
+# OpenAI Request URL
+export OPENAI_API_BASE='https://api.openai.com/v1'
+# MLL Model, defualt gpt-3.5-turbo
+export OPENAI_API_MODEL='gpt-3.5-turbo'
+# model temperature, default 0.5
+TEMPERATURE=0.5
+
+# cache llm inference and embedding, useful when develop and debug
+export LLM_CACHE='no' # otherwise yes
+export LLM_CACHE_PATH='./llm_cache.json'
+
+# google search tool at https://google.serper.dev
+export SERPER_API_KEY='xxx'
+
+# Whether to automatically run python, shell, applescript and other codes
+# Default no: n
+export AUTO_RUN='y' # y or n
+
 ```

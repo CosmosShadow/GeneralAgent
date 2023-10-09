@@ -21,8 +21,10 @@ class Agent:
         self.stop_event = asyncio.Event()
 
         OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
-        if not OPENAI_API_KEY.startswith('sk-'):
-            raise ValueError('enviroment variable OPENAI_API_KEY is not set correctly')
+        while not OPENAI_API_KEY.startswith('sk-'):
+            print('enviroment variable OPENAI_API_KEY is not set correctly')
+            OPENAI_API_KEY = input('input your openai api key please >>> ')
+            os.environ['OPENAI_API_KEY'] = OPENAI_API_KEY
 
         self.memory = memory or Memory(serialize_path=f'{workspace}/memory.json')
         self.input_interpreters = input_interpreters

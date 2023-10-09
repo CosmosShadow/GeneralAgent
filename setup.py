@@ -12,7 +12,7 @@ with open(os.path.join(current_dir, "./requirements.txt")) as f:
 
 setup(
     name="GeneralAgent",
-    version="0.0.1",
+    version="0.0.2",
     description="General Agent: From LLM to Agent",
     long_description=long_description,
     long_description_content_type="text/markdown",

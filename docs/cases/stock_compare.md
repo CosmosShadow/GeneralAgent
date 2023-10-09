@@ -1,4 +1,4 @@
-[lichen@test]$ python terminal.py 
+[lichen@test]$ GeneralAgent 
 Enter twice to input end | 两次回车结束输入
 [input]
 2023-10-06 11:56:04 _common.py[line:105] INFO _log_backoff Backing off send_request(...) for 0.8s (requests.exceptions.ConnectionError: HTTPSConnectionPool(host='app.posthog.com', port=443): Max retries exceeded with url: /batch/ (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x10c1e2b20>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known')))

@@ -1,11 +1,5 @@
 ## run in terminal
 
-```shell
-python termianl.py new
-# or continue last session
-python terminal.py
-```
-
 ## math
 calculate 0.99 ** 1000
 
@@ -20,7 +14,7 @@ what is in ./data/a.txt
 Help me write a business plan framework for an AI painting product for angel round investment. If it is unclear, you can design it appropriately without asking me.
 
 [input 2]
-```plan complete
+```runplan complete
 1. Executive Summary:
    - Provide an overview of your AI painting product and its unique selling points.
    - Highlight the market opportunity and potential for growth.

@@ -41,39 +41,6 @@ python setup.py install
 
 
 
-## 配置
-
-配置必须的环境变量 (参考: [.env.example](.env.example))
-
-```shell
-# 配置OpenAI的API Key
-export OPENAI_API_KEY='xx'
-```
-
-非必须
-
-```shell
-# OpenAI Request URL
-export OPENAI_API_BASE='https://api.openai.com/v1'
-# MLL Model, defualt gpt-3.5-turbo
-export OPENAI_API_MODEL='gpt-3.5-turbo'
-# model temperature, default 0.5
-TEMPERATURE=0.5
-
-# cache llm inference and embedding, useful when develop and debug
-export LLM_CACHE='no' # otherwise yes
-export LLM_CACHE_PATH='./llm_cache.json'
-
-# google search tool at https://google.serper.dev
-export SERPER_API_KEY='xxx'
-
-# 是否自动运行python、shell、applescript等代码
-# 默认否: n
-export AUTO_RUN='y' # y or n
-```
-
-
-
 ## 使用
 
 ### 命令行
@@ -315,19 +282,33 @@ await agent.run('What is my Name?')
 # expect to output Chen Li
 ```
 
+## 配置
 
+通过环境变量，配置Agent (参考: [.env.example](.env.example))
 
-### 内置解析器
+```shell
+# 配置OpenAI的API Key
+export OPENAI_API_KEY='xx'
 
-* File Interperter: 按行进行 读取、写入、删除，能够支持比如代码编写等
-* Plan Interpreter: 通过堆栈记忆和计划，完成多个步骤的复杂任务，比如完成一份商业计划书
-* Retrieve Interpreter: 对文档进行embedding后进行检索
-* Python Interpreter
-    * 可以完成数学计算、访问网络、文件操作(PDF转图片、写PPT、图片格式批量转换...)等
-    * python代码片段间共享同一个命名空间，即可以互相访问变量、函数等所有可以序列化的内容
-    * 工具使用: 能够调用各种工具API、模型API等
-* AppleScript Interpreter: 操作Mac操作系统，实现Dark模式切换、网站打开、发送邮件等任务
-* Shell Interpreter: 操作电脑，实现安装docker、node.js、python库，设置定时任务等任务
+# OpenAI Request URL
+export OPENAI_API_BASE='https://api.openai.com/v1'
+# MLL Model, defualt gpt-3.5-turbo
+export OPENAI_API_MODEL='gpt-3.5-turbo'
+# model temperature, default 0.5
+TEMPERATURE=0.5
+
+# cache llm inference and embedding, useful when develop and debug
+export LLM_CACHE='no' # otherwise yes
+export LLM_CACHE_PATH='./llm_cache.json'
+
+# google search tool at https://google.serper.dev
+export SERPER_API_KEY='xxx'
+
+# 是否自动运行python、shell、applescript等代码
+# 默认否: n
+export AUTO_RUN='y' # y or n
+```
+
 
 
 

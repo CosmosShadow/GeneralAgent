@@ -61,8 +61,8 @@ class Memory:
         current_nodes = self.db.table('current_node').all()
         if len(current_nodes) > 0:
             node_id = current_nodes[0]['id']
-            print(node_id)
-            print(self)
+            # print(node_id)
+            # print(self)
             self.current_node = self.get_node(node_id)
         else:
             self.current_node = None
