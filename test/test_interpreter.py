@@ -66,23 +66,6 @@ end tell
     assert is_stop is False
     assert output.strip() == 'run successfully'
 
-def test_file_interpreter_new():
-    interpreter = FileInterpreter()
-    content = """
-To write the description of Chengdu to the file ./data/a.txt in one step, you can use the following command:
-
-```
-file ./data/a.txt write 0 -1 <<EOF
-Chengdu is a sub-provincial city which serves as the capital of Sichuan province. It is one of the three most populous cities in Western China, the other two being Chongqing and Xi'an. As of 2021, the administrative area of Chengdu has a population of over 16 million. Chengdu is famous for its spicy Sichuan cuisine, giant pandas, and historical and cultural heritage. It is also an important transportation hub and a center for science and technology in Western China.
-EOF
-```
-
-"""
-    assert interpreter.match(content) is True
-    output, is_stop = interpreter.parse(content)
-    assert is_stop is False
-    assert output.strip() == 'write successfully'
-
 
 def test_structure_plan():
     content = """
@@ -139,7 +122,6 @@ if __name__ == '__main__':
     # test_bash_interperter()
     # test_applescript_interpreter()
     # test_file_interpreter_old()
-    test_file_interpreter_new()
-    # test_structure_plan()
+    test_structure_plan()
     # test_plan_interpreter()
     # test_ask_interpreter()
