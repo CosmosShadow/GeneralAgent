@@ -69,7 +69,7 @@ GeneralAgent --workspace ./test --new --auto_run
 
 #### Empty Agent
 
-[examples/empty.py](examples/empty.py)
+[examples/empty_agent.py](examples/empty_agent.py)
 
 empty agent, only role interpreter and memory, work like a basic LLM chatbot.
 

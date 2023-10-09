@@ -68,7 +68,7 @@ GeneralAgent --workspace ./test --new
 
 #### 基础Agent
 
-[examples/empty.py](examples/empty.py)
+[examples/empty_agent.py](examples/empty_agent.py)
 
 基础Agent，只包含角色解释器(RoleInterpreter)和记忆，像一个基础的LLM聊天机器人
 
