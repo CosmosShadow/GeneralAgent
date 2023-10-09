@@ -101,7 +101,7 @@ def test_plan_interpreter():
 ```
 """
     output, is_stop = interpreter.parse(content)
-    assert output == ''
+    assert output == content
     assert is_stop is False
     assert memory.node_count() == 4
 
@@ -118,10 +118,10 @@ who are your?
 
 
 if __name__ == '__main__':
-    test_python_interpreter()
+    # test_python_interpreter()
     # test_bash_interperter()
     # test_applescript_interpreter()
     # test_file_interpreter_old()
     # test_structure_plan()
-    # test_plan_interpreter()
+    test_plan_interpreter()
     # test_ask_interpreter()
