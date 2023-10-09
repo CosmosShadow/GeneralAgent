@@ -1,3 +1,5 @@
+import load_env
+
 import os, sys
 import asyncio
 from GeneralAgent.agent import Agent

@@ -58,7 +58,10 @@ class Agent:
         return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters)
     
     @classmethod
-    def act_as_llm(cls, workspace):
+    def empty(cls, workspace):
+        """
+        empty agent, only role interpreter and memory, work like a basic LLM chatbot
+        """
         if not os.path.exists(workspace):
             os.makedirs(workspace)
         memory = Memory(serialize_path=f'{workspace}/memory.json')

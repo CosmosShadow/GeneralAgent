@@ -19,3 +19,5 @@ dist/*
 GeneralAgent.egg-info*
 test/multi_lines_input/*
 test/multi_lines_input/*
+.env
+examples/memory.json

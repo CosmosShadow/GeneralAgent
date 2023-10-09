@@ -2,7 +2,8 @@ import asyncio
 from GeneralAgent.agent import Agent
 
 async def main():
-    agent = Agent.default('./basic')
+    workspace = './'
+    agent = Agent.default(workspace)
     while True:
         input_conent = input('>>>')
         await agent.run(input_conent)

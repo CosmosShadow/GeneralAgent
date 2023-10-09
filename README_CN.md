@@ -91,16 +91,18 @@ GeneralAgent --workspace ./test --new
 
 ### Python
 
-#### 基础LLM功能
+#### 基础Agent
 
-[examples/act_as_llm.py](examples/act_as_llm.py)
+[examples/empty.py](examples/empty.py)
+
+基础Agent，只包含角色解释器(RoleInterpreter)和记忆，像一个基础的LLM聊天机器人
 
 ```python
 import asyncio
 from GeneralAgent.agent import Agent
 
 async def main():
-    agent = Agent.act_as_llm()
+    agent = Agent.empty()
     while True:
         input_conent = input('>>>')
         await agent.run(input_conent)
@@ -203,6 +205,92 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
+```
+
+#### 定制系统提示词
+
+默认系统提示词定义在 RoleInterpreter [GeneralAgent/interperters/role_interperter.py](GeneralAgent/interperters/role_interperter.py)
+
+```python
+"""
+Now: {{now}}
+You are GeneralAgent, a agent on the {{os_version}} computer to help the user solve the problem.
+Remember, you can control the computer and access the internet.
+Solve the task step by step if you need to. If a plan is not provided, explain your plan first simply and clearly.
+You can use the following skills to help you solve the problem directly without explain and ask for permission: 
+"""
+```
+
+你可以设置自己的系统提示词:
+
+```python
+RoleInterpreter(system_prompt='xxxx')
+```
+
+或者通过继承RoleInterpreter来定制自己的系统提示词:
+
+
+
+#### 给Agent添加工具
+
+[examples/add_tools.py](examples/add_tools.py)
+
+以下进行举例:
+定义一个工具，获取城市的天气 [examples/tool_get_weather.py](examples/tool_get_weather.py)
+
+```python
+def get_weather(city:str):
+    """
+    get weather from city
+    """
+    return 'weather is good, sunny.'
+```
+
+然后，将工具添加到PythonInterperter中，Agent会自动使用PythonInterperter中的工具。
+注意，PythonInterperter和当前程序不在同一个命名空间，所以需要在PythonInterperter中import对应的函数，即定义import_code。
+
+```python
+import asyncio
+from GeneralAgent.tools import Tools
+from GeneralAgent.agent import Agent
+from GeneralAgent.interpreter import PythonInterpreter
+from tool_get_weather import get_weather
+
+import_code = """
+import os, sys, math
+from tool_get_weather import get_weather
+"""
+
+async def main():
+    workspace = './'
+    tools = Tools([get_weather])
+    python_interpreter = PythonInterpreter(tools=tools, import_code=import_code)
+    agent = Agent(workspace, input_interpreters=[], output_interpreters=[python_interpreter])
+    while True:
+        input_conent = input('>>>')
+        await agent.run(input_conent)
+
+if __name__ == '__main__':
+    asyncio.run(main())
+```
+
+```
+[lichen@examples]$ python add_tools.py
+>>>what's the weather of chengdu?
+
+To get the weather of Chengdu, we can use the `get_weather` function provided in the prompt. Here's the code to get the weather of Chengdu:
+
+\`\`\`python
+weather = get_weather('Chengdu')
+print(weather)
+\`\`\`
+
+
+weather is good, sunny.
+
+Glad to hear that the weather in Chengdu is good and sunny! Is there anything else I can help you with?
+>>>Is there anything else I can help you with?
+>>>
 ```
 
 

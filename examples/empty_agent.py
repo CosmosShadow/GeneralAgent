@@ -1,8 +1,10 @@
+import load_env
+
 import asyncio
 from GeneralAgent.agent import Agent
 
 async def main():
-    agent = Agent.act_as_llm()
+    agent = Agent.empty()
     while True:
         input_conent = input('>>>')
         await agent.run(input_conent)

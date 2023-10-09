@@ -91,16 +91,18 @@ GeneralAgent --workspace ./test --new
 
 ### Python
 
-#### Basic LLM functions
+#### Empty Agent
 
-[examples/act_as_llm.py](examples/act_as_llm.py)
+[examples/empty.py](examples/empty.py)
+
+empty agent, only role interpreter and memory, work like a basic LLM chatbot.
 
 ```python
 import asyncio
 from GeneralAgent.agent import Agent
 
 async def main():
-    agent = Agent.act_as_llm()
+    agent = Agent.empty()
     while True:
         input_conent = input('>>>')
         await agent.run(input_conent)
@@ -114,6 +116,8 @@ if __name__ == '__main__':
 #### Default Agent
 
 [examples/default_agent.py](examples/default_agent.py)
+
+empty agent, only role interpreter and memory, work like a basic LLM chatbot.
 
 ```python
 import asyncio
@@ -131,7 +135,7 @@ if __name__ == '__main__':
 
 
 
-#### Custom Interpreter
+#### Customize Interpreter
 [examples/custom.py](examples/custom.py)
 
 ```python
@@ -180,7 +184,7 @@ if __name__ == '__main__':
 
 
 
-#### Custom output
+#### Customize output
 [examples/custom_output.py](examples/custom_output.py)
 
 ```python
@@ -205,7 +209,96 @@ if __name__ == '__main__':
 
 
 
-#### Serialization
+#### Customize system prompt
+
+The default system prompt defined by RoleInterpreter at [GeneralAgent/interperters/role_interperter.py](GeneralAgent/interperters/role_interperter.py)
+
+```python
+"""
+Now: {{now}}
+You are GeneralAgent, a agent on the {{os_version}} computer to help the user solve the problem.
+Remember, you can control the computer and access the internet.
+Solve the task step by step if you need to. If a plan is not provided, explain your plan first simply and clearly.
+You can use the following skills to help you solve the problem directly without explain and ask for permission: 
+"""
+```
+
+You can custom the system prompt like this
+
+```python
+RoleInterpreter(system_prompt='xxxx')
+```
+
+or inherit RoleInterpreter to custom your own system prompt
+
+
+
+#### Add tools to agent
+
+[examples/add_tools.py](examples/add_tools.py)
+
+This is a example.
+Define a tool to get the weather of a city in [examples/tool_get_weather.py](examples/tool_get_weather.py)
+
+```python
+def get_weather(city:str):
+    """
+    get weather from city
+    """
+    return 'weather is good, sunny.'
+```
+
+Then, add the tool to the PythonInterperter, The Agent will use the tool in python interpreter automatically.
+
+Attetion, the PythonInterperter and the current program are not in the same namespace, so you need to import the tool in the PythonInterperter by customize a import_code.
+
+```python
+import asyncio
+from GeneralAgent.tools import Tools
+from GeneralAgent.agent import Agent
+from GeneralAgent.interpreter import PythonInterpreter
+from tool_get_weather import get_weather
+
+import_code = """
+import os, sys, math
+from tool_get_weather import get_weather
+"""
+
+async def main():
+    workspace = './'
+    tools = Tools([get_weather])
+    python_interpreter = PythonInterpreter(tools=tools, import_code=import_code)
+    agent = Agent(workspace, input_interpreters=[], output_interpreters=[python_interpreter])
+    while True:
+        input_conent = input('>>>')
+        await agent.run(input_conent)
+
+if __name__ == '__main__':
+    asyncio.run(main())
+```
+
+```
+[lichen@examples]$ python add_tools.py
+>>>what's the weather of chengdu?
+
+To get the weather of Chengdu, we can use the `get_weather` function provided in the prompt. Here's the code to get the weather of Chengdu:
+
+\`\`\`python
+weather = get_weather('Chengdu')
+print(weather)
+\`\`\`
+
+
+weather is good, sunny.
+
+Glad to hear that the weather in Chengdu is good and sunny! Is there anything else I can help you with?
+>>>Is there anything else I can help you with?
+>>>
+```
+
+
+
+#### Agent Serialization
 
 All the status of the agent is saved in the workspace directory in real time and only needs to be reloaded.
 

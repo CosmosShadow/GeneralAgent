@@ -15,8 +15,9 @@ You can use the following skills to help you solve the problem directly without 
 
 # system prompt role
 class RoleInterpreter(Interpreter):
-    def __init__(self) -> None:
+    def __init__(self, system_prompt=None) -> None:
         self.os_version = self.get_os_version()
+        self.system_prompt = system_prompt
 
     @classmethod
     def get_os_version(cls):
@@ -39,6 +40,8 @@ class RoleInterpreter(Interpreter):
             return "Unknown system"
 
     def prompt(self, messages) -> str:
+        if self.system_prompt is not None:
+            return self.system_prompt
         if os.environ.get('LLM_CACHE', 'no') in ['yes', 'y', 'YES']:
             now = '2023-09-27 00:00:00'
         else:    
