@@ -13,9 +13,9 @@ async def main():
     agent = Agent.default(workspace=workspace)
     print('Enter twice to input end | 两次回车结束输入')
     while True:
-        input_conent = default_get_input()
+        input_content = default_get_input()
         print('[output]\n', end='', flush=True)
-        await agent.run(input_conent)
+        await agent.run(input_content)
 
 if __name__ == '__main__':
     asyncio.run(main())

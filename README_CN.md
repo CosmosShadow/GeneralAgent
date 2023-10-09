@@ -79,8 +79,8 @@ from GeneralAgent.agent import Agent
 async def main():
     agent = Agent.empty()
     while True:
-        input_conent = input('>>>')
-        await agent.run(input_conent)
+        input_content = input('>>>')
+        await agent.run(input_content)
 
 if __name__ == '__main__':
     asyncio.run(main())
@@ -99,8 +99,8 @@ from GeneralAgent.agent import Agent
 async def main():
     agent = Agent.default()
     while True:
-        input_conent = input()
-        await agent.run(input_conent)
+        input_content = input()
+        await agent.run(input_content)
 
 if __name__ == '__main__':
     asyncio.run(main())
@@ -149,8 +149,8 @@ class BasicPythonInterpreter(Interpreter):
 async def main():
     agent = Agent(output_interpreters=[BasicPythonInterpreter()])
     while True:
-        input_conent = input('>>>')
-        await agent.run(input_conent)
+        input_content = input('>>>')
+        await agent.run(input_content)
 
 if __name__ == '__main__':
     asyncio.run(main())
@@ -175,8 +175,8 @@ async def custom_output(token):
 async def main():
     agent = Agent.default('./basic')
     while True:
-        input_conent = input('>>>')
-        await agent.run(input_conent, output_recall=custom_output)
+        input_content = input('>>>')
+        await agent.run(input_content, output_recall=custom_output)
 
 if __name__ == '__main__':
     asyncio.run(main())
@@ -242,8 +242,8 @@ async def main():
     python_interpreter = PythonInterpreter(tools=tools, import_code=import_code)
     agent = Agent(workspace, input_interpreters=[], output_interpreters=[python_interpreter])
     while True:
-        input_conent = input('>>>')
-        await agent.run(input_conent)
+        input_content = input('>>>')
+        await agent.run(input_content)
 
 if __name__ == '__main__':
     asyncio.run(main())

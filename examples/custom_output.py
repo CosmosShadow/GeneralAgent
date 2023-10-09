@@ -12,8 +12,8 @@ async def custom_output(token):
 async def main():
     agent = Agent.default('./basic')
     while True:
-        input_conent = input('>>>')
-        await agent.run(input_conent, output_recall=custom_output)
+        input_content = input('>>>')
+        await agent.run(input_content, output_recall=custom_output)
 
 if __name__ == '__main__':
     asyncio.run(main())

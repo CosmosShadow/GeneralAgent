@@ -17,8 +17,8 @@ async def main():
     python_interpreter = PythonInterpreter(tools=tools, import_code=import_code)
     agent = Agent(workspace, input_interpreters=[], output_interpreters=[python_interpreter])
     while True:
-        input_conent = input('>>>')
-        await agent.run(input_conent)
+        input_content = input('>>>')
+        await agent.run(input_content)
 
 if __name__ == '__main__':
     asyncio.run(main())

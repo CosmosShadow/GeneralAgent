@@ -36,8 +36,8 @@ class BasicPythonInterpreter(Interpreter):
 async def main():
     agent = Agent(output_interpreters=[BasicPythonInterpreter()])
     while True:
-        input_conent = input('>>>')
-        await agent.run(input_conent)
+        input_content = input('>>>')
+        await agent.run(input_content)
 
 if __name__ == '__main__':
     asyncio.run(main())

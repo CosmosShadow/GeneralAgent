@@ -23,9 +23,9 @@ async def _main(args):
     agent = Agent.default(workspace=workspace)
     print('You can input multi lines, enter twice to end')
     while True:
-        input_conent = default_get_input()
+        input_content = default_get_input()
         print('[output]\n', end='', flush=True)
-        await agent.run(input_conent)
+        await agent.run(input_content)
 
 def main():
     parser = argparse.ArgumentParser(description='GeneralAgent CLI')
