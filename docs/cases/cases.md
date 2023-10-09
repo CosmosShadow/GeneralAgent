@@ -5,9 +5,9 @@ calculate 0.99 ** 1000
 
 ## file
 [input 1]
-Write the description of Chengdu to the file ./data/a.txt in one step
+Write the description of Chengdu to the file a.txt in one step
 [input 2]
-what is in ./data/a.txt
+what is in a.txt
 
 ## plan
 [input 1]
@@ -29,12 +29,12 @@ set dark mode
 trun back
 
 ## write a ppt
-help me write a ppt ./data/hello.pptx: 1 page with 'hello world'
+help me write a ppt hello.pptx: 1 page with 'hello world'
 
 ## read for retrieve
 [input 1]
 ```read
-./data/Nougat_piece.pdf
+Nougat_piece.pdf
 ```
 [input 2]
 what is the advantage of the model Nougat?

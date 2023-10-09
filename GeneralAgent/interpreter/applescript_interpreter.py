@@ -4,8 +4,11 @@ from GeneralAgent.utils import confirm_to_run
 
 applescript_promt = """
 # Run applescript
-* format is : ```applescript\\nthe_command\\n```
-* the command will be executed to control the computer if it is a macOS computer
+* Here are the commands
+```applescript
+<applescript_command>
+```
+* the command will be executed if in macOS computer.
 """
 
 class AppleScriptInterpreter(Interpreter):
@@ -14,14 +17,14 @@ class AppleScriptInterpreter(Interpreter):
     
     @property
     def match_template(self):
-        return '```applescript\n(.*?)\n```'
+        return '```(\n)?applescript(.*?)\n```'
     
     def parse(self, string):
         pattern = re.compile(self.match_template, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
         if confirm_to_run():
-            sys_out = self._run_applescript(match.group(1))
+            sys_out = self._run_applescript(match.group(2))
             return sys_out.strip(), False
         else:
             return '', False

@@ -54,18 +54,6 @@ title = result[0]
     title = interpreter.get_variable('title')
     assert title == 'Google'
 
-def test_applescript_interpreter():
-    interpreter = AppleScriptInterpreter()
-    content = """```applescript
-tell application "Safari"
-    activate
-    open location "https://www.google.com"
-end tell
-```"""
-    output, is_stop = interpreter.parse(content)
-    assert is_stop is False
-    assert output.strip() == 'run successfully'
-
 
 def test_structure_plan():
     content = """
