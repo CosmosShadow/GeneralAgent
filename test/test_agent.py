@@ -66,12 +66,16 @@ async def test_read_file():
 @pytest.mark.asyncio
 async def test_tool_use():
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin', tools=Tools([scrape_web]))
+    os.mkdir(workspace)
+    serialize_path = f'{workspace}/code.bin'
+    python_interpreter = PythonInterpreter(serialize_path=serialize_path, tools=Tools([scrape_web]))
     agent = Agent(workspace=workspace, output_interpreters=[RoleInterpreter(), python_interpreter])
     memory_node_id = await agent.run("what's the tiltle of web page https://tongtianta.ai ?", output_recall=get_output_recall())
     global result
     assert 'AI' in result
     assert memory_node_id == None
+    assert os.path.exists(serialize_path)
+    shutil.rmtree(workspace)
 
 
 @pytest.mark.asyncio
@@ -81,6 +85,6 @@ async def test_bash_interperter():
 
 if __name__ == '__main__':
     # asyncio.run(test_math())
-    asyncio.run(test_write_file())
+    # asyncio.run(test_write_file())
     # asyncio.run(test_read_file())
-    # asyncio.run(test_tool_use())
+    asyncio.run(test_tool_use())
