@@ -22,7 +22,10 @@
 
 ## Demo
 
-coming soon
+
+
+https://github.com/CosmosShadow/GeneralAgent/assets/13933465/9d9b4d6b-0c9c-404d-87d8-7f8e03f3772b
+
 
 
 ## 安装
@@ -319,3 +322,5 @@ export AUTO_RUN='y' # y or n
 <p align="center">
 <img src="./docs/images/wechat.jpg" alt="wechat" width=400/>
 </p>
+
+discord is comming soon.

@@ -316,3 +316,13 @@ export SERPER_API_KEY='xxx'
 export AUTO_RUN='y' # y or n
 
 ```
+
+## Join us
+
+wechat 
+
+<p align="center">
+<img src="./docs/images/wechat.jpg" alt="wechat" width=400/>
+</p>
+
+discord is comming soon.
