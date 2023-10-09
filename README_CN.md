@@ -10,7 +10,7 @@
 
 ![架构](./docs/images/Architecture.png)
 
-* 原则: 
+* 从 LLM 到 Agent
     * 让单一LLM知道所有事情
     * 所思即所得，即时行动
     * 接收外部反馈，自助决策

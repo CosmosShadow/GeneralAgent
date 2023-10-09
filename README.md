@@ -10,7 +10,7 @@ A simple, general, customizable Agent framework
 
 ![Architecture](./docs/images/Architecture.png)
 
-* Philosophy: 
+* From LLM to Agent
     * Let a single LLM knows everything what's happening.
     * thoughts become actions in nature and immediately.
     * receive the information from the outside world, and then decide what to do immediately.
