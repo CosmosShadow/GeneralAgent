@@ -10,10 +10,15 @@
 
 ![架构](./docs/images/Architecture.png)
 
-* LLM作为大脑，Interpreters作为手脚、眼睛等传感器，构成一个通用的agent
-* 让单一LLM了解全局、心想事成、GPT-3.5也能稳定运行
-* 支持序列化，包括记忆、解释器状态(比如python)、计划、召回内容等
-* 通过定制输入、输出、召回三种解析器，定制agent
+* 原则: 
+    * 让单一LLM知道所有事情
+    * 所思即所得，即时行动
+    * 接收外部反馈，自助决策
+* GPT-3.5也可以稳定运行
+* 支持通过解释器、角色系统提示词和工具来定制化Agent
+* 支持序列化
+* 内置解释器: Python, AppleScript, Shell, File, Plan, Retrieve等
+* 内置工具: google search, wikipedia_search, scrabe web
 
 ## Demo
 

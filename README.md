@@ -10,10 +10,16 @@ A simple, general, customizable Agent framework
 
 ![Architecture](./docs/images/Architecture.png)
 
-* LLM serves as the brain, and Interpreters serve as sensors such as hands, feet, and eyes, forming a general agent.
-* Let a single LLM understand the overall situation, thoughts become actions in nature, and GPT-3.5 can also run stably
-* Support serialization, including memory, interpreter state (such as python), plan, recall content, etc.
-* Customize the agent by customizing three parsers: input, output, and recall
+* Philosophy: 
+    * Let a single LLM knows everything what's happening.
+    * thoughts become actions in nature and immediately.
+    * receive the information from the outside world, and then decide what to do immediately.
+* GPT-3.5 run stably.
+* Support customization by customizing interpreters, role system prompt and tools.
+* Support serialization.
+* Build-in interpreters: Python, AppleScript, Shell, File, Plan, Retrieve etc.
+* Build-in tools: google search, wikipedia_search, scrabe web.
+
 
 ## Demo
 
@@ -312,17 +318,3 @@ agent = Agent.default(workspace('./test'))
 await agent.run('What is my Name?')
 # expect to output Chen Li
 ```
-
-
-
-### Built-in interpreter
-
-* File Interperter: Read, write, delete by line, can support code writing, etc.
-* Plan Interpreter: Complete multi-step complex tasks, such as completing a business plan, through stack memory and planning
-* Retrieve Interpreter: Retrieve the document after embedding it
-* Python Interpreter
-  * Can complete mathematical calculations, access the network, file operations (PDF to pictures, write PPT, batch conversion of picture formats...), etc.
-  * Python code snippets share the same namespace, that is, they can access each other's variables, functions, and all other serializable content.
-  * Tool usage: Able to call various tool APIs, model APIs, etc.
-* AppleScript Interpreter: Operate the Mac operating system to achieve tasks such as switching to Dark mode, opening websites, and sending emails.
-* Shell Interpreter: Operate the computer to install docker, node.js, python libraries, set up scheduled tasks and other tasks
