@@ -1,9 +1,25 @@
 from base_setting import *
-from GeneralAgent.interpreter import ShellInterpreter, AppleScriptInterpreter, PythonInterpreter
-from GeneralAgent.interpreter import FileInterpreter, PlanInterpreter, AskInterpreter
-from GeneralAgent.memory import Memory, MemoryNode
+from GeneralAgent.interpreter import FileInterpreter
 
-def test_file_interpreter():
+
+def test_parse_command():
+    contents = [
+        """```\nfile a.txt write 0 -1 <<EOF\nhello world\nEOF```""",
+        """```\nfile a.txt write 0 -1 <<EOF\nhello world\n```""",
+        """```file a.txt write 0 -1 <<EOF\nhello world\nEOF```""",
+        """```file a.txt write 0 -1 <<EOF\nhello world\n```""",
+    ]
+    interperter = FileInterpreter()
+    for content in contents:
+        file_path, operation, start_line, end_line, content = interperter._parse_commands(content)
+        assert file_path == 'a.txt'
+        assert operation == 'write'
+        assert start_line == 0
+        assert end_line == -1
+        assert content == 'hello world'
+
+
+def test_write_read():
     interpreter = FileInterpreter()
     target_path = './data/a.txt'
     if os.path.exists(target_path):
@@ -40,4 +56,5 @@ file %s read 0 -1
 
 
 if __name__ == '__main__':
-    test_file_interpreter()
+    test_parse_command()
+    # test_write_read()

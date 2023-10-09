@@ -34,22 +34,25 @@ class FileInterpreter(Interpreter):
 
     @property
     def match_template(self):
-        return '```\nfile (.*?) (write|read|delete) (-?\d+) (-?\d+)(.*?)```'
-
-    def parse(self, string):
-        logging.debug('FileInterpreter:parse called')
+        return '```(\n)?file(\n| )?(.*?) (write|read|delete) (-?\d+) (-?\d+)(.*?)```'
+    
+    def _parse_commands(self, string):
         match = re.search(self.match_template, string, re.DOTALL)
         assert match is not None
-        file_path = match.group(1)
-        operation = match.group(2)
-        start_line = int(match.group(3))
-        end_line = int(match.group(4))
-        content = match.group(5).strip()
+        file_path = match.group(3)
+        operation = match.group(4)
+        start_line = int(match.group(5))
+        end_line = int(match.group(6))
+        content = match.group(7).strip()
         if content.startswith('<<EOF'):
             content = content[5:].strip()
         if content.endswith('EOF'):
             content = content[:-3].strip()
-        # file_path, operation, start_line, end_line, content
+        return file_path, operation, start_line, end_line, content
+
+    def parse(self, string):
+        logging.debug('FileInterpreter:parse called')
+        file_path, operation, start_line, end_line, content = self._parse_commands(string)
         is_stop = False
         if operation == 'write':
             self._write_file(file_path, content, start_line, end_line)
