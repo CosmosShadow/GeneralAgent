@@ -91,6 +91,7 @@ def read_docx(file_path):
         documents.append(para.text)
     return '\n'.join(documents)
 
+
 class RetrieveInterpreter(Interpreter):
     def __init__(self, serialize_path='./read_data/', prompt_max_length=1000, useful_msg_count=2) -> None:
         self.prompt_max_length = prompt_max_length

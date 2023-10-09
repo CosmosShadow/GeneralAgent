@@ -51,7 +51,7 @@ class Agent:
         python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
         bash_interpreter = ShellInterpreter(workspace)
         applescript_interpreter = AppleScriptInterpreter()
-        file_interpreter = FileInterpreter(workspace)
+        file_interpreter = FileInterpreter()
         ask_interpreter = AskInterpreter()
         output_interpreters = [role_interpreter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter, ask_interpreter]
         # 
@@ -173,7 +173,7 @@ class Agent:
                         break
                 if is_break:
                     break
-            await output_recall(None)
+            await output_recall('\n')
             # update current node and answer node
             answer_node.content = result
             self.memory.update_node(answer_node)

@@ -1,4 +1,5 @@
 import re, os
+import logging
 from .interpreter import Interpreter
 
 file_prompt = """
@@ -6,7 +7,9 @@ file_prompt = """
 
 1. Write: 
 ```
-file <file_path> write <start_line> <end_line> <content>
+file <file_path> write <start_line> <end_line> <<EOF
+<content>
+EOF
 ```
 2. Read: 
 ```
@@ -17,14 +20,14 @@ file <file_path> read <start_line> <end_line>
 file <file_path> delete <start_line> <end_line>
 ```
 
-Line numbers start from 0, and -1 is the last line. For multi-line `<content>`, start with `<<EOF` and end with `EOF`.
+Line numbers start from 0, and -1 is the last line.
 Read will print the content of the file with [line numbers] prefixed.
 """
 
 
 class FileInterpreter(Interpreter):
-    def __init__(self, workspace) -> None:
-        self.workspace = workspace
+    def __init__(self) -> None:
+        pass
 
     def prompt(self, messages) -> str:
         return file_prompt
@@ -34,6 +37,7 @@ class FileInterpreter(Interpreter):
         return '```\nfile (.*?) (write|read|delete) (-?\d+) (-?\d+)(.*?)```'
 
     def parse(self, string):
+        logging.debug('FileInterpreter:parse called')
         match = re.search(self.match_template, string, re.DOTALL)
         assert match is not None
         file_path = match.group(1)
@@ -62,7 +66,7 @@ class FileInterpreter(Interpreter):
         if file_path.endswith('.py'):
             content = content.replace('```python', '')
             content = content.replace('```', '')
-        file_path = os.path.join(self.workspace, file_path)
+        # file_path = os.path.join(self.workspace, file_path)
         if not os.path.exists(file_path):
             with open(file_path, 'w') as f:
                 f.write('')
@@ -77,7 +81,7 @@ class FileInterpreter(Interpreter):
             f.writelines(lines)
 
     def _delete_file(self, file_path, start_index, end_index):
-        file_path = os.path.join(self.workspace, file_path)
+        # file_path = os.path.join(self.workspace, file_path)
         if not os.path.exists(file_path):
             with open(file_path, 'w') as f:
                 f.write('')
@@ -92,7 +96,7 @@ class FileInterpreter(Interpreter):
             f.writelines(lines)
 
     def _read_file(self, file_path, start_index, end_index):
-        file_path = os.path.join(self.workspace, file_path)
+        # file_path = os.path.join(self.workspace, file_path)
         if not os.path.exists(file_path):
             with open(file_path, 'w') as f:
                 f.write('')

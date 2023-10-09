@@ -67,7 +67,7 @@ end tell
     assert output.strip() == 'run successfully'
 
 def test_file_interpreter_new():
-    interpreter = FileInterpreter('./')
+    interpreter = FileInterpreter()
     content = """
 To write the description of Chengdu to the file ./data/a.txt in one step, you can use the following command:
 
