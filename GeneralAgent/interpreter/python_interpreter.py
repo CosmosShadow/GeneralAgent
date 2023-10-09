@@ -30,10 +30,10 @@ default_libs = ["requests", "tinydb", "openai", "jinja2", "numpy", "bs4", "playw
 from GeneralAgent.tools import Tools
 
 class PythonInterpreter(Interpreter):
-    def __init__(self, serialize_path:str, tools:Tools=None, libs:[str]=default_libs, import_code:str=default_import_code):
+    def __init__(self, serialize_path:str=None, tools:Tools=None, libs:[str]=default_libs, import_code:str=default_import_code):
         """
         Args:
-            serialize_path (str): path to save the global variables
+            serialize_path (str): path to save the global variables, default None, which means not save
             tools (Tools, optional): tools to use. Defaults to None.
             libs ([str], optional): libraries to import. Defaults to default_libs.
             import_code (str, optional): code to import. The tools used should be imported. Defaults to default_import_code.
@@ -46,6 +46,8 @@ class PythonInterpreter(Interpreter):
         self.load()
 
     def load(self):
+        if self.serialize_path is None:
+            return
         if os.path.exists(self.serialize_path):
             with open(self.serialize_path, 'rb') as f:
                 data = pickle.loads(f.read())
@@ -65,6 +67,8 @@ class PythonInterpreter(Interpreter):
         return '```python\n(.*?)\n```'
 
     def save(self):
+        if self.serialize_path is None:
+            return
         # remove all unpickleable objects
         if '__builtins__' in self.globals:
             self.globals.__delitem__('__builtins__')
