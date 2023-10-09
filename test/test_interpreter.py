@@ -1,6 +1,5 @@
 from base_setting import *
-from GeneralAgent.interpreter import ShellInterpreter, AppleScriptInterpreter, PythonInterpreter
-from GeneralAgent.interpreter import FileInterpreter, PlanInterpreter, AskInterpreter
+from GeneralAgent.interpreter import ShellInterpreter, AppleScriptInterpreter, PythonInterpreter, PlanInterpreter, AskInterpreter
 from GeneralAgent.memory import Memory, MemoryNode
 
 def test_bash_interperter():
@@ -19,6 +18,7 @@ a
 try:
 """
     code = PythonInterpreter.add_print(code)
+    print(code)
     assert code == """
 a = 1
 print(a)
@@ -118,10 +118,10 @@ who are your?
 
 
 if __name__ == '__main__':
-    # test_python_interpreter()
+    test_python_interpreter()
     # test_bash_interperter()
     # test_applescript_interpreter()
     # test_file_interpreter_old()
-    test_structure_plan()
+    # test_structure_plan()
     # test_plan_interpreter()
     # test_ask_interpreter()
