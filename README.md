@@ -39,7 +39,7 @@ python setup.py install
 
 ## Configuration
 
-Configure necessary environment variables ([test/.env.example](test/.env.example))
+Configure necessary environment variables defined in ([.env.example](.env.example))
 
 ```shell
 # Configure OpenAI API Key

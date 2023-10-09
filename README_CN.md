@@ -38,7 +38,7 @@ python setup.py install
 
 ## 配置
 
-配置必须的环境变量 ([test/.env.example](test/.env.example))
+配置必须的环境变量 (参考: [.env.example](.env.example))
 
 ```shell
 # 配置OpenAI的API Key
