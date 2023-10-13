@@ -47,8 +47,9 @@ def set_logging_level(log_level):
         level = logging.ERROR
     else:
         level = logging.ERROR
+    # logging设置显示文件(绝对路径)
     logging.basicConfig(
         level=level,
-        format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(funcName)s %(message)s',
+        format='%(asctime)s %(pathname)s [line:%(lineno)d] %(levelname)s %(funcName)s %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
