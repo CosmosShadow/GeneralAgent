@@ -105,8 +105,7 @@ class Agent:
             input_stop = False
             self.memory.set_current_node(input_node)
             for interpreter in self.input_interpreters:
-                match = re.compile(interpreter.match_template, re.DOTALL).search(input_content)
-                if match is not None:
+                if interpreter.match(input_content):
                     logging.info('interpreter: ' + interpreter.__class__.__name__)
                     input_content, case_is_stop = interpreter.parse(input_content)
                     if case_is_stop:
