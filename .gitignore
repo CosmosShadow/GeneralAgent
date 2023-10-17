@@ -21,3 +21,5 @@ test/multi_lines_input/*
 test/multi_lines_input/*
 .env
 examples/memory.json
+test/link_memory.json
+test/memory.json

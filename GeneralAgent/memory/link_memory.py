@@ -9,7 +9,8 @@ import logging
 
 prompt_template = \
 """
-你是一个文本整理员，将文本中独立的概念抽成块，隐藏不重要的块，显示重要的块。
+你是一个文本整理员。
+复述文本，并将文本中独立的概念抽成块，隐藏不重要的块，显示重要的块。
 
 #01 create or update block
 ```<<key>>
@@ -42,8 +43,8 @@ hide the blocks with the keys
 <<key2>>
 ```
 
-已有的块:
-{{memory_nodes}}}
+已有块列表
+[{{memory_nodes}}}]
 
 文本内容:
 
@@ -74,7 +75,7 @@ class LinkMemoryNode:
     
 
 class LinkMemory():
-    def __init__(self, serialize_path='./memory.json') -> None:
+    def __init__(self, serialize_path='./link_memory.json') -> None:
         self.serialize_path = serialize_path
         self.db = TinyDB(serialize_path)
         nodes = [LinkMemoryNode(**node) for node in self.db.all()]
@@ -117,19 +118,19 @@ class LinkMemory():
                     parsed, result = self.instant_parse(result)
                     if parsed:
                         _, result = self.post_parse(result)
-                        if output_recall is not None:
-                            await output_recall(None)
-                            await output_recall(result)
-                            await output_recall(None)
+                        # if output_recall is not None:
+                        #     await output_recall(None)
+                        #     await output_recall(result)
+                        #     await output_recall(None)
                         break
             if not parsed:
                 _, result = self.post_parse(result)
                 self.short_memory = result
                 self.save_short_memory()
-                if output_recall is not None:
-                    await output_recall(None)
-                    await output_recall(result)
-                    await output_recall(None)
+                # if output_recall is not None:
+                #     await output_recall(None)
+                #     await output_recall(result)
+                #     await output_recall(None)
                 break
         return self.short_memory
     
@@ -157,9 +158,10 @@ class LinkMemory():
                 self.concepts[key].content = value
             else:
                 self.concepts[key] = LinkMemoryNode(key=key, content=value)
-            
-            self.db.update(self.concepts[key].__dict__, Query().key == key)
-            content = content.replace(block_match.group(0), '')
+
+            # save or update
+            self.db.upsert(self.concepts[key].__dict__, Query().key == key)
+            # content = content.replace(block_match.group(0), '')
         
         return True, content
 
