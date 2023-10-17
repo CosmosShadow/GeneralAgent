@@ -7,51 +7,46 @@ import re
 import logging
 
 
-prompt_template = \
-"""
-你是一个文本整理员。
-复述文本，将文本中一些独立的内容抽成块、隐藏不重要的块、显示重要的块，使得文本更加简洁。
-要求复述处理后的文本长度小于1000个词。
+prompt_template = """
+你是一个专业的文本整理者。
+你的工作是将文本进行结构化，将一些独立且完整的文本整理成块，并用<<key>>的形式进行引用。
+要求: 整理后的内容应该是完整的，不应该有任何遗漏。
 
-#01 create or update block
-```<<key>>
-<content>
-```
-
-where `key` is a unique identifier for the block, and `content` is the content of the block.
-
-DEMO
+比如:
 我家住成都市天府新区万安街道海悦汇城西区8栋1702
-=> 
+=>
 我住在<<Home Adress>>
 ```<<Home Adress>>
 成都市天府新区万安街道海悦汇城西区8栋1702
 ```
 
-#02 hide blocks
+整理过程中，你可能使用下面三种命令:
 
-```hide
-<<key1>>
-<<key2>>
+1. 创建或者更新块
+```<<key>>
+<content>
 ```
 
-hide the blocks with the keys
-
-#03 show blocks
-
+2. 显示重要的且不知道细节的块
 ```show
 <<key1>>
 <<key2>>
 ```
 
-已有块列表
-[{{memory_nodes}}}]
+3. 隐藏不重要的块
+```hide
+<<key1>>
+<<key2>>
+```
 
-文本内容:
 
+已有块的keys：
+[{{memory_nodes}}]
+
+文本内容：
 {{short_memory}}
 
-整理的文本:
+整理命令和结果:
 """
 
 @dataclass
@@ -180,7 +175,7 @@ class LinkMemory():
             lines = values.strip().split('\n')
             
             for key in lines:
-                line = line.strip()
+                key = key.strip()
                 if key.startswith('<<') and key.endswith('>>'):
                     key = key[2:-2]
                 if key in self.concepts:
