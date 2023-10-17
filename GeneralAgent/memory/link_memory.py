@@ -9,36 +9,16 @@ import logging
 
 prompt_template = \
 """
-作为一个记忆体，你不直接回复，你的工作是整理当前的记忆内容，并输出。
-You can use the following three memory rules:
+你是一个文本整理员，将文本中独立的概念抽成块，隐藏不重要的块，显示重要的块。
 
-#01 Fold memory and update memory: Use this rule to fold frequently used information into a keyword, making the conversation record more concise and efficient.
-
+#01 create or update block
 ```<<key>>
 <content>
 ```
 
-If you want to update the content of the keyword, recall the keyword and then update the content will be useful.
+where `key` is a unique identifier for the block, and `content` is the content of the block.
 
-#02 Ignore memory: Use this rule to ignore information that is irrelevant to the current task, so as to be more focused.
-
-```ignore
-<<key1>>
-<<key2>>
-...
-```
-
-#03 Recall memory: Use this rule to recall all informations that are related to the current task or memory to update, so as to better complete the task.
-
-```recall
-<<key1>>
-<<key2>>
-...
-```
-
-Use these rules to organize memories and complete tasks more efficiently.
-
-For example, you can use the following rules to organize your home address:
+DEMO
 我家住成都市天府新区万安街道海悦汇城西区8栋1702
 => 
 我住在<<Home Adress>>
@@ -46,11 +26,30 @@ For example, you can use the following rules to organize your home address:
 成都市天府新区万安街道海悦汇城西区8栋1702
 ```
 
-当前的记忆节点列表:
-{{memory_nodes}}
+#02 hide blocks
 
-当前记忆内容:
-{{short_memory}}}
+```hide
+<<key1>>
+<<key2>>
+```
+
+hide the blocks with the keys
+
+#03 show blocks
+
+```show
+<<key1>>
+<<key2>>
+```
+
+已有的块:
+{{memory_nodes}}}
+
+文本内容:
+
+{{short_memory}}
+
+整理的文本:
 """
 
 @dataclass
@@ -69,6 +68,9 @@ class LinkMemoryNode:
     
     def __repr__(self):
         return str(self)
+    
+    def show(self):
+        return f"```<<{self.key}>>\n{self.content}\n```"
     
 
 class LinkMemory():
@@ -89,8 +91,11 @@ class LinkMemory():
 
     async def add_content(self, content, role, output_recall=None):
         assert role in ['user', 'system']
-        self.short_memory += f"\n[{role}]:\n{content}"
+        # self.short_memory += f"\n[{role}]:\n{content}"
+        self.short_memory += f"\n{content}"
         self.save_short_memory()
+
+        result = ''
 
         while True:
             memory_nodes = ', '.join(['<<'+x+'>>' for x in self.concepts.keys()])
@@ -100,9 +105,8 @@ class LinkMemory():
             )
             messages = [{
                 'role': 'system',
-                'content': prompt
+                'content': prompt + '\n' + result
             }]
-            result = ''
             response = llm_inference(messages)
             parsed = False
             for token in response:
@@ -112,59 +116,85 @@ class LinkMemory():
                     result += token
                     parsed, result = self.instant_parse(result)
                     if parsed:
-                        _, self.short_memory = self.post_parse(self.short_memory + result)
-                        self.save_short_memory()
-                        await output_recall(None)
-                        await output_recall('[Update Short Memory]\n' + self.short_memory)
-                        await output_recall(None)
+                        _, result = self.post_parse(result)
+                        if output_recall is not None:
+                            await output_recall(None)
+                            await output_recall(result)
+                            await output_recall(None)
                         break
             if not parsed:
-                _, self.short_memory = self.post_parse(self.short_memory + result)
+                _, result = self.post_parse(result)
+                self.short_memory = result
                 self.save_short_memory()
-                await output_recall(None)
-                await output_recall('[Update Short Memory]\n' + self.short_memory)
-                await output_recall(None)
+                if output_recall is not None:
+                    await output_recall(None)
+                    await output_recall(result)
+                    await output_recall(None)
                 break
         return self.short_memory
     
     def instant_parse(self, content):
-        return self._parse_recall(content)
+        return self._parse_show(content)
 
     def post_parse(self, content):
-        fold_parsed, content = self._parse_fold(content)
-        ignore_parsed, content = self._parse_ignore(content)
-        return fold_parsed or ignore_parsed, content
-
-    def _parse_ignore(self, content):
-        content = content.strip()
-        ignore_patten = "```(\n)?ignore\n(.*?)\n```"
-        ignore_match = re.search(ignore_patten, content, re.DOTALL)
-        if ignore_match is None:
+        fold_parsed, content = self._parse_block(content)
+        hide_parsed, content = self._parse_hide(content)
+        return fold_parsed or hide_parsed, content
+    
+    def _parse_block(self, content):
+        block_patten = "```(\n)?<<(.*?)>>\n(.*?)\n```"
+        block_matches = re.finditer(block_patten, content, re.DOTALL)
+        
+        if not block_matches:
             return False, content
-        logging.debug('ignore_match: ' + str(ignore_match))
-        values = ignore_match.group(2)
-        lines = values.strip().split('\n')
-        keys = []
-        for line in lines:
-            line = line.strip()
-            if line.startswith('<<') and line.endswith('>>'):
-                keys.append(line[2:-2])
-            else:
-                keys.append(line)
-        # ignore the key and its content
-        for key in keys:
+        
+        for block_match in block_matches:
+            logging.debug('block_match: ' + str(block_match))
+            key = block_match.group(2)
+            value = block_match.group(3)
+            
             if key in self.concepts:
-                content = content.replace(self.concepts[key].content, '')
-            content = content.replace('<<' + key + '>>', '')
+                self.concepts[key].content = value
+            else:
+                self.concepts[key] = LinkMemoryNode(key=key, content=value)
+            
+            self.db.update(self.concepts[key].__dict__, Query().key == key)
+            content = content.replace(block_match.group(0), '')
+        
         return True, content
 
-    def _parse_recall(self, content):
-        recall_patten = "```(\n)?recall\n(.*?)\n```"
-        recall_match = re.search(recall_patten, content, re.DOTALL)
-        if recall_match is None:
+    def _parse_hide(self, content):
+        content = content.strip()
+        hide_patten = "```(\n)?hide\n(.*?)\n```"
+        hide_matches = re.finditer(hide_patten, content, re.DOTALL)
+        
+        if not hide_matches:
             return False, content
-        logging.debug('recall_match: ' + str(recall_match))
-        contents = recall_match.group(2)
+        
+        for hide_match in hide_matches:
+            logging.debug('hide_match: ' + str(hide_match))
+            values = hide_match.group(2)
+            lines = values.strip().split('\n')
+            
+            for key in lines:
+                line = line.strip()
+                if key.startswith('<<') and key.endswith('>>'):
+                    key = key[2:-2]
+                if key in self.concepts:
+                    block_patten = f"```(\n)?<<{key}>>\n{self.concepts[key].content}\n```"
+                    match = re.search(block_patten, content, re.DOTALL)
+                    if match is not None:
+                        content = content.replace(match.group(0), '')
+        
+        return True, content
+
+    def _parse_show(self, content):
+        show_patten = "```(\n)?show\n(.*?)\n```"
+        show_match = re.search(show_patten, content, re.DOTALL)
+        if show_match is None:
+            return False, content
+        logging.debug('show_match: ' + str(show_match))
+        contents = show_match.group(2)
         lines = contents.strip().split('\n')
         keys = []
         for line in lines:
@@ -173,24 +203,6 @@ class LinkMemory():
                 keys.append(line[2:-2])
             else:
                 keys.append(line)
-        replaced_value = '\n' + '\n\n'.join(['<<'+key+'>>: ' + self.concepts[key].content for key in keys if key in self.concepts]) + '\n'
-        content = content.replace(recall_match.group(0), replaced_value)
+        replaced_value = '\n\n'.join([self.concepts[key].show() for key in keys if key in self.concepts])
+        content = content.replace(show_match.group(0), replaced_value)
         return True, content
-    
-    def _parse_fold(self, content):
-        # TODO: 多个地方需要折叠呢
-        update_patten = "```(\n)?<<(.*?)>>\n(.*?)\n```"
-        update_match = re.search(update_patten, content, re.DOTALL)
-        if update_match is None:
-            return False, content
-        logging.debug('update_match: ' + str(update_match))
-        key = update_match.group(2)
-        value = update_match.group(3)
-        if key in self.concepts:
-            self.concepts[key].content = value
-        else:
-            self.concepts[key] = LinkMemoryNode(key=key, content=value)
-        self.db.update(self.concepts[key].__dict__, Query().key == key)
-        content = content.replace(update_match.group(0), '')
-        return True, content
-        
