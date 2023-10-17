@@ -8,7 +8,6 @@ from GeneralAgent.memory import Memory, MemoryNode
 from GeneralAgent.interpreter import PlanInterpreter, RetrieveInterpreter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, AskInterpreter, FileInterpreter
 
-
 class Agent:
     def __init__(self, 
                  workspace='./',
@@ -31,10 +30,10 @@ class Agent:
         self.retrieve_interpreters = retrieve_interpreters
         self.output_interpreters = output_interpreters
         
-        # the first must be role interpreter
-        if len(output_interpreters) > 0:
-            if not isinstance(output_interpreters[0], RoleInterpreter):
-                self.output_interpreters.insert(0, RoleInterpreter())
+        # # the first must be role interpreter
+        # if len(output_interpreters) > 0:
+        #     if not isinstance(output_interpreters[0], RoleInterpreter):
+        #         self.output_interpreters.insert(0, RoleInterpreter())
 
     @classmethod
     def default(cls, workspace):
@@ -57,16 +56,6 @@ class Agent:
         ask_interpreter = AskInterpreter()
         output_interpreters = [role_interpreter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter, ask_interpreter]
         # 
-        return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters)
-    
-    @classmethod
-    def experimental(cls, workspace):
-        if not os.path.exists(workspace):
-            os.makedirs(workspace)
-        memory = Memory(serialize_path=f'{workspace}/memory.json')
-        input_interpreters = []
-        retrieve_interpreters = []
-        output_interpreters = [RoleInterpreter()]
         return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters)
     
     @classmethod
