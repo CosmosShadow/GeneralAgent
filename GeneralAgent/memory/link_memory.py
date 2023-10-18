@@ -7,59 +7,27 @@ import re
 import logging
 
 prompt_template = """
-# 定义文本结构化规则:
+# 定义一种链接超文本规则
 
-1. 文本由多个节点构成网状结构，每个节点都有一个key和content。key是对content的概要描述；
-2. 每个节点内容在语义上都是相对独立和完整的；
-3. 节点content可以通过嵌入<<key>>的方式来引用其他节点的content；
-4. <<ROOT>>是根节点，尽量引用多的节点，使得<<ROOT>>节点内容更加全面和清晰；
-5. 可以根据<<ROOT>>节点内容，通过show和hide命令，对节点进行显示和隐藏，使得完成<<ROOT>>中可能涉及到的任务信息更加全面和清晰；
-
-# 你的工作是对结构化文本进行优化:
-1. 每个节点的内容都是相对独立和完整的，和其他节点的内容没有重复；
-1. 每个节点的内容不能超过200字；当超过时，应该考虑拆分成多个节点并进行引用；
-3. 节点内容应该最新的；
-
-# 节点格式和show、hide命令:
-
-1. node format
-
-```<<key>>
+1. 每块文本包含title和content，格式如下:
+```<<title>>
 content
 ```
-
-2. show command
-
-```show
-<<key1>>
-<<key2>>
-```
-
-3. hide command
-```hide
-<<key1>>
-<<key2>>
-```
+2. content使用<<title>>对其他块进行链接
+3. <<ROOT>>是根节点
+4. 使用show命令来显示对ROOT重要的信息，hide来隐藏对ROOT不重要的信息
 
 # DEMO
-
-## Input
-
-<<ROOT>>
-我家住成都市天府新区万安街道海悦汇城西区8栋1702
-
-## Output
-
-<<ROOT>>
-我家住在<<Home Adress>>
-
 <<Home Adress>>
 成都市天府新区万安街道海悦汇城西区8栋1702
+<<ROOT>>
+我家住在<<Home Adress>>
+```
 
-# 已知节点keys:
-[{{keys}}]
+# 已知节点titles:
+[{{titles}}]
 
-# 结构化文本未优化内容:
+# 你的工作是将下面的文本优化成上面的格式
 {{short_memory}}
 
 # 优化后的文本:
@@ -97,13 +65,13 @@ class LinkMemory():
 
     def get_show_memory(self):
         self.concepts['ROOT'].show = True
-        return '\n\n'.join([str(node) for node in self.concepts.values() if node.show])
+        return '\n\n'.join([str(node) for node in self.concepts.values() if node.show]).strip()
 
-    async def add_content(self, content, role, output_recall=None):
+    async def add_content(self, input, role, output_recall=None):
         # 预处理
         assert role in ['user', 'system']
         root_node = self.concepts['ROOT']
-        root_node.content += '\n' + content
+        root_node.content += '\n' + input
         self.db.upsert(root_node.__dict__, Query().key == 'ROOT')
         show_memory = self.get_show_memory()
         # 默认全部隐藏掉

@@ -132,6 +132,6 @@ if __name__ == '__main__':
     # test_get_nodes()
     # test_get_hide_keys()
     # test_get_show_keys()
-    test_parse()
+    # test_parse()
     # asyncio.run(test_link_memory_one_concept())
-    # asyncio.run(test_link_memory_read_paper())
+    asyncio.run(test_link_memory_read_paper())
