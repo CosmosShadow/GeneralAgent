@@ -124,7 +124,6 @@ async def test_link_memory_read_paper():
         print(content)
         print('-' * 100)
         new_content = await memory.add_content(content, role, output_recall=default_output_recall)
-        break
         # print(new_content)
 
 

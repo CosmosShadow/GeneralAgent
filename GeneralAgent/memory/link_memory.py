@@ -7,30 +7,61 @@ import re
 import logging
 
 prompt_template = """
-# 定义一种链接超文本规则
+# 链接超文本规则
 
-1. 每块文本包含title和content，格式如下:
-```<<title>>
+1. 每块文本包含key和content，不能嵌套，格式如下:
+<<key>>
 content
-```
-2. content使用<<title>>对其他块进行链接
-3. <<ROOT>>是根节点
-4. 使用show命令来显示对ROOT重要的信息，hide来隐藏对ROOT不重要的信息
 
-# DEMO
-<<Home Adress>>
+2. 可以在content中使用<<key>>对其他块进行链接
+
+3. 可以使用```hide```和```show```对块进行隐藏和显示，命令如下:
+
+```hide
+<<key1>>
+<<key2>>
+```
+
+```show
+<<key1>>
+<<key2>>
+```
+
+4. 最后生成<<ROOT>>块，结合其他块的<<key>>对全文进行概述
+
+
+# DEMO 1
+```
+<<Home Address>>
 成都市天府新区万安街道海悦汇城西区8栋1702
+
 <<ROOT>>
-我家住在<<Home Adress>>
+我家住在<<Home Address>>
 ```
 
-# 已知节点titles:
-[{{titles}}]
+# DEMO 2
+```
+<<Paper Title>>
+xxx
 
-# 你的工作是将下面的文本优化成上面的格式
-{{short_memory}}
+<<Authors>>
+xxx
 
-# 优化后的文本:
+<<xxx>>
+xxx
+
+<<ROOT>>
+The paper titled <<Paper Title>>, written by <<Authors>>, xxx
+```
+
+# 部分节点详情
+{{nodes}}}
+
+# 将下面文档整理成链接超文本格式
+
+{{new_text}}
+
+# 整理后的文档如下:
 
 """
 
@@ -60,32 +91,24 @@ class LinkMemory():
         nodes = [LinkMemoryNode(**node) for node in self.db.all()]
         self.concepts = dict(zip([node.key for node in nodes], nodes))
         if len(self.concepts) == 0:
-            self.concepts['ROOT'] = LinkMemoryNode(key='ROOT', content='', show=True)
+            self.concepts['ROOT'] = LinkMemoryNode(key='ROOT', content='', show=False)
             self.db.insert(self.concepts['ROOT'].__dict__)
 
     def get_show_memory(self):
-        self.concepts['ROOT'].show = True
-        return '\n\n'.join([str(node) for node in self.concepts.values() if node.show]).strip()
+        return '\n\n'.join([str(node) for node in self.concepts.values() if node.show and len(node.content.strip()) > 0]).strip()
 
     async def add_content(self, input, role, output_recall=None):
         # 预处理
         assert role in ['user', 'system']
         root_node = self.concepts['ROOT']
-        root_node.content += '\n' + input
-        self.db.upsert(root_node.__dict__, Query().key == 'ROOT')
-        show_memory = self.get_show_memory()
-        # 默认全部隐藏掉
-        for key in self.concepts:
-            if key != 'ROOT':
-                self.concepts[key].show = False
-                self.db.upsert(self.concepts[key].__dict__, Query().key == key)
-
+        new_text = root_node.content + '\n' + input
         result = ''
         while True:
-            keys = ', '.join(['<<'+x+'>>' for x in self.concepts.keys()])
+            keys = ', '.join(['<<'+x+'>>' for x in self.concepts.keys() if x != 'ROOT'])
             prompt = Template(prompt_template).render(
-                keys=keys,
-                short_memory=show_memory
+                # keys=keys,
+                nodes='\n'.join([str(node) for node in self.concepts.values() if node.show and len(node.content.strip()) > 0]),
+                new_text=new_text
             )
             messages = [{
                 'role': 'system',
@@ -105,7 +128,7 @@ class LinkMemory():
             if not parsed:
                 _, result = self.post_parse(result)
                 break
-        return self.get_show_memory()
+        return self.get_show_memory() + '\n' + self.concepts['ROOT'].content
     
     def instant_parse(self, content):
         return self._parse_show(content)
@@ -122,7 +145,7 @@ class LinkMemory():
             if key in self.concepts:
                 self.concepts[key].content = value
             else:
-                self.concepts[key] = LinkMemoryNode(key=key, content=value, show=True)
+                self.concepts[key] = LinkMemoryNode(key=key, content=value, show=False)
             self.db.upsert(self.concepts[key].__dict__, Query().key == key)
         return True, content
 
