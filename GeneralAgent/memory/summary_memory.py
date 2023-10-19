@@ -35,13 +35,13 @@ Imagine you are an intelligent text editor.
 Your first task is to provide a comprehensive summary of the input text, which should be within 100 words. 
 Then, divide the input text into different blocks according to their semantic content, and create a corresponding title for each block.
 The title needs to accurately reflect the main information of the block content and should be wrapped in << and >> symbols.
-Please ensure the relevance of your title to the content and avoid arbitrary naming.
+Please ensure the relevance of your title to the content, avoid arbitrary naming, and ensure that no part of the text is left out in the division of blocks.
 The title should be as short as possible, while each block of content should be moderate in length, less than 200 words.
 The output format should be as follows:
 
 ```
 <<#Summary#>>
-Summary content
+the summary of the input text
 
 <<Title>>
 Block content 1
