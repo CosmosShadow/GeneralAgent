@@ -66,7 +66,7 @@ def llm_inference(messages):
                 result += token
                 global_cache.set(table, key, result)
                 yield token
-        logging.info(result)
+        # logging.info(result)
         yield None
 
 def embedding_fun(text):

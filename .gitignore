@@ -24,3 +24,4 @@ examples/memory.json
 test/link_memory.json
 test/memory.json
 test/llm_cache.json
+test/summary_memory.json
