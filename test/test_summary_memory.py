@@ -1,6 +1,7 @@
 from base_setting import *
 from GeneralAgent.memory import SummaryMemory
 from GeneralAgent.utils import default_output_recall
+from GeneralAgent.llm import num_tokens_from_string, llm_inference
 import asyncio
 import pytest
 import fitz
@@ -112,18 +113,16 @@ async def test_summary_memory_read_paper():
     if os.path.exists(serialize_path):
         os.remove(serialize_path)
     memory = SummaryMemory(serialize_path=serialize_path)
-    role = 'user'
-    content = ''
-
     file_path = './data/Nougat.pdf'
     doc = fitz.open(file_path)
-    documents = []
+    content = ''
     for page in doc:
-        content = page.get_text()
-        print('-' * 100)
-        print(content)
-        print('-' * 100)
-        new_content = await memory.add_content(content, role, output_recall=default_output_recall)
+        content += '\n' + page.get_text()
+        break
+    lines = content.strip().split('\n')
+    for index in range(len(lines)):
+        print('#' + str(index) + ' ' + lines[index])
+    new_content = await memory.add_content(content, output_recall=default_output_recall)
 
 
 if __name__ == '__main__':
