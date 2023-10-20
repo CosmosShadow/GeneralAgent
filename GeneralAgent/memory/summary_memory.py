@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import List
 from tinydb import TinyDB, Query
 import asyncio
+from GeneralAgent.memory.memory_utils import segment_text, summarize_text
 
 prompt_template = """
 Imagine you are an intelligent text editor. 
@@ -15,11 +16,9 @@ Please ensure the relevance of your title to the content, avoid arbitrary naming
 The title should be as short as possible, while each block of content should be moderate in length, less than 200 words.
 The output format should be as follows:
 
-对于一下 --------- 包围起来的文本:
-
----------
-{{new_text}}
----------
+```
+<<#Title#>>
+the title of the input text
 
 <<#Summary#>>
 the summary of the input text
@@ -69,20 +68,6 @@ Please start your task
 
 """
 
-divide_prompt = """
----------
-{{new_text}}
----------
-对于以上 --------- 包围起来的文本，你需要将其按语义对全文拆分成块，并按如下格式进行输出:
-```
-<<title>>
-分块内容
-
-<<title>>
-分块内容
-```
-"""
-
 
 @dataclass
 class SummaryMemoryNode:
@@ -126,7 +111,7 @@ def parse_nodes(content):
         nodes[key] = nodes[key].strip()
     return nodes
 
-async def summarize(text, output_recall=None):
+async def summarize_old(text, output_recall=None):
     prompt = Template(prompt_template).render(new_text=text)
     messages = [{'role': 'system','content': prompt}]
     result = await async_llm_inference(messages)
@@ -149,6 +134,15 @@ async def summarize(text, output_recall=None):
             print(f'<<{key}>>\n{nodes[key]}')
     return summary, nodes
 
+async def summarize(text, output_recall=None):
+    nodes = await segment_text(text)
+    if output_recall is not None:
+        await output_recall('\n\n'.join([f'<<{key}>>\n{nodes[key]}' for key in nodes]))
+    summary = await summarize_text(text)
+    if output_recall is not None:
+        await output_recall('\n<<Summary>>:\n' + summary)
+    return summary, nodes
+
 async def oncurrent_summarize(text, output_recall=None):
     inputs = split_text(text)
     print('splited count: ', len(inputs))
@@ -162,7 +156,7 @@ async def oncurrent_summarize(text, output_recall=None):
     return summary, nodes
 
 
-def split_text(text, max_token=8000, separators='\n'):
+def split_text(text, max_token=3000, separators='\n'):
     # paragraphs = text.split(separators)
     # paragraphs = re.split(repr(separators), text)
     import re

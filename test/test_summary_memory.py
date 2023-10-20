@@ -119,9 +119,9 @@ async def test_summary_memory_read_paper():
     for page in doc:
         content += '\n' + page.get_text()
         break
-    lines = content.strip().split('\n')
-    for index in range(len(lines)):
-        print('#' + str(index) + ' ' + lines[index])
+    # lines = content.strip().split('\n')
+    # for index in range(len(lines)):
+    #     print('#' + str(index) + ' ' + lines[index])
     new_content = await memory.add_content(content, output_recall=default_output_recall)
 
 
