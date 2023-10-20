@@ -2,7 +2,6 @@ import os
 import openai
 import logging
 from retrying import retry
-import time
 
 @retry(stop_max_attempt_number=3)
 def llm_inference(messages, model=None):
@@ -18,3 +17,11 @@ def llm_inference(messages, model=None):
             result += token
             yield token
     logging.info(result)
+
+
+@retry(stop_max_attempt_number=3)
+async def async_llm_inference(messages):
+    model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
+    temperature = float(os.environ.get('TEMPERATURE', 0.5))
+    response = await openai.ChatCompletion.acreate(model=model, messages=messages, temperature=temperature)
+    return response['choices'][0]['message']['content']
