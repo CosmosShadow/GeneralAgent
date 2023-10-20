@@ -1,0 +1,28 @@
+
+
+def split_text(text, max_token=3000, separators='\n'):
+    """
+    Split the text into paragraphs, each paragraph has less than max_token tokens.
+    """
+    import re
+    from skills import skills
+    pattern = "[" + re.escape(separators) + "]"
+    paragraphs = list(re.split(pattern, text))
+    print(len(paragraphs))
+    result = []
+    current = ''
+    for paragraph in paragraphs:
+        if skills.num_tokens_from_string(current) + skills.num_tokens_from_string(paragraph) > max_token:
+            result.append(current)
+            current = ''
+        current += paragraph + '\n'
+    if len(current) > 0:
+        result.append(current)
+    new_result = []
+    for x in result:
+        if skills.num_tokens_from_string(x) > max_token:
+            new_result.extend(split_text(x, max_token=max_token, separators="，。,.;；"))
+        else:
+            new_result.append(x)
+    new_result = [x.strip() for x in new_result if len(x.strip()) > 0]
+    return new_result

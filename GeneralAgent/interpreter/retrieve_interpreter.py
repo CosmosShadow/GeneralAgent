@@ -3,7 +3,7 @@ import re
 from .interpreter import Interpreter
 import chromadb
 import logging
-from GeneralAgent.llm import embedding_batch, num_tokens_from_string
+from GeneralAgent.llm import embedding_batch
 
 def _split_text(text, max_len):
     """
@@ -100,6 +100,7 @@ class RetrieveInterpreter(Interpreter):
         self.collection = self.client.get_or_create_collection(name="read", metadata={"hnsw:space": "cosine"})
 
     def prompt(self, messages) -> str:
+        from skills import skills
         # when collection is empty, return empty string
         if self.collection.count() == 0:
             return ''
@@ -125,7 +126,7 @@ class RetrieveInterpreter(Interpreter):
         texts = []
         texts_token_count = 0
         for x in documents:
-            if texts_token_count + num_tokens_from_string(x) > self.prompt_max_length:
+            if texts_token_count + skills.num_tokens_from_string(x) > self.prompt_max_length:
                 break
             texts.append(x)
         return '\n'.join(texts)
