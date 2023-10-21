@@ -58,15 +58,30 @@ class SummaryMemory():
 
     async def add_content(self, input, output_recall=None):
         from skills import skills
-        self.summarize_content(input, output_recall)
+        # await self.oncurrent_summarize_content(input, output_recall)
+        await self.summarize_content(input, output_recall)
         while skills.num_tokens_from_string(self.short_memory) > self.short_memory_limit:
             content = self.short_memory
             self.short_memory = ''
-            self.summarize_content(content, output_recall)
+            # await self.oncurrent_summarize_content(content, output_recall)
+            await self.summarize_content(content, output_recall)
     
-    async def summarize_content(self, input, output_recall=None):
+    async def oncurrent_summarize_content(self, input, output_recall=None):
         results = await oncurrent_summarize(input, output_recall=output_recall)
         for summary, nodes in results:
+            new_nodes = {}
+            for key in nodes:
+                new_key = self.add_node(key, nodes[key])
+                new_nodes[new_key] = nodes[key]
+            self.short_memory += '\n' + summary + ' Detail in ' + ', '.join([f'<<{key}>>' for key in new_nodes])
+        self.short_memory = self.short_memory.strip()
+        self.save_short_memory()
+
+    async def summarize_content(self, input, output_recall=None):
+        from skills import skills
+        inputs = skills.split_text(input, max_token=3000)
+        for text in inputs:
+            summary, nodes = await summarize(text, output_recall=output_recall)
             new_nodes = {}
             for key in nodes:
                 new_key = self.add_node(key, nodes[key])
