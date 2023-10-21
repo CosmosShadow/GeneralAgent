@@ -8,6 +8,7 @@ def llm_inference(messages, model=None):
     if model is None:
         model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
     temperature = float(os.environ.get('TEMPERATURE', 0.5))
+    # print(messages)
     response = openai.ChatCompletion.create(model=model, messages=messages, stream=True, temperature=temperature)
     result = ''
     for chunk in response:
