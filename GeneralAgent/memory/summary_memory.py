@@ -33,17 +33,11 @@ async def summarize(text, output_recall=None):
 
 async def oncurrent_summarize(text, output_recall=None):
     from skills import skills
-    inputs = skills.split_text(text)
+    inputs = skills.split_text(text, max_token=3000)
     print('splited count: ', len(inputs))
     coroutines = [summarize(x, output_recall=output_recall) for x in inputs]
     results = await asyncio.gather(*coroutines)
-    summary = ''
-    nodes = {}
-    for result in results:
-        summary += result[0]
-        nodes.update(result[1])
-    return summary, nodes
-
+    return results
 
 class SummaryMemory():
     def __init__(self, serialize_path='./summary_memory.json', short_memory_limit=1000) -> None:
@@ -64,20 +58,29 @@ class SummaryMemory():
 
     async def add_content(self, input, output_recall=None):
         from skills import skills
-        print('input token count:', skills.num_tokens_from_string(input))
-        summary, nodes = await oncurrent_summarize(input, output_recall=output_recall)
-        # summary, nodes = await summarize(input, output_recall=output_recall)
-        self.update(summary, nodes)
+        self.summarize_content(input, output_recall)
         while skills.num_tokens_from_string(self.short_memory) > self.short_memory_limit:
-            summary, nodes = await summarize(self.short_memory, output_recall=output_recall)
-            self.update(summary, nodes)
-
-    def update(self, summary, nodes):
-        self.short_memory += summary
+            content = self.short_memory
+            self.short_memory = ''
+            self.summarize_content(content, output_recall)
+    
+    async def summarize_content(self, input, output_recall=None):
+        results = await oncurrent_summarize(input, output_recall=output_recall)
+        for summary, nodes in results:
+            new_nodes = {}
+            for key in nodes:
+                new_key = self.add_node(key, nodes[key])
+                new_nodes[new_key] = nodes[key]
+            self.short_memory += '\n' + summary + ' Detail in ' + ', '.join([f'<<{key}>>' for key in new_nodes])
+        self.short_memory = self.short_memory.strip()
         self.save_short_memory()
-        for key in nodes:
-            if key in self.concepts:
-                self.concepts[key].content += nodes[key]
-            else:
-                self.concepts[key] = SummaryMemoryNode(key=key, content=nodes[key])
-            self.db.upsert(self.concepts[key].__dict__, Query().key == key)
+
+    def add_node(self, key, value):
+        index = 0
+        new_key = key
+        while new_key in self.concepts:
+            index += 1
+            new_key = key + str(index)
+        self.concepts[new_key] = SummaryMemoryNode(key=new_key, content=value)
+        self.db.upsert(self.concepts[key].__dict__, Query().key == new_key)
+        return new_key
