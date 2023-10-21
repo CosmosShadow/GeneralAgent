@@ -21,23 +21,12 @@ class SummaryMemoryNode:
         return str(self)
 
 
-async def summarize(text, output_recall=None):
+async def summarize_and_segment(text):
     from skills import skills
     nodes = await skills.segment_text(text)
-    if output_recall is not None:
-        await output_recall('\n\n'.join([f'<<{key}>>\n{nodes[key]}' for key in nodes]))
     summary = await skills.summarize_text(text)
-    if output_recall is not None:
-        await output_recall('\n<<Summary>>:\n' + summary)
     return summary, nodes
 
-async def oncurrent_summarize(text, output_recall=None):
-    from skills import skills
-    inputs = skills.split_text(text, max_token=3000)
-    print('splited count: ', len(inputs))
-    coroutines = [summarize(x, output_recall=output_recall) for x in inputs]
-    results = await asyncio.gather(*coroutines)
-    return results
 
 class SummaryMemory():
     def __init__(self, serialize_path='./summary_memory.json', short_memory_limit=1000) -> None:
@@ -58,39 +47,43 @@ class SummaryMemory():
 
     async def add_content(self, input, output_recall=None):
         from skills import skills
-        # await self.oncurrent_summarize_content(input, output_recall)
-        await self.summarize_content(input, output_recall)
+        # await self._oncurrent_summarize_content(input, output_recall)
+        await self._summarize_content(input)
         while skills.num_tokens_from_string(self.short_memory) > self.short_memory_limit:
             content = self.short_memory
             self.short_memory = ''
-            # await self.oncurrent_summarize_content(content, output_recall)
-            await self.summarize_content(content, output_recall)
+            # await self._oncurrent_summarize_content(content, output_recall)
+            await self._summarize_content(content)
     
-    async def oncurrent_summarize_content(self, input, output_recall=None):
-        results = await oncurrent_summarize(input, output_recall=output_recall)
+    async def _oncurrent_summarize_content(self, input):
+        from skills import skills
+        inputs = skills.split_text(input, max_token=3000)
+        print('splited count: ', len(inputs))
+        coroutines = [summarize_and_segment(x) for x in inputs]
+        results = await asyncio.gather(*coroutines)
         for summary, nodes in results:
             new_nodes = {}
             for key in nodes:
-                new_key = self.add_node(key, nodes[key])
+                new_key = self._add_node(key, nodes[key])
                 new_nodes[new_key] = nodes[key]
             self.short_memory += '\n' + summary + ' Detail in ' + ', '.join([f'<<{key}>>' for key in new_nodes])
         self.short_memory = self.short_memory.strip()
         self.save_short_memory()
 
-    async def summarize_content(self, input, output_recall=None):
+    async def _summarize_content(self, input):
         from skills import skills
         inputs = skills.split_text(input, max_token=3000)
         for text in inputs:
-            summary, nodes = await summarize(text, output_recall=output_recall)
+            summary, nodes = await summarize_and_segment(text)
             new_nodes = {}
             for key in nodes:
-                new_key = self.add_node(key, nodes[key])
+                new_key = self._add_node(key, nodes[key])
                 new_nodes[new_key] = nodes[key]
             self.short_memory += '\n' + summary + ' Detail in ' + ', '.join([f'<<{key}>>' for key in new_nodes])
         self.short_memory = self.short_memory.strip()
         self.save_short_memory()
 
-    def add_node(self, key, value):
+    def _add_node(self, key, value):
         index = 0
         new_key = key
         while new_key in self.concepts:
