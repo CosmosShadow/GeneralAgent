@@ -35,7 +35,9 @@ def confirm_to_run():
         else:
             print('Please input y or n')
 
-def set_logging_level(log_level):
+def set_logging_level(log_level=None):
+    if log_level is None:
+        log_level = os.environ.get('LOG_LEVEL', 'ERROR')
     log_level = log_level.upper()
     if log_level == 'DEBUG':
         level = logging.DEBUG

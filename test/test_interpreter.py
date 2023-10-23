@@ -1,4 +1,4 @@
-from base_setting import *
+import os
 from GeneralAgent.interpreter import ShellInterpreter, AppleScriptInterpreter, PythonInterpreter, PlanInterpreter, AskInterpreter
 from GeneralAgent.memory import Memory, MemoryNode
 

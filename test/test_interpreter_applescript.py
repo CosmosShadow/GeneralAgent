@@ -1,4 +1,3 @@
-from base_setting import *
 from GeneralAgent.interpreter import AppleScriptInterpreter
 
 def test_match():

@@ -1,5 +1,7 @@
-from base_setting import *
+import os
 from GeneralAgent.memory import Memory, MemoryNode
+from GeneralAgent.utils import set_logging_level
+set_logging_level()
 
 def test_memory():
     serialize_path='./data/memory.json'

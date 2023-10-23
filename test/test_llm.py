@@ -1,6 +1,7 @@
 # 测试llm
-from base_setting import *
 from GeneralAgent.llm import embedding_fun, cos_sim, llm_inference
+from GeneralAgent.utils import set_logging_level
+set_logging_level()
 
 def test_embedding_fun():
     texts = [

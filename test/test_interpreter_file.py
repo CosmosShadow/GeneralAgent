@@ -1,5 +1,6 @@
-from base_setting import *
 from GeneralAgent.interpreter import FileInterpreter
+from GeneralAgent.utils import set_logging_level
+set_logging_level()
 
 
 def test_parse_command():

@@ -1,4 +1,3 @@
-from base_setting import *
 import shutil
 from GeneralAgent.interpreter import RetrieveInterpreter
 

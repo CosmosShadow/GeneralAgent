@@ -1,4 +1,3 @@
-from base_setting import *
 import os
 import pytest
 import shutil
@@ -6,6 +5,9 @@ import asyncio
 from GeneralAgent.agent import Agent
 from GeneralAgent.tools import Tools, scrape_web
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter
+from GeneralAgent.utils import set_logging_level
+set_logging_level()
+
 
 workspace = './data/test_workspace'
 
