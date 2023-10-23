@@ -22,7 +22,7 @@ python_prompt = """
 
 default_import_code = """
 import os, sys, math
-from GeneralAgent.tools import google_search, wikipedia_search, scrape_web
+# from GeneralAgent.tools import google_search, wikipedia_search, scrape_web
 """
 
 default_libs = ["requests", "tinydb", "openai", "jinja2", "numpy", "bs4", "playwright", "retrying", "pymupdf", "python-pptx", "python-docx", "yfinance"]
