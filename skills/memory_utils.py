@@ -88,3 +88,50 @@ async def summarize_text(text):
         ]
     result = await skills.async_llm_inference(messages)
     return result
+
+async def extract_info(background, task):
+    prompt_template = """
+Background (line number is indicated by #number, and <<title>> is a link to the details):
+---------
+{{background}}
+---------
+
+Task
+---------
+{{task}}
+---------
+
+Please provide the line numbers in the background that contain information relevant to solving the task.
+Then, provide the <<titles>> that provide further details related to the background information.
+The expected output format is as follows:
+```
+#Line Number 1
+#Line Number 2
+...
+<<title 1>>
+<<title 2>>
+...
+```
+If no relevant information is found, please output "[Nothing]".
+```
+[Nothing]
+```
+"""
+
+    from skills import skills
+    from jinja2 import Template
+    prompt = Template(prompt_template).render({'background': background, 'task': task})
+    messages = [
+        {'role': 'system','content': 'You are a helpful assistant'},
+        {'role': 'user','content': prompt}
+        ]
+    result = await skills.async_llm_inference(messages)
+    return result
+
+
+def parse_extract_info(text):
+    import re
+    numbers = re.findall(r'#(\d+)', text)
+    numbers = [int(x) for x in numbers]
+    titles = re.findall(r'<<([^>>]+)>>', text)
+    return numbers, titles

@@ -52,9 +52,12 @@ class LinkMemory():
             self.short_memory = ''
             # await self._oncurrent_summarize_content(content, output_recall)
             await self._summarize_content(content, output_recall)
-
-    async def get_memory(self):
-        return self.short_memory
+    
+    async def get_memory(self, messages=None):
+        if messages is None:
+            return self.short_memory
+        else:
+            pass
 
     def _load_short_memory(self):
         short_memorys = self.db.table('short_memory').all()
