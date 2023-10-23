@@ -21,11 +21,16 @@ class LinkMemoryNode:
         return str(self)
 
 
-async def summarize_and_segment(text):
+async def summarize_and_segment(text, output_recall=None):
     from skills import skills
-    nodes = await skills.segment_text(text)
     summary = await skills.summarize_text(text)
-    return summary, nodes
+    if output_recall is not None:
+        await output_recall(f'Summary: {summary}\n')
+    segments = await skills.segment_text(text)
+    if output_recall is not None:
+        for key in segments:
+            await output_recall(f'<<{key}>>\n')
+    return summary, segments
 
 
 class LinkMemory():
@@ -33,7 +38,7 @@ class LinkMemory():
         self.serialize_path = serialize_path
         self.short_memory_limit = short_memory_limit
         self.db = TinyDB(serialize_path)
-        nodes = [LinkMemoryNode(**node) for node in self.db.all()]
+        nodes = [LinkMemoryNode(**x) for x in self.db.all()]
         self.concepts = dict(zip([node.key for node in nodes], nodes))
         self.short_memory = ''
         self._load_short_memory()
@@ -41,12 +46,12 @@ class LinkMemory():
     async def add_memory(self, content, output_recall=None):
         from skills import skills
         # await self._oncurrent_summarize_content(content, output_recall)
-        await self._summarize_content(content)
+        await self._summarize_content(content, output_recall)
         while skills.num_tokens_from_string(self.short_memory) > self.short_memory_limit:
             content = self.short_memory
             self.short_memory = ''
             # await self._oncurrent_summarize_content(content, output_recall)
-            await self._summarize_content(content)
+            await self._summarize_content(content, output_recall)
 
     async def get_memory(self):
         return self.short_memory
@@ -74,11 +79,11 @@ class LinkMemory():
         self.short_memory = self.short_memory.strip()
         self._save_short_memory()
 
-    async def _summarize_content(self, input):
+    async def _summarize_content(self, input, output_recall=None):
         from skills import skills
         inputs = skills.split_text(input, max_token=3000)
         for text in inputs:
-            summary, nodes = await summarize_and_segment(text)
+            summary, nodes = await summarize_and_segment(text, output_recall)
             new_nodes = {}
             for key in nodes:
                 new_key = self._add_node(key, nodes[key])
