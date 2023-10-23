@@ -37,7 +37,7 @@ async def segment_text(text):
 ---------
 
 For the text surrounded by ---------, the number after # is the line number.
-Based on semantics, you need to divide the text into blocks, represented by the start and end line numbers, and take a short title for each block.
+Based on semantics, you need to divide the text into blocks (<10), represented by the start and end line numbers, and take a short title (less than 10 words) for each block.
 The output format is as follows
 ```
 <<title for block>>
