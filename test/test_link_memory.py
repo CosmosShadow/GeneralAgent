@@ -22,8 +22,15 @@ async def test_read_paper():
     new_content = await memory.add_memory(content, output_recall=None)
     # new_content = await memory.add_memory(content, output_recall=default_output_recall)
     spark = await memory.get_memory()
+    # print(f'-----------\n{spark}\n-----------')
     assert '<<Introduction>>' in spark
-    # print(spark)
+
+    messages = [
+        {'role': 'user', 'content': '论文有哪些限制?'},
+    ]
+    spark = await memory.get_memory(messages)
+    print(f'-----------\n{spark}\n-----------')
+    assert 'limitations' in spark.lower()
 
 
 if __name__ == '__main__':

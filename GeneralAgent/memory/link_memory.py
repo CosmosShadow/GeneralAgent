@@ -54,10 +54,24 @@ class LinkMemory():
             await self._summarize_content(content, output_recall)
     
     async def get_memory(self, messages=None):
+        from skills import skills
         if messages is None:
             return self.short_memory
         else:
-            pass
+            messages = skills.cut_messages(messages, 1000)
+            xx = self.short_memory.split('\n')
+            background = '\n'.join([f'#{line} {xx[line]}' for line in range(len(xx))])
+            task = '\n'.join([f'{x["role"]}: {x["content"]}' for x in messages])
+            info = await skills.extract_info(background, task)
+            line_numbers, keys = skills.parse_extract_info(info)
+            result = []
+            for line_number in line_numbers:
+                if line_number < len(xx) and line_number >= 0:
+                    result.append(xx[line_number])
+            for key in keys:
+                if key in self.concepts:
+                    result.append(f'{key}\n{self.concepts[key]}\n')
+            return '\n'.join(result)
 
     def _load_short_memory(self):
         short_memorys = self.db.table('short_memory').all()

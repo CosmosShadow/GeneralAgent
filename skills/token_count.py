@@ -20,3 +20,9 @@ def num_tokens_from_string(str):
     encoding = tiktoken.get_encoding("cl100k_base")
     tokens = encoding.encode(str)
     return len(tokens)
+
+
+def cut_messages(messages, token_limit):
+    while messages_token_count(messages) > token_limit:
+        messages.pop(0)
+    return messages
