@@ -21,15 +21,15 @@ class LinkMemoryNode:
         return str(self)
 
 
-async def summarize_and_segment(text, output_recall=None):
+async def summarize_and_segment(text, output_callback=None):
     from skills import skills
     summary = await skills.summarize_text(text)
-    if output_recall is not None:
-        await output_recall(f'Summary: {summary}\n')
+    if output_callback is not None:
+        await output_callback(f'Summary: {summary}\n')
     segments = await skills.segment_text(text)
-    if output_recall is not None:
+    if output_callback is not None:
         for key in segments:
-            await output_recall(f'<<{key}>>\n')
+            await output_callback(f'<<{key}>>\n')
     return summary, segments
 
 
@@ -43,15 +43,15 @@ class LinkMemory():
         self.short_memory = ''
         self._load_short_memory()
 
-    async def add_memory(self, content, output_recall=None):
+    async def add_memory(self, content, output_callback=None):
         from skills import skills
-        # await self._oncurrent_summarize_content(content, output_recall)
-        await self._summarize_content(content, output_recall)
+        # await self._oncurrent_summarize_content(content, output_callback)
+        await self._summarize_content(content, output_callback)
         while skills.num_tokens_from_string(self.short_memory) > self.short_memory_limit:
             content = self.short_memory
             self.short_memory = ''
-            # await self._oncurrent_summarize_content(content, output_recall)
-            await self._summarize_content(content, output_recall)
+            # await self._oncurrent_summarize_content(content, output_callback)
+            await self._summarize_content(content, output_callback)
     
     async def get_memory(self, messages=None):
         from skills import skills
@@ -96,11 +96,11 @@ class LinkMemory():
         self.short_memory = self.short_memory.strip()
         self._save_short_memory()
 
-    async def _summarize_content(self, input, output_recall=None):
+    async def _summarize_content(self, input, output_callback=None):
         from skills import skills
         inputs = skills.split_text(input, max_token=3000)
         for text in inputs:
-            summary, nodes = await summarize_and_segment(text, output_recall)
+            summary, nodes = await summarize_and_segment(text, output_callback)
             new_nodes = {}
             for key in nodes:
                 new_key = self._add_node(key, nodes[key])

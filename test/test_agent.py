@@ -13,22 +13,22 @@ workspace = './data/test_workspace'
 
 result = ''
 
-def get_output_recall():
+def get_output_callback():
     global result
     result = ''
-    async def _output_recall(token):
+    async def _output_callback(token):
         if token is not None:
             global result
             result += token
             print(token, end='', flush=True)
-    return _output_recall
+    return _output_callback
 
 
 @pytest.mark.asyncio
 async def test_math():
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = Agent.default(workspace=workspace)
-    memory_node_id = await agent.run('calculate 0.99 ** 1000', output_recall=get_output_recall())
+    memory_node_id = await agent.run('calculate 0.99 ** 1000', output_callback=get_output_callback())
     assert '4.317124741065786e-05' in result
     assert memory_node_id == None
 
@@ -39,7 +39,7 @@ async def test_write_file():
         os.remove(target_path)
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = Agent.default(workspace=workspace)
-    memory_node_id = await agent.run('Write the description of Chengdu to the file ./data/a.txt', output_recall=get_output_recall())
+    memory_node_id = await agent.run('Write the description of Chengdu to the file ./data/a.txt', output_callback=get_output_callback())
     assert memory_node_id == None
     assert os.path.exists(target_path)
     with open(target_path, 'r') as f:
@@ -58,7 +58,7 @@ async def test_read_file():
         f.write(content)
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = Agent.default(workspace=workspace)
-    memory_node_id = await agent.run('what is in ./data/b.txt', output_recall=get_output_recall())
+    memory_node_id = await agent.run('what is in ./data/b.txt', output_callback=get_output_callback())
     global result
     assert 'Mount Qingcheng' in result
     assert memory_node_id == None
@@ -72,7 +72,7 @@ async def test_tool_use():
     serialize_path = f'{workspace}/code.bin'
     python_interpreter = PythonInterpreter(serialize_path=serialize_path, tools=Tools([scrape_web]))
     agent = Agent(workspace=workspace, output_interpreters=[RoleInterpreter(), python_interpreter])
-    memory_node_id = await agent.run("what's the tiltle of web page https://tongtianta.ai ?", output_recall=get_output_recall())
+    memory_node_id = await agent.run("what's the tiltle of web page https://tongtianta.ai ?", output_callback=get_output_callback())
     global result
     assert 'AI' in result
     assert memory_node_id == None

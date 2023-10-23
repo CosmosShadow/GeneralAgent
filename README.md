@@ -175,7 +175,7 @@ async def main():
     agent = Agent.default('./basic')
     while True:
         input_content = input('>>>')
-        await agent.run(input_content, output_recall=custom_output)
+        await agent.run(input_content, output_callback=custom_output)
 
 if __name__ == '__main__':
     asyncio.run(main())

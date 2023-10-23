@@ -1,6 +1,6 @@
 import os
 from GeneralAgent.memory import LinkMemory
-from GeneralAgent.utils import default_get_input, default_output_recall
+from GeneralAgent.utils import default_get_input, default_output_callback
 from GeneralAgent.llm import llm_inference
 
 class LinkAgent:
@@ -10,14 +10,21 @@ class LinkAgent:
             os.makedirs(workspace)
         self.link_memory = LinkMemory(os.path.join(workspace, 'link_memory.json'))
 
-    async def run(self, input, output_recall=default_output_recall, show_detail=True):
-        memory_output = output_recall if show_detail else None
-        new_input = await self.link_memory.add_content(input, 'user', memory_output)
-        if len(new_input) > 0:
-            messages = [
-                {'role': 'system', 'content': 'You are a helpful assistant'},
-                {'role': 'user', 'content': new_input}
-                ]
-            response = llm_inference(messages=messages)
-            for token in response:
-                await output_recall(token)
+    async def read_content(self, content):
+        await self.link_memory.add_memory(content)
+
+    async def run(self, messages, output_callback=default_output_callback):
+        from skills import skills
+        recall_memory = self.link_memory.get_memory(messages)
+        model_messages = [
+            {'role': 'system', 'content': 'You are a helpful assistant'},
+            {'role': 'system', 'content': f'Background:\n{recall_memory}'},
+            ]
+        cut_messages = skills.cut_messages(messages, 2000)
+        model_messages += cut_messages
+        model = 'gpt-3.5-turbo'
+        if skills.num_tokens_from_string(model_messages) > 3000:
+            model = 'gpt-3.5-turbo-16k'
+        response = llm_inference(model_messages, model)
+        for token in response:
+            await output_callback(token)
