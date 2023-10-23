@@ -21,8 +21,9 @@ def llm_inference(messages, model=None):
 
 
 @retry(stop_max_attempt_number=3)
-async def async_llm_inference(messages):
-    model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
+async def async_llm_inference(messages, model=None):
+    if model is None:
+        model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
     temperature = float(os.environ.get('TEMPERATURE', 0.5))
     response = await openai.ChatCompletion.acreate(model=model, messages=messages, temperature=temperature)
     return response['choices'][0]['message']['content']

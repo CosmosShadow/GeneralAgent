@@ -65,7 +65,10 @@ For example:
         {'role': 'system','content': 'You are a helpful assistant'},
         {'role': 'user','content': prompt}
         ]
-    result = await skills.async_llm_inference(messages)
+    model = 'gpt-3.5-turbo'
+    if skills.messages_token_count(messages) > 3500:
+        model = 'gpt-3.5-turbo-16k'
+    result = await skills.async_llm_inference(messages, model)
     # print(result)
     nodes = _parse_segment_llm_result(result)
     for key in nodes:
