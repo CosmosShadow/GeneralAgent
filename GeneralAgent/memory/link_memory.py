@@ -34,7 +34,7 @@ async def summarize_and_segment(text, output_recall=None):
 
 
 class LinkMemory():
-    def __init__(self, serialize_path='./link_memory.json', short_memory_limit=1000) -> None:
+    def __init__(self, serialize_path='./link_memory.json', short_memory_limit=2000) -> None:
         self.serialize_path = serialize_path
         self.short_memory_limit = short_memory_limit
         self.db = TinyDB(serialize_path)
