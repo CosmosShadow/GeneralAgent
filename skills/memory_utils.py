@@ -36,17 +36,17 @@ async def segment_text(text):
 {{text}}
 ---------
 
-For the text surrounded by ---------, the number after # is the line number.
-Based on semantics, you need to divide the text into blocks (<10), represented by the start and end line numbers, and take a short title (less than 10 words) for each block.
-The output format is as follows
+For the text enclosed by ---------, the number following # is the line number.
+Your task is to divide the text into segments (up to 6), each represented by the start and end line numbers. Additionally, assign a brief title (not exceeding 10 words) to each segment.
+The output format is as follows:
 ```
-<<title for block>>
-start_line: end_line
+<<Title for Segment>>
+Start_line: End_line
 
-<<title for block>>
-start_line: end_line
+<<Title for Segment>>
+Start_line: End_line
 ```
-For example:
+For instance:
 ```
 <<Hello>>
 0:12
@@ -54,6 +54,7 @@ For example:
 <<World>>
 13:20
 ```
+Please note, each title should not exceed 10 words. Titles exceeding this limit will be considered invalid. Strive to keep your titles concise yet reflective of the main content in the segment.
 """
     lines = text.strip().split('\n')
     new_lines = []
