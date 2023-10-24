@@ -137,6 +137,7 @@ class PythonInterpreter(Interpreter):
 
     def set_variable(self, name, value):
         self.globals[name] = value
+        self.save()
 
     @classmethod
     def add_print(cls, code_string):
