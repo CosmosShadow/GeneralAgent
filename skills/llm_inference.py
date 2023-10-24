@@ -118,3 +118,19 @@ async def async_llm_inference(messages, model=None):
     result = response['choices'][0]['message']['content']
     global_cache.set(table, key, result)
     return result
+
+@retry(stop_max_attempt_number=3)
+def sync_llm_inference(messages, model=None):
+    global global_cache
+    table = 'llm'
+    key = md5(messages)
+    result = global_cache.get(table, key)
+    if result is not None:
+        return result
+    if model is None:
+        model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
+    temperature = float(os.environ.get('TEMPERATURE', 0.5))
+    response = openai.ChatCompletion.create(model=model, messages=messages, temperature=temperature)
+    result = response['choices'][0]['message']['content']
+    global_cache.set(table, key, result)
+    return result
