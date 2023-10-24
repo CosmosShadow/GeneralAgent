@@ -170,7 +170,7 @@ print({variable_name}['Hello world'])
         # construct system prompt
         from skills import skills
         messages = self.memory.get_related_messages_for_node(node)
-        system_prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.output_interpreters])
+        system_prompt = '\n\n'.join([await interpreter.prompt(messages) for interpreter in self.output_interpreters])
         retrieve_prompt = '\n\n'.join([await interpreter.prompt(messages) for interpreter in self.retrieve_interpreters])
         all_messages = [{'role': 'system', 'content': system_prompt}]
         if len(retrieve_prompt.strip()) > 0:
@@ -198,7 +198,7 @@ print({variable_name}['Hello world'])
                 for interpreter in self.output_interpreters:
                     if interpreter.match(result):
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
-                        output, is_stop = interpreter.parse(result)
+                        output, is_stop = await interpreter.parse(result)
                         result += '\n' + output.strip() + '\n'
                         await output_callback('\n' + output + '\n')
                         is_break = True

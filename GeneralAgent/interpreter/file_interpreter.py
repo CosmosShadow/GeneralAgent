@@ -29,7 +29,7 @@ class FileInterpreter(Interpreter):
     def __init__(self) -> None:
         pass
 
-    def prompt(self, messages) -> str:
+    async def prompt(self, messages) -> str:
         return file_prompt
 
     @property
@@ -50,7 +50,7 @@ class FileInterpreter(Interpreter):
             content = content[:-3].strip()
         return file_path, operation, start_line, end_line, content
 
-    def parse(self, string):
+    async def parse(self, string):
         logging.debug('FileInterpreter:parse called')
         file_path, operation, start_line, end_line, content = self._parse_commands(string)
         is_stop = False

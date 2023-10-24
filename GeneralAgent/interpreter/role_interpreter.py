@@ -39,7 +39,7 @@ class RoleInterpreter(Interpreter):
         else:
             return "Unknown system"
 
-    def prompt(self, messages) -> str:
+    async def prompt(self, messages) -> str:
         if self.system_prompt is not None:
             return self.system_prompt
         if os.environ.get('LLM_CACHE', 'no') in ['yes', 'y', 'YES']:
@@ -60,5 +60,5 @@ class RoleInterpreter(Interpreter):
     def match(self, string):
         return False
     
-    def parse(self, string):
+    async def parse(self, string):
         return '', False

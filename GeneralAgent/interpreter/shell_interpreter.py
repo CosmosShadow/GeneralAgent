@@ -12,14 +12,14 @@ class ShellInterpreter(Interpreter):
     def __init__(self, workspace='./') -> None:
         self.workspace = workspace
 
-    def prompt(self, messages) -> str:
+    async def prompt(self, messages) -> str:
         return shell_prompt
 
     @property
     def match_template(self):
         return '```shell\n(.*?)\n```'
 
-    def parse(self, string):
+    async def parse(self, string):
         pattern = re.compile(self.match_template, re.DOTALL)
         match = pattern.search(string)
         assert match is not None

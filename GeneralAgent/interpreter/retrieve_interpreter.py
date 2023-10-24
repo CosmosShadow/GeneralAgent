@@ -12,7 +12,7 @@ class RetrieveInterpreter(Interpreter):
         self.client = chromadb.PersistentClient(path=serialize_path)
         self.collection = self.client.get_or_create_collection(name="read", metadata={"hnsw:space": "cosine"})
 
-    def prompt(self, messages) -> str:
+    async def prompt(self, messages) -> str:
         from skills import skills
         # when collection is empty, return empty string
         if self.collection.count() == 0:
@@ -48,7 +48,7 @@ class RetrieveInterpreter(Interpreter):
     def match_template(self):
         return '```read\n(.*?)\n```'
     
-    def parse(self, string):
+    async def parse(self, string):
         from skills import skills
         information = []
         pattern = re.compile(self.match_template, re.DOTALL)

@@ -12,6 +12,7 @@ what is in a.txt
 ## plan
 [input 1]
 Help me write a business plan framework for an AI painting product for angel round investment. If it is unclear, you can design it appropriately without asking me.
+帮我写一个天使轮投资的AI绘画产品的商业计划框架。 如果不清楚，你可以适当设计，不用问我。
 
 [input 2]
 ```runplan complete

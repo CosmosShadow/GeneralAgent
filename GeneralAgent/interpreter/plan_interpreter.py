@@ -9,14 +9,14 @@ class PlanInterpreter(Interpreter):
         self.memory = memory
         self.max_plan_depth = max_plan_depth
 
-    def prompt(self, messages) -> str:
+    async def prompt(self, messages) -> str:
         return ''
 
     @property
     def match_template(self):
         return '```runplan(.*?)?\n(.*?)\n```'
     
-    def parse(self, string):
+    async def parse(self, string):
         pattern = re.compile(self.match_template, re.DOTALL)
         match = pattern.search(string)
         assert match is not None

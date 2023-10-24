@@ -61,7 +61,7 @@ class PythonInterpreter(Interpreter):
                 data = pickle.loads(f.read())
                 self.globals = data['globals']
 
-    def prompt(self, messages) -> str:
+    async def prompt(self, messages) -> str:
         python_libs = ', '.join(self.python_libs)
         python_funcs = self.tools.get_funs_description()
         variables = {
@@ -91,7 +91,7 @@ class PythonInterpreter(Interpreter):
             data = {'globals': self.globals}
             f.write(pickle.dumps(data))
 
-    def parse(self, string):
+    async def parse(self, string):
         sys_out = ''
         pattern = re.compile(self.match_template, re.DOTALL)
         match = pattern.search(string)
