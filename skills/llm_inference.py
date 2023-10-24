@@ -61,9 +61,23 @@ def md5(obj):
 
 
 @retry(stop_max_attempt_number=3)
-def llm_inference(messages, model=None):
-    if model is None:
-        model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
+def llm_inference(messages, model_type='normal'):
+    """
+    messages: llm messages
+    model_type: normal, smart, long
+    """
+    from skills import skills
+
+    # set model
+    assert model_type in ['normal', 'smart', 'long']
+    if model_type == 'normal' and skills.messages_token_count(messages) > 3000:
+        model_type = 'long'
+    model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
+    if model_type == 'smart':
+        model = 'gpt-4'
+    if model_type == 'long':
+        model = 'gpt-3.5-turbo-16k'
+
     logging.debug(messages)
     global global_cache
     table = 'llm'
@@ -76,7 +90,6 @@ def llm_inference(messages, model=None):
         yield '\n'
         # yield None
     else:
-        model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
         temperature = float(os.environ.get('TEMPERATURE', 0.5))
         response = openai.ChatCompletion.create(model=model, messages=messages, stream=True, temperature=temperature)
         result = ''

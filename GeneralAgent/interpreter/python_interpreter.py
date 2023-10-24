@@ -30,18 +30,26 @@ default_libs = ["requests", "tinydb", "openai", "jinja2", "numpy", "bs4", "playw
 from GeneralAgent.tools import Tools
 
 class PythonInterpreter(Interpreter):
-    def __init__(self, serialize_path:str=None, tools:Tools=None, libs:[str]=default_libs, import_code:str=default_import_code):
+    def __init__(self, 
+                 serialize_path:str=None, 
+                 tools:Tools=None, 
+                 libs:[str]=default_libs, 
+                 import_code:str=default_import_code,
+                 prompt_append=''
+                 ):
         """
         Args:
             serialize_path (str): path to save the global variables, default None, which means not save
             tools (Tools, optional): tools to use. Defaults to None.
             libs ([str], optional): libraries to import. Defaults to default_libs.
             import_code (str, optional): code to import. The tools used should be imported. Defaults to default_import_code.
+            prompt_append: append to the prompt, custom prompt can be added here
         """
         self.globals = {}  # global variables shared by all code
         self.python_libs = libs
         self.import_code = import_code
         self.serialize_path = serialize_path
+        self.prompt_append = prompt_append
         self.tools = tools or Tools([])
         self.load()
 
@@ -60,7 +68,7 @@ class PythonInterpreter(Interpreter):
             'python_libs': python_libs,
             'python_funcs': python_funcs
         }
-        return Template(python_prompt).render(**variables)
+        return Template(python_prompt).render(**variables) + self.prompt_append
 
     @property
     def match_template(self):

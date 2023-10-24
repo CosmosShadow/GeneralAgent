@@ -1,7 +1,5 @@
 import os
 from GeneralAgent.memory import LinkMemory
-from GeneralAgent.utils import default_get_input, default_output_callback
-from GeneralAgent.llm import llm_inference
 
 class LinkAgent:
     def __init__(self, workspace) -> None:
@@ -13,7 +11,7 @@ class LinkAgent:
     async def read_content(self, content):
         await self.link_memory.add_memory(content)
 
-    async def run(self, messages, output_callback=default_output_callback):
+    async def run(self, messages, output_callback):
         from skills import skills
         recall_memory = await self.link_memory.get_memory(messages)
         model_messages = [
@@ -22,10 +20,7 @@ class LinkAgent:
             ]
         cut_messages = skills.cut_messages(messages, 2000)
         model_messages += cut_messages
-        print(model_messages)
-        model = 'gpt-3.5-turbo'
-        if skills.messages_token_count(model_messages) > 3000:
-            model = 'gpt-3.5-turbo-16k'
-        response = skills.llm_inference(model_messages, model)
+        # print(model_messages)
+        response = skills.llm_inference(model_messages)
         for token in response:
             await output_callback(token)
