@@ -64,7 +64,7 @@ def md5(obj):
 def llm_inference(messages, model=None):
     if model is None:
         model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
-    # logging.debug(messages)
+    logging.debug(messages)
     global global_cache
     table = 'llm'
     key = md5(messages)
