@@ -34,6 +34,7 @@ class LinkMemoryInterpreter(Interpreter):
         file_paths = match.group(1).strip().split('\n')
         result = ''
         async def output_callback(token):
+            nonlocal result
             if token is not None:
                 result += token
         for file_path in file_paths:

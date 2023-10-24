@@ -122,6 +122,7 @@ print({variable_name}['Hello world'])
             for interpreter in self.input_interpreters:
                 if interpreter.match(input_content):
                     logging.info('interpreter: ' + interpreter.__class__.__name__)
+                    await output_callback('input parsing\n')
                     input_content, case_is_stop = await interpreter.parse(input_content)
                     if case_is_stop:
                         input_stop = True
