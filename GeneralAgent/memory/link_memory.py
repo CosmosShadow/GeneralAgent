@@ -47,7 +47,7 @@ class LinkMemory():
         from skills import skills
         # await self._oncurrent_summarize_content(content, output_callback)
         await self._summarize_content(content, output_callback)
-        while skills.num_tokens_from_string(self.short_memory) > self.short_memory_limit:
+        while skills.string_token_count(self.short_memory) > self.short_memory_limit:
             content = self.short_memory
             self.short_memory = ''
             # await self._oncurrent_summarize_content(content, output_callback)

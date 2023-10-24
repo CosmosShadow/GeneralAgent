@@ -126,7 +126,7 @@ class RetrieveInterpreter(Interpreter):
         texts = []
         texts_token_count = 0
         for x in documents:
-            if texts_token_count + skills.num_tokens_from_string(x) > self.prompt_max_length:
+            if texts_token_count + skills.string_token_count(x) > self.prompt_max_length:
                 break
             texts.append(x)
         return '\n'.join(texts)

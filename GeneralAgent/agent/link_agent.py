@@ -24,7 +24,7 @@ class LinkAgent:
         model_messages += cut_messages
         print(model_messages)
         model = 'gpt-3.5-turbo'
-        if skills.num_tokens_from_string(model_messages) > 3000:
+        if skills.messages_token_count(model_messages) > 3000:
             model = 'gpt-3.5-turbo-16k'
         response = llm_inference(model_messages, model)
         for token in response:

@@ -14,7 +14,7 @@ def messages_token_count(messages):
     num_tokens += 3  # every reply is primed with <|start|>assistant<|message|>
     return num_tokens
 
-def num_tokens_from_string(str):
+def string_token_count(str):
     """Calculate and return the token count in a given string."""
     import tiktoken
     encoding = tiktoken.get_encoding("cl100k_base")

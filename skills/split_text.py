@@ -12,7 +12,7 @@ def split_text(text, max_token=3000, separators='\n'):
     result = []
     current = ''
     for paragraph in paragraphs:
-        if skills.num_tokens_from_string(current) + skills.num_tokens_from_string(paragraph) > max_token:
+        if skills.string_token_count(current) + skills.string_token_count(paragraph) > max_token:
             result.append(current)
             current = ''
         current += paragraph + '\n'
@@ -20,7 +20,7 @@ def split_text(text, max_token=3000, separators='\n'):
         result.append(current)
     new_result = []
     for x in result:
-        if skills.num_tokens_from_string(x) > max_token:
+        if skills.string_token_count(x) > max_token:
             new_result.extend(split_text(x, max_token=max_token, separators="，。,.;；"))
         else:
             new_result.append(x)

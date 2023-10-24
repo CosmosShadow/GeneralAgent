@@ -124,7 +124,7 @@ def cos_sim(a, b):
     b = b if isinstance(b, np.ndarray) else np.array(b)
     return np.dot(a, b)/(norm(a)*norm(b))
 
-def num_tokens_from_string(str):
+def string_token_count(str):
     """Calculate and return the token count in a given string."""
     import tiktoken
     encoding = tiktoken.get_encoding("cl100k_base")
