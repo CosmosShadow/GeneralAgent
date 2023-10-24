@@ -11,7 +11,10 @@ class LinkMemoryInterpreter(Interpreter):
         self.link_memory = LinkMemory()
 
     async def prompt(self, messages) -> str:
-        return await self.link_memory.get_memory(messages)
+        if self.link_memory.is_empty():
+            return ''
+        else:
+            return await self.link_memory.get_memory(messages)
 
     @property
     def match_template(self):

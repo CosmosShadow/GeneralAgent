@@ -43,6 +43,9 @@ class LinkMemory():
         self.short_memory = ''
         self._load_short_memory()
 
+    def is_empty(self):
+        return len(self.concepts) == 0
+
     async def add_memory(self, content, output_callback=None):
         from skills import skills
         # await self._oncurrent_summarize_content(content, output_callback)
