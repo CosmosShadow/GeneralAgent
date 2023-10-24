@@ -141,6 +141,7 @@ class Agent:
     
     async def _execute_node(self, node, output_callback):
         # construct system prompt
+        from skills import skills
         messages = self.memory.get_related_messages_for_node(node)
         system_prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.output_interpreters])
         retrieve_prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.retrieve_interpreters])
@@ -148,7 +149,8 @@ class Agent:
         if len(retrieve_prompt.strip()) > 0:
             all_messages.append({'role': 'system', 'content': 'Background information: \n' + retrieve_prompt})
         all_messages += messages
-        # TODO: when messages exceed limit, cut it
+        if skills.messages_token_count(all_messages) > 3000:
+            all_messages = skills.cut_messages(all_messages, 3000)
         # add answer node and set current node
         answer_node = MemoryNode(role='system', action='answer', content='')
         self.memory.add_node_after(node, answer_node)
