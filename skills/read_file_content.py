@@ -1,13 +1,13 @@
-
+    
 def read_pdf_pages(file_path):
     """Read the pdf file and return a list of strings on each page of the pdf"""
     """读取pdf文件，返回pdf每页字符串的列表"""
-    if not file_path.endswith('.pdf'):
-        return None
-    import pypdf
-    with open(file_path, "rb") as pdf_file_obj:
-        pdf_reader = pypdf.PdfReader(pdf_file_obj)
-        return [page.extract_text() for i, page in enumerate(pdf_reader.pages)]
+    import fitz
+    doc = fitz.open(file_path)
+    documents = []
+    for page in doc:
+        documents.append(page.get_text())
+    return documents
     
 def read_word_pages(file_path):
     """Read the word file and return a list of word paragraph strings"""
@@ -20,6 +20,17 @@ def read_word_pages(file_path):
     ps = [ paragraph.text for paragraph in document.paragraphs]
     return ps
 
+def read_ppt(file_path):
+    import pptx
+    prs = pptx.Presentation(file_path)
+    documents = []
+    for slide in prs.slides:
+        for shape in slide.shapes:
+            if hasattr(shape, "text"):
+                documents.append(shape.text)
+    return '\n'.join(documents)
+
+
 def read_file_content(file_path):
     """return content of txt, md, pdf, docx file"""
     # 支持file_path的类型包括txt、md、pdf、docx
@@ -27,6 +38,8 @@ def read_file_content(file_path):
         return ' '.join(read_pdf_pages(file_path))
     elif file_path.endswith('.docx'):
         return ' '.join(read_word_pages(file_path))
+    elif file_path.endswith('.ppt') or file_path.endswith('.pptx'):
+        return read_ppt(file_path)
     else:
         # 默认当做文本文件
         with open(file_path, 'r') as f:

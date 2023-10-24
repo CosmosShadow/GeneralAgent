@@ -4,7 +4,7 @@ from GeneralAgent.utils import default_output_callback
 
 
 class LinkAgent:
-    def __init__(self, workspace) -> None:
+    def __init__(self, workspace='./'):
         self.workspace = workspace
         if not os.path.exists(workspace):
             os.makedirs(workspace)

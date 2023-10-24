@@ -5,7 +5,7 @@ import logging
 from GeneralAgent.utils import default_get_input, default_output_callback
 from GeneralAgent.llm import llm_inference
 from GeneralAgent.memory import Memory, MemoryNode
-from GeneralAgent.interpreter import PlanInterpreter, RetrieveInterpreter
+from GeneralAgent.interpreter import PlanInterpreter, RetrieveInterpreter, LinkMemoryInterpreter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, AskInterpreter, FileInterpreter
 
 class Agent:
@@ -59,6 +59,36 @@ class Agent:
         return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters)
     
     @classmethod
+    def with_link_memory(cls, workspace):
+        if not os.path.exists(workspace):
+            os.makedirs(workspace)
+        variable_name = 'sparks'
+        prompt_append = f"""
+你可以通过字典{variable_name}访问所有文档中出现<<key>>的值，比如<<Hello world>>:
+```
+print({variable_name}['Hello world'])
+```
+"""
+        python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin', prompt_append=prompt_append)
+        # memory
+        memory = Memory(serialize_path=f'{workspace}/memory.json')
+        # input interpreter
+        plan_interperter = PlanInterpreter(memory)
+        link_memory_interpreter = LinkMemoryInterpreter(python_interpreter, sparks_dict_name=variable_name)
+        input_interpreters = [plan_interperter, link_memory_interpreter]
+        # retrieve interpreter
+        retrieve_interpreters = [link_memory_interpreter]
+        # output interpreter
+        role_interpreter = RoleInterpreter()
+        bash_interpreter = ShellInterpreter(workspace)
+        applescript_interpreter = AppleScriptInterpreter()
+        file_interpreter = FileInterpreter()
+        ask_interpreter = AskInterpreter()
+        output_interpreters = [role_interpreter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter, ask_interpreter]
+        # 
+        return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters)
+    
+    @classmethod
     def empty(cls, workspace):
         """
         empty agent, only role interpreter and memory, work like a basic LLM chatbot
@@ -70,10 +100,6 @@ class Agent:
         retrieve_interpreters = []
         output_interpreters = [RoleInterpreter()]
         return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters)
-
-    def information(self):
-        # describe input、output、retrieve interpreters
-        pass
 
     async def run(self, input=None, input_for_memory_node_id=-1, output_callback=default_output_callback):
         """
@@ -96,7 +122,7 @@ class Agent:
             for interpreter in self.input_interpreters:
                 if interpreter.match(input_content):
                     logging.info('interpreter: ' + interpreter.__class__.__name__)
-                    input_content, case_is_stop = interpreter.parse(input_content)
+                    input_content, case_is_stop = await interpreter.parse(input_content)
                     if case_is_stop:
                         input_stop = True
             input_node.content = input_content
@@ -144,7 +170,7 @@ class Agent:
         from skills import skills
         messages = self.memory.get_related_messages_for_node(node)
         system_prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.output_interpreters])
-        retrieve_prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.retrieve_interpreters])
+        retrieve_prompt = '\n\n'.join([await interpreter.prompt(messages) for interpreter in self.retrieve_interpreters])
         all_messages = [{'role': 'system', 'content': system_prompt}]
         if len(retrieve_prompt.strip()) > 0:
             all_messages.append({'role': 'system', 'content': 'Background information: \n' + retrieve_prompt})

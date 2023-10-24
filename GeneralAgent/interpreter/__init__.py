@@ -8,3 +8,4 @@ from .python_interpreter import PythonInterpreter
 from .shell_interpreter import ShellInterpreter
 from .ask_interpreter import AskInterpreter
 from .retrieve_interpreter import RetrieveInterpreter
+from .link_memory_interpreter import LinkMemoryInterpreter
