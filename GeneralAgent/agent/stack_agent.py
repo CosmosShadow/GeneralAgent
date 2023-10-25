@@ -61,7 +61,7 @@ class Agent:
         return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters)
     
     @classmethod
-    def with_link_memory(cls, workspace):
+    def with_link_memory(cls, workspace, model_type='normal'):
         if not os.path.exists(workspace):
             os.makedirs(workspace)
         variable_name = 'sparks'
@@ -94,7 +94,7 @@ print({variable_name}['Hello world'])
         ask_interpreter = AskInterpreter()
         output_interpreters = [role_interpreter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter, ask_interpreter]
         # 
-        return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters)
+        return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters, model_type=model_type)
     
     @classmethod
     def empty(cls, workspace):
