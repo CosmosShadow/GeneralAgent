@@ -15,7 +15,7 @@ class Agent:
                  input_interpreters=[],
                  output_interpreters=[],
                  retrieve_interpreters=[],
-                 model_type='noraml'
+                 model_type='normal'
                  ):
         self.is_running = False
         self.model_type = model_type
@@ -198,7 +198,7 @@ print({variable_name}['Hello world'])
             result = ''
             is_stop = False
             is_break = False
-            response = skills.lm_inference(all_messages, model_type=self.model_type)
+            response = skills.llm_inference(all_messages, model_type=self.model_type)
             for token in response:
                 if token is None: break
                 result += token

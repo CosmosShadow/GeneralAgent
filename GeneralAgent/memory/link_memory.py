@@ -58,6 +58,8 @@ class LinkMemory():
     
     async def get_memory(self, messages=None):
         from skills import skills
+        if len(self.concepts) == 0:
+            return ''
         if messages is None:
             return self.short_memory
         else:
