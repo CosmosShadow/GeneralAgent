@@ -66,10 +66,10 @@ Please note, each title should not exceed 10 words. Titles exceeding this limit 
         {'role': 'system','content': 'You are a helpful assistant'},
         {'role': 'user','content': prompt}
         ]
-    model = 'gpt-3.5-turbo'
+    model_type='normal'
     if skills.messages_token_count(messages) > 3500:
-        model = 'gpt-3.5-turbo-16k'
-    result = await skills.async_llm_inference(messages, model)
+        model_type = 'long'
+    result = await skills.async_llm_inference(messages, model_type)
     # print(result)
     nodes = _parse_segment_llm_result(result)
     for key in nodes:

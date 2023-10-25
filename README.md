@@ -21,6 +21,11 @@ A simple, general, customizable Agent framework
 * Build-in tools: google search, wikipedia_search, scrabe web.
 
 
+## Update 2023.10.25
+
+You should add the skills to your python path enviroment.
+
+
 ## Demo
 
 
