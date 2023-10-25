@@ -14,9 +14,11 @@ class Agent:
                  memory=None,
                  input_interpreters=[],
                  output_interpreters=[],
-                 retrieve_interpreters=[]
+                 retrieve_interpreters=[],
+                 model_type='noraml'
                  ):
         self.is_running = False
+        self.model_type = model_type
         self.stop_event = asyncio.Event()
 
         OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
@@ -196,7 +198,7 @@ print({variable_name}['Hello world'])
             result = ''
             is_stop = False
             is_break = False
-            response = llm_inference(all_messages)
+            response = skills.lm_inference(all_messages, model_type=self.model_type)
             for token in response:
                 if token is None: break
                 result += token

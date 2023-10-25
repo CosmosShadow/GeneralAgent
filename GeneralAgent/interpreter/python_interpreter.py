@@ -23,6 +23,10 @@ python_prompt = """
 default_import_code = """
 import os, sys, math
 # from GeneralAgent.tools import google_search, wikipedia_search, scrape_web
+from skills import skills
+google_search = skills.google_search
+wikipedia_search = skills.wikipedia_search
+scrape_web = skills.scrape_web
 """
 
 default_libs = ["requests", "tinydb", "openai", "jinja2", "numpy", "bs4", "playwright", "retrying", "pymupdf", "python-pptx", "python-docx", "yfinance"]
@@ -45,12 +49,13 @@ class PythonInterpreter(Interpreter):
             import_code (str, optional): code to import. The tools used should be imported. Defaults to default_import_code.
             prompt_append: append to the prompt, custom prompt can be added here
         """
+        from skills import skills
         self.globals = {}  # global variables shared by all code
         self.python_libs = libs
         self.import_code = import_code
         self.serialize_path = serialize_path
         self.prompt_append = prompt_append
-        self.tools = tools or Tools([])
+        self.tools = tools or Tools([skills.google_search, skills.wikipedia_search, skills.scrape_web])
         self.load()
 
     def load(self):

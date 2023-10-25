@@ -44,3 +44,7 @@ what is the advantage of the model Nougat?
 What date is today? Compare the year-to-date gain for META and TESLA.
 
 see [stock_compare.md](./stock_compare.md) for more.
+
+## get the news
+[input 1]
+Give me five latest news about Tesla.
