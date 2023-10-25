@@ -69,6 +69,12 @@ class Agent:
 print({variable_name}['Hello world'])
 ```
 """
+        prompt_append = f"""
+You can access the values of <<key>> in all documents through the dictionary {variable_name}, such as <<Hello world>>:
+```
+print({variable_name}['Hello world'])
+```
+"""
         python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin', prompt_append=prompt_append)
         # memory
         memory = Memory(serialize_path=f'{workspace}/memory.json')
@@ -122,7 +128,7 @@ print({variable_name}['Hello world'])
             for interpreter in self.input_interpreters:
                 if interpreter.match(input_content):
                     logging.info('interpreter: ' + interpreter.__class__.__name__)
-                    await output_callback('input parsing\n')
+                    # await output_callback('input parsing\n')
                     input_content, case_is_stop = await interpreter.parse(input_content)
                     if case_is_stop:
                         input_stop = True
