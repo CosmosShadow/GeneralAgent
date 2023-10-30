@@ -135,3 +135,19 @@ def parse_extract_info(text):
     numbers = [int(x) for x in numbers]
     titles = re.findall(r'<<([^>>]+)>>', text)
     return numbers, titles
+
+
+def extract_title(text):
+    """
+    extract title from text
+    """
+    if len(text) > 500:
+        text = text[:500]
+    prompt = "Please distill the content between --------- into a concise title of the content, less than five words.\n---------\n" + text + "\n---------"
+    from skills import skills
+    messages = [
+        {'role': 'system','content': 'You are a helpful assistant'},
+        {'role': 'user','content': prompt}
+        ]
+    result = skills.sync_llm_inference(messages)
+    return result
