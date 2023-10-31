@@ -2,8 +2,6 @@
 async def text_to_speech(text, save_path='./tmp.mp3'):
     """Convert text to speech, save in save_path"""
     # import asyncio
-    from skills import skills
-
     # 查看所有的声音: edge-tts --list-voices
     # https://github.com/rany2/edge-tts
     # VOICE = "en-GB-SoniaNeural"
