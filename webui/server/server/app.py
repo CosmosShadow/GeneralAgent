@@ -7,11 +7,14 @@ from starlette.websockets import WebSocketState
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 from tinydb import TinyDB, Query
-from .interface import *
 from dotenv import load_dotenv
 import threading
 import queue
 import uuid
+import uuid, json
+from typing import Optional
+from datetime import datetime
+from dataclasses import dataclass
 from skills import skills
 
 # load env
@@ -21,6 +24,61 @@ from skills import skills
 # set logging level
 from GeneralAgent.utils import set_logging_level
 set_logging_level(os.environ.get('LOG_LEVEL', 'ERROR'))
+
+
+
+
+@dataclass
+class Chat():
+    id: Optional[str] = None
+    name: Optional[str] = ''
+    create_at: Optional[str] = None
+    update_at: Optional[str] = None
+    bot_id: Optional[str] = ''
+
+    def __post_init__(self):
+        if self.create_at is None:
+            self.create_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")
+        if self.update_at is None:
+            self.update_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")
+        if self.id is None:
+            self.id = datetime.now().strftime("%Y%m%d_%H%M%S") + '_' + str(uuid.uuid4())[:8]
+
+
+@dataclass
+class Message():
+    type: Optional[str] = 'message' # token | message
+    id: Optional[str] = None
+    role: Optional[str] = ''               # user / bot
+    bot_id: Optional[str] = ''           # bot id
+    chat_id: Optional[str] = ''          # chat id
+    create_at: Optional[str] = None
+    msg: Optional[str] = ''
+    file: Optional[str] = ''
+    ui: Optional[str] = ''      # UI组件(js, name, data)
+    extention: Optional[str] = None     # 扩展字段
+
+    def __post_init__(self):
+        if self.create_at is None:
+            self.create_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")
+        if self.id is None:
+            self.id = str(uuid.uuid4())
+
+    def response_template(self, is_token=False):
+        new_message = Message(
+            role='bot',
+            bot_id=self.bot_id,
+            chat_id=self.chat_id,
+            type='token' if is_token else 'message',
+        )
+        return new_message
+    
+    def to_text(self):
+        data = {
+            'type': 'message',
+            'data': self.__dict__
+        }
+        return json.dumps(data)
 
 
 app = FastAPI()
@@ -67,6 +125,7 @@ def try_create_chat_name(message:Message, chat_messages):
         db.table('chats').update({'name': title}, Query().id == message.chat_id)
 
 async def worker():
+    logging.info('enter worker')
     while True:
         message:Message = await asyncio.to_thread(task_queue.get)
         logging.info('Worker get a message')
@@ -158,12 +217,13 @@ async def worker():
 
 @app.on_event("startup")
 async def startup_event():
+    logging.info('startup')
     threading.Thread(target=sync_worker, daemon=True).start()
 
 @app.on_event('shutdown')
 async def shutdown_event():
+    logging.info('shutdown')
     os._exit(0)
-
 
 async def save_message(message:Message):
     if message.chat_id == '':
@@ -221,7 +281,7 @@ async def bot_list():
     from skills import skills
     current_dir = os.path.abspath(os.path.dirname(__file__))
     APPLICATIONS_PATH = os.path.join(current_dir, 'applications')
-    return skills.load_applications(APPLICATIONS_PATH)
+    return skills.load_application_names(APPLICATIONS_PATH)
 
 
 @app.get("/chats/{bot_id}")
