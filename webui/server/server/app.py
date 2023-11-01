@@ -7,8 +7,7 @@ from starlette.websockets import WebSocketState
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 from tinydb import TinyDB, Query
-from interface import *
-from server import *
+from .interface import *
 from dotenv import load_dotenv
 import threading
 import queue
@@ -117,7 +116,8 @@ async def worker():
         
         # os.chdir(self.local_dir)
         current_workspace_dir = os.getcwd()
-        application = load_application(bot_id)
+        code_path = os.path.join(os.path.dirname(__file__), f"./applications/{bot_id}/main.py")
+        application = skills.load_application(code_path)
         db.table('mesasges').clear_cache()
         history = db.table('messages').search((Query().bot_id == bot_id) & (Query().chat_id == chat_id))[-20:]
         chat_messages = history_to_messages(history)
@@ -218,7 +218,10 @@ async def websocket_user_endpoint(websocket: WebSocket):
 
 @app.get("/bot/list")
 async def bot_list():
-    return load_applications()
+    from skills import skills
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    APPLICATIONS_PATH = os.path.join(current_dir, 'applications')
+    return skills.load_applications(APPLICATIONS_PATH)
 
 
 @app.get("/chats/{bot_id}")
@@ -299,6 +302,3 @@ async def upload_file(
     with open(file_path, 'wb') as f:
         f.write(file.file.read())
     return {'code': 0, "message": "File uploaded successfully", 'file': './'+file_name}
-
-# 启动命令
-# uvicorn app:app --host 0.0.0.0 --port 7777 --reload

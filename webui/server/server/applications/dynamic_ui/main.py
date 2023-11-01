@@ -1,10 +1,7 @@
-from GeneralAgent.agent import Agent
-import sys, os
-# sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../'))
-from server import task_to_ui_js
 
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
-    result = task_to_ui_js(input)
+    from skills import skills
+    result = skills.task_to_ui_js(input)
     if result is not None:
         js_path, lib_name = result
         data = {}

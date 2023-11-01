@@ -1,9 +1,0 @@
-# 基础库
-fastapi
-requests
-python-dotenv
-pytest
-uvicorn
-websocket-client
-websockets
-python-multipart
