@@ -1,0 +1,6 @@
+{
+    "id": "agent",
+    "name": "Agent",
+    "description": "Agent with read, plan, code and tool use. stable with gpt3.5.",
+    "upload_file": "yes"
+}
