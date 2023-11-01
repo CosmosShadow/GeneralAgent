@@ -170,47 +170,25 @@ CONSTRAINTS:
 - The code should be as simple as possible and the operation complexity should be low
 - The code format, import part, function prompts, and function parameters should all be consistent with the DEMO below. Only modify the parameters, function names, and function implementations in the middle of prompts
 
-DEMO 1
+DEMO 1 : Chat with A large language model
 
-from interface import Message, prompts
-
-@prompts(nickname='AI画画', description='输入文字(支持中英文)，AI帮你画画', gpu=1)
-def AIDraw(history, message_in:Message, send_message_recall):
+async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     from GeneralAgent import skills
-    prompt = message_in.msg
+    chat_history = skills.cut_messages(chat_history, 4000)
+    messages = [{"role": "system", "content": "You are a helpful assistant."}] + chat_history
+    response = skills.llm_inference(messages)
+    for token in response:
+        await output_callback(token)
+    await output_callback(None)
+
+DEMO 2 : Create a image by user's prompt
+async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
+    from GeneralAgent import skills
+    prompt = input
     if not skills.text_is_english(prompt):
         prompt = skills.text_translation(prompt, 'english')
     image_url = skills.image_generation(prompt)
-    send_message_recall(file_path=image_url)
-
-DEMO 2
-
-from interface import Message, prompts
-
-@prompts(nickname='李白', description='我乃诗仙李白 ( /reset 开启新对话)', gpu=0)
-def charator_libai(history, message_in:Message, send_message_recall):
-    from GeneralAgent import skills
-    prompt = "你现在扮演唐朝诗人李白，李白四川江油人，出生于哈萨克斯坦的碎叶城。请你务必按照李白的说话语气、说话习惯和用户进行对话。\n"
-    skills.chat_with_prompt(prompt, history, message_in, send_message_recall)
-
-- the prompts is decorator
-     - nickname and description: App name and description displayed to the user, in Chinese
-     - gpu: you should always just use 1
-- The function name Chat is the chat bot ID
-- Function passing parameters history, message_in:Message, send_message_recall are fixed and cannot be modified
-     - history: Up to 10 recent chat records (possibly less), each element is the Message class
-     - message_in: The latest message the user sent to the app
-     - send_message_recall: Reply to the user's message callback, the function format is def send_message(stream_response=None, msg='', file_path='', extention={{}}), it will combine the passed parameters into a Message and send it to the user
-         - stream_response: the message returned in stream format in the chat bot
-         - msg: text message sent by the app to the user
-         - file_path: The path of the file sent to the user by the chat bot
-         - extention: any other thing here, shold be jsonfy
-- The properties of Message are as follows
-class Message(BaseExtend):
-     id: Optional[str] = ''
-     msg: Optional[str] = ''
-     file: Optional[str] = '' The path of the file uploaded by the user (local file system, no download required)
-     extent: Optional[dict] = {{}} # put any other thing here
+    await file_callback(image_url)
 
 Please think step by step carefully, consider any possible situation, and write a complete code like DEMO
 Just reponse the python code, no any explain, no start with ```python, no end with ```, no any other text.
