@@ -1,8 +1,7 @@
 
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     from GeneralAgent import skills
-    while skills.messages_token_count(chat_history) > 6000:
-        chat_history.pop(0)
+    chat_history = skills.cut_messages(chat_history, 6000)
     messages = [{"role": "system", "content": "You are a helpful assistant."}] + chat_history
     response = skills.llm_inference(messages, model_type='smart')
     for token in response:
