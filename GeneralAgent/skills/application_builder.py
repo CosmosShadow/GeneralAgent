@@ -60,7 +60,7 @@ def create_application(function_id:str, task:str):
     Create a application by task
     """
     import os
-    code = function_code_generation(task)
+    code = application_code_generation(task)
     code_path = os.path.join(CODE_DIR,  'main.py')
     with open(code_path, 'w') as f:
         f.write(code)
@@ -221,4 +221,5 @@ Just reponse the python code, no any explain, no start with ```python, no end wi
         messages += [{"role": "system", "content": "user's code: " + default_code}]
     messages += [{"role": "system", "content": f"user's task: {task}"}]
     code = skills.sync_llm_inference(messages, model_type='smart')
+    code = skills.get_python_code(code)
     return code
