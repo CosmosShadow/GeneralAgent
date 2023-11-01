@@ -100,25 +100,31 @@ def function_code_generation(task, default_code=None):
     python_version = skills.get_python_version()
     requirements = skills.get_current_env_python_libs()
     the_skills_can_use = skills._search_tools(task)
-    the_skills_can_use = '\n'.join(the_skills_can_use)
     prompt = f"""
 You are a python expert, write a function to complete user's task
 
-CONSTRAINTS:
-- Import the lib in the function
-- docstring the function simplely
-- Python version {python_version} with the following libraries: {requirements}
-- Do not import the lib that the function not use.
-- You can use skills lib(from GeneralAgent import skills), the function in the lib are:
+# Python Version
+{python_version}
+
+# Python Libs installed
+{requirements}
+
+# You can use skills lib(from GeneralAgent import skills), the function in the lib are:
 {the_skills_can_use}
+
+
+# CONSTRAINTS:
+- Do not import the lib that the function not use.
+- Import the lib in the function, any import statement must be placed in the function
+- docstring the function simplely
 - Do not use other libraries
 - In the code, Intermediate files are written directly to the current directory (./)
 - Give the function a name that describle the task
 - The docstring of the function should be as concise as possible without losing key information, only one line, and output in English
-- Any import statement must be placed in the function
 - The code should be as simple as possible and the operation complexity should be low
 
-A Demo:
+# Demo:
+```python
 def translate(text:str, language:str) -> str:
     \"\"\"
     translate, return the translated text
@@ -132,6 +138,7 @@ def translate(text:str, language:str) -> str:
         prompt = "Translate the following text to " + language + "\n" + x
         translated += [skills.llm(prompt)]
     return '. '.join(translated)
+```
 
 Please think step by step carefully, consider any possible situation, and write a complete function.
 Just reponse the python code, no any explain, no start with ```python, no end with ```, no any other text.
@@ -151,37 +158,51 @@ def application_code_generation(task, default_code=None):
     python_version = skills.get_python_version()
     requirements = skills.get_current_env_python_libs()
     the_skills_can_use = skills._search_tools(task)
-    the_skills_can_use = '\n'.join(the_skills_can_use)
 
     prompt = f"""
-You are a python expert, write a python code to complete user's task.
+You are a python expert, write a python function to complete user's task.
 The function in code will be used to create a chat bot, like slack, discord.
 
-CONSTRAINTS:
-- Python version {python_version} with the following libraries: {requirements}
-- Do not import the lib that the function not use.
-- 'from GeneralAgent import skills' must be placed in the function
-- the function list of skills lib:
+# Function signature
+```
+async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
+    # chat_history is a list of dict, like [{{"role": "user", "content": "hello"}}, {{"role": "system", "content": "hi"}}]
+    # input is a string, user's input
+    # file_path is a string, user's file path
+    # output_callback is a async function, output_callback(content: str) -> None
+    # file_callback is a async function, file_callback(file_path: str) -> None
+    # ui_callback is a async function, ui_callback(name:str, js_path:str, data={{}}) -> None
+```
+
+# Python Version: {python_version}
+
+# Python Libs installed
+{requirements}
+
+# You can use skills lib(from GeneralAgent import skills), the function in the lib are:
 {the_skills_can_use}
-- Do not use other libraries
+
+# CONSTRAINTS:
+- Do not import the lib that the function not use.
+- Import the lib in the function
 - In the code, Intermediate files are written directly to the current directory (./)
 - Give the function a name that describe the task
 - The docstring of the function should be as concise as possible without losing key information, only one line, and output in English
-- The code should be as simple as possible and the operation complexity should be low
-- The code format, import part, function prompts, and function parameters should all be consistent with the DEMO below. Only modify the parameters, function names, and function implementations in the middle of prompts
 
-DEMO 1 : Chat with A large language model
-
+# DEMO 1 : Chat with A large language model
+```python
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     from GeneralAgent import skills
     chat_history = skills.cut_messages(chat_history, 4000)
-    messages = [{"role": "system", "content": "You are a helpful assistant."}] + chat_history
+    messages = [{{"role": "system", "content": "You are a helpful assistant."}}] + chat_history
     response = skills.llm_inference(messages)
     for token in response:
         await output_callback(token)
     await output_callback(None)
+```
 
-DEMO 2 : Create a image by user's prompt
+# DEMO 2 : Create a image by user's prompt
+```python
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     from GeneralAgent import skills
     prompt = input
@@ -189,6 +210,7 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
         prompt = skills.text_translation(prompt, 'english')
     image_url = skills.image_generation(prompt)
     await file_callback(image_url)
+```
 
 Please think step by step carefully, consider any possible situation, and write a complete code like DEMO
 Just reponse the python code, no any explain, no start with ```python, no end with ```, no any other text.

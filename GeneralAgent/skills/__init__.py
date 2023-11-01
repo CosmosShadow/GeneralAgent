@@ -77,7 +77,7 @@ class Skills:
 
     def _search_tools(self, task):
         """search tools by task"""
-        # TODO with LinkMemory
-        return ''
+        from .get_function_signature import get_function_signature
+        return '\n\n'.join([get_function_signature(fun) for fun in self._funs.values()])
 
 skills = Skills._instance()

@@ -1,15 +1,9 @@
-import os
-import json
-import openai
-import numpy as np
-from tinydb import TinyDB, Query
-from numpy.linalg import norm
-import logging
-from retrying import retry
-
+from retrying import retry as _retry
 
 class TinyDBCache():
     def __init__(self):
+        from tinydb import TinyDB
+        import os, json
         LLM_CACHE = os.environ.get('LLM_CACHE', 'no')
         if LLM_CACHE in ['yes', 'y', 'YES']:
             LLM_CACHE_PATH = os.environ.get('LLM_CACHE_PATH', './llm_cache.json')
@@ -18,6 +12,7 @@ class TinyDBCache():
             self.db = None
 
     def get(self, table, key):
+        from tinydb import Query
         if self.db is None:
             return None
         result = self.db.table(table).get(Query().key == key)
@@ -27,6 +22,7 @@ class TinyDBCache():
             return None
 
     def set(self, table, key, value):
+        from tinydb import Query
         if self.db is None:
             return
         self.db.table(table).upsert({'key': key, 'value': value}, Query().key == key)
@@ -35,8 +31,8 @@ class TinyDBCache():
 global_cache = TinyDBCache()
 
 
-def md5(obj):
-    import hashlib
+def _md5(obj):
+    import hashlib, json
     if isinstance(obj, str):
         return hashlib.md5(obj.encode('utf-8')).hexdigest()
     else:
@@ -61,6 +57,7 @@ def md5(obj):
 
 
 def _get_model(messages, model_type):
+    import os
     from GeneralAgent import skills
     assert model_type in ['normal', 'smart', 'long']
     if model_type == 'normal' and skills.messages_token_count(messages) > 3000:
@@ -73,22 +70,24 @@ def _get_model(messages, model_type):
     return model
 
 def _get_temperature():
+    import os
     temperature = float(os.environ.get('TEMPERATURE', 0.5))
     return temperature
 
 
-@retry(stop_max_attempt_number=3)
+@_retry(stop_max_attempt_number=3)
 def llm_inference(messages, model_type='normal'):
     """
-    messages: llm messages
-    model_type: normal, smart, long
+    messages: llm messages, model_type: normal, smart, long
     """
-    from GeneralAgent import skills
+    import openai
+    import logging
+    # from GeneralAgent import skills
     model = _get_model(messages, model_type)
     logging.debug(messages)
     global global_cache
     table = 'llm'
-    key = md5(messages)
+    key = _md5(messages)
     result = global_cache.get(table, key)
     if result is not None:
         print('llm_inference cache hitted')
@@ -110,11 +109,12 @@ def llm_inference(messages, model_type='normal'):
         # yield None
 
 
-@retry(stop_max_attempt_number=3)
+@_retry(stop_max_attempt_number=3)
 async def async_llm_inference(messages, model_type='normal'):
+    import openai
     global global_cache
     table = 'llm'
-    key = md5(messages)
+    key = _md5(messages)
     result = global_cache.get(table, key)
     if result is not None:
         return result
@@ -125,11 +125,15 @@ async def async_llm_inference(messages, model_type='normal'):
     global_cache.set(table, key, result)
     return result
 
-@retry(stop_max_attempt_number=3)
+@_retry(stop_max_attempt_number=3)
 def sync_llm_inference(messages, model_type='normal'):
+    import openai
+    import logging
     global global_cache
     table = 'llm'
-    key = md5(messages)
+    logging.debug(messages)
+    print(messages)
+    key = _md5(messages)
     result = global_cache.get(table, key)
     if result is not None:
         return result
@@ -141,7 +145,7 @@ def sync_llm_inference(messages, model_type='normal'):
     return result
 
 
-@retry(stop_max_attempt_number=3)
+@_retry(stop_max_attempt_number=3)
 def llm(prompt, model_type='normal'):
     """
     large language model to reason. prompt: llm prompt, model_type: normal, smart, long
