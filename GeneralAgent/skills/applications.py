@@ -1,10 +1,12 @@
 
 
-def load_application_names(code_dir):
+def load_application_names(code_dir=None):
     """
     加载所有应用的名称
     """
     import os, json
+    if code_dir is None:
+        code_dir = _get_applications_dir()
     result = []
     for bot_name in os.listdir(code_dir):
         bot_dir = os.path.join(code_dir, bot_name)
@@ -19,6 +21,10 @@ def load_application_names(code_dir):
                     result.append(bot_json)
     return result
 
+
+def _get_applications_dir():
+    import os
+    return os.path.join(os.path.dirname(__file__), '../../webui/server/server/applications/')
 
 
 def load_application(code_path):

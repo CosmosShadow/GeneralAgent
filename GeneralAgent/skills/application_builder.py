@@ -84,11 +84,13 @@ def update_application(task):
     with open(code_path, 'w') as f:
         f.write(code)
 
+
 def delete_application():
     import os
     code_path = os.path.join(get_code_dir(),  'main.py')
     if os.path.exists(code_path):
         os.remove(code_path)
+
 
 def install_application(application_id, application_name, description, upload_file='yes'):
     """
@@ -111,6 +113,16 @@ def install_application(application_id, application_name, description, upload_fi
         os.makedirs(target_dir)
     print(target_dir)
     os.system(f"mv {get_code_dir()}/* {target_dir}")
+
+
+def get_existed_application_ids():
+    """
+    Return all existed application ids
+    """
+    from GeneralAgent import skills
+    bots = skills.load_application_names()
+    ids = [x['id'] for x in bots]
+    return ids
 
 
 def function_code_generation(task, default_code=None):

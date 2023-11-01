@@ -279,9 +279,7 @@ async def websocket_user_endpoint(websocket: WebSocket):
 @app.get("/bot/list")
 async def bot_list():
     from GeneralAgent import skills
-    current_dir = os.path.abspath(os.path.dirname(__file__))
-    APPLICATIONS_PATH = os.path.join(current_dir, 'applications')
-    return skills.load_application_names(APPLICATIONS_PATH)
+    return skills.load_application_names()
 
 
 @app.get("/chats/{bot_id}")
