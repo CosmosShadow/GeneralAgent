@@ -1,7 +1,13 @@
 
-def _get_code_dir():
-    CODE_DIR = './code'
+CODE_DIR = './code'
+
+def get_code_dir():
+    global CODE_DIR
     return CODE_DIR
+
+def set_code_dir(code_dir):
+    global CODE_DIR
+    CODE_DIR = code_dir
 
 def create_function(func_name, task):
     """
@@ -10,7 +16,7 @@ def create_function(func_name, task):
     # from GeneralAgent import skills
     import os
     code = function_code_generation(task)
-    file_path = os.path.join(_get_code_dir(), func_name + '.py')
+    file_path = os.path.join(get_code_dir(), func_name + '.py')
     with open(file_path, 'w') as f:
         f.write(code)
 
@@ -19,7 +25,7 @@ def delete_function(func_name):
     Delete a function by name
     """
     import os
-    file_path = os.path.join(_get_code_dir(), func_name + '.py')
+    file_path = os.path.join(get_code_dir(), func_name + '.py')
     if os.path.exists(file_path):
         os.remove(file_path)
 
@@ -27,13 +33,13 @@ def list_functions():
     """list all functions, return function names and description"""
     # TODO function description
     import os
-    files = os.listdir(_get_code_dir())
+    files = os.listdir(get_code_dir())
     functions = [x.split('.')[0] for x in files]
     return functions
 
 def show_function(func_name):
     import os
-    file_path = os.path.join(_get_code_dir(), func_name + '.py')
+    file_path = os.path.join(get_code_dir(), func_name + '.py')
     if os.path.exists(file_path):
         with open(file_path, 'r') as f:
             code = f.read()
@@ -46,7 +52,7 @@ def update_function(func_name:str, task:str):
     Update a function by task(string)
     """
     import os
-    file_path = os.path.join(_get_code_dir(), func_name + '.py')
+    file_path = os.path.join(get_code_dir(), func_name + '.py')
     if os.path.exists(file_path):
         with open(file_path, 'r') as f:
             code = f.read()
@@ -63,14 +69,13 @@ def create_application(task:str):
     """
     import os
     code = application_code_generation(task)
-    code_path = os.path.join(_get_code_dir(),  'main.py')
+    code_path = os.path.join(get_code_dir(),  'main.py')
     with open(code_path, 'w') as f:
         f.write(code)
-    # TODO add application to chat bot
 
 def update_application(task):
     import os
-    code_path = os.path.join(_get_code_dir(),  'main.py')
+    code_path = os.path.join(get_code_dir(),  'main.py')
     old_code = ''
     if os.path.exists(code_path):
         with open(code_path, 'r') as f:
@@ -79,30 +84,33 @@ def update_application(task):
     with open(code_path, 'w') as f:
         f.write(code)
 
-
 def delete_application():
     import os
-    code_path = os.path.join(_get_code_dir(),  'main.py')
+    code_path = os.path.join(get_code_dir(),  'main.py')
     if os.path.exists(code_path):
         os.remove(code_path)
 
 def install_application(application_id, application_name, description, upload_file='yes'):
+    """
+    Install application to chat bot, application_id is the id of application, application_name is the name of application, description is the description of application, upload_file is 'yes' or 'no', when upload_file is 'yes', the application can upload file, when upload_file is 'no', the application can not upload file
+    """
     # TODO: check function_id and application_name
-    import os
+    import os, json
     app_json = {
         "id": application_id,
         "name": application_name,
         "description": description,
         "upload_file": upload_file
     }
-    bot_json_path = os.path.join(_get_code_dir(), 'bot.json')
+    bot_json_path = os.path.join(get_code_dir(), 'bot.json')
     with open(bot_json_path, 'w') as f:
-        f.write(app_json)
+        f.write(json.dumps(app_json, indent=4))
     # move code to bot
-    target_dir = os.path.join(os.path.dirname(__file__), f'../../webui/server/server/application/{application_id}/')
+    target_dir = os.path.join(os.path.dirname(__file__), f'../../webui/server/server/applications/{application_id}/')
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
-    os.system(f"mv {_get_code_dir()}/* {target_dir}")
+    print(target_dir)
+    os.system(f"mv {get_code_dir()}/* {target_dir}")
 
 
 def function_code_generation(task, default_code=None):

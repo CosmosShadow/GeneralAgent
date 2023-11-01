@@ -63,7 +63,7 @@ class Skills:
     def _load_funcs(self, the_dir):
         total_funs = []
         for file in os.listdir(the_dir):
-            if file.endswith('.py') and (not file.startswith('__init__') and not file.startswith('_') and not file != 'main.py'):
+            if file.endswith('.py') and (not file.startswith('__init__') and not file.startswith('_') and not file == 'main.py'):
                 funcs = load_functions_with_path(os.path.join(the_dir, file))
                 total_funs += funcs
         return total_funs
