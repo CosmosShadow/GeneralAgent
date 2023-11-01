@@ -29,7 +29,7 @@ wikipedia_search = skills.wikipedia_search
 scrape_web = skills.scrape_web
 """
 
-default_libs = ["requests", "tinydb", "openai", "jinja2", "numpy", "bs4", "playwright", "retrying", "pymupdf", "python-pptx", "python-docx", "yfinance"]
+default_libs = ' '.join(["requests", "tinydb", "openai", "jinja2", "numpy", "bs4", "playwright", "retrying", "pymupdf", "python-pptx", "python-docx", "yfinance"])
 
 from GeneralAgent.tools import Tools
 
@@ -37,7 +37,7 @@ class PythonInterpreter(Interpreter):
     def __init__(self, 
                  serialize_path:str=None, 
                  tools:Tools=None, 
-                 libs:[str]=default_libs, 
+                 libs: str=default_libs, 
                  import_code:str=default_import_code,
                  prompt_append=''
                  ):
@@ -67,10 +67,9 @@ class PythonInterpreter(Interpreter):
                 return data['globals']
 
     async def prompt(self, messages) -> str:
-        python_libs = ', '.join(self.python_libs)
         python_funcs = self.tools.get_funs_description()
         variables = {
-            'python_libs': python_libs,
+            'python_libs': self.python_libs,
             'python_funcs': python_funcs
         }
         return Template(python_prompt).render(**variables) + self.prompt_append

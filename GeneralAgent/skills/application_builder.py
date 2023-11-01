@@ -38,6 +38,9 @@ def list_functions():
     return functions
 
 def show_function(func_name):
+    """
+    Show a function code by name
+    """
     import os
     file_path = os.path.join(get_code_dir(), func_name + '.py')
     if os.path.exists(file_path):
