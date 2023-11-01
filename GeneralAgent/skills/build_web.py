@@ -7,7 +7,7 @@ def _build_ui(lib_name, code, target_dir):
         shutil.rmtree(target_dir)
     os.makedirs(target_dir)
 
-    ts_builder_dir = os.path.join(os.path.dirname(__file__), '../webui/server/server/ts_builder')
+    ts_builder_dir = os.path.join(os.path.dirname(__file__), '../../webui/server/server/ts_builder')
 
     code_path = os.path.join(ts_builder_dir, 'src/lib/index.tsx')
     with open(code_path, 'w') as f:

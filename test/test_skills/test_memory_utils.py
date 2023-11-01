@@ -32,7 +32,7 @@ background = """
 
 
 def test_parse_segment_llm_result():
-    from skills.memory_utils import _parse_segment_llm_result
+    from GeneralAgent.memory_utils import _parse_segment_llm_result
     string = "<<Nougat: Neural Optical Understanding for Academic Documents>>\n0: 15\n\n<<Abstract>>\n6: 15\n\n<<Introduction>>\n17: 32\n\n<<Primary Contributions>>\n34: 38"
     nodes = _parse_segment_llm_result(string)
     assert nodes['Abstract'] == (6, 15)
@@ -40,21 +40,21 @@ def test_parse_segment_llm_result():
 
 @pytest.mark.asyncio
 async def test_segment_text():
-    from skills import skills
+    from GeneralAgent import skills
     nodes = await skills.segment_text(content)
     assert len(nodes) > 0
     assert 'Abstract' in ''.join(nodes.keys())
 
 @pytest.mark.asyncio
 async def test_summarize_text():
-    from skills import skills
+    from GeneralAgent import skills
     summary = await skills.summarize_text(content)
     # print(summary)
     assert len(summary) < len(content)
 
 @pytest.mark.asyncio
 async def test_extract_info():
-    from skills import skills
+    from GeneralAgent import skills
     task = "今天天气怎么样?"
     info = await skills.extract_info(background, task)
     assert '[Nothing]' == info
@@ -81,7 +81,7 @@ def test_parse_extract_info():
 <<Limitations and Future Work>>
 #03 The model's utility is limited by factors such as repetitions and the need for improvements in handling different document styles. The model's generation speed is slower compared to classical approaches but can correctly parse mathematical expressions. Future work includes addressing the tendency for the model to collapse into a repeating loop and improving the handling of inconsistencies across the document. Detail in <<Repetition Detection and Inference>>, <<Limitations and Future Work>>
 """
-    from skills import skills
+    from GeneralAgent import skills
     numbers, titles = skills.parse_extract_info(content)
     assert numbers == [1, 3, 3]
     # print(numbers)
