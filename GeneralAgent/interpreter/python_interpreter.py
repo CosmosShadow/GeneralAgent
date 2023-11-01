@@ -56,15 +56,15 @@ class PythonInterpreter(Interpreter):
         self.serialize_path = serialize_path
         self.prompt_append = prompt_append
         self.tools = tools or Tools([skills.google_search, skills.wikipedia_search, skills.scrape_web])
-        self.load()
+        self.globals = self.load()
 
     def load(self):
         if self.serialize_path is None:
-            return
+            return {}
         if os.path.exists(self.serialize_path):
             with open(self.serialize_path, 'rb') as f:
                 data = pickle.loads(f.read())
-                self.globals = data['globals']
+                return data['globals']
 
     async def prompt(self, messages) -> str:
         python_libs = ', '.join(self.python_libs)
@@ -82,7 +82,13 @@ class PythonInterpreter(Interpreter):
     def save(self):
         if self.serialize_path is None:
             return
-        # remove all unpickleable objects
+        self._remove_unpickleable()
+        # save
+        with open(self.serialize_path, 'wb') as f:
+            data = {'globals': self.globals}
+            f.write(pickle.dumps(data))
+
+    def _remove_unpickleable(self):
         if '__builtins__' in self.globals:
             self.globals.__delitem__('__builtins__')
         keys = list(self.globals.keys())
@@ -91,10 +97,6 @@ class PythonInterpreter(Interpreter):
                 pickle.dumps(self.globals[key])
             except Exception as e:
                 self.globals.__delitem__(key)
-        # save
-        with open(self.serialize_path, 'wb') as f:
-            data = {'globals': self.globals}
-            f.write(pickle.dumps(data))
 
     async def parse(self, string):
         sys_out = ''
@@ -110,7 +112,7 @@ class PythonInterpreter(Interpreter):
     def run_code(self, code):
         code = self.add_print(code)
         code = self.import_code + '\n' + code
-        globals_backup = pickle.dumps(self.globals)
+        globals_backup = self.load()
         logging.debug(code)
         sys_stdout = ''
         output = io.StringIO()
@@ -122,7 +124,7 @@ class PythonInterpreter(Interpreter):
         except Exception as e:
             import traceback
             sys_stdout += traceback.format_exc()
-            self.globals = pickle.loads(globals_backup)
+            self.globals = globals_backup
         finally:
             sys_stdout += output.getvalue()
             sys.stdout = sys.__stdout__

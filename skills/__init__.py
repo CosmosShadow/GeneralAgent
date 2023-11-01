@@ -54,11 +54,11 @@ class Skills:
             return self._get_func(name)
         
     def _get_func(self, name):
-        return self._base_funs.get(name, None)
+        return self._funs.get(name, None)
     
     def __init__(self):
-        self._base_funs = {}
-        self._load_base()
+        self._funs = {}
+        self._load_local_funs()
 
     def _load_funcs(self, the_dir):
         total_funs = []
@@ -68,12 +68,11 @@ class Skills:
                 total_funs += funcs
         return total_funs
 
-    def _load_base(self):
-        # 加载函数
+    def _load_local_funs(self):
         the_dir = os.path.dirname(__file__)
         funcs = self._load_funcs(the_dir)
-        self._base_funs = {}
+        self._funs = {}
         for fun in funcs:
-            self._base_funs[fun.__name__] = fun
+            self._funs[fun.__name__] = fun
 
 skills = Skills._instance()
