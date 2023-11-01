@@ -1,6 +1,6 @@
 
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
-    from skills import skills
+    from GeneralAgent import skills
     text = input
     if file_path is not None:
         text = skills.read_file_content(file_path)

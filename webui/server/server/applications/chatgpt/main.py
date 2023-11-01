@@ -1,6 +1,6 @@
 
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
-    from skills import skills
+    from GeneralAgent import skills
     while skills.messages_token_count(chat_history) > 4000:
         count = skills.messages_token_count(chat_history)
         print(f'chat history too long ({count}), pop one message')

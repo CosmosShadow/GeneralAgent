@@ -32,7 +32,7 @@ def _build_ui(lib_name, code, target_dir):
 
 
 def _llm_write_ui_lib(lib_name, task):
-    from skills import skills
+    from GeneralAgent import skills
     prompt_template = """
 Help me write a React function component in tsx language.
 Add some style to make the component display correctly and beautifully.

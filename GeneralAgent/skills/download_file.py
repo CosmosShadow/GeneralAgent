@@ -16,7 +16,7 @@ def download_file(file_url, save_path):
 
 def try_download_file(file_path):
     import os
-    from skills import skills
+    from GeneralAgent import skills
     from PIL import Image
     """Try to download file if it is a url, else return file_path"""
     if file_path.startswith("http://") or file_path.startswith("https://"):

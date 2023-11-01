@@ -66,7 +66,7 @@ def llm_inference(messages, model_type='normal'):
     messages: llm messages
     model_type: normal, smart, long
     """
-    from skills import skills
+    from GeneralAgent import skills
 
     # set model
     assert model_type in ['normal', 'smart', 'long']

@@ -1,6 +1,6 @@
 
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
-    from skills import skills
+    from GeneralAgent import skills
     if file_path is None:
         await output_callback('Please upload a voice file')
         return

@@ -5,7 +5,7 @@ def split_text(text, max_token=3000, separators='\n'):
     Split the text into paragraphs, each paragraph has less than max_token tokens.
     """
     import re
-    from skills import skills
+    from GeneralAgent import skills
     pattern = "[" + re.escape(separators) + "]"
     paragraphs = list(re.split(pattern, text))
     print(len(paragraphs))

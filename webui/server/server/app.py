@@ -15,7 +15,7 @@ import uuid, json
 from typing import Optional
 from datetime import datetime
 from dataclasses import dataclass
-from skills import skills
+from GeneralAgent import skills
 
 # load env
 # if os.path.exists('.env'):
@@ -112,7 +112,7 @@ def history_to_messages(history):
     return messages
 
 def try_create_chat_name(message:Message, chat_messages):
-    from skills import skills
+    from GeneralAgent import skills
     chat = db.table('chats').get(Query().id == message.chat_id)
     chat = Chat(**chat)
     if chat.name == '' and len(chat_messages) > 0:
@@ -278,7 +278,7 @@ async def websocket_user_endpoint(websocket: WebSocket):
 
 @app.get("/bot/list")
 async def bot_list():
-    from skills import skills
+    from GeneralAgent import skills
     current_dir = os.path.abspath(os.path.dirname(__file__))
     APPLICATIONS_PATH = os.path.join(current_dir, 'applications')
     return skills.load_application_names(APPLICATIONS_PATH)

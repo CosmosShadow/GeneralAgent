@@ -5,7 +5,7 @@ def create_function(func_name, task):
     """
     Create a function by task
     """
-    # from skills import skills
+    # from GeneralAgent import skills
     import os
     code = function_code_generation(task)
     file_path = os.path.join(CODE_DIR, func_name + '.py')
@@ -96,7 +96,7 @@ def function_code_generation(task, default_code=None):
     """
     # global skills
     import os
-    from skills import skills
+    from GeneralAgent import skills
     python_version = '3.9'
     # 读取当前文件所在目录下requiements.txt的依赖
     current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -113,7 +113,7 @@ CONSTRAINTS:
 - docstring the function simplely
 - Python version {python_version} with the following libraries: {requirements}
 - Do not import the lib that the function not use.
-- You can use skills lib(from skills import skills), the function in the lib are:
+- You can use skills lib(from GeneralAgent import skills), the function in the lib are:
 {the_skills_can_use}
 - Do not use other libraries
 - In the code, Intermediate files are written directly to the current directory (./)
@@ -129,7 +129,7 @@ def translate(text, language):
     Parameters: text -- user text, string
     Returns: the translated text, string
     \"\"\"
-    from skills import skills
+    from GeneralAgent import skills
     contents = text.split('.')
     translated = []
     for x in contents:
@@ -151,7 +151,7 @@ Just reponse the python code, no any explain, no start with ```python, no end wi
 def application_code_generation(task, default_code=None):
     """Return the python code text that completes the task to build a chat bot, when default_code is not None, update default_code by task"""
     import os
-    from skills import skills
+    from GeneralAgent import skills
 
     python_version = '3.9'
     # 读取当前文件所在目录下requiements.txt的依赖
@@ -170,7 +170,7 @@ The function in code will be used to create a chat bot, like slack, discord.
 CONSTRAINTS:
 - Python version {python_version} with the following libraries: {requirements}
 - Do not import the lib that the function not use.
-- 'from skills import skills' must be placed in the function
+- 'from GeneralAgent import skills' must be placed in the function
 - the function list of skills lib:
 {the_skills_can_use}
 - Do not use other libraries
@@ -186,7 +186,7 @@ from interface import Message, prompts
 
 @prompts(nickname='AI画画', description='输入文字(支持中英文)，AI帮你画画', gpu=1)
 def AIDraw(history, message_in:Message, send_message_recall):
-    from skills import skills
+    from GeneralAgent import skills
     prompt = message_in.msg
     if not skills.text_is_english(prompt):
         prompt = skills.text_translation(prompt, 'english')
@@ -199,7 +199,7 @@ from interface import Message, prompts
 
 @prompts(nickname='李白', description='我乃诗仙李白 ( /reset 开启新对话)', gpu=0)
 def charator_libai(history, message_in:Message, send_message_recall):
-    from skills import skills
+    from GeneralAgent import skills
     prompt = "你现在扮演唐朝诗人李白，李白四川江油人，出生于哈萨克斯坦的碎叶城。请你务必按照李白的说话语气、说话习惯和用户进行对话。\n"
     skills.chat_with_prompt(prompt, history, message_in, send_message_recall)
 

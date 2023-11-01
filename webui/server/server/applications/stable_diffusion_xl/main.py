@@ -1,6 +1,6 @@
 
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
-    from skills import skills
+    from GeneralAgent import skills
     prompt = input
     if not skills.text_is_english(prompt):
         prompt = skills.text_translation(prompt, 'english')

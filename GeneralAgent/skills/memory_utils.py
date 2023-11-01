@@ -29,7 +29,7 @@ async def segment_text(text):
     """
     将文本进行语义分段，返回分段后的文本和key组成的字典nodes
     """
-    from skills import skills
+    from GeneralAgent import skills
     from jinja2 import Template
     segment_prompt = """
 ---------
@@ -79,7 +79,7 @@ Please note, each title should not exceed 10 words. Titles exceeding this limit 
 
 
 async def summarize_text(text):
-    from skills import skills
+    from GeneralAgent import skills
     prompt = "Please distill the content between --------- into a concise phrase or sentence that captures the essence without any introductory phrases."
     # prompt = "请将---------之间的内容提炼成一个简洁的短语或句子，抓住要点，无需任何介绍性短语。"
     messages = [
@@ -118,7 +118,7 @@ If no relevant information is found, please output "[Nothing]".
 ```
 """
 
-    from skills import skills
+    from GeneralAgent import skills
     from jinja2 import Template
     prompt = Template(prompt_template).render({'background': background, 'task': task})
     messages = [
@@ -144,7 +144,7 @@ def extract_title(text):
     if len(text) > 500:
         text = text[:500]
     prompt = "Please distill the content between --------- into a concise title of the content, less than five words.\n---------\n" + text + "\n---------"
-    from skills import skills
+    from GeneralAgent import skills
     messages = [
         {'role': 'system','content': 'You are a helpful assistant'},
         {'role': 'user','content': prompt}

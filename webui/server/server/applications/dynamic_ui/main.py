@@ -1,6 +1,6 @@
 
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
-    from skills import skills
+    from GeneralAgent import skills
     result = skills.task_to_ui_js(input)
     if result is not None:
         js_path, lib_name = result

@@ -1,7 +1,7 @@
 from GeneralAgent.agent import LinkAgent
 
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
-    from skills import skills
+    from GeneralAgent import skills
     agent = LinkAgent('./data/')
     if file_path is not None:
         await output_callback(f'Start to read file {file_path}.')
