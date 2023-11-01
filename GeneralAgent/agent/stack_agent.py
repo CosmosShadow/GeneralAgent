@@ -176,7 +176,7 @@ print({variable_name}['Hello world'])
     
     async def _execute_node(self, node, output_callback):
         # construct system prompt
-        from skills import skills
+        from GeneralAgent import skills
         messages = self.memory.get_related_messages_for_node(node)
         system_prompt = '\n\n'.join([await interpreter.prompt(messages) for interpreter in self.output_interpreters])
         retrieve_prompt = '\n\n'.join([await interpreter.prompt(messages) for interpreter in self.retrieve_interpreters])

@@ -15,7 +15,7 @@ class LinkAgent:
         await self.link_memory.add_memory(content)
 
     async def run(self, input, output_callback=default_output_callback):
-        from skills import skills
+        from GeneralAgent import skills
         # save and get messages
         self.normal_memory.add_message('user', input)
         messages = self.normal_memory.get_messages()

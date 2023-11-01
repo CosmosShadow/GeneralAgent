@@ -13,7 +13,7 @@ class RetrieveInterpreter(Interpreter):
         self.collection = self.client.get_or_create_collection(name="read", metadata={"hnsw:space": "cosine"})
 
     async def prompt(self, messages) -> str:
-        from skills import skills
+        from GeneralAgent import skills
         # when collection is empty, return empty string
         if self.collection.count() == 0:
             return ''
@@ -49,7 +49,7 @@ class RetrieveInterpreter(Interpreter):
         return '```read\n(.*?)\n```'
     
     async def parse(self, string):
-        from skills import skills
+        from GeneralAgent import skills
         information = []
         pattern = re.compile(self.match_template, re.DOTALL)
         match = pattern.search(string)

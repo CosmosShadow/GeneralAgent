@@ -60,15 +60,8 @@ def md5(obj):
 #     logging.info(result)
 
 
-@retry(stop_max_attempt_number=3)
-def llm_inference(messages, model_type='normal'):
-    """
-    messages: llm messages
-    model_type: normal, smart, long
-    """
+def _get_model(messages, model_type):
     from GeneralAgent import skills
-
-    # set model
     assert model_type in ['normal', 'smart', 'long']
     if model_type == 'normal' and skills.messages_token_count(messages) > 3000:
         model_type = 'long'
@@ -77,7 +70,21 @@ def llm_inference(messages, model_type='normal'):
         model = 'gpt-4'
     if model_type == 'long':
         model = 'gpt-3.5-turbo-16k'
+    return model
 
+def _get_temperature():
+    temperature = float(os.environ.get('TEMPERATURE', 0.5))
+    return temperature
+
+
+@retry(stop_max_attempt_number=3)
+def llm_inference(messages, model_type='normal'):
+    """
+    messages: llm messages
+    model_type: normal, smart, long
+    """
+    from GeneralAgent import skills
+    model = _get_model(messages, model_type)
     logging.debug(messages)
     global global_cache
     table = 'llm'
@@ -90,7 +97,7 @@ def llm_inference(messages, model_type='normal'):
         yield '\n'
         # yield None
     else:
-        temperature = float(os.environ.get('TEMPERATURE', 0.5))
+        temperature = _get_temperature()
         response = openai.ChatCompletion.create(model=model, messages=messages, stream=True, temperature=temperature)
         result = ''
         for chunk in response:
@@ -104,33 +111,45 @@ def llm_inference(messages, model_type='normal'):
 
 
 @retry(stop_max_attempt_number=3)
-async def async_llm_inference(messages, model=None):
+async def async_llm_inference(messages, model_type='normal'):
     global global_cache
     table = 'llm'
     key = md5(messages)
     result = global_cache.get(table, key)
     if result is not None:
         return result
-    if model is None:
-        model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
-    temperature = float(os.environ.get('TEMPERATURE', 0.5))
+    model = _get_model(messages, model_type)
+    temperature = _get_temperature()
     response = await openai.ChatCompletion.acreate(model=model, messages=messages, temperature=temperature)
     result = response['choices'][0]['message']['content']
     global_cache.set(table, key, result)
     return result
 
 @retry(stop_max_attempt_number=3)
-def sync_llm_inference(messages, model=None):
+def sync_llm_inference(messages, model_type='normal'):
     global global_cache
     table = 'llm'
     key = md5(messages)
     result = global_cache.get(table, key)
     if result is not None:
         return result
-    if model is None:
-        model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
-    temperature = float(os.environ.get('TEMPERATURE', 0.5))
+    model = _get_model(messages, model_type)
+    temperature = _get_temperature()
     response = openai.ChatCompletion.create(model=model, messages=messages, temperature=temperature)
     result = response['choices'][0]['message']['content']
     global_cache.set(table, key, result)
+    return result
+
+
+@retry(stop_max_attempt_number=3)
+def llm(prompt, model_type='normal'):
+    """
+    large language model to reason. prompt: llm prompt, model_type: normal, smart, long
+    """
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "system", "content": prompt}]
+    result = ''
+    for x in llm_inference(messages, model_type):
+        result += x
     return result

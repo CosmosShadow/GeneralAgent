@@ -23,7 +23,7 @@ python_prompt = """
 default_import_code = """
 import os, sys, math
 # from GeneralAgent.tools import google_search, wikipedia_search, scrape_web
-from skills import skills
+from GeneralAgent import skills
 google_search = skills.google_search
 wikipedia_search = skills.wikipedia_search
 scrape_web = skills.scrape_web
@@ -49,7 +49,7 @@ class PythonInterpreter(Interpreter):
             import_code (str, optional): code to import. The tools used should be imported. Defaults to default_import_code.
             prompt_append: append to the prompt, custom prompt can be added here
         """
-        from skills import skills
+        from GeneralAgent import skills
         self.globals = {}  # global variables shared by all code
         self.python_libs = libs
         self.import_code = import_code

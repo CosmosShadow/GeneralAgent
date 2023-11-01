@@ -22,7 +22,7 @@ class LinkMemoryNode:
 
 
 async def summarize_and_segment(text, output_callback=None):
-    from skills import skills
+    from GeneralAgent import skills
     summary = await skills.summarize_text(text)
     if output_callback is not None:
         await output_callback(f'Summary: {summary}\n')
@@ -47,7 +47,7 @@ class LinkMemory():
         return len(self.concepts) == 0
 
     async def add_memory(self, content, output_callback=None):
-        from skills import skills
+        from GeneralAgent import skills
         # await self._oncurrent_summarize_content(content, output_callback)
         await self._summarize_content(content, output_callback)
         while skills.string_token_count(self.short_memory) > self.short_memory_limit:
@@ -57,7 +57,7 @@ class LinkMemory():
             await self._summarize_content(content, output_callback)
     
     async def get_memory(self, messages=None):
-        from skills import skills
+        from GeneralAgent import skills
         if len(self.concepts) == 0:
             return ''
         if messages is None:
@@ -87,7 +87,7 @@ class LinkMemory():
         self.db.table('short_memory').insert({'content': self.short_memory})
     
     async def _oncurrent_summarize_content(self, input):
-        from skills import skills
+        from GeneralAgent import skills
         inputs = skills.split_text(input, max_token=3000)
         print('splited count: ', len(inputs))
         coroutines = [summarize_and_segment(x) for x in inputs]
@@ -102,7 +102,7 @@ class LinkMemory():
         self._save_short_memory()
 
     async def _summarize_content(self, input, output_callback=None):
-        from skills import skills
+        from GeneralAgent import skills
         inputs = skills.split_text(input, max_token=3000)
         for text in inputs:
             summary, nodes = await summarize_and_segment(text, output_callback)

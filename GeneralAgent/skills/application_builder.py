@@ -97,13 +97,9 @@ def function_code_generation(task, default_code=None):
     # global skills
     import os
     from GeneralAgent import skills
-    python_version = '3.9'
-    # 读取当前文件所在目录下requiements.txt的依赖
-    current_directory = os.path.dirname(os.path.abspath(__file__))
-    with open(current_directory + '/requirements.txt', 'r') as f:
-        requirements = f.read()
-        requirements = requirements.replace('\n', ' ')
-    the_skills_can_use = skills._skill_list_descs_for_task(task)
+    python_version = skills.get_python_version()
+    requirements = skills.get_current_env_python_libs()
+    the_skills_can_use = skills._search_tools(task)
     the_skills_can_use = '\n'.join(the_skills_can_use)
     prompt = f"""
 You are a python expert, write a function to complete user's task
@@ -123,7 +119,7 @@ CONSTRAINTS:
 - The code should be as simple as possible and the operation complexity should be low
 
 A Demo:
-def translate(text, language):
+def translate(text:str, language:str) -> str:
     \"\"\"
     translate, return the translated text
     Parameters: text -- user text, string
@@ -133,8 +129,8 @@ def translate(text, language):
     contents = text.split('.')
     translated = []
     for x in contents:
-        prompt = "Translate the following text to " + language + x
-        translated += [skills.gpt4(prompt)]
+        prompt = "Translate the following text to " + language + "\n" + x
+        translated += [skills.llm(prompt)]
     return '. '.join(translated)
 
 Please think step by step carefully, consider any possible situation, and write a complete function.
@@ -142,25 +138,19 @@ Just reponse the python code, no any explain, no start with ```python, no end wi
 """
     messages = [{"role": "system", "content": prompt}]
     if default_code is not None:
-        messages += [{"role": "user", "content": "user's code: " + default_code}]
-    messages += [{"role": "user", "content": f"user's task: {task}"}]
-    code = skills.sync_llm_inference(messages)
+        messages += [{"role": "system", "content": "user's code: " + default_code}]
+    messages += [{"role": "system", "content": f"user's task: {task}"}]
+    code = skills.sync_llm_inference(messages, model_type='smart')
+    code = skills.get_python_code(code)
     return code
 
 
 def application_code_generation(task, default_code=None):
     """Return the python code text that completes the task to build a chat bot, when default_code is not None, update default_code by task"""
-    import os
     from GeneralAgent import skills
-
-    python_version = '3.9'
-    # 读取当前文件所在目录下requiements.txt的依赖
-    current_directory = os.path.dirname(os.path.abspath(__file__))
-    with open(current_directory + '/requirements.txt', 'r') as f:
-        requirements = f.read()
-        requirements = requirements.replace('\n', ' ')
-
-    the_skills_can_use = skills._skill_list_descs_for_task(task)
+    python_version = skills.get_python_version()
+    requirements = skills.get_current_env_python_libs()
+    the_skills_can_use = skills._search_tools(task)
     the_skills_can_use = '\n'.join(the_skills_can_use)
 
     prompt = f"""
@@ -228,13 +218,7 @@ Just reponse the python code, no any explain, no start with ```python, no end wi
 
     messages = [{"role": "system", "content": prompt}]
     if default_code is not None:
-        messages += [{"role": "user", "content": "user's code: " + default_code}]
-    messages += [{"role": "user", "content": f"user's task: {task}"}]
-
-    print('-' * 100)
-    print(prompt)
-    print(default_code)
-    print(task)
-    print('-' * 100)
-
-    return skills.platform_private_gpt4(messages)
+        messages += [{"role": "system", "content": "user's code: " + default_code}]
+    messages += [{"role": "system", "content": f"user's task: {task}"}]
+    code = skills.sync_llm_inference(messages, model_type='smart')
+    return code

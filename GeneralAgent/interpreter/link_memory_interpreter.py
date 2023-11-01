@@ -27,7 +27,7 @@ class LinkMemoryInterpreter(Interpreter):
             self.python_intrepreter.set_variable(self.sparks_dict_name, sparks_dict)
     
     async def parse(self, string):
-        from skills import skills
+        from GeneralAgent import skills
         pattern = re.compile(self.match_template, re.DOTALL)
         match = pattern.search(string)
         assert match is not None

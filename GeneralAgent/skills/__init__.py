@@ -75,4 +75,9 @@ class Skills:
         for fun in funcs:
             self._funs[fun.__name__] = fun
 
+    def _search_tools(self, task):
+        """search tools by task"""
+        # TODO with LinkMemory
+        return ''
+
 skills = Skills._instance()
