@@ -3,15 +3,18 @@ CODE_DIR = './code'
 
 def get_code_dir():
     global CODE_DIR
+    import os
+    if not os.path.exists(CODE_DIR):
+        os.makedirs(CODE_DIR)
     return CODE_DIR
 
 def set_code_dir(code_dir):
     global CODE_DIR
     CODE_DIR = code_dir
 
-def create_function(func_name, task):
+def create_function(func_name:str, task:str):
     """
-    Create a function by task
+    Create a function by task description. The function name is func_name, the task is task(string)
     """
     # from GeneralAgent import skills
     import os
@@ -20,7 +23,7 @@ def create_function(func_name, task):
     with open(file_path, 'w') as f:
         f.write(code)
 
-def delete_function(func_name):
+def delete_function(func_name:str) -> None:
     """
     Delete a function by name
     """
@@ -29,15 +32,17 @@ def delete_function(func_name):
     if os.path.exists(file_path):
         os.remove(file_path)
 
-def list_functions():
-    """list all functions, return function names and description"""
+def list_functions() -> [str]:
+    """
+    list all function names
+    """
     # TODO function description
     import os
     files = os.listdir(get_code_dir())
     functions = [x.split('.')[0] for x in files]
     return functions
 
-def show_function(func_name):
+def show_function(func_name:str) -> str:
     """
     Show a function code by name
     """
@@ -52,7 +57,7 @@ def show_function(func_name):
 
 def update_function(func_name:str, task:str):
     """
-    Update a function by task(string)
+    update function named func_name code by task
     """
     import os
     file_path = os.path.join(get_code_dir(), func_name + '.py')
@@ -66,9 +71,9 @@ def update_function(func_name:str, task:str):
         create_function(func_name, task)
 
 
-def create_application(task:str):
+def create_application(task:str) -> None:
     """
-    Create a application by task
+    Create a application by task description. The application name is application_name, the task is task(string)
     """
     import os
     code = application_code_generation(task)
@@ -76,7 +81,10 @@ def create_application(task:str):
     with open(code_path, 'w') as f:
         f.write(code)
 
-def update_application(task):
+def update_application(task:str) -> None:
+    """
+    Update application code by task
+    """
     import os
     code_path = os.path.join(get_code_dir(),  'main.py')
     old_code = ''
@@ -89,13 +97,16 @@ def update_application(task):
 
 
 def delete_application():
+    """
+    Delete application code
+    """
     import os
     code_path = os.path.join(get_code_dir(),  'main.py')
     if os.path.exists(code_path):
         os.remove(code_path)
 
 
-def install_application(application_id, application_name, description, upload_file='yes'):
+def install_application(application_id:str, application_name:str, description:str, upload_file='yes'):
     """
     Install application to chat bot, application_id is the id of application, application_name is the name of application, description is the description of application, upload_file is 'yes' or 'no', when upload_file is 'yes', the application can upload file, when upload_file is 'no', the application can not upload file
     """
@@ -118,7 +129,7 @@ def install_application(application_id, application_name, description, upload_fi
     os.system(f"mv {get_code_dir()}/* {target_dir}")
 
 
-def get_existed_application_ids():
+def get_existed_application_ids() -> [str]:
     """
     Return all existed application ids
     """
@@ -128,7 +139,7 @@ def get_existed_application_ids():
     return ids
 
 
-def function_code_generation(task, default_code=None):
+def function_code_generation(task:str, default_code=None):
     """Return the python function code text that completes the task to be used by other function or application, when default_code is not None, update default_code by task"""
     
     """

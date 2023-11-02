@@ -6,10 +6,8 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
     from GeneralAgent.agent import Agent
     workspace = './'
     system_prompt = """
-You are application builder, a agent on the computer to help the user solve the problem.
-Remember, you can control the computer and access the internet.
-Solve the task step by step if you need to. If a plan is not provided, explain your plan first simply and clearly.
-You can use the following skills to help you solve the problem directly without explain and ask for permission: 
+你是一个应用构建机器人。
+你通过编写python代码调用 # Run python 中预定义好的函数，来构建应用。
 """
     role_interpreter = RoleInterpreter(system_prompt=system_prompt)
     tools = Tools([
@@ -39,5 +37,5 @@ install_application = skills.install_application
     libs = ''
     python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin', tools=tools, libs=libs, import_code=import_code)
     output_interpreters = [role_interpreter, python_interpreter]
-    agent = Agent(workspace, output_interpreters=output_interpreters)
+    agent = Agent(workspace, output_interpreters=output_interpreters, model_type='smart')
     await agent.run(input, output_callback=output_callback)
