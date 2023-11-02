@@ -130,9 +130,9 @@ def install_application(application_id:str, application_name:str, description:st
         "description": description,
         "upload_file": upload_file,
     }
+    # 检查icon是否存在
     if os.path.exists(os.path.join(get_code_dir(), 'icon.jpg')):
         app_json['icon'] = 'icon.jpg'
-    # 检查icon是否存在
     bot_json_path = os.path.join(get_code_dir(), 'bot.json')
     with open(bot_json_path, 'w') as f:
         f.write(json.dumps(app_json, indent=4))
