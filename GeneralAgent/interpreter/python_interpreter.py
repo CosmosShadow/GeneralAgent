@@ -65,6 +65,7 @@ class PythonInterpreter(Interpreter):
             with open(self.serialize_path, 'rb') as f:
                 data = pickle.loads(f.read())
                 return data['globals']
+        return {}
 
     async def prompt(self, messages) -> str:
         python_funcs = self.tools.get_funs_description()
