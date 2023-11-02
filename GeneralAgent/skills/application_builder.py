@@ -70,6 +70,18 @@ def update_function(func_name:str, task:str):
     else:
         create_function(func_name, task)
 
+def create_application_icon(application_description:str) -> str:
+    """
+    Create a application icon by application description. The application description is application_description
+    """
+    from GeneralAgent import skills
+    prompt = skills.ai_draw_prompt_gen("Create an application icon. The application's description is below: \n" + application_description)
+    image_url = skills.image_generation(prompt)
+    file_path = skills.try_download_file(image_url)
+    import os
+    target_path = os.path.join(get_code_dir(), 'icon.jpg')
+    os.system(f"mv {file_path} {target_path}")
+    return target_path
 
 def create_application(task:str) -> None:
     """
@@ -116,8 +128,11 @@ def install_application(application_id:str, application_name:str, description:st
         "id": application_id,
         "name": application_name,
         "description": description,
-        "upload_file": upload_file
+        "upload_file": upload_file,
     }
+    if os.path.exists(os.path.join(get_code_dir(), 'icon.jpg')):
+        app_json['icon'] = 'icon.jpg'
+    # 检查icon是否存在
     bot_json_path = os.path.join(get_code_dir(), 'bot.json')
     with open(bot_json_path, 'w') as f:
         f.write(json.dumps(app_json, indent=4))
@@ -125,7 +140,7 @@ def install_application(application_id:str, application_name:str, description:st
     target_dir = os.path.join(os.path.dirname(__file__), f'../../webui/server/server/applications/{application_id}/')
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
-    print(target_dir)
+    # print(target_dir)
     os.system(f"mv {get_code_dir()}/* {target_dir}")
 
 

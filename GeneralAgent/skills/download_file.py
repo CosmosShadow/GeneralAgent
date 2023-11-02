@@ -3,14 +3,16 @@ def download_file(file_url, save_path):
     """download file to save_path, return True if success, else False"""
     """实现一个下载文件的函数，返回文件路径"""
     import requests
+    import logging
     try:
         response = requests.get(file_url)
         with open(save_path, "wb") as f:
             f.write(response.content)
-        print("Success: 文件(%s)已下载至 %s" % (file_url, save_path))
+        # print("Success: 文件(%s)已下载至 %s" % (file_url, save_path))
         return True
     except Exception as e:
-        print("Error: 文件下载失败:", e)
+        # print("Error: 文件下载失败:", e)
+        logging.error(e)
         return False
 
 

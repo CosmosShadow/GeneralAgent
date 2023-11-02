@@ -16,6 +16,7 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
         skills.list_functions,
         skills.show_function,
         skills.update_function,
+        skills.create_application_icon,
         skills.create_application,
         skills.update_application,
         skills.delete_application,
@@ -28,6 +29,7 @@ delete_function = skills.delete_function
 list_functions = skills.list_functions
 show_function = skills.show_function
 update_function = skills.update_function
+create_application_icon = skills.create_application_icon
 create_application = skills.create_application
 update_application = skills.update_application
 delete_application = skills.delete_application
