@@ -10,6 +10,8 @@ export default function PersonalSetting ({ onHandleSelectBot }: { onHandleSelect
     console.log(`selected ${value}`);
   };
 
+  return (<div style={{padding: 20}}>正在开发 | Comming soon </div>);
+
   return (
       <div style={{ padding: 10, textAlign: 'left'}}>
           {/* <div style={{height: 20}}></div> */}
