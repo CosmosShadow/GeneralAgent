@@ -90,7 +90,7 @@ def llm_inference(messages, model_type='normal'):
     key = _md5(messages)
     result = global_cache.get(table, key)
     if result is not None:
-        print('llm_inference cache hitted')
+        # print('llm_inference cache hitted')
         for x in result.split(' '):
             yield x + ' '
         yield '\n'
@@ -132,7 +132,7 @@ def sync_llm_inference(messages, model_type='normal'):
     global global_cache
     table = 'llm'
     logging.debug(messages)
-    print(messages)
+    # print(messages)
     key = _md5(messages)
     result = global_cache.get(table, key)
     if result is not None:
