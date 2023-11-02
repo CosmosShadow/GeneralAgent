@@ -8,6 +8,7 @@ content = """
 """
 
 def test_read_interpreter():
+    import os
     workspace = './data/read_interpreter/'
     if os.path.exists(workspace):
         shutil.rmtree(workspace)

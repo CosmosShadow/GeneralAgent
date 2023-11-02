@@ -1,9 +1,5 @@
-import re, io, os, sys
-import pickle
+import io, sys
 import logging
-from jinja2 import Template
-from .interpreter import Interpreter
-from GeneralAgent.utils import confirm_to_run
 from .python_interpreter import PythonInterpreter
 import asyncio
 
@@ -58,6 +54,20 @@ async def __main():
 
 
 class AsyncPythonInterpreter(PythonInterpreter):
+
+    python_prompt_template = """
+# Run python
+* Remember use print() to output
+* format is : ```python\\nthe_code\\n```
+* the code will be executed
+* python version is 3.9
+* * Pickleable objects can be shared between different codes and variables
+* Available libraries: {{python_libs}}
+* The following functions can be used in code (already implemented and imported for you):
+```
+{{python_funcs}}
+```
+"""
 
     async def run_code(self, code):
         code = self.add_print(code)

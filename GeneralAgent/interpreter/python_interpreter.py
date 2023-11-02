@@ -5,20 +5,6 @@ from jinja2 import Template
 from .interpreter import Interpreter
 from GeneralAgent.utils import confirm_to_run
 
-python_prompt = """
-# Run python
-* Remember use print() to output
-* format is : ```python\\nthe_code\\n```
-* the code will be executed
-* python version is 3.9
-* only write synchronous code
-* * Pickleable objects can be shared between different codes and variables
-* Available libraries: {{python_libs}}
-* The following functions can be used in code (already implemented and imported for you):
-```
-{{python_funcs}}
-```
-"""
 
 default_import_code = """
 import os, sys, math
@@ -34,6 +20,22 @@ default_libs = ' '.join(["requests", "tinydb", "openai", "jinja2", "numpy", "bs4
 from GeneralAgent.tools import Tools
 
 class PythonInterpreter(Interpreter):
+
+    python_prompt_template = """
+# Run python
+* Remember use print() to output
+* format is : ```python\\nthe_code\\n```
+* the code will be executed
+* python version is 3.9
+* only write synchronous code
+* * Pickleable objects can be shared between different codes and variables
+* Available libraries: {{python_libs}}
+* The following functions can be used in code (already implemented and imported for you):
+```
+{{python_funcs}}
+```
+"""
+
     def __init__(self, 
                  serialize_path:str=None, 
                  tools:Tools=None, 
@@ -43,7 +45,7 @@ class PythonInterpreter(Interpreter):
                  ):
         """
         Args:
-            serialize_path (str): path to save the global variables, default None, which means not save
+            serialize_path (str): path to save the global variables, default None, which means not save, like './serialized.bin'
             tools (Tools, optional): tools to use. Defaults to None.
             libs ([str], optional): libraries to import. Defaults to default_libs.
             import_code (str, optional): code to import. The tools used should be imported. Defaults to default_import_code.
@@ -73,7 +75,7 @@ class PythonInterpreter(Interpreter):
             'python_libs': self.python_libs,
             'python_funcs': python_funcs
         }
-        return Template(python_prompt).render(**variables) + self.prompt_append
+        return Template(self.python_prompt_template).render(**variables) + self.prompt_append
 
     @property
     def match_template(self):
@@ -104,12 +106,12 @@ class PythonInterpreter(Interpreter):
         match = pattern.search(string)
         assert match is not None
         if confirm_to_run():
-            sys_out = self.run_code(match.group(1))
+            sys_out = await self.run_code(match.group(1))
             return sys_out.strip(), False
         else:
             return '', False
 
-    def run_code(self, code):
+    async def run_code(self, code):
         code = self.add_print(code)
         code = self.import_code + '\n' + code
         globals_backup = self.load()
