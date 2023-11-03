@@ -99,7 +99,7 @@ def sync_worker():
     asyncio.run(worker())
 
 def get_chat_dir(bot_id, chat_id):
-    data_dir = os.path.join(os.getcwd(), 'data', bot_id, chat_id)
+    data_dir = os.path.join(os.path.dirname(__file__), 'data', bot_id, chat_id)
     return data_dir
 
 def history_to_messages(history):
@@ -164,7 +164,7 @@ async def worker():
 
         async def _ui_callback(name, js_path, data={}):
             """
-            Send UI components to users, name: UI component name, js_path: js file address corresponding to UI component, data: data required by UI component
+            Send UI to user, name: UI component name, js_path: js file address corresponding to UI component, data: data required by UI component
             """
             response:Message = message.response_template()
             response.ui = json.dumps({
@@ -174,7 +174,7 @@ async def worker():
             })
             await save_message(response)
             await asyncio.to_thread(response_queue.put, response)
-            logging.info('sended ui')
+            logging.debug(response)
         
         # os.chdir(self.local_dir)
         current_workspace_dir = os.getcwd()
@@ -342,6 +342,7 @@ async def download_file(bot_id: str, chat_id: str, file_name: str = Path(..., co
     the_dir = get_chat_dir(bot_id, chat_id)
     file_path = os.path.join(the_dir, file_name)
     # print(file_path)
+    logging.debug(file_path)
     if os.path.exists(file_path):
         return FileResponse(file_path)
     else:
