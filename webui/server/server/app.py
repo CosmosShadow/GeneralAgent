@@ -163,6 +163,9 @@ async def worker():
             logging.info('sended file')
 
         async def _ui_callback(name, js_path, data={}):
+            """
+            Send UI components to users, name: UI component name, js_path: js file address corresponding to UI component, data: data required by UI component
+            """
             response:Message = message.response_template()
             response.ui = json.dumps({
                 'name': name,

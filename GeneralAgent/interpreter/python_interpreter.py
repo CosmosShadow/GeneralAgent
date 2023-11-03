@@ -36,6 +36,8 @@ class PythonInterpreter(Interpreter):
 ```
 """
 
+    async_tools = []
+
     def __init__(self, 
                  serialize_path:str=None, 
                  tools:Tools=None, 
@@ -70,10 +72,12 @@ class PythonInterpreter(Interpreter):
         return {}
 
     async def prompt(self, messages) -> str:
+        from GeneralAgent import skills
         python_funcs = self.tools.get_funs_description()
+        async_funcs = '\n'.join([skills.get_function_signature(x) for x in self.async_tools])
         variables = {
             'python_libs': self.python_libs,
-            'python_funcs': python_funcs
+            'python_funcs': python_funcs + async_funcs
         }
         return Template(self.python_prompt_template).render(**variables) + self.prompt_append
 

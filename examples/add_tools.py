@@ -1,4 +1,3 @@
-import load_env
 
 import asyncio
 from GeneralAgent.tools import Tools

@@ -1,4 +1,3 @@
-import load_env
 
 import re
 import asyncio
