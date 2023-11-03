@@ -1,6 +1,6 @@
 import React, { useEffect, useState} from 'react'
 import { List, Button, Popconfirm} from 'antd';
-import {Bot, Chat} from '../components/interface'
+import {Bot, Chat, cut_string} from '../components/interface'
 import {apiChatList, apiChatListNew, apiChatClear} from '../components/api'
 
 interface Props {
@@ -69,7 +69,7 @@ export default function ChatList (props: Props) {
                     color: chat.selected ? 'red' : 'green',
                     height: 40,
                     textAlign: 'left',
-                    paddingLeft: 20,
+                    paddingLeft: 5,
                     marginLeft: 0,
                     // fontWeight: 'bold',
                     width: 200,
@@ -77,7 +77,7 @@ export default function ChatList (props: Props) {
                 }} 
                 onClick={() => onHandleSelectChat(chat)}
             >
-                <div style={{ textAlign: 'left', width: 200, marginTop: 0, marginRight: 0}}><a>{chat.name || chat.create_at.slice(0, 19) }</a></div>
+                <div style={{ textAlign: 'left', width: 200, marginTop: 0, marginRight: 0}}><a>{(chat.name && cut_string(chat.name, 25)) || chat.create_at.slice(0, 19) }</a></div>
             </List.Item>
         )}
     />

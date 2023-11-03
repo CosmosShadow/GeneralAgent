@@ -93,7 +93,7 @@ export default function ChatPage () {
 				</div>
 			</Center>
 		</Content>
-		<Sider style={{height: '100vh', background: '#F0F0F0'}}>
+		<Sider style={{height: '100vh', background: '#F0F0F0'}} width={200}>
 			<div style={{padding: 20, fontWeight: 'bold', height: 20, fontSize: 18, color: 'black'}}></div>
 			<div style={{overflow: 'scroll', height: 'calc(100vh - 70px)', background: '#F0F0F0'}}>
 				<ChatList onHandleSelectChat={onHandleSelectChat} bot={current_bot}/>
