@@ -6,6 +6,7 @@ interface Props {
   name: string;
   js_url: string;
   data: any;
+  send_data: (data: any) => void;
 }
 
 const DynamicUI: React.FC<Props> = (props) => {

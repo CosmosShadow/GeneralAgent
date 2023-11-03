@@ -51,7 +51,9 @@ const antd = (window as any).antd;
 
 const [Form, Input, Button] = [antd.Form, antd.Input, antd.Button];
 
-const LibTemplate = (data: any) => {
+const LibTemplate = (data:any, send_data:(data: any) => void) => {
+    // data: the data sent by the backend.
+    // send_data: a function that can send data (a dictionary) to the backend.
 }
 export default LibTemplate;
 ```

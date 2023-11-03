@@ -1,0 +1,6 @@
+{
+    "id": "agent_ui",
+    "name": "# Agent with UI",
+    "description": "Agent with dynamic UI | 可以返回动态UI的Agent",
+    "upload_file": "yes"
+}
