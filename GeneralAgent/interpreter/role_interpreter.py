@@ -4,7 +4,9 @@ import platform
 from jinja2 import Template
 from .interpreter import Interpreter
 
-system_role_prompt = \
+# system prompt role
+class RoleInterpreter(Interpreter):
+    system_prompt_template = \
 """
 Now: {{now}}
 You are GeneralAgent, a agent on the {{os_version}} computer to help the user solve the problem.
@@ -13,8 +15,6 @@ If a plan is not provided, explain your plan first simply and clearly.
 You can use the following skills to help you solve the problem directly without explain, without ask for permission: 
 """
 
-# system prompt role
-class RoleInterpreter(Interpreter):
     def __init__(self, system_prompt=None) -> None:
         self.os_version = self.get_os_version()
         self.system_prompt = system_prompt
@@ -50,7 +50,7 @@ class RoleInterpreter(Interpreter):
             'now': now,
             'os_version': self.os_version
         }
-        the_prompt = Template(system_role_prompt).render(**data)
+        the_prompt = Template(self.system_prompt_template).render(**data)
         return the_prompt
 
     @property

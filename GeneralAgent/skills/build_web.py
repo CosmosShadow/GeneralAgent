@@ -90,9 +90,9 @@ def _extract_tsx_code(content):
     else:
         return content
     
-def task_to_ui_js(task:str, ui_dir:str='./ui', lib_name:str=None):
+def task_to_ui_js(task:str, ui_dir:str='./ui', lib_name:str=None) -> (str, str):
     """
-    将任务转换为UI组件, task: 任务描述, ui_dir: UI组件存放目录, lib_name: UI组件名称
+    Convert task into UI components. task: task description, ui_dir: js component storage directory, lib_name: UI component name. And return the js file path and lib name. normally, you can ignore ui_dir and lib_name.
     """
     import uuid
     if lib_name is None:

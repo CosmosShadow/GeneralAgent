@@ -112,8 +112,10 @@ def llm_inference(messages, model_type='normal'):
 @_retry(stop_max_attempt_number=3)
 async def async_llm_inference(messages, model_type='normal'):
     import openai
+    import logging
     global global_cache
     table = 'llm'
+    logging.debug(messages)
     key = _md5(messages)
     result = global_cache.get(table, key)
     if result is not None:
