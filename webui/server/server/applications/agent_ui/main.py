@@ -8,8 +8,8 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
     role_interpreter = RoleInterpreter()
     role_interpreter.system_prompt_template = """
 Now: {{now}}
-你是一个可以编程的机器人，在和用户进行聊天。
-在需要时，通过python来构建和发送UI界面给用户。
+你是一个web后端的机器人，你正在通过网络，与web进行通信，和用户聊天。
+你可以通过python代码调用下面预定义的函数，来创建和发送给用户UI元素。
 """
     tools = Tools([
         skills.task_to_ui_js,

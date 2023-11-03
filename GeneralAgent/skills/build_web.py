@@ -35,7 +35,7 @@ def _llm_write_ui_lib(lib_name, task):
     from GeneralAgent import skills
     prompt_template = """
 Help me write a React function component in tsx language.
-Add some style to make the component display correctly and beautifully.
+There is always a button to send all information created by user.
 The component should be named LibTemplate.
 The component should only use React and antd libraries, and the import should be done using the following syntax:
 ```
@@ -59,6 +59,9 @@ interface Props {
 const LibTemplate = (props:Props) => {
     // props.data: the data from the backend.
     // props.send_data: a function that can send data (a dictionary) to the backend.
+    const handSend = (data: any) => {
+        props.send_data(data);
+    }
 }
 export default LibTemplate;
 ```
@@ -76,7 +79,7 @@ Only response the code without any explain.
         {'role': 'system', 'content': 'You are a web frontend expert.'},
         {'role': 'user', 'content': prompt}
         ]
-    response = skills.llm_inference(messages)
+    response = skills.llm_inference(messages, model_type="smart")
     result = ''
     for token in response:
         # print(token, end='', flush=True)
@@ -97,7 +100,8 @@ def _extract_tsx_code(content):
     
 def task_to_ui_js(task:str, ui_dir:str='./ui', lib_name:str=None) -> (str, str):
     """
-    Convert task into UI components. task: task description, ui_dir: js component storage directory, lib_name: UI component name. And return the js file path and lib name. normally, you can ignore ui_dir and lib_name.
+    Convert task into UI components. task: task description with all details, ui_dir: js component storage directory, lib_name: UI component name. normally, you can ignore ui_dir and lib_name
+    Rturn the (lib_name, js_path) tuple
     """
     import uuid
     if lib_name is None:
@@ -109,6 +113,6 @@ def task_to_ui_js(task:str, ui_dir:str='./ui', lib_name:str=None) -> (str, str):
     code = _extract_tsx_code(content)
     success = _build_ui(lib_name, code, target_dir)
     if success:
-        return os.path.join(target_dir, 'index.js'), lib_name
+        return lib_name, os.path.join(target_dir, 'index.js')
     else:
         return None
