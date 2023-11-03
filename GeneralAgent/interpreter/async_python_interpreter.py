@@ -58,12 +58,12 @@ class AsyncPythonInterpreter(PythonInterpreter):
     python_prompt_template = """
 # Run python
 - Remember use print() to show or output, otherwise it will not be shown. code like below is wrong.
-```
+```python
 a = 10
 a
 ```
 code like below is right: 
-```
+```python
 a = 10
 print(a)
 ```
