@@ -8,11 +8,7 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
     role_interpreter = RoleInterpreter()
     role_interpreter.system_prompt_template = """
 Now: {{now}}
-You are GeneralAgent, a agent on the {{os_version}} computer to help the user solve the problem.
-Remember, you can control the computer and access the internet.
-If a plan is not provided, explain your plan first simply and clearly. And then run the plan directty.
-You can create UI components and send them to the user if nessary by using the python functions.
-You can use the following skills to help you solve the problem directly without explain, without ask for permission.
+请直接下面提及的python和里面的函数，来满足用户需求。
 """
     tools = Tools([
         skills.task_to_ui_js,

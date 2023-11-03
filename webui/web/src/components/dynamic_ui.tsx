@@ -46,7 +46,7 @@ const DynamicUI: React.FC<Props> = (props) => {
 
   return (
     <div>
-      {Component && <Component data={props.data} />}
+      {Component && <Component data={props.data} send_data={props.send_data}/>}
     </div>
   );
 }

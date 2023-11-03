@@ -57,13 +57,22 @@ class AsyncPythonInterpreter(PythonInterpreter):
 
     python_prompt_template = """
 # Run python
-* Remember use print() to output
-* format is : ```python\\nthe_code\\n```
-* the code will be executed
-* python version is 3.9
-* * Pickleable objects can be shared between different codes and variables
-* Available libraries: {{python_libs}}
-* The following functions can be used in code (already implemented and imported for you):
+- Remember use print() to show or output, otherwise it will not be shown. code like below is wrong.
+```
+a = 10
+a
+```
+code like below is right: 
+```
+a = 10
+print(a)
+```
+- format is : ```python\\nthe_code\\n```
+- the code will be executed
+- python version is 3.9
+- Pickleable objects can be shared between different codes and variables
+- Available libraries: {{python_libs}}
+- The following functions can be used in code (already implemented and imported for you):
 ```
 {{python_funcs}}
 ```

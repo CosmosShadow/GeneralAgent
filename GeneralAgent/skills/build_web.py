@@ -51,9 +51,14 @@ const antd = (window as any).antd;
 
 const [Form, Input, Button] = [antd.Form, antd.Input, antd.Button];
 
-const LibTemplate = (data:any, send_data:(data: any) => void) => {
-    // data: the data sent by the backend.
-    // send_data: a function that can send data (a dictionary) to the backend.
+interface Props {
+  data: any;
+  send_data: (data: any) => void;
+}
+
+const LibTemplate = (props:Props) => {
+    // props.data: the data from the backend.
+    // props.send_data: a function that can send data (a dictionary) to the backend.
 }
 export default LibTemplate;
 ```
@@ -74,7 +79,7 @@ Only response the code without any explain.
     response = skills.llm_inference(messages)
     result = ''
     for token in response:
-        print(token, end='', flush=True)
+        # print(token, end='', flush=True)
         result += token
     result = result.replace('LibTemplate', lib_name)
     return result

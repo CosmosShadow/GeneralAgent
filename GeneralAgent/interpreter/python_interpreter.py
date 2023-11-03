@@ -77,7 +77,7 @@ class PythonInterpreter(Interpreter):
         async_funcs = '\n'.join([skills.get_function_signature(x) for x in self.async_tools])
         variables = {
             'python_libs': self.python_libs,
-            'python_funcs': python_funcs + async_funcs
+            'python_funcs': python_funcs + '\n' + async_funcs
         }
         return Template(self.python_prompt_template).render(**variables) + self.prompt_append
 
