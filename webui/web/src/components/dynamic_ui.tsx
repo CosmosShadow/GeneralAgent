@@ -6,7 +6,7 @@ interface Props {
   name: string;
   js_url: string;
   data: any;
-  send_data: (data: any) => void;
+  save_data: (data: any) => void;
 }
 
 const DynamicUI: React.FC<Props> = (props) => {
@@ -46,8 +46,8 @@ const DynamicUI: React.FC<Props> = (props) => {
 
   return (
     <div>
-      {/* {Component && <Component data={props.data} send_data={props.send_data}/>} */}
-      {Component && <Component send_data={props.send_data}/>}
+      {/* {Component && <Component data={props.data} save_data={props.save_data}/>} */}
+      {Component && <Component save_data={props.save_data}/>}
     </div>
   );
 }

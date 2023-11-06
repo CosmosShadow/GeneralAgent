@@ -19,7 +19,7 @@ const UIMesasge: React.FC<Props> = (props) => {
     const js_url = get_chat_file_url(message.bot_id as string, message.chat_id as string, js_path)
     const data = ui_dict['data']
 
-    const send_data = (data:any) => {
+    const save_data = (data:any) => {
         const mes: Message = {
             bot_id: message.bot_id,
             chat_id: message.chat_id,
@@ -33,7 +33,7 @@ const UIMesasge: React.FC<Props> = (props) => {
     }
 
     return (
-        <DynamicUI name={lib_name} js_url={js_url} data={data} send_data={send_data}/>
+        <DynamicUI name={lib_name} js_url={js_url} data={data} save_data={save_data}/>
         // <Lib06f4 send_data={send_data}/>
     );
 }
