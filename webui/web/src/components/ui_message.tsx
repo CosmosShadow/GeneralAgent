@@ -34,7 +34,7 @@ const UIMesasge: React.FC<Props> = (props) => {
 
     return (
         <DynamicUI name={lib_name} js_url={js_url} data={data} send_data={send_data}/>
-        // <Lib06f4 data={data} send_data={send_data}/>
+        // <Lib06f4 send_data={send_data}/>
     );
 }
 

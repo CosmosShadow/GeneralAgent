@@ -34,52 +34,43 @@ def _build_ui(lib_name, code, target_dir):
 def _llm_write_ui_lib(lib_name, task):
     from GeneralAgent import skills
     prompt_template = """
-Help me write a React function component in tsx language.
-There is always a button to send all information created by user.
-The component should be named LibTemplate.
-The component should only use React and antd libraries, and the import should be done using the following syntax:
+You are a React and Typescript expert.
+
+# Task
+Create a React function component named LibTemplate in tsx language. 
+The component should have the following functionality:
+{{task}}
+
+# Import
+Use the following import syntax:
 ```
 const React = (window as any).React;
 const antd = (window as any).antd;
 ```
 No other import methods are allowed.
 
-# Your output should be like this:
+# DEMO
+
 ```tsx
 const React = (window as any).React;
 const antd = (window as any).antd;
 
 const [Form, Input, Button] = [antd.Form, antd.Input, antd.Button];
 
-interface Props {
-  data: any;
-  send_data: (data: any) => void;
+const LibTemplate = ({{save_data}}: {{save_data: (data:any)=>void}}) => {
+  // use save_data to save the data
 }
 
-const LibTemplate = (props:Props) => {
-    // props.data: the data from the backend.
-    // props.send_data: a function that can send data (a dictionary) to the backend.
-    const handSend = (data: any) => {
-        props.send_data(data);
-    }
-}
 export default LibTemplate;
 ```
 
-# Component functionality
-
-{{task}}
-
-Help me implement this LibTemplate component.
-Only response the code without any explain.
+Please reponse the component code which finish the task without any explaination.
 """
+
     from jinja2 import Template
     prompt = Template(prompt_template).render(task=task)
-    messages = [
-        {'role': 'system', 'content': 'You are a web frontend expert.'},
-        {'role': 'user', 'content': prompt}
-        ]
-    response = skills.llm_inference(messages, model_type="smart")
+    messages = [{'role': 'system', 'content': prompt}]
+    response = skills.llm_inference(messages, model_type="normal")
     result = ''
     for token in response:
         # print(token, end='', flush=True)

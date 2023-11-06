@@ -1,19 +1,14 @@
 // const React = (window as any).React;
+// const antd = (window as any).antd;
 
 import React from 'react';
 import * as antd from 'antd';
 
 const [Form, DatePicker, Button] = [antd.Form, antd.DatePicker, antd.Button];
 
-interface Props {
-  data: any;
-  send_data: (data: any) => void;
-}
-
-const Lib06f4 = (props:Props) => {
+const Lib06f4 = ({send_data}: {send_data: (data:any)=>void}) => {
   const onFinish = (values: any) => {
-    // console.log(send_data);
-    props.send_data(values);
+    send_data(values);
   };
 
   return (

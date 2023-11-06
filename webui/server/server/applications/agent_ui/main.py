@@ -23,5 +23,5 @@ task_to_ui_js = skills.task_to_ui_js
     python_interpreter = AsyncPythonInterpreter(serialize_path=f'{workspace}/code.bin', libs=libs, import_code=import_code, tools=tools)
     python_interpreter.async_tools = [ui_callback]
     output_interpreters = [role_interpreter, python_interpreter]
-    agent = Agent(workspace, output_interpreters=output_interpreters, model_type='smart')
+    agent = Agent(workspace, output_interpreters=output_interpreters, model_type='normal')
     await agent.run(input, output_callback=output_callback)
