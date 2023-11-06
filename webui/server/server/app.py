@@ -162,13 +162,17 @@ async def worker():
             await asyncio.to_thread(response_queue.put, response)
             logging.info('sended file')
 
-        async def _ui_callback(name, js_path, data={}):
+        # async def _ui_callback(name, js_path, data={}):
+        #     """
+        #     Send UI to user, name: UI component name, js_path: js file address corresponding to UI component, data: data required by UI component
+        #     """
+        async def send_ui(component_name:str, js_path:str, data={}):
             """
-            Send UI to user, name: UI component name, js_path: js file address corresponding to UI component, data: data required by UI component
+            Send UI to user, component_name: UI component name, js_path: js file address corresponding to UI component, data: data required by UI component
             """
             response:Message = message.response_template()
             response.ui = json.dumps({
-                'name': name,
+                'name': component_name,
                 'js': js_path,
                 'data': data
             })
@@ -194,7 +198,7 @@ async def worker():
             os.chdir(data_dir)
             if application is not None:
                 file = None if message.file == '' else message.file
-                await application.main(chat_messages, message.msg, file, _output_callback, _file_callback, _ui_callback)
+                await application.main(chat_messages, message.msg, file, _output_callback, _file_callback, send_ui)
                 if len(result) > 0:
                     response = message.response_template()
                     response.msg = result

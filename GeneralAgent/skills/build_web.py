@@ -1,6 +1,7 @@
+from ast import Tuple
 import os
 
-def _build_ui(lib_name, code, target_dir):
+def compile_tsx(lib_name, code, target_dir):
     # 目标目录不存在就创建
     if os.path.exists(target_dir):
         import shutil
@@ -57,7 +58,7 @@ const antd = (window as any).antd;
 
 const [Form, Input, Button] = [antd.Form, antd.Input, antd.Button];
 
-const LibTemplate = ({{save_data}}: {{save_data: (data:any)=>void}}) => {
+const LibTemplate = ({save_data}: {save_data: (data:any)=>void}) => {
   // use save_data to save the data
 }
 
@@ -88,13 +89,13 @@ def _extract_tsx_code(content):
         return match.group(1)
     else:
         return content
-    
-def task_to_ui_js(task:str, ui_dir:str='./ui', lib_name:str=None) -> (str, str):
+
+def create_ui(task: str, ui_dir: str = './ui', component_name: str = None) -> (str, str):
     """
-    Convert task into UI components. task: task description with all details, ui_dir: js component storage directory, lib_name: UI component name. normally, you can ignore ui_dir and lib_name
-    Rturn the (lib_name, js_path) tuple
+    Convert task into UI components. Return (component_name, js_path) tuple.
     """
     import uuid
+    lib_name = component_name
     if lib_name is None:
         lib_name = 'Lib' + str(uuid.uuid1())[:4]
     if not os.path.exists(ui_dir):
@@ -102,7 +103,7 @@ def task_to_ui_js(task:str, ui_dir:str='./ui', lib_name:str=None) -> (str, str):
     target_dir = os.path.join(ui_dir, lib_name)
     content = _llm_write_ui_lib(lib_name, task)
     code = _extract_tsx_code(content)
-    success = _build_ui(lib_name, code, target_dir)
+    success = compile_tsx(lib_name, code, target_dir)
     if success:
         return lib_name, os.path.join(target_dir, 'index.js')
     else:

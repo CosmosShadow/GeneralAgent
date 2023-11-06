@@ -1,5 +1,4 @@
-from base_setting import *
-from server.server import build_ui, task_to_ui_js
+
 
 code = """
 const React = (window as any).React;
@@ -74,20 +73,22 @@ const MyLibrary = () => {
 export default MyLibrary;
 """
 
-def test_build_ui():
+def test_compile_tsx():
+    from GeneralAgent import skills
     target_dir = './data/ui/'
-    success = build_ui(code, target_dir)
+    success = skills.compile_tsx(code, target_dir)
     assert success
 
-def test_task_to_ui_js():
+def test_create_ui():
+    from GeneralAgent import skills
     task = "用户输入姓名、家庭住址、手机号的表单，并且点击提交的时候，弹窗显示"
     lib_name = 'LibTest'
-    js_path, lib_name = task_to_ui_js(task, lib_name=lib_name)
+    js_path, lib_name = skills.create_ui(task, lib_name=lib_name)
     # 验证js文件存在
     import os
     assert os.path.exists(js_path)
     assert lib_name in js_path
 
 if __name__ == '__main__':
-    # test_build_ui()
-    test_task_to_ui_js()
+    # test_compile_tsx()
+    test_create_ui()
