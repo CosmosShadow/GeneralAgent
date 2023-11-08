@@ -3,7 +3,6 @@ import os, re
 import asyncio
 import logging
 from GeneralAgent.utils import default_get_input, default_output_callback
-from GeneralAgent.llm import llm_inference
 from GeneralAgent.memory import Memory, MemoryNode
 from GeneralAgent.interpreter import PlanInterpreter, RetrieveInterpreter, LinkMemoryInterpreter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, AskInterpreter, FileInterpreter
@@ -117,6 +116,7 @@ print({variable_name}['Hello world'])
         from GeneralAgent.agent import Agent
         role_interpreter = RoleInterpreter(system_prompt=role_prompt)
         tools = Tools([skills._get_func(name) for name in function_names])
+        print([skills._get_func(name) for name in function_names])
         import_code = "from GeneralAgent import skills\n" + '\n'.join([f'{name} = skills.{name}' for name in function_names])
         # libs = skills.get_current_env_python_libs()
         libs = ''

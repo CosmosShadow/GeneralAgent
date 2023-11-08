@@ -19,7 +19,7 @@ def image_generation(prompt):
         input={"prompt": prompt}
     )
     image_url = output[0]
-    print(image_url)
+    # print(image_url)
 
     return image_url
 

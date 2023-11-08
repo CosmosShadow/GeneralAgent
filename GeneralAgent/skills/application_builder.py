@@ -12,13 +12,13 @@ def set_code_dir(code_dir):
     global CODE_DIR
     CODE_DIR = code_dir
 
-def create_function(func_name:str, task:str):
+def create_function(func_name:str, task_description:str):
     """
-    Create a function by task description. The function name is func_name, the task is task(string)
+    create a function by task description. Where task_description can include functions in GeneralAgent.skills
     """
     # from GeneralAgent import skills
     import os
-    code = function_code_generation(task)
+    code = function_code_generation(task_description)
     file_path = os.path.join(get_code_dir(), func_name + '.py')
     with open(file_path, 'w') as f:
         f.write(code)
@@ -41,6 +41,13 @@ def list_functions() -> [str]:
     files = os.listdir(get_code_dir())
     functions = [x.split('.')[0] for x in files]
     return functions
+
+def search_functions(task_description:str) -> [str]:
+    """
+    search functions that may help to solve the task
+    """
+    from GeneralAgent import skills
+    return skills._search_functions(task_description)
 
 def show_function(func_name:str) -> str:
     """
@@ -70,7 +77,13 @@ def update_function(func_name:str, task:str):
     else:
         create_function(func_name, task)
 
-def create_application_icon(application_description:str) -> str:
+def edit_function(func_name:str, task_description:str) -> None:
+    """
+    Edit function code by task_description. task description should be a string and include the detail of task, and what function can be used.
+    """
+    return update_function(func_name, task_description)
+
+def create_application_icon(application_description:str) -> None:
     """
     Create a application icon by application description. The application description is application_description
     """
@@ -81,31 +94,41 @@ def create_application_icon(application_description:str) -> str:
     import os
     target_path = os.path.join(get_code_dir(), 'icon.jpg')
     os.system(f"mv {file_path} {target_path}")
-    return target_path
 
-def create_application(task:str) -> None:
+
+def create_application(task_description:str) -> None:
     """
-    Create a application by task description. The application name is application_name, the task is task(string)
+    Create a application by task_description description. The application name is application_name, the task_description is task_description(string)
     """
     import os
-    code = application_code_generation(task)
+    from GeneralAgent import skills
+    # code = application_code_generation(task_description)
+    code = generate_agent_code(task_description)
     code_path = os.path.join(get_code_dir(),  'main.py')
     with open(code_path, 'w') as f:
         f.write(code)
 
-def update_application(task:str) -> None:
+def update_application(task_description:str) -> None:
     """
-    Update application code by task
+    Update application code by task_description
     """
     import os
     code_path = os.path.join(get_code_dir(),  'main.py')
-    old_code = ''
+    old_code = None
     if os.path.exists(code_path):
         with open(code_path, 'r') as f:
             old_code = f.read()
-    code = application_code_generation(task, default_code=old_code)
+    from GeneralAgent import skills
+    code = generate_agent_code(task_description, default_code=old_code)
+    # code = application_code_generation(task_description, default_code=old_code)
     with open(code_path, 'w') as f:
         f.write(code)
+
+def edit_application_code(task_description:str) -> None:
+    """
+    Edit agent code by task_description. task description should be a string and include the detail of task, and what function can be used. The agent will automatic handle user's input and output
+    """
+    return update_application(task_description)
 
 
 def delete_application():
@@ -117,25 +140,50 @@ def delete_application():
     if os.path.exists(code_path):
         os.remove(code_path)
 
-
-def install_application(application_id:str, application_name:str, description:str, upload_file='yes'):
+def update_application_meta(application_id:str=None, application_name:str=None, description:str=None, upload_file:str=None) -> None:
     """
-    Install application to chat bot, application_id is the id of application, application_name is the name of application, description is the description of application, upload_file is 'yes' or 'no', when upload_file is 'yes', the application can upload file, when upload_file is 'no', the application can not upload file
+    Update application meta data
+    application_id: application id, You should name it, example: translat_text, ai_draw
+    application_name: application name
+    description: application description
+    upload_file: 'yes' or 'no', when upload_file is 'yes', the application can upload file, when upload_file is 'no', the application can not upload file
     """
-    # TODO: check function_id and application_name
     import os, json
-    app_json = {
-        "id": application_id,
-        "name": application_name,
-        "description": description,
-        "upload_file": upload_file,
-    }
+    bot_json_path = os.path.join(get_code_dir(), 'bot.json')
+    if os.path.exists(bot_json_path):
+        with open(bot_json_path, 'r') as f:
+            app_json = json.loads(f.read())
+    else:
+        app_json = {}
+    if application_id is not None:
+        app_json['id'] = application_id
+    if application_name is not None:
+        app_json['name'] = application_name
+    if description is not None:
+        app_json['description'] = description
+    if upload_file is not None:
+        app_json['upload_file'] = upload_file
     # 检查icon是否存在
     if os.path.exists(os.path.join(get_code_dir(), 'icon.jpg')):
         app_json['icon'] = 'icon.jpg'
-    bot_json_path = os.path.join(get_code_dir(), 'bot.json')
     with open(bot_json_path, 'w') as f:
         f.write(json.dumps(app_json, indent=4))
+
+
+def install_application() -> None:
+    """
+    Install application to chat bot
+    """
+    # TODO: check function_id and application_name
+    import os, json
+    bot_json_path = os.path.join(get_code_dir(), 'bot.json')
+    if os.path.exists(bot_json_path):
+        with open(bot_json_path, 'r') as f:
+            app_json = json.loads(f.read())
+    else:
+        print('applicatoin meta not exists')
+        return
+    application_id = app_json['id']
     # move code to bot
     target_dir = os.path.join(os.path.dirname(__file__), f'../../webui/server/server/applications/{application_id}/')
     if not os.path.exists(target_dir):
@@ -168,7 +216,7 @@ def function_code_generation(task:str, default_code=None):
     from GeneralAgent import skills
     python_version = skills.get_python_version()
     requirements = skills.get_current_env_python_libs()
-    the_skills_can_use = skills._search_tools(task)
+    the_skills_can_use = skills._search_functions(task)
     prompt = f"""
 You are a python expert, write a function to complete user's task
 
@@ -205,7 +253,7 @@ def translate(text:str, language:str) -> str:
     translated = []
     for x in contents:
         prompt = "Translate the following text to " + language + "\n" + x
-        translated += [skills.llm(prompt)]
+        translated += [skills.llm_inference([{'role': 'system', 'content': prompt}])
     return '. '.join(translated)
 ```
 
@@ -226,7 +274,7 @@ def application_code_generation(task, default_code=None):
     from GeneralAgent import skills
     python_version = skills.get_python_version()
     requirements = skills.get_current_env_python_libs()
-    the_skills_can_use = skills._search_tools(task)
+    the_skills_can_use = skills._search_functions(task)
 
     prompt = f"""
 You are a python expert, write a python function to complete user's task.
@@ -289,6 +337,78 @@ Just reponse the python code, no any explain, no start with ```python, no end wi
     if default_code is not None:
         messages += [{"role": "system", "content": "user's code: " + default_code}]
     messages += [{"role": "system", "content": f"user's task: {task}"}]
+    code = skills.llm_inference(messages, model_type='smart')
+    code = skills.get_python_code(code)
+    return code
+
+
+def generate_agent_code(task_description, default_code=None):
+    """Return the python code text that completes the task to build a chat bot, when default_code is not None, update default_code by task"""
+    from GeneralAgent import skills
+    python_version = skills.get_python_version()
+    requirements = skills.get_current_env_python_libs()
+    prompt = f"""
+You are a python expert, write a python function to complete user's task.
+The function in code will be used to create a chat bot, like slack, discord.
+
+# Function signature
+```
+async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
+    # chat_history is a list of dict, like [{{"role": "user", "content": "hello"}}, {{"role": "system", "content": "hi"}}]
+    # input is a string, user's input
+    # file_path is a string, user's file path
+    # output_callback is a async function, output_callback(content: str) -> None
+    # file_callback is a async function, file_callback(file_path: str) -> None
+    # ui_callback is a async function, ui_callback(name:str, js_path:str, data={{}}) -> None
+```
+
+# Python Version: {python_version}
+
+# Python Libs installed
+{requirements}
+
+# CONSTRAINTS:
+- Do not import the lib that the function not use.
+- Import the lib in the function
+- In the code, Intermediate files are written directly to the current directory (./)
+- Give the function a name that describe the task
+- The docstring of the function should be as concise as possible without losing key information, only one line, and output in English
+
+# DEMO 1 : Chat with A large language model
+```python
+async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
+    from GeneralAgent import skills
+    chat_history = skills.cut_messages(chat_history, 4000)
+    messages = [{{"role": "system", "content": "You are a helpful assistant."}}] + chat_history
+    response = skills.llm_inference(messages, stream=True)
+    for token in response:
+        await output_callback(token)
+    await output_callback(None)
+```
+
+# DEMO 2 : Create a Agent with translate
+```python
+async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
+    from GeneralAgent.agent import Agent
+    role_prompt = \"\"\"
+你是一个翻译助手。
+你通过编写python代码调用 # Run python 中预定义好的函数，来完成用户需求。
+\"\"\"
+    function_names = [
+        'translate_text',
+    ]
+    agent = Agent.agent_with_skills(function_names, role_prompt)
+    await agent.run(input, output_callback=output_callback)
+```python
+
+Please think step by step carefully, consider any possible situation, and write a complete code like DEMO
+Just reponse the python code, no any explain, no start with ```python, no end with ```, no any other text.
+"""
+
+    messages = [{"role": "system", "content": prompt}]
+    if default_code is not None:
+        messages += [{"role": "system", "content": "user's code: " + default_code}]
+    messages += [{"role": "system", "content": f"user's task: {task_description}"}]
     code = skills.llm_inference(messages, model_type='smart')
     code = skills.get_python_code(code)
     return code

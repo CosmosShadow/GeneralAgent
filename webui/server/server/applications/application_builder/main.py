@@ -45,19 +45,35 @@
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     from GeneralAgent.agent import Agent
     role_prompt = """
-你是一个应用构建机器人。
-你通过编写python代码调用 # Run python 中预定义好的函数，来构建应用。
+你是一个在线Agent构建机器人。
+你通过编写python代码调用预定义好的函数，来构建和安装Agent。
+
+注意: edit_application_code 函数内部会自动处理用户的输入和输出。
+
+# 构建应用的一般流程: 
+
+* 和用户充分沟通需求
+* search available functions(optional)
+* edit function (optional)
+* edit application code (must)
+* create application icon (must)
+* update application meta (must)
+* install application (must)
 """
     function_names = [
-        'create_function',
+        'search_functions',
+        # 'create_function',
+        'edit_function',
         'delete_function',
-        'list_functions'
-        'show_function',
-        'update_function',
+        # 'list_functions'
+        # 'show_function',
+        # 'update_function',
+        # 'create_application',
+        'edit_application_code',
         'create_application_icon',
-        'create_application',
-        'update_application',
-        'delete_application',
+        'update_application_meta',
+        # 'update_application',
+        # 'delete_application',
         'install_application'
     ]
     agent = Agent.agent_with_skills(function_names, role_prompt)
