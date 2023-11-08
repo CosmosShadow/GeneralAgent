@@ -44,21 +44,26 @@ def list_functions() -> [str]:
 
 def search_functions(task_description:str) -> [str]:
     """
-    search functions that may help to solve the task
+    search functions that may help to solve the task, return function names
     """
     from GeneralAgent import skills
     from jinja2 import Template
     functions = skills._search_functions(task_description)
+    print(functions)
     prompt_template = """
-You are a python expert, return the functions below that may help to solve the task.
+# Functions
+{{functions}}
+
 # Task
 {{task}}
 
-# Functions
-{{functions}}
+Please return the function signatures that can solve the task.
+
 """
     prompt = Template(prompt_template).render(task=task_description, functions=functions)
-    return skills.llm_inference([{'role': 'system', 'content': prompt}])
+    functions = skills.llm_inference([{'role': 'system', 'content': 'You are a helpful assistant'}, {'role': 'user', 'content': prompt}])
+    print(functions)
+    return functions
 
 def show_function(func_name:str) -> str:
     """
