@@ -11,7 +11,8 @@ def text_translation(text, language):
     return '. '.join(translated)
 
 
-def translate_text(text, target_language):
+def _translate_text(text, target_language):
+    # This is write by Agent builder
     """
     Translate a given text into the specified language using the large language model.
 
