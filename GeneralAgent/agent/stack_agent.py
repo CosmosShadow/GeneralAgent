@@ -124,6 +124,22 @@ print({variable_name}['Hello world'])
         output_interpreters = [role_interpreter, python_interpreter]
         agent = Agent(workspace, output_interpreters=output_interpreters, model_type='smart')
         return agent
+    
+    @classmethod
+    def agent_with_functions(cls, functions, role_prompt=None, workspace = './'):
+        from GeneralAgent import skills
+        from GeneralAgent.tools import Tools
+        from GeneralAgent.interpreter import RoleInterpreter, AsyncPythonInterpreter
+        from GeneralAgent.agent import Agent
+        role_interpreter = RoleInterpreter(system_prompt=role_prompt)
+        import_code = "from GeneralAgent import skills\n"
+        # libs = skills.get_current_env_python_libs()
+        libs = ''
+        python_interpreter = AsyncPythonInterpreter(serialize_path=f'{workspace}/code.bin', libs=libs, import_code=import_code)
+        python_interpreter.async_tools = functions
+        output_interpreters = [role_interpreter, python_interpreter]
+        agent = Agent(workspace, output_interpreters=output_interpreters, model_type='smart')
+        return agent
 
     async def run(self, input=None, input_for_memory_node_id=-1, output_callback=default_output_callback):
         """

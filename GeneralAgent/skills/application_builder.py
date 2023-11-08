@@ -47,7 +47,18 @@ def search_functions(task_description:str) -> [str]:
     search functions that may help to solve the task
     """
     from GeneralAgent import skills
-    return skills._search_functions(task_description)
+    from jinja2 import Template
+    functions = skills._search_functions(task_description)
+    prompt_template = """
+You are a python expert, return the functions below that may help to solve the task.
+# Task
+{{task}}
+
+# Functions
+{{functions}}
+"""
+    prompt = Template(prompt_template).render(task=task_description, functions=functions)
+    return skills.llm_inference([{'role': 'system', 'content': prompt}])
 
 def show_function(func_name:str) -> str:
     """
@@ -156,6 +167,10 @@ def update_application_meta(application_id:str=None, application_name:str=None, 
     else:
         app_json = {}
     if application_id is not None:
+        from GeneralAgent import skills
+        bots = skills.load_application_names()
+        if application_id in [x['id'] for x in bots]:
+            print(f'application_id ({application_id}) exists. ignore If you are just edit the exist application, or you should change the application_id')
         app_json['id'] = application_id
     if application_name is not None:
         app_json['name'] = application_name
@@ -374,7 +389,7 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
 - Give the function a name that describe the task
 - The docstring of the function should be as concise as possible without losing key information, only one line, and output in English
 
-# DEMO 1 : Chat with A large language model
+# DEMO 1 : Application with A large language model
 ```python
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     from GeneralAgent import skills
@@ -386,7 +401,7 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
     await output_callback(None)
 ```
 
-# DEMO 2 : Create a Agent with translate
+# DEMO 2 : Agent with functions
 ```python
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     from GeneralAgent.agent import Agent
@@ -394,12 +409,17 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
 你是一个翻译助手。
 你通过编写python代码调用 # Run python 中预定义好的函数，来完成用户需求。
 \"\"\"
-    function_names = [
-        'translate_text',
+    functions = [
+        skills.text_translation
     ]
-    agent = Agent.agent_with_skills(function_names, role_prompt)
+    agent = Agent.agent_with_functions(functions, role_prompt)
     await agent.run(input, output_callback=output_callback)
 ```python
+
+# There are two function types:
+1. Application: like DEMO1, The application process is fixed and less flexible, but the function will be more stable
+2. Agent: like DEMO2, Agent is a chat bot that can use functions to complete user's task. The agent will automatic handle user's input and output
+You can choose one of them to complete the task.
 
 Please think step by step carefully, consider any possible situation, and write a complete code like DEMO
 Just reponse the python code, no any explain, no start with ```python, no end with ```, no any other text.

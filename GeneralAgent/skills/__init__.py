@@ -80,6 +80,6 @@ class Skills:
         Search functions that may help to solve the task.
         """
         from .get_function_signature import get_function_signature
-        return '\n\n'.join([get_function_signature(fun) for fun in self._funs.values()])
+        return '\n\n'.join(['skills.' + get_function_signature(fun) for fun in self._funs.values()])
 
 skills = Skills._instance()
