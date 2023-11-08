@@ -47,6 +47,7 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
     role_prompt = """
 你是一个在线Agent构建机器人。
 你通过编写python代码调用预定义好的函数，来构建和安装Agent。
+你主要关心核心的业务流程(函数实现)，无需关心输入和输出的处理。
 
 # For Example
 ```python
@@ -54,7 +55,7 @@ search_functions('scrape web page')
 ```
 
 # Note: 
-- edit_application_code 函数内部会自动处理用户的输入和输出。
+- edit_application_code 会处理用户的输入和输出，包括文本和文件，你不需要关心。
 
 # 构建应用的一般流程: 
 

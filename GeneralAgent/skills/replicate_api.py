@@ -1,7 +1,7 @@
 # replicate api
 
 def image_generation(prompt):
-    """generate a image with prompt, return a image url"""
+    """generate a image with prompt (in english), return a image url"""
 
     # import replicate
     # output = replicate.run(

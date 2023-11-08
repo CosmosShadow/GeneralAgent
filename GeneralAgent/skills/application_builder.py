@@ -142,7 +142,9 @@ def update_application(task_description:str) -> None:
 
 def edit_application_code(task_description:str) -> None:
     """
-    Edit agent code by task_description. task description should be a string and include the detail of task, and what function can be used. The agent will automatic handle user's input and output
+    Edit agent code by task_description. task description should be a string and include the detail of task, and what functions can be used. 
+    The code for handle user's input and output is already exist, you just need to write the core code to complete the task.
+    task_description example: "use skills.image_generation(prompt) generate a image with prompt (in english), return a image url\nskills.translate_text(xxx) to create a image creation Agent"
     """
     return update_application(task_description)
 
