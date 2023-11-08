@@ -108,6 +108,22 @@ print({variable_name}['Hello world'])
         retrieve_interpreters = []
         output_interpreters = [RoleInterpreter()]
         return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters)
+    
+    @classmethod
+    def agent_with_skills(cls, function_names, role_prompt=None, workspace = './'):
+        from GeneralAgent import skills
+        from GeneralAgent.tools import Tools
+        from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter
+        from GeneralAgent.agent import Agent
+        role_interpreter = RoleInterpreter(system_prompt=role_prompt)
+        tools = Tools([skills._get_func(name) for name in function_names])
+        import_code = "from GeneralAgent import skills\n" + '\n'.join([f'{name} = skills.{name}' for name in function_names])
+        # libs = skills.get_current_env_python_libs()
+        libs = ''
+        python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin', tools=tools, libs=libs, import_code=import_code)
+        output_interpreters = [role_interpreter, python_interpreter]
+        agent = Agent(workspace, output_interpreters=output_interpreters, model_type='smart')
+        return agent
 
     async def run(self, input=None, input_for_memory_node_id=-1, output_callback=default_output_callback):
         """
@@ -198,7 +214,7 @@ print({variable_name}['Hello world'])
             result = ''
             is_stop = False
             is_break = False
-            response = skills.llm_inference(all_messages, model_type=self.model_type)
+            response = skills.llm_inference(all_messages, model_type=self.model_type, stream=True)
             for token in response:
                 if token is None: break
                 result += token

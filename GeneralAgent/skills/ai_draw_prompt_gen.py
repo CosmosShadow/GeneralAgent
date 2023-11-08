@@ -7,5 +7,5 @@ def ai_draw_prompt_gen(command):
         {'role': 'system', 'content': system_prompt},
         {"role": "user", "content": command}
     ]
-    image_prompt = skills.sync_llm_inference(messages)
+    image_prompt = skills.llm_inference(messages)
     return image_prompt

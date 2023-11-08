@@ -216,7 +216,7 @@ Just reponse the python code, no any explain, no start with ```python, no end wi
     if default_code is not None:
         messages += [{"role": "system", "content": "user's code: " + default_code}]
     messages += [{"role": "system", "content": f"user's task: {task}"}]
-    code = skills.sync_llm_inference(messages, model_type='smart')
+    code = skills.llm_inference(messages, model_type='smart')
     code = skills.get_python_code(code)
     return code
 
@@ -264,7 +264,7 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
     from GeneralAgent import skills
     chat_history = skills.cut_messages(chat_history, 4000)
     messages = [{{"role": "system", "content": "You are a helpful assistant."}}] + chat_history
-    response = skills.llm_inference(messages)
+    response = skills.llm_inference(messages, stream=True)
     for token in response:
         await output_callback(token)
     await output_callback(None)
@@ -289,6 +289,6 @@ Just reponse the python code, no any explain, no start with ```python, no end wi
     if default_code is not None:
         messages += [{"role": "system", "content": "user's code: " + default_code}]
     messages += [{"role": "system", "content": f"user's task: {task}"}]
-    code = skills.sync_llm_inference(messages, model_type='smart')
+    code = skills.llm_inference(messages, model_type='smart')
     code = skills.get_python_code(code)
     return code

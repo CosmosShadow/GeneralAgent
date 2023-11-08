@@ -71,7 +71,7 @@ Please reponse the component code which finish the task without any explaination
     from jinja2 import Template
     prompt = Template(prompt_template).render(task=task)
     messages = [{'role': 'system', 'content': prompt}]
-    response = skills.llm_inference(messages, model_type="normal")
+    response = skills.llm_inference(messages, model_type="normal", stream=True)
     result = ''
     for token in response:
         # print(token, end='', flush=True)
@@ -90,9 +90,22 @@ def _extract_tsx_code(content):
     else:
         return content
 
+# def create_ui(task: str, ui_dir: str = './ui', component_name: str = None) -> (str, str):
+#     """
+#     Convert task into UI components. Return (component_name, js_path) tuple.
+#     """
 def create_ui(task: str, ui_dir: str = './ui', component_name: str = None) -> (str, str):
     """
-    Convert task into UI components. Return (component_name, js_path) tuple.
+    Convert a given task description into UI components.
+
+    Args:
+        task: A string representing the task description with all the necessary details.
+
+    Returns:
+        A tuple containing the name of the UI component and the path to the JavaScript file.
+
+    Example:
+        create_ui('A task description with all the necessary details')
     """
     import uuid
     lib_name = component_name

@@ -42,49 +42,6 @@ def md5(obj):
         return hashlib.md5(json.dumps(obj).encode('utf-8')).hexdigest()
 
 
-@retry(stop_max_attempt_number=3)
-def llm_inference(messages):
-    logging.debug(messages)
-    global global_cache
-    table = 'llm'
-    key = md5(messages)
-    result = global_cache.get(table, key)
-    if result is not None:
-        print('llm_inference cache hitted')
-        for x in result.split(' '):
-            yield x + ' '
-        yield '\n'
-        yield None
-    else:
-        model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
-        temperature = float(os.environ.get('TEMPERATURE', 0.5))
-        response = openai.ChatCompletion.create(model=model, messages=messages, stream=True, temperature=temperature)
-        result = ''
-        for chunk in response:
-            if chunk['choices'][0]['finish_reason'] is None:
-                token = chunk['choices'][0]['delta']['content']
-                result += token
-                global_cache.set(table, key, result)
-                yield token
-        # logging.info(result)
-        yield None
-
-@retry(stop_max_attempt_number=3)
-async def async_llm_inference(messages):
-    # logging.debug(messages)
-    global global_cache
-    table = 'llm'
-    key = md5(messages)
-    result = global_cache.get(table, key)
-    if result is not None:
-        print('llm_inference cache hitted')
-        return result
-    else:
-        model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
-        temperature = float(os.environ.get('TEMPERATURE', 0.5))
-        response = await openai.ChatCompletion.acreate(model=model, messages=messages, temperature=temperature)
-        return response['choices'][0]['message']['content']
-
 def embedding_fun(text):
     # embedding the texts(list of string), and return a list of embedding for every string
     global global_cache

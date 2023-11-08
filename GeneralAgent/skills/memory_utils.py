@@ -149,5 +149,5 @@ def extract_title(text):
         {'role': 'system','content': 'You are a helpful assistant'},
         {'role': 'user','content': prompt}
         ]
-    result = skills.sync_llm_inference(messages)
+    result = skills.llm_inference(messages)
     return result

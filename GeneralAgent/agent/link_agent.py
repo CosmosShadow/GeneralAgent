@@ -28,6 +28,6 @@ class LinkAgent:
         cut_messages = skills.cut_messages(messages, 2000)
         model_messages += cut_messages
         # print(model_messages)
-        response = skills.llm_inference(model_messages)
+        response = skills.llm_inference(model_messages, stream=True)
         for token in response:
             await output_callback(token)
