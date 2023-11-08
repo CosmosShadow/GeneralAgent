@@ -42,14 +42,14 @@ def list_functions() -> [str]:
     functions = [x.split('.')[0] for x in files]
     return functions
 
-def search_functions(task_description:str) -> [str]:
+def search_functions(task_description:str) -> str:
     """
-    search functions that may help to solve the task, return function names
+    print function signatures that may help to solve the task, and return the function signatures
     """
     from GeneralAgent import skills
     from jinja2 import Template
     functions = skills._search_functions(task_description)
-    print(functions)
+    # print(functions)
     prompt_template = """
 # Functions
 {{functions}}
