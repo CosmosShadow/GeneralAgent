@@ -62,16 +62,18 @@ search_functions('scrape web page')
 * 和用户充分沟通需求
 * search available functions(optional)
 * edit function (optional)
+* generate_llm_task_function (optional)
 * edit application code (must)
 * create application icon (must)
 * update application meta (must)
 * install application (must)
 """
-    function_names = [
+    skill_names = [
         'search_functions',
         # 'create_function',
         'edit_function',
         'delete_function',
+        'generate_llm_task_function',
         # 'list_functions'
         # 'show_function',
         # 'update_function',
@@ -83,5 +85,5 @@ search_functions('scrape web page')
         # 'delete_application',
         'install_application'
     ]
-    agent = Agent.agent_with_skills(function_names, role_prompt)
+    agent = Agent.agent_with_skills(skill_names, role_prompt)
     await agent.run(input, output_callback=output_callback)

@@ -109,15 +109,15 @@ print({variable_name}['Hello world'])
         return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters)
     
     @classmethod
-    def agent_with_skills(cls, function_names, role_prompt=None, workspace = './'):
+    def agent_with_skills(cls, skill_names, role_prompt=None, workspace = './'):
         from GeneralAgent import skills
         from GeneralAgent.tools import Tools
         from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter
         from GeneralAgent.agent import Agent
         role_interpreter = RoleInterpreter(system_prompt=role_prompt)
-        tools = Tools([skills._get_func(name) for name in function_names])
-        print([skills._get_func(name) for name in function_names])
-        import_code = "from GeneralAgent import skills\n" + '\n'.join([f'{name} = skills.{name}' for name in function_names])
+        tools = Tools([skills._get_func(name) for name in skill_names])
+        print([skills._get_func(name) for name in skill_names])
+        import_code = "from GeneralAgent import skills\n" + '\n'.join([f'{name} = skills.{name}' for name in skill_names])
         # libs = skills.get_current_env_python_libs()
         libs = ''
         python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin', tools=tools, libs=libs, import_code=import_code)
