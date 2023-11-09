@@ -175,7 +175,7 @@ def update_application_meta(application_id:str=None, application_name:str=None, 
         app_json = {}
     if application_id is not None:
         from GeneralAgent import skills
-        bots = skills.load_application_names()
+        bots = skills.load_applications()
         if application_id in [x['id'] for x in bots]:
             print(f'application_id ({application_id}) exists. ignore If you are just edit the exist application, or you should change the application_id')
         app_json['id'] = application_id
@@ -219,7 +219,7 @@ def get_existed_application_ids() -> [str]:
     Return all existed application ids
     """
     from GeneralAgent import skills
-    bots = skills.load_application_names()
+    bots = skills.load_applications()
     ids = [x['id'] for x in bots]
     return ids
 

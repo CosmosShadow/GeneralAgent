@@ -185,8 +185,7 @@ async def worker():
         
         # os.chdir(self.local_dir)
         current_workspace_dir = os.getcwd()
-        code_path = os.path.join(os.path.dirname(__file__), f"./applications/{bot_id}/main.py")
-        application = skills.load_application(code_path)
+        application_module = skills.get_application_module(bot_id)
         db.table('mesasges').clear_cache()
         history = db.table('messages').search((Query().bot_id == bot_id) & (Query().chat_id == chat_id))[-20:]
         chat_messages = history_to_messages(history)
@@ -199,9 +198,9 @@ async def worker():
             if not os.path.exists(data_dir):
                 os.makedirs(data_dir)
             os.chdir(data_dir)
-            if application is not None:
+            if application_module is not None:
                 file = None if message.file == '' else message.file
-                await application.main(chat_messages, message.msg, file, _output_callback, _file_callback, send_ui)
+                await application_module.main(chat_messages, message.msg, file, _output_callback, _file_callback, send_ui)
                 if len(result) > 0:
                     response = message.response_template()
                     response.msg = result
@@ -289,7 +288,7 @@ async def websocket_user_endpoint(websocket: WebSocket):
 @app.get("/bot/list")
 async def bot_list():
     from GeneralAgent import skills
-    return skills.load_application_names()
+    return skills.load_applications()
 
 
 @app.get("/chats/{bot_id}")

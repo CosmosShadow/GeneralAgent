@@ -1,12 +1,21 @@
 
+def load_applications():
+    from GeneralAgent.utils import get_applications_dir
+    local_bots = _load_bots(_get_local_applications_dir())
+    remote_bots=  _load_bots(get_applications_dir())
+    return local_bots + remote_bots
 
-def load_application_names(code_dir=None):
+
+def _get_local_applications_dir():
+    import os
+    return os.path.join(os.path.dirname(__file__), '../../webui/server/server/applications/')
+
+
+def _load_bots(code_dir):
     """
     加载所有应用的名称
     """
     import os, json
-    if code_dir is None:
-        code_dir = _get_applications_dir()
     result = []
     for bot_name in os.listdir(code_dir):
         bot_dir = os.path.join(code_dir, bot_name)
@@ -20,14 +29,20 @@ def load_application_names(code_dir=None):
                     bot_json['nickname'] = bot_json['name']
                     result.append(bot_json)
     return result
+    
 
-
-def _get_applications_dir():
+def get_application_module(bot_id):
     import os
-    return os.path.join(os.path.dirname(__file__), '../../webui/server/server/applications/')
+    from GeneralAgent.utils import get_applications_dir
+    local_dir = _get_local_applications_dir()
+    remote_dir = get_applications_dir()
+    code_path = os.path.join(local_dir, f"{bot_id}/main.py")
+    if not os.path.exists(code_path):
+        code_path = os.path.join(remote_dir, f"{bot_id}/main.py")
+    return _load_application(code_path)
 
 
-def load_application(code_path):
+def _load_application(code_path):
     """
     load application with code path
     """
