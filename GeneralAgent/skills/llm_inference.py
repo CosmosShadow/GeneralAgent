@@ -6,8 +6,11 @@ class TinyDBCache():
         import os, json
         LLM_CACHE = os.environ.get('LLM_CACHE', 'no')
         if LLM_CACHE in ['yes', 'y', 'YES']:
-            LLM_CACHE_PATH = os.environ.get('LLM_CACHE_PATH', './llm_cache.json')
-            self.db = TinyDB(LLM_CACHE_PATH)
+            llm_path = os.environ.get('LLM_CACHE_PATH', None)
+            if llm_path is None:
+                from GeneralAgent.utils import get_server_dir
+                llm_path = os.path.join(get_server_dir(), 'llm_cache.json')
+            self.db = TinyDB(llm_path)
         else:
             self.db = None
 

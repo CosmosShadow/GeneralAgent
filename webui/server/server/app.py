@@ -17,12 +17,13 @@ from datetime import datetime
 from dataclasses import dataclass
 from GeneralAgent import skills
 
+
 # load env
 # if os.path.exists('.env'):
 #     load_dotenv('.env')
 
 # set logging level
-from GeneralAgent.utils import set_logging_level
+from GeneralAgent.utils import set_logging_level, get_server_dir, get_applications_data_dir
 set_logging_level(os.environ.get('LOG_LEVEL', 'ERROR'))
 
 
@@ -90,7 +91,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-db = TinyDB('./general_agent_db.json')
+db_path = os.path.join(get_server_dir(), './general_agent_db.json')
+db = TinyDB(db_path)
 task_queue: queue.Queue = queue.Queue()
 response_queue: queue.Queue = queue.Queue()
 
@@ -98,8 +100,9 @@ response_queue: queue.Queue = queue.Queue()
 def sync_worker():
     asyncio.run(worker())
 
+applications_data_dir = get_applications_data_dir()
 def get_chat_dir(bot_id, chat_id):
-    data_dir = os.path.join(os.path.dirname(__file__), 'data', bot_id, chat_id)
+    data_dir = os.path.join(applications_data_dir, bot_id, chat_id)
     return data_dir
 
 def history_to_messages(history):

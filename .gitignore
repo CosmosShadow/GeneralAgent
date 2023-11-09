@@ -29,3 +29,4 @@ test/summary_memory.json
 test/test_skills/llm_cache.json
 webui/server/server/applications/test_application_id/bot.json
 webui/server/server/applications/test_application_id/main.py
+data/*

@@ -56,6 +56,8 @@ search_functions('scrape web page')
 
 # Note: 
 - edit_application_code 会处理用户的输入和输出，包括文本和文件，你不需要关心。
+- 不要使用没有出现过的的函数，否则会报错。
+- 搜索发现没有足够的函数，你需要通过edit_function和generate_llm_task_function两个来实现。
 
 # 构建应用的一般流程: 
 

@@ -55,3 +55,38 @@ def set_logging_level(log_level=None):
         format='%(asctime)s %(pathname)s [line:%(lineno)d] %(levelname)s %(funcName)s %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
+
+def get_data_dir():
+    default_dir = os.path.join(os.path.dirname(__file__), '../data')
+    data_dir = os.environ.get('DATA_DIR', default_dir)
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+    return data_dir
+
+def get_applications_dir():
+    data_dir = get_data_dir()
+    applications_dir = os.path.join(data_dir, 'applications')
+    if not os.path.exists(applications_dir):
+        os.makedirs(applications_dir)
+    return applications_dir
+
+def get_applications_data_dir():
+    data_dir = get_data_dir()
+    applications_dir = os.path.join(data_dir, 'applications_data')
+    if not os.path.exists(applications_dir):
+        os.makedirs(applications_dir)
+    return applications_dir
+
+def get_functions_dir():
+    data_dir = get_data_dir()
+    functions_dir = os.path.join(data_dir, 'functions')
+    if not os.path.exists(functions_dir):
+        os.makedirs(functions_dir)
+    return functions_dir
+
+def get_server_dir():
+    data_dir = get_data_dir()
+    server_dir = os.path.join(data_dir, 'server')
+    if not os.path.exists(server_dir):
+        os.makedirs(server_dir)
+    return server_dir
