@@ -54,11 +54,19 @@ class Skills:
             return self._get_func(name)
         
     def _get_func(self, name):
-        return self._funs.get(name, None)
+        fun = self._local_funs.get(name, None)
+        if fun is not None:
+            return fun
+        fun = self._remote_funs.get(name, None)
+        if fun is not None:
+            return fun
+        raise ValueError('Function {} not found'.format(name))
     
     def __init__(self):
-        self._funs = {}
+        self._local_funs = {}
+        self._remote_funs = {}
         self._load_local_funs()
+        self._load_remote_funs()
 
     def _load_funcs(self, the_dir):
         total_funs = []
@@ -69,17 +77,25 @@ class Skills:
         return total_funs
 
     def _load_local_funs(self):
-        the_dir = os.path.dirname(__file__)
-        funcs = self._load_funcs(the_dir)
-        self._funs = {}
+        self._local_funs = {}
+        funcs = self._load_funcs(os.path.dirname(__file__))
         for fun in funcs:
-            self._funs[fun.__name__] = fun
+            self._local_funs[fun.__name__] = fun
+
+    def _load_remote_funs(self):
+        from GeneralAgent.utils import get_functions_dir
+        self._remote_funs = {}
+        funcs = self._load_funcs(get_functions_dir())
+        for fun in funcs:
+            self._remote_funs[fun.__name__] = fun
 
     def _search_functions(self, task_description):
         """
         Search functions that may help to solve the task.
         """
         from .get_function_signature import get_function_signature
-        return '\n\n'.join(['skills.' + get_function_signature(fun) for fun in self._funs.values()])
+        locals = ['skills.' + get_function_signature(fun) for fun in self._local_funs.values()]
+        remotes = ['functions.' + get_function_signature(fun) for fun in self._remote_funs.values()]
+        return '\n\n'.join(locals + remotes)
 
 skills = Skills._instance()
