@@ -6,6 +6,8 @@ from GeneralAgent.utils import default_get_input, default_output_callback
 from GeneralAgent.memory import Memory, MemoryNode
 from GeneralAgent.interpreter import PlanInterpreter, RetrieveInterpreter, LinkMemoryInterpreter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, AskInterpreter, FileInterpreter
+from GeneralAgent.utils import set_logging_level
+set_logging_level()
 
 class Agent:
     def __init__(self, 
@@ -25,7 +27,6 @@ class Agent:
             print('enviroment variable OPENAI_API_KEY is not set correctly')
             OPENAI_API_KEY = input('input your openai api key please >>> ')
             os.environ['OPENAI_API_KEY'] = OPENAI_API_KEY
-
         self.memory = memory or Memory(serialize_path=f'{workspace}/memory.json')
         self.input_interpreters = input_interpreters
         self.retrieve_interpreters = retrieve_interpreters
