@@ -1,7 +1,7 @@
 {
     "id": "application_builder",
     "name": "Agent Builder",
-    "description": "用自然语言描述来构建Agent",
+    "description": "用自然语言描述来构建、安装和卸载 Agent",
     "icon": "icon.png",
     "upload_file": "yes"
 }

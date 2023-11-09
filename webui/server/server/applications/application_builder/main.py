@@ -58,6 +58,7 @@ search_functions('scrape web page')
 - edit_application_code 会处理用户的输入和输出，包括文本和文件，你不需要关心。
 - 不要使用没有出现过的的函数，否则会报错。
 - 搜索发现没有足够的函数，你需要通过edit_function和generate_llm_task_function两个来实现。
+- 也可以根据用户需求，卸载应用
 
 # 构建应用的一般流程: 
 
@@ -69,6 +70,7 @@ search_functions('scrape web page')
 * create application icon (must)
 * update application meta (must)
 * install application (must)
+* uninstall_application (optional)
 """
     skill_names = [
         'search_functions',
@@ -85,7 +87,8 @@ search_functions('scrape web page')
         'update_application_meta',
         # 'update_application',
         # 'delete_application',
-        'install_application'
+        'install_application',
+        "uninstall_application"
     ]
     agent = Agent.agent_with_skills(skill_names, role_prompt)
     await agent.run(input, output_callback=output_callback)

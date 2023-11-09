@@ -207,11 +207,35 @@ def install_application() -> None:
         return
     application_id = app_json['id']
     # move code to bot
-    target_dir = os.path.join(os.path.dirname(__file__), f'../../webui/server/server/applications/{application_id}/')
-    if not os.path.exists(target_dir):
-        os.makedirs(target_dir)
+    from GeneralAgent.utils import get_applications_dir
+    target_dir = os.path.join(get_applications_dir(), application_id)
+    if os.path.exists(target_dir):
+        import shutil
+        shutil.rmtree(target_dir)
+    os.makedirs(target_dir)
     # print(target_dir)
-    os.system(f"mv {get_code_dir()}/* {target_dir}")
+    os.system(f"cp -r {get_code_dir()}/* {target_dir}")
+
+
+def uninstall_application() -> None:
+    """
+    Uninstall application from chat bot
+    """
+    import os, json
+    bot_json_path = os.path.join(get_code_dir(), 'bot.json')
+    if os.path.exists(bot_json_path):
+        with open(bot_json_path, 'r') as f:
+            app_json = json.loads(f.read())
+    else:
+        print('applicatoin meta not exists')
+        return
+    application_id = app_json['id']
+    # move code to bot
+    from GeneralAgent.utils import get_applications_dir
+    target_dir = os.path.join(get_applications_dir(), application_id)
+    if os.path.exists(target_dir):
+        import shutil
+        shutil.rmtree(target_dir)
 
 
 def get_existed_application_ids() -> [str]:
