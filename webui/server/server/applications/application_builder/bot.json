@@ -1,7 +1,7 @@
 {
     "id": "application_builder",
     "name": "Agent Builder",
-    "description": "用自然语言描述来构建、安装和卸载 Agent",
+    "description": "用自然语言描述来构建、安装和卸载 Agent。完成安装，你可以在 Agent Store 中找到你的 Agent 并开始使用。",
     "icon": "icon.png",
     "upload_file": "yes"
 }
