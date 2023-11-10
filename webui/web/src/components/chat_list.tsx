@@ -69,7 +69,7 @@ export default function ChatList (props: Props) {
                     color: chat.selected ? 'red' : 'green',
                     height: 40,
                     textAlign: 'left',
-                    paddingLeft: 5,
+                    paddingLeft: 10,
                     marginLeft: 0,
                     // fontWeight: 'bold',
                     width: 200,

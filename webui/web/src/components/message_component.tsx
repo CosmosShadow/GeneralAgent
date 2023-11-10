@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef} from 'react'
 import {Message} from './interface';
 import ImageComponent from './image_component'
 import FileDownloadCompoent from './file_download'
+import MarkdownComponent from './markdown_component'
 import AudioPlayer from './audio_player'
 import {Button} from 'antd'
 import {get_chat_file_url} from './api'
@@ -47,7 +48,8 @@ const MessageComponent: React.FC<Props> = (props) => {
 		return <FileDownloadCompoent file_path={file_url} />
 	}
 	// return (<div style={{ whiteSpace: 'pre-wrap' }}>{parse(md.render(message.msg as string))}</div>)
-	return (<div style={{ whiteSpace: 'pre-wrap' }}>{message.msg}</div>)
+	// return (<div style={{ whiteSpace: 'pre-wrap' }}>{message.msg}</div>)
+	return (<MarkdownComponent message={message} />)
 	// + '<a href=\'www.baidu.com\'>afafaf</a>'
 }
 
