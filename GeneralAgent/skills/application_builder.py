@@ -19,6 +19,7 @@ def search_functions(task_description:str) -> str:
     """
     from GeneralAgent import skills
     functions = skills._search_functions(task_description)
+    print(functions)
     return functions
     from jinja2 import Template
 #     # print(functions)
@@ -266,7 +267,7 @@ def translate(text:str, language:str) -> str:
     translated = []
     for x in contents:
         prompt = "Translate the following text to " + language + "\n" + x
-        translated += [skills.llm_inference([{'role': 'system', 'content': prompt}])
+        translated += [skills.llm_inference([{{'role': 'system', 'content': prompt}}])
     return '. '.join(translated)
 ```
 

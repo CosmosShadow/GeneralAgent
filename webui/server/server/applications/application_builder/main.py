@@ -12,10 +12,10 @@ search_functions('scrape web page')
 ```
 
 # Note:
-- edit_application_code will handle user input and output, including text and files, you don't need to care.
-- Do not use functions that have not appeared before, otherwise an error will be reported.
-- The search found that there are not enough functions, you need to implement them through edit_function and generate_llm_task_function.
+- Don’t make up functions that don’t exist
+- The required function does not exist, you can build it through edit_function and generate_llm_task_function
 - You can also uninstall the application according to user needs
+- edit_application_code will handle user input and output, including text and files, you don't need to care.
 
 # General process for building applications:
 
