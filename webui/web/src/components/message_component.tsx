@@ -47,9 +47,14 @@ const MessageComponent: React.FC<Props> = (props) => {
 	if (isFile) {
 		return <FileDownloadCompoent file_path={file_url} />
 	}
+
+	if (message.role == 'user') {
+		return (<div style={{ whiteSpace: 'pre-wrap' }}>{message.msg}</div>)
+	} else {
+		return (<MarkdownComponent message={message} />)
+	}
 	// return (<div style={{ whiteSpace: 'pre-wrap' }}>{parse(md.render(message.msg as string))}</div>)
 	// return (<div style={{ whiteSpace: 'pre-wrap' }}>{message.msg}</div>)
-	return (<MarkdownComponent message={message} />)
 	// + '<a href=\'www.baidu.com\'>afafaf</a>'
 }
 

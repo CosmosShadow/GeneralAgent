@@ -1,6 +1,6 @@
 {
     "id": "agent",
     "name": "Agent",
-    "description": "Agent with all tools: Code Interpreter、AI tools(Draw、TTS、ASR and others)",
+    "description": "Agent with all tools: Code Interpreter(Python, Shell, AppleShell)、AI tools(Draw、TTS、ASR and others)",
     "upload_file": "yes"
 }

@@ -66,12 +66,6 @@ class Agent:
             os.makedirs(workspace)
         variable_name = 'sparks'
         prompt_append = f"""
-你可以通过字典{variable_name}访问所有文档中出现<<key>>的值，比如<<Hello world>>:
-```
-print({variable_name}['Hello world'])
-```
-"""
-        prompt_append = f"""
 You can access the values of <<key>> in all documents through the dictionary {variable_name}, such as <<Hello world>>:
 ```
 print({variable_name}['Hello world'])
