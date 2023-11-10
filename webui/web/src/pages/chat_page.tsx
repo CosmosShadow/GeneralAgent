@@ -75,8 +75,8 @@ export default function ChatPage () {
 					<div style={{ textAlign: 'left'}}>
 						<b>{current_bot ? current_bot.nickname : ''}</b>
 						<div style={{ fontSize: 12, paddingTop: 3 }}>
-						<Tooltip color='cyan' title={current_bot && current_bot.description.length > 70 ? current_bot.description : ''}>
-							<span>{current_bot ? cut_string(current_bot.description, 70) : ''}</span>
+						<Tooltip color='cyan' title={current_bot && current_bot.description.length > 150 ? current_bot.description : ''}>
+							<span>{current_bot ? cut_string(current_bot.description, 150) : ''}</span>
 						</Tooltip>
 						</div>
 					</div>
