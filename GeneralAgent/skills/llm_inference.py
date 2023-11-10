@@ -4,20 +4,16 @@ class TinyDBCache():
     def __init__(self):
         from tinydb import TinyDB
         import os, json
-        LLM_CACHE = os.environ.get('LLM_CACHE', 'no')
-        if LLM_CACHE in ['yes', 'y', 'YES']:
-            llm_path = os.environ.get('LLM_CACHE_PATH', None)
-            if llm_path is None:
-                from GeneralAgent.utils import get_server_dir
-                llm_path = os.path.join(get_server_dir(), 'llm_cache.json')
-            self.db = TinyDB(llm_path)
-        else:
-            self.db = None
+        llm_path = os.environ.get('CACHE_PATH', None)
+        if llm_path is None:
+            from GeneralAgent.utils import get_server_dir
+            llm_path = os.path.join(get_server_dir(), 'cache.json')
+        self.db = TinyDB(llm_path)
+        self.cache_llm = os.environ.get('LLM_CACHE', 'no') in ['yes', 'y', 'YES']
+        self.cache_embedding = os.environ.get('EMBEDDING_CACHE', 'no') in ['yes', 'y', 'YES']
 
     def get(self, table, key):
         from tinydb import Query
-        if self.db is None:
-            return None
         result = self.db.table(table).get(Query().key == key)
         if result is not None:
             return result['value']
@@ -26,12 +22,84 @@ class TinyDBCache():
 
     def set(self, table, key, value):
         from tinydb import Query
-        if self.db is None:
-            return
         self.db.table(table).upsert({'key': key, 'value': value}, Query().key == key)
+
+    def set_llm_cache(self, key, value):
+        if self.cache_llm:
+            self.set('llm', key, value)
+
+    def get_llm_cache(self, key):
+        if self.cache_llm:
+            return self.get('llm', key)
+    
+    def set_embedding_cache(self, key, value):
+        if self.cache_embedding:
+            self.set('embedding', key, value)
+
+    def get_embedding_cache(self, key):
+        if self.cache_embedding:
+            return self.get('embedding', key)
 
 
 global_cache = TinyDBCache()
+
+
+def embedding_single(text) -> [float]:
+    """
+    embedding the text and return a embedding (list of float) for the string
+    """
+    global global_cache
+    key = _md5(text)
+    embedding = global_cache.get_embedding_cache(key)
+    if embedding is not None:
+        # print('embedding cache hitted')
+        return embedding
+    texts = [text]
+    import openai
+    resp = openai.Embedding.create(input=texts,engine="text-embedding-ada-002")
+    result = [x['embedding'] for x in resp['data']]
+    embedding = result[0]
+    global_cache.get_embedding_cache(key, embedding)
+    return embedding
+
+
+def embedding_batch(texts) -> [[float]]:
+    """
+    embedding the texts(list of string), and return a list of embedding (list of float) for every string
+    """
+    global global_cache
+    embeddings = {}
+    remain_texts = []
+    for text in texts:
+        key = _md5(text)
+        embedding = global_cache.get_embedding_cache(key)
+        if embedding is not None:
+            embeddings[text] = embedding
+        else:
+            remain_texts.append(text)
+    if len(remain_texts) > 0:
+        import openai
+        resp = openai.Embedding.create(input=remain_texts, engine="text-embedding-ada-002")
+        result = [x['embedding'] for x in resp['data']]
+        for text, embedding in zip(remain_texts, result):
+            key = _md5(text)
+            global_cache.set_embedding_cache(key, embedding)
+            embeddings[text] = embedding
+    return [embeddings[text] for text in texts]
+
+
+def search_similar_texts(focal:str, texts:[str], top_k=5):
+    """
+    search the most similar texts in texts, and return the top_k similar texts
+    """
+    embeddings = embedding_batch([focal] + texts)
+    focal_embedding = embeddings[0]
+    texts_embeddings = embeddings[1:]
+    import numpy as np
+    similarities = np.dot(texts_embeddings, focal_embedding)
+    sorted_indices = np.argsort(similarities)
+    sorted_indices = sorted_indices[::-1]
+    return [texts[i] for i in sorted_indices[:top_k]]
 
 
 def _md5(obj):
@@ -120,17 +188,16 @@ async def async_llm_inference(messages, model_type='normal'):
     import openai
     import logging
     global global_cache
-    table = 'llm'
     logging.debug(messages)
     key = _md5(messages)
-    result = global_cache.get(table, key)
+    result = global_cache.get_llm_cache(key)
     if result is not None:
         return result
     model = _get_model(messages, model_type)
     temperature = _get_temperature()
     response = await openai.ChatCompletion.acreate(model=model, messages=messages, temperature=temperature)
     result = response['choices'][0]['message']['content']
-    global_cache.set(table, key, result)
+    global_cache.set_llm_cache(key, result)
     return result
 
 
@@ -145,9 +212,8 @@ def _llm_inference_with_stream(messages, model_type='normal'):
     model = _get_model(messages, model_type)
     logging.debug(messages)
     global global_cache
-    table = 'llm'
     key = _md5(messages)
-    result = global_cache.get(table, key)
+    result = global_cache.get_llm_cache(key)
     if result is not None:
         # print('llm_inference cache hitted')
         for x in result.split(' '):
@@ -162,7 +228,7 @@ def _llm_inference_with_stream(messages, model_type='normal'):
             if chunk['choices'][0]['finish_reason'] is None:
                 token = chunk['choices'][0]['delta']['content']
                 result += token
-                global_cache.set(table, key, result)
+                global_cache.set_llm_cache(key, result)
                 yield token
         # logging.info(result)
         # yield None
@@ -173,18 +239,17 @@ def _llm_inference_without_stream(messages, model_type='normal'):
     import openai
     import logging
     global global_cache
-    table = 'llm'
     logging.debug(messages)
     # print(messages)
     key = _md5(messages)
-    result = global_cache.get(table, key)
+    result = global_cache.get_llm_cache(key)
     if result is not None:
         return result
     model = _get_model(messages, model_type)
     temperature = _get_temperature()
     response = openai.ChatCompletion.create(model=model, messages=messages, temperature=temperature)
     result = response['choices'][0]['message']['content']
-    global_cache.set(table, key, result)
+    global_cache.set_llm_cache(key, result)
     return result
 
 

@@ -14,6 +14,25 @@ def test_application_code_generation():
     # print(code)
     assert 'skills.read_file_content' in code
 
+def test_search_functions():
+    from GeneralAgent import skills
+    result = skills.search_functions('translate text')
+    print(result)
+    assert 'skills.translate_text' in result
+    result = skills.search_functions('翻译')
+    assert 'skills.translate_text' in result
+    print(result)
+
+def test_edit_llm_function():
+    from GeneralAgent import skills
+    function_name = 'translate_text_test'
+    signature = skills.edit_llm_function(function_name, 'Translate text of any length into the specified language.')
+    print(signature)
+    assert signature.startswith('skills.')
+    assert function_name in signature
+    skills.delete_function(function_name)
+
+
 # def test_install_application():
 #     import os
 #     from GeneralAgent import skills
@@ -30,7 +49,8 @@ def test_application_code_generation():
 #     skills.install_application(application_id, application_name, description, upload_file='yes')
 
 if __name__ == '__main__':
-    pass
     # test_function_code_generation()
     # test_application_code_generation()
     # test_install_application()
+    # test_edit_llm_function()
+    test_search_functions()

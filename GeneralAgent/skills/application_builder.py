@@ -18,23 +18,24 @@ def search_functions(task_description:str) -> str:
     print function signatures that may help to solve the task, and return the function signatures
     """
     from GeneralAgent import skills
-    from jinja2 import Template
     functions = skills._search_functions(task_description)
-    # print(functions)
-    prompt_template = """
-# Functions
-{{functions}}
-
-# Task
-{{task}}
-
-Please return the function signatures that can solve the task.
-
-"""
-    prompt = Template(prompt_template).render(task=task_description, functions=functions)
-    functions = skills.llm_inference([{'role': 'system', 'content': 'You are a helpful assistant'}, {'role': 'user', 'content': prompt}])
-    print(functions)
     return functions
+    from jinja2 import Template
+#     # print(functions)
+#     prompt_template = """
+# # Functions
+# {{functions}}
+
+# # Task
+# {{task}}
+
+# Please return the function signatures that can solve the task.
+
+# """
+#     prompt = Template(prompt_template).render(task=task_description, functions=functions)
+#     functions = skills.llm_inference([{'role': 'system', 'content': 'You are a helpful assistant'}, {'role': 'user', 'content': prompt}])
+#     print(functions)
+#     return functions
 
 
 def edit_normal_function(function_name:str, task_description:str) -> None:

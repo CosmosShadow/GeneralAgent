@@ -89,13 +89,22 @@ class Skills:
         for fun in funcs:
             self._remote_funs[fun.__name__] = fun
 
-    def _search_functions(self, task_description):
+    def _search_functions(self, task_description, return_list=False):
         """
         Search functions that may help to solve the task.
         """
+        from .llm_inference import search_similar_texts
+        signatures = self._all_function_signatures()
+        results = search_similar_texts(task_description, signatures, top_k=2)
+        if return_list:
+            return results
+        else:
+            return '\n'.join(results)
+    
+    def _all_function_signatures(self):
         from .python_envs import get_function_signature
         locals = [get_function_signature(fun, 'skills') for fun in self._local_funs.values()]
         remotes = [get_function_signature(fun, 'skills') for fun in self._remote_funs.values()]
-        return '\n\n'.join(locals + remotes)
+        return locals + remotes
 
 skills = Skills._instance()

@@ -32,7 +32,6 @@ search_functions('scrape web page')
 
     skill_names = [
         'search_functions',
-        'edit_function',
         'edit_normal_function',
         'edit_llm_function',
         'edit_application_code',
