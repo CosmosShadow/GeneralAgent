@@ -1,6 +1,6 @@
-def text_translation(text, language):
-    """Translates the given text into the specified language, e.g. text_translation('I love china', 'chinese'). For efficiency, You Must translate larger text blocks at once."""
-    """translate the text to language, like chinese, english, frech etc. like text_translation('I love china', 'chinese'). Try to translate more content at once, instead of calling multiple times"""
+def translate_text(text, language):
+    """Translates the given text into the specified language, e.g. translate_text('I love china', 'chinese'). For efficiency, You Must translate larger text blocks at once."""
+    """translate the text to language, like chinese, english, frech etc. like translate_text('I love china', 'chinese'). Try to translate more content at once, instead of calling multiple times"""
     from GeneralAgent import skills
     segments = skills.split_text(text, 1800)
     translated = []

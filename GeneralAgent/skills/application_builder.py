@@ -66,6 +66,7 @@ def _edit_function(function_name: str, task_description:str, code_fun) -> str:
     if os.path.exists(file_path):
         with open(file_path, 'r') as f:
             code = f.read()
+    task_description += f'\n# Function name: {function_name}'
     code = code_fun(task_description, default_code=code)
     with open(file_path, 'w') as f:
         f.write(code)
@@ -80,6 +81,15 @@ def _edit_function(function_name: str, task_description:str, code_fun) -> str:
         print(signature)
         return signature
 
+def delete_function(func_name:str) -> None:
+    """
+    Delete a function by name
+    """
+    import os
+    from GeneralAgent.utils import get_functions_dir
+    file_path = os.path.join(get_functions_dir(), func_name + '.py')
+    if os.path.exists(file_path):
+        os.remove(file_path)
 
 def create_application_icon(application_description:str) -> None:
     """
@@ -326,7 +336,7 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
     from GeneralAgent import skills
     prompt = input
     if not skills.text_is_english(prompt):
-        prompt = skills.text_translation(prompt, 'english')
+        prompt = skills.translate_text(prompt, 'english')
     image_url = skills.image_generation(prompt)
     await file_callback(image_url)
 ```
@@ -397,7 +407,7 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
 你通过编写python代码调用 # Run python 中预定义好的函数，来完成用户需求。
 \"\"\"
     functions = [
-        skills.text_translation
+        skills.translate_text
     ]
     agent = Agent.agent_with_functions(functions, role_prompt)
     await agent.run(input, output_callback=output_callback)
