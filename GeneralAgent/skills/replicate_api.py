@@ -1,6 +1,6 @@
 # replicate api
 
-def image_generation(prompt):
+def _replicate_image_generation(prompt):
     """generate a image with prompt (in english), return a image url"""
 
     # import replicate
@@ -22,6 +22,15 @@ def image_generation(prompt):
     # print(image_url)
 
     return image_url
+
+def image_generation(prompt) -> str:
+    """generate a image with prompt, return a image path. for example, when prompt is 'apple', you will get a image of apple. prompt should detail enough to generate a image."""
+    from GeneralAgent import skills
+    if not skills.text_is_english(prompt):
+        prompt = skills.translate_text(prompt, 'english')
+    image_url = _replicate_image_generation(prompt)
+    image_path  = skills.try_download_file(image_url)
+    return image_path
 
 def face_restoration(image_path):
     """ Practical face restoration algorithm for old photos or AI-generated faces. input image path, and return image url"""

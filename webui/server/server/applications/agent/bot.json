@@ -1,6 +1,6 @@
 {
     "id": "agent",
     "name": "Agent",
-    "description": "Agent with read, plan, code and tool use. stable with gpt3.5.",
+    "description": "Agent with all tools: Code Interpreter、AI tools(Draw、TTS、ASR and others)",
     "upload_file": "yes"
 }

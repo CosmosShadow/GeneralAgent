@@ -4,20 +4,17 @@ import logging
 from jinja2 import Template
 from .interpreter import Interpreter
 from GeneralAgent.utils import confirm_to_run
-
+from GeneralAgent import skills
 
 default_import_code = """
 import os, sys, math
-# from GeneralAgent.tools import google_search, wikipedia_search, scrape_web
 from GeneralAgent import skills
-google_search = skills.google_search
-wikipedia_search = skills.wikipedia_search
-scrape_web = skills.scrape_web
 """
 
-default_libs = ' '.join(["requests", "tinydb", "openai", "jinja2", "numpy", "bs4", "playwright", "retrying", "pymupdf", "python-pptx", "python-docx", "yfinance"])
+# default_libs = ' '.join(["requests", "tinydb", "openai", "jinja2", "numpy", "bs4", "playwright", "retrying", "pymupdf", "python-pptx", "python-docx", "yfinance"])
+default_libs = skills.get_current_env_python_libs()
 
-from GeneralAgent.tools import Tools
+# from GeneralAgent.tools import Tools
 
 class PythonInterpreter(Interpreter):
 
@@ -40,7 +37,7 @@ class PythonInterpreter(Interpreter):
 
     def __init__(self, 
                  serialize_path:str=None, 
-                 tools:Tools=None, 
+                #  tools:Tools=None, 
                  libs: str=default_libs, 
                  import_code:str=default_import_code,
                  prompt_append=''
@@ -48,8 +45,7 @@ class PythonInterpreter(Interpreter):
         """
         Args:
             serialize_path (str): path to save the global variables, default None, which means not save, like './serialized.bin'
-            tools (Tools, optional): tools to use. Defaults to None.
-            libs ([str], optional): libraries to import. Defaults to default_libs.
+            libs ([str], optional): libraries can be to used. Defaults to skills.get_current_env_python_libs()
             import_code (str, optional): code to import. The tools used should be imported. Defaults to default_import_code.
             prompt_append: append to the prompt, custom prompt can be added here
         """
@@ -59,7 +55,7 @@ class PythonInterpreter(Interpreter):
         self.import_code = import_code
         self.serialize_path = serialize_path
         self.prompt_append = prompt_append
-        self.tools = tools or Tools([skills.google_search, skills.wikipedia_search, skills.scrape_web])
+        # self.tools = tools or Tools([])
         self.globals = self.load()
 
     def load(self):
@@ -73,11 +69,11 @@ class PythonInterpreter(Interpreter):
 
     async def prompt(self, messages) -> str:
         from GeneralAgent import skills
-        python_funcs = self.tools.get_funs_description()
+        # python_funcs = self.tools.get_funs_description()
         async_funcs = '\n'.join([skills.get_function_signature(x) for x in self.async_tools])
         variables = {
             'python_libs': self.python_libs,
-            'python_funcs': python_funcs + '\n' + async_funcs
+            'python_funcs': async_funcs
         }
         return Template(self.python_prompt_template).render(**variables) + self.prompt_append
 

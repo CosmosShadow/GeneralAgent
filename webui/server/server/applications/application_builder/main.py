@@ -18,7 +18,6 @@ search_functions('scrape web page')
 - edit_application_code will handle user input and output, including text and files, you don't need to care.
 
 # General process for building applications:
-
 * Fully communicate needs with users
 * search available functions(optional)
 * edit normal function (optional)
@@ -29,16 +28,16 @@ search_functions('scrape web page')
 * install application (must)
 * uninstall_application (optional)
 """
-
-    skill_names = [
-        'search_functions',
-        'edit_normal_function',
-        'edit_llm_function',
-        'edit_application_code',
-        'create_application_icon',
-        'update_application_meta',
-        'install_application',
-        "uninstall_application"
+    from GeneralAgent import skills
+    functoins = [
+        skills.search_functions,
+        skills.edit_normal_function,
+        skills.edit_llm_function,
+        skills.edit_application_code,
+        skills.create_application_icon,
+        skills.update_application_meta,
+        skills.install_application,
+        skills.uninstall_application
     ]
-    agent = Agent.agent_with_skills(skill_names, role_prompt)
+    agent = Agent.agent_with_functions(functoins, role_prompt)
     await agent.run(input, output_callback=output_callback)

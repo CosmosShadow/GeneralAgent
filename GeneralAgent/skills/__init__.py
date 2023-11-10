@@ -60,7 +60,8 @@ class Skills:
         fun = self._remote_funs.get(name, None)
         if fun is not None:
             return fun
-        raise ValueError('Function {} not found'.format(name))
+        print('Function {} not found'.format(name))
+        return None
     
     def __init__(self):
         self._local_funs = {}

@@ -109,33 +109,19 @@ print({variable_name}['Hello world'])
         output_interpreters = [RoleInterpreter()]
         return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters)
     
-    @classmethod
-    def agent_with_skills(cls, skill_names, role_prompt=None, workspace = './'):
-        from GeneralAgent import skills
-        from GeneralAgent.tools import Tools
-        from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter
-        from GeneralAgent.agent import Agent
-        role_interpreter = RoleInterpreter(system_prompt=role_prompt)
-        tools = Tools([skills._get_func(name) for name in skill_names])
-        print([skills._get_func(name) for name in skill_names])
-        import_code = "from GeneralAgent import skills\n" + '\n'.join([f'{name} = skills.{name}' for name in skill_names])
-        # libs = skills.get_current_env_python_libs()
-        libs = ''
-        python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin', tools=tools, libs=libs, import_code=import_code)
-        output_interpreters = [role_interpreter, python_interpreter]
-        agent = Agent(workspace, output_interpreters=output_interpreters, model_type='smart')
-        return agent
     
     @classmethod
-    def agent_with_functions(cls, functions, role_prompt=None, workspace = './'):
-        from GeneralAgent import skills
-        from GeneralAgent.tools import Tools
+    def agent_with_functions(cls, functions, role_prompt=None, workspace = './', import_code=None, libs=None):
+        """
+        functions: list, [function1, function2, ...]
+        role_prompt: str, role prompt
+        workspace: str, workspace path
+        import_code: str, import code
+        libs: str, libs
+        """
         from GeneralAgent.interpreter import RoleInterpreter, AsyncPythonInterpreter
         from GeneralAgent.agent import Agent
         role_interpreter = RoleInterpreter(system_prompt=role_prompt)
-        import_code = "from GeneralAgent import skills\n"
-        # libs = skills.get_current_env_python_libs()
-        libs = ''
         python_interpreter = AsyncPythonInterpreter(serialize_path=f'{workspace}/code.bin', libs=libs, import_code=import_code)
         python_interpreter.async_tools = functions
         output_interpreters = [role_interpreter, python_interpreter]
