@@ -25,6 +25,7 @@ class PythonInterpreter(Interpreter):
 * the code will be executed
 * python version is 3.9
 * only write synchronous code
+* The output display should be limited in length and should be truncated when displaying characters whose length is unknown. for example: print(a[:100])
 * * Pickleable objects can be shared between different codes and variables
 * Available libraries: {{python_libs}}
 * The following functions can be used in code (already implemented and imported for you):
@@ -39,7 +40,7 @@ class PythonInterpreter(Interpreter):
                  serialize_path:str=None, 
                 #  tools:Tools=None, 
                  libs: str=default_libs, 
-                 import_code:str=default_import_code,
+                 import_code:str=None,
                  prompt_append=''
                  ):
         """
@@ -52,7 +53,7 @@ class PythonInterpreter(Interpreter):
         from GeneralAgent import skills
         self.globals = {}  # global variables shared by all code
         self.python_libs = libs
-        self.import_code = import_code
+        self.import_code = import_code or default_import_code
         self.serialize_path = serialize_path
         self.prompt_append = prompt_append
         # self.tools = tools or Tools([])

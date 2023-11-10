@@ -71,6 +71,7 @@ print(a)
 - the code will be executed
 - python version is 3.9
 - Pickleable objects can be shared between different codes and variables
+- The output display should be limited in length and should be truncated when displaying characters whose length is unknown. for example: print(a[:100])
 - Available libraries: {{python_libs}}
 - The following functions can be used in code (already implemented and imported for you):
 ```
