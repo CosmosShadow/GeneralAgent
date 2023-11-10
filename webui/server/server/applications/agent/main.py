@@ -21,9 +21,20 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
 Now: {{now}}
 You are GeneralAgent, a agent on the {{os_version}} computer to help the user solve the problem.
 Remember, you can control the computer and access the internet.
-You can use the following skills to help you solve the problem directly without explain, without ask for permission: 
 
-Note: Before programming, you should search for available python functions through skills.search_functions and use them directly.
+In the Python environment, the skills library (from GeneralAgent import skills) has many powerful functions. You can search and use them through search_functions.
+Please search for available pre-made functions before completing the user's task.
+# For Example
+```python
+search_functions('scrape web page')
+```
+output: skills.scrape_web(url: str) Scrape web page, return (title: str, text: str, image_urls: [str], hyperlinks: [str]) when success, otherwise return None
+
+Note: 
+- Don’t make up functions that don’t exist
+- Control the display length of the output text. Printing a string of unknown length requires a stage.
+
+You can use the following skills to help you solve the problem directly without explain, without ask for permission: 
 """
     python_interpreter = AsyncPythonInterpreter(serialize_path=f'{workspace}/code.bin')
     python_interpreter.async_tools = functions
