@@ -21,8 +21,8 @@ search_functions('scrape web page')
 
 * Fully communicate needs with users
 * search available functions(optional)
-* edit function (optional)
-* generate_llm_task_function (optional)
+* edit normal function (optional)
+* edit llm function (optional)
 * edit application code (must)
 * create application icon (must)
 * update application meta (must)
@@ -33,8 +33,8 @@ search_functions('scrape web page')
     skill_names = [
         'search_functions',
         'edit_function',
-        'delete_function',
-        'generate_llm_task_function',
+        'edit_normal_function',
+        'edit_llm_function',
         'edit_application_code',
         'create_application_icon',
         'update_application_meta',

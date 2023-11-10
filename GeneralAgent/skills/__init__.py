@@ -93,9 +93,9 @@ class Skills:
         """
         Search functions that may help to solve the task.
         """
-        from .get_function_signature import get_function_signature
-        locals = ['skills.' + get_function_signature(fun) for fun in self._local_funs.values()]
-        remotes = ['functions.' + get_function_signature(fun) for fun in self._remote_funs.values()]
+        from .python_envs import get_function_signature
+        locals = [get_function_signature(fun, 'skills') for fun in self._local_funs.values()]
+        remotes = [get_function_signature(fun, 'skills') for fun in self._remote_funs.values()]
         return '\n\n'.join(locals + remotes)
 
 skills = Skills._instance()

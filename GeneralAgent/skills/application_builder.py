@@ -37,19 +37,48 @@ Please return the function signatures that can solve the task.
     return functions
 
 
-def edit_function(func_name:str, task_description:str) -> None:
+def edit_normal_function(function_name:str, task_description:str) -> None:
     """
-    Edit function code by task_description. task description should be a string and include the detail of task, and what function can be used.
+    Edit normal function code by task_description. task description should be a string and include the detail of task, and what function can be used.
     """
+    return _edit_function(function_name, task_description, _generate_function_code)
+
+def edit_llm_function(function_name: str, task_description:str) -> str:
+    """
+    This function generates a Python function to perform a specific task using a large language model (LLM), such as translation, planning, answering general knowledge questions and so on.
+    
+    Parameters:
+    function_name: The name of the function to be generated.
+    task_description (str): A description of the task that the generated function should perform.
+
+    Returns:
+    str: The generated Python function signature as a string.
+    """
+    return _edit_function(function_name, task_description, _generate_llm_task_function)
+
+
+def _edit_function(function_name: str, task_description:str, code_fun) -> str:
     import os
-    file_path = os.path.join(_get_code_dir(), func_name + '.py')
+    from GeneralAgent import skills
+    from GeneralAgent.utils import get_functions_dir
+    file_path = os.path.join(get_functions_dir(), function_name + '.py')
     code = None
     if os.path.exists(file_path):
         with open(file_path, 'r') as f:
             code = f.read()
-    code = _generate_function_code(task_description, default_code=code)
+    code = code_fun(task_description, default_code=code)
     with open(file_path, 'w') as f:
         f.write(code)
+    funcs, error = skills.load_functions_with_path(file_path)
+    funcs = [x for x in funcs if x.__name__ == function_name]
+    if len(funcs) <= 0:
+        print(error)
+        return error
+    else:
+        signature = skills.get_function_signature(funcs[0], 'skills')
+        skills._load_remote_funs()
+        print(signature)
+        return signature
 
 
 def create_application_icon(application_description:str) -> None:
@@ -392,9 +421,9 @@ Just reponse the python code, no any explain, no start with ```python, no end wi
     return code
 
 
-def generate_llm_task_function(task_description):
+def _generate_llm_task_function(task_description, default_code=None):
     """
-    This function generates a Python function to perform a specific task using a large language model (LLM).
+    This function generates a Python function to perform a specific task using a large language model (LLM), such as translation, planning, answering general knowledge questions.
     
     Parameters:
     task_description (str): A description of the task that the generated function should perform.
@@ -454,6 +483,8 @@ def xxx(xxx):
 - When the task cannot be completed through one simple_llm_inference, you should consider task disassembly.
 """
     prompt = Template(prompt_template).render({'task': task_description})
+    if default_code is not None:
+        prompt += '\n' + 'user\'s code: ' + default_code + '\nUpdate the code to complete the task'
     result = skills.llm_inference([{'role': 'system', 'content': prompt}, {'role': 'user', 'content': 'You are a python expert.'}, {'role': 'user', 'content': prompt}], model_type="smart")
     code = skills.get_python_code(result)
     return code

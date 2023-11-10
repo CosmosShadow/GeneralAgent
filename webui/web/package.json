@@ -15,6 +15,7 @@
     "axios": "^1.4.0",
     "dexie": "^3.2.4",
     "dexie-react-hooks": "^1.1.6",
+    "html-react-parser": "^5.0.6",
     "js-cookie": "^3.0.5",
     "qrcode.react": "^3.1.0",
     "react": "^18.2.0",
@@ -25,6 +26,7 @@
     "react-router-dom": "^6.12.0",
     "react-scripts": "5.0.1",
     "react-tencent-captcha": "^2.0.4",
+    "remarkable": "^2.0.1",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
   },
@@ -54,6 +56,7 @@
   },
   "devDependencies": {
     "@types/js-cookie": "^3.0.3",
-    "@types/node": "^20.2.5"
+    "@types/node": "^20.2.5",
+    "@types/remarkable": "^2.0.8"
   }
 }

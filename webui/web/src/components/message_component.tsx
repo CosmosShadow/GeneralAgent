@@ -6,6 +6,12 @@ import AudioPlayer from './audio_player'
 import {Button} from 'antd'
 import {get_chat_file_url} from './api'
 import UIMesasge from './ui_message';
+import { Remarkable } from 'remarkable';
+import parse from 'html-react-parser';
+
+var md = new Remarkable();
+
+// console.log('# Remarkable rulezz!'));
 
 
 interface Props {
@@ -13,6 +19,7 @@ interface Props {
 }
 
 const MessageComponent: React.FC<Props> = (props) => {
+	
 	const [readyPlay, setReadyPlay] = useState(false); // 输入框的内容
 	const message: Message = props.message;
 	const bot_id: string = message.bot_id as string;
@@ -39,7 +46,9 @@ const MessageComponent: React.FC<Props> = (props) => {
 	if (isFile) {
 		return <FileDownloadCompoent file_path={file_url} />
 	}
+	// return (<div style={{ whiteSpace: 'pre-wrap' }}>{parse(md.render(message.msg as string))}</div>)
 	return (<div style={{ whiteSpace: 'pre-wrap' }}>{message.msg}</div>)
+	// + '<a href=\'www.baidu.com\'>afafaf</a>'
 }
 
 export default MessageComponent;
