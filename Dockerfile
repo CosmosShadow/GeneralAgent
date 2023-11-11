@@ -33,6 +33,11 @@ RUN apt install ffmpeg -y
 # python3.8 compile env
 RUN apt-get update && apt-get install -y python3.8-dev
 
+# install node、npm
+RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash -
+RUN apt-get update && apt-get install -y nodejs
+RUN npm install -g serve
+
 # copy source
 WORKDIR /workspace
 RUN chmod -R a+w /workspace

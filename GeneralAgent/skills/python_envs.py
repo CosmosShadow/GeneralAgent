@@ -13,9 +13,9 @@ def get_current_env_python_libs() -> str:
 
 def get_python_version() -> str:
     """
-    Return the python version, like "3.9"
+    Return the python version, like "3.8"
     """
-    return '3.9'
+    return '3.8'
 
 
 def get_python_code(content:str) -> str:

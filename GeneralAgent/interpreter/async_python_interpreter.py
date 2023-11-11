@@ -69,7 +69,7 @@ print(a)
 ```
 - format is : ```python\\nthe_code\\n```
 - the code will be executed
-- python version is 3.9
+- python version is {{python_version}}
 - Pickleable objects can be shared between different codes and variables
 - The output display should be limited in length and should be truncated when displaying characters whose length is unknown. for example: print(a[:100])
 - Available libraries: {{python_libs}}

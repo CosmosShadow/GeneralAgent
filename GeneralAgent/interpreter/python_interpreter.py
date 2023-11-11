@@ -23,7 +23,7 @@ class PythonInterpreter(Interpreter):
 * Remember use print() to output
 * format is : ```python\\nthe_code\\n```
 * the code will be executed
-* python version is 3.9
+* python version is {{python_version}}
 * only write synchronous code
 * The output display should be limited in length and should be truncated when displaying characters whose length is unknown. for example: print(a[:100])
 * * Pickleable objects can be shared between different codes and variables
@@ -74,7 +74,8 @@ class PythonInterpreter(Interpreter):
         async_funcs = '\n'.join([skills.get_function_signature(x) for x in self.async_tools])
         variables = {
             'python_libs': self.python_libs,
-            'python_funcs': async_funcs
+            'python_funcs': async_funcs,
+            'python_version': skills.get_python_version()
         }
         return Template(self.python_prompt_template).render(**variables) + self.prompt_append
 
