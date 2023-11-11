@@ -1,7 +1,7 @@
 
 CODE_DIR = './code'
 
-def _get_code_dir():
+def get_code_dir():
     global CODE_DIR
     import os
     if not os.path.exists(CODE_DIR):
@@ -102,7 +102,7 @@ def create_application_icon(application_description:str) -> None:
     prompt = skills.ai_draw_prompt_gen("Create an application icon. The application's description is below: \n" + application_description)
     image_url = skills.image_generation(prompt)
     file_path = skills.try_download_file(image_url)
-    target_path = os.path.join(_get_code_dir(), 'icon.jpg')
+    target_path = os.path.join(get_code_dir(), 'icon.jpg')
     os.system(f"mv {file_path} {target_path}")
     
 
@@ -113,7 +113,7 @@ def edit_application_code(task_description:str) -> None:
     task_description example: "use skills.image_generation(prompt) generate a image with prompt (in english), return a image url\nskills.translate_text(xxx) to create a image creation Agent"
     """
     import os
-    code_path = os.path.join(_get_code_dir(),  'main.py')
+    code_path = os.path.join(get_code_dir(),  'main.py')
     old_code = None
     if os.path.exists(code_path):
         with open(code_path, 'r') as f:
@@ -129,7 +129,7 @@ def delete_application():
     Delete application code
     """
     import os
-    code_path = os.path.join(_get_code_dir(),  'main.py')
+    code_path = os.path.join(get_code_dir(),  'main.py')
     if os.path.exists(code_path):
         os.remove(code_path)
 
@@ -143,7 +143,7 @@ def update_application_meta(application_id:str=None, application_name:str=None, 
     upload_file: 'yes' or 'no', when upload_file is 'yes', the application can upload file, when upload_file is 'no', the application can not upload file
     """
     import os, json
-    bot_json_path = os.path.join(_get_code_dir(), 'bot.json')
+    bot_json_path = os.path.join(get_code_dir(), 'bot.json')
     if os.path.exists(bot_json_path):
         with open(bot_json_path, 'r') as f:
             app_json = json.loads(f.read())
@@ -161,7 +161,7 @@ def update_application_meta(application_id:str=None, application_name:str=None, 
         app_json['description'] = description
     if upload_file is not None:
         app_json['upload_file'] = upload_file
-    if os.path.exists(os.path.join(_get_code_dir(), 'icon.jpg')):
+    if os.path.exists(os.path.join(get_code_dir(), 'icon.jpg')):
         app_json['icon'] = 'icon.jpg'
     else:
         del app_json['icon']
@@ -175,7 +175,7 @@ def install_application() -> None:
     """
     # TODO: check function_id and application_name
     import os, json
-    bot_json_path = os.path.join(_get_code_dir(), 'bot.json')
+    bot_json_path = os.path.join(get_code_dir(), 'bot.json')
     if os.path.exists(bot_json_path):
         with open(bot_json_path, 'r') as f:
             app_json = json.loads(f.read())
@@ -191,7 +191,7 @@ def install_application() -> None:
         shutil.rmtree(target_dir)
     os.makedirs(target_dir)
     # print(target_dir)
-    os.system(f"cp -r {_get_code_dir()}/* {target_dir}")
+    os.system(f"cp -r {get_code_dir()}/* {target_dir}")
 
 
 def uninstall_application() -> None:
@@ -199,7 +199,7 @@ def uninstall_application() -> None:
     Uninstall application from chat bot
     """
     import os, json
-    bot_json_path = os.path.join(_get_code_dir(), 'bot.json')
+    bot_json_path = os.path.join(get_code_dir(), 'bot.json')
     if os.path.exists(bot_json_path):
         with open(bot_json_path, 'r') as f:
             app_json = json.loads(f.read())
@@ -509,7 +509,7 @@ def xxx(xxx):
 #     # from GeneralAgent import skills
 #     import os
 #     code = _generate_function_code(task_description)
-#     file_path = os.path.join(_get_code_dir(), func_name + '.py')
+#     file_path = os.path.join(get_code_dir(), func_name + '.py')
 #     with open(file_path, 'w') as f:
 #         f.write(code)
 
@@ -518,7 +518,7 @@ def xxx(xxx):
 #     Delete a function by name
 #     """
 #     import os
-#     file_path = os.path.join(_get_code_dir(), func_name + '.py')
+#     file_path = os.path.join(get_code_dir(), func_name + '.py')
 #     if os.path.exists(file_path):
 #         os.remove(file_path)
 
@@ -528,7 +528,7 @@ def xxx(xxx):
 #     """
 #     # TODO function description
 #     import os
-#     files = os.listdir(_get_code_dir())
+#     files = os.listdir(get_code_dir())
 #     functions = [x.split('.')[0] for x in files]
 #     return functions
 
@@ -537,7 +537,7 @@ def xxx(xxx):
 #     Show a function code by name
 #     """
 #     import os
-#     file_path = os.path.join(_get_code_dir(), func_name + '.py')
+#     file_path = os.path.join(get_code_dir(), func_name + '.py')
 #     if os.path.exists(file_path):
 #         with open(file_path, 'r') as f:
 #             code = f.read()
@@ -554,6 +554,6 @@ def xxx(xxx):
 #     from GeneralAgent import skills
 #     # code = application_code_generation(task_description)
 #     code = _generate_agent_code(task_description)
-#     code_path = os.path.join(_get_code_dir(),  'main.py')
+#     code_path = os.path.join(get_code_dir(),  'main.py')
 #     with open(code_path, 'w') as f:
 #         f.write(code)

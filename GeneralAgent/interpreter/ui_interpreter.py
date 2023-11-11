@@ -22,13 +22,13 @@ export default LibTemplate;
 ```
 """
 
-    def __init__(self, workspace='./', send_ui=None) -> None:
+    def __init__(self, send_ui, workspace=None) -> None:
         """
-        :param workspace: workspace for the interpreter
         :param send_ui: the async function to send ui to user
+        :param workspace: workspace for the interpreter
         """
-        self.workspace = workspace
         self.send_ui = send_ui
+        self.workspace = workspace
 
     async def prompt(self, messages) -> str:
         return self.ui_prompt
@@ -43,7 +43,8 @@ export default LibTemplate;
         match = pattern.search(string)
         assert match is not None
         code = match.group(1)
-        lib_name, js_path = skills.parse_tsx_to_ui(code)
+        lib_name, js_path = skills.parse_tsx_to_ui(code, save_dir=self.workspace)
         if self.send_ui is not None:
-            await self.send_ui(js_path)
-        return string, True
+            await self.send_ui(lib_name, js_path)
+            print('Send UI to user successfuly.')
+        return '', True

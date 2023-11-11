@@ -27,9 +27,6 @@ RUN apt-get update &&apt-get install -y python3.8 python3.8-distutils
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3.8 get-pip.py && rm get-pip.py
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 10
 
-# ffmpeg
-RUN apt install ffmpeg -y
-
 # python3.8 compile env
 RUN apt-get update && apt-get install -y python3.8-dev
 
@@ -37,6 +34,9 @@ RUN apt-get update && apt-get install -y python3.8-dev
 RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash -
 RUN apt-get update && apt-get install -y nodejs
 RUN npm install -g serve
+
+# ffmpeg
+# RUN apt install ffmpeg -y
 
 # copy source
 WORKDIR /workspace

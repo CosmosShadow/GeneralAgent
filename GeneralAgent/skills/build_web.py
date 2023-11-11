@@ -122,9 +122,12 @@ def create_ui(task: str, ui_dir: str = './ui', component_name: str = None) -> (s
     else:
         return None
 
-def parse_tsx_to_ui(code, save_dir='./ui'):
+def parse_tsx_to_ui(code, save_dir=None):
     import uuid
     lib_name = 'Lib' + str(uuid.uuid1())[:4]
+    if save_dir is None:
+        from GeneralAgent import skills
+        save_dir = skills.get_code_dir()
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     target_dir = os.path.join(save_dir, lib_name)
