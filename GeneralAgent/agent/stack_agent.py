@@ -9,6 +9,10 @@ from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellIn
 from GeneralAgent.utils import set_logging_level
 set_logging_level()
 
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
+if not OPENAI_API_KEY.startswith('sk-'):
+    print('enviroment variable OPENAI_API_KEY is not set correctly')
+
 class Agent:
     def __init__(self, 
                  workspace='./',
@@ -21,12 +25,6 @@ class Agent:
         self.is_running = False
         self.model_type = model_type
         self.stop_event = asyncio.Event()
-
-        OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
-        while not OPENAI_API_KEY.startswith('sk-'):
-            print('enviroment variable OPENAI_API_KEY is not set correctly')
-            OPENAI_API_KEY = input('input your openai api key please >>> ')
-            os.environ['OPENAI_API_KEY'] = OPENAI_API_KEY
         self.memory = memory or Memory(serialize_path=f'{workspace}/memory.json')
         self.input_interpreters = input_interpreters
         self.retrieve_interpreters = retrieve_interpreters
@@ -151,6 +149,8 @@ print({variable_name}['Hello world'])
             self.memory.update_node(input_node)
             if input_stop:
                 await output_callback(input_content)
+                await output_callback(None)
+                await asyncio.sleep(1)
                 self.memory.success_node(input_node)
                 self.is_running = False
                 return input_node.node_id

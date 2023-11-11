@@ -1,7 +1,6 @@
 import re
 from .interpreter import Interpreter
-from GeneralAgent.utils import confirm_to_run
-
+import asyncio
 
 class UIInterpreter(Interpreter):
     send_ui = None
@@ -45,6 +44,9 @@ export default LibTemplate;
         code = match.group(1)
         lib_name, js_path = skills.parse_tsx_to_ui(code, save_dir=self.workspace)
         if self.send_ui is not None:
-            await self.send_ui(lib_name, js_path)
+            async def delay_send_ui(lib_name, js_path):
+                await asyncio.sleep(0.5)
+                await self.send_ui(lib_name, js_path)
+            asyncio.create_task(delay_send_ui(lib_name, js_path))
             print('Send UI to user successfuly.')
-        return '', True
+        return 'Send UI successfully', True
