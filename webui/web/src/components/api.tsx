@@ -47,6 +47,13 @@ export async function apiChatClear(bot_id:string): Promise<AxiosResponse> {
   return response;
 }
 
+// 删除Chat
+export async function apiDeleteChat(bot_id:string, chat_id: string): Promise<AxiosResponse> {
+  const url = `${HTTP_HOST}/delete_chat/${bot_id}/${chat_id}`;
+  const response = await axios.post(url);
+  return response;
+}
+
 export async function apiChatListNew(bot_id:string): Promise<AxiosResponse> {
   const url = `${HTTP_HOST}/chats/new/${bot_id}`;
   const response = await axios.get(url);

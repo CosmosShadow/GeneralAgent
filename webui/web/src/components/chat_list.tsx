@@ -1,7 +1,7 @@
 import React, { useEffect, useState} from 'react'
 import { List, Button, Popconfirm} from 'antd';
 import {Bot, Chat, cut_string} from '../components/interface'
-import {apiChatList, apiChatListNew, apiChatClear} from '../components/api'
+import {apiChatList, apiChatListNew, apiChatClear, apiDeleteChat} from '../components/api'
 
 interface Props {
     onHandleSelectChat: (chat: Chat) => void;
@@ -42,6 +42,12 @@ export default function ChatList (props: Props) {
         });
     }
 
+    const onHandleDeleteChat = (chat_id: string) => {
+        apiDeleteChat(props.bot.id, chat_id).then(function(res){
+            setChatList((chat_list as any).filter((chat: Chat) => chat.id !== chat_id));
+        });
+    }
+
     useEffect(() => {
 		getChatList();
 	  }, [props.bot]); 
@@ -77,7 +83,8 @@ export default function ChatList (props: Props) {
                 }} 
                 onClick={() => onHandleSelectChat(chat)}
             >
-                <div style={{ textAlign: 'left', width: 200, marginTop: 0, marginRight: 0}}><a>{(chat.name && cut_string(chat.name, 24)) || chat.create_at.slice(0, 19) }</a></div>
+                <div style={{ textAlign: 'left', width: 200, marginTop: 0, marginRight: 0}}><a>{(chat.name && cut_string(chat.name, chat.selected ? 15: 23)) || chat.create_at.slice(0, 19) }</a></div>
+                {chat.selected && <div><Button type="link" onClick={()=>{onHandleDeleteChat(chat.id)}}>Del</Button></div>}
             </List.Item>
         )}
     />
