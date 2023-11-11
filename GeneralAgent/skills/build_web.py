@@ -121,3 +121,15 @@ def create_ui(task: str, ui_dir: str = './ui', component_name: str = None) -> (s
         return lib_name, os.path.join(target_dir, 'index.js')
     else:
         return None
+
+def parse_tsx_to_ui(code, save_dir='./ui'):
+    import uuid
+    lib_name = 'Lib' + str(uuid.uuid1())[:4]
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    target_dir = os.path.join(save_dir, lib_name)
+    success = compile_tsx(lib_name, code, target_dir)
+    if success:
+        return lib_name, os.path.join(target_dir, 'index.js')
+    else:
+        return None
