@@ -85,11 +85,11 @@ interface Props {
 const MarkdownComponent: React.FC<Props> = (props) => {
     const message = props.message
     const links = splitStringWithLinks(props.message.msg as string)
-    console.log(props.message.msg)
-    console.log(links)
+    // console.log(props.message.msg)
+    // console.log(links)
     return (<div>{
         links.map((item, index)=>{
-        console.log(item)
+        // console.log(item)
         if (item.type === 'text') {
             return (<span style={{ whiteSpace: 'pre-wrap' }} key={index}>{item.title}</span>)
         } else if (item.type === 'image') {

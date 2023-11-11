@@ -323,8 +323,9 @@ async def clear_messages(bot_id: str):
     db.table('chats').remove(Query().bot_id == bot_id)
     return 'ok'
 
+
 # 删除某个对话
-@app.post('delete_chat/{bot_id}/{chat_id}')
+@app.post('/delete_chat/{bot_id}/{chat_id}')
 async def delete_chat(bot_id: str, chat_id: str):
     db.table('messages').remove((Query().bot_id == bot_id) & (Query().chat_id == chat_id))
     db.table('chats').remove((Query().bot_id == bot_id) & (Query().id == chat_id))

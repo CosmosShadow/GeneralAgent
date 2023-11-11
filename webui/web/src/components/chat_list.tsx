@@ -45,6 +45,15 @@ export default function ChatList (props: Props) {
     const onHandleDeleteChat = (chat_id: string) => {
         apiDeleteChat(props.bot.id, chat_id).then(function(res){
             setChatList((chat_list as any).filter((chat: Chat) => chat.id !== chat_id));
+            // 自动选择删除后的第一个或者前一个呢
+            const index = (chat_list as any).findIndex((chat: Chat) => chat.id === chat_id);
+            console.log(index);
+            if (index > 0) {
+                onHandleSelectChat((chat_list as any)[index - 1])
+            } else if (index === 0 && (chat_list as any).length > 1) {
+                onHandleSelectChat((chat_list as any)[1])
+            } else {
+            }
         });
     }
 
