@@ -4,7 +4,10 @@
 
 ```bash
 cd webui/web && npm run build && cd ../../
-docker build -t general-agent .
+
+docker buildx build \
+--platform linux/amd64 \
+-t general-agent .
 ```
 
 ## Run docker
