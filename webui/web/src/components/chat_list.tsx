@@ -92,7 +92,7 @@ export default function ChatList (props: Props) {
                 }} 
                 onClick={() => onHandleSelectChat(chat)}
             >
-                <div style={{ textAlign: 'left', width: 200, marginTop: 0, marginRight: 0}}><a>{(chat.name && cut_string(chat.name, chat.selected ? 15: 23)) || chat.create_at.slice(0, 19) }</a></div>
+                <div style={{ textAlign: 'left', width: 200, marginTop: 0, marginRight: 0}}><a>{(chat.name && cut_string(chat.name, chat.selected ? 15: 23)) || chat.create_at.slice(0, 16) }</a></div>
                 {chat.selected && <div><Button type="link" onClick={()=>{onHandleDeleteChat(chat.id)}}>Del</Button></div>}
             </List.Item>
         )}
