@@ -248,7 +248,7 @@ print({variable_name}['Hello world'])
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
                         output, is_stop = await interpreter.parse(result)
                         result += '\n' + output.strip() + '\n'
-                        if not self.hide_output_parse:
+                        if not self.hide_output_parse or is_stop:
                             await output_callback('\n' + output + '\n')
                         is_break = True
                         in_parse_content = False
