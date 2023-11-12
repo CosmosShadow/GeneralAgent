@@ -20,9 +20,10 @@ interface Props {
 }
 
 const MessageComponent: React.FC<Props> = (props) => {
-	
 	const [readyPlay, setReadyPlay] = useState(false); // 输入框的内容
 	const message: Message = props.message;
+	// 去掉前后的空格
+	message.msg = message.msg?.trim();
 	const bot_id: string = message.bot_id as string;
 	const chat_id: string = message.chat_id as string;
 	const file_url = get_chat_file_url(bot_id, chat_id, message.file as string);

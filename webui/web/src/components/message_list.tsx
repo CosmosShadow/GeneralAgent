@@ -103,7 +103,7 @@ const MessageList: React.FC<Props> = (props) => {
                     </div>
                 </Col>
                 <Col span={23} style={{wordWrap: 'break-word', marginTop: 5, paddingLeft: 5, textAlign: 'left', lineHeight: '1.5'}}>
-                    <div style={{ whiteSpace: 'pre-wrap' }}>{tmp_message.msg}</div>
+                    <MessageComponent message={tmp_message} />
                 </Col>
             </Row>
         )}

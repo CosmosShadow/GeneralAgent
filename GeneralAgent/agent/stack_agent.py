@@ -214,18 +214,32 @@ print({variable_name}['Hello world'])
             is_stop = False
             is_break = False
             in_parse_content = False
+            cache_tokens = []
             response = skills.llm_inference(all_messages, model_type=self.model_type, stream=True)
             for token in response:
                 if token is None: break
                 result += token
+                print(token)
                 if self.hide_output_parse:
                     if not in_parse_content:
                         for interpreter in self.output_interpreters:
                             is_start_matched, string_matched = interpreter.match_start(result)
                             if is_start_matched:
                                 in_parse_content = True
+                                # 清空缓存
+                                cache_tokens.append(token)
+                                left_count = len(string_matched)
+                                while left_count > 0:
+                                    left_count -= len(cache_tokens[-1])
+                                    cache_tokens.remove(cache_tokens[-1])
+                                for x in cache_tokens:
+                                    await output_callback(x)
                         if not in_parse_content:
-                            await output_callback(token)
+                            # 缓存cache
+                            cache_tokens.append(token)
+                            if len(cache_tokens) > 5:
+                                pop_token = cache_tokens.pop(0)
+                                await output_callback(pop_token)
                 else:
                     await output_callback(token)
                 for interpreter in self.output_interpreters:
@@ -233,7 +247,8 @@ print({variable_name}['Hello world'])
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
                         output, is_stop = await interpreter.parse(result)
                         result += '\n' + output.strip() + '\n'
-                        await output_callback('\n' + output + '\n')
+                        if not self.hide_output_parse:
+                            await output_callback('\n' + output + '\n')
                         is_break = True
                         in_parse_content = False
                         if self.hide_output_parse:
