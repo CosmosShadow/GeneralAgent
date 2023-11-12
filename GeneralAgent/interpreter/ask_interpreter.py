@@ -10,15 +10,13 @@ ask_prompt = """
 """
 
 class AskInterpreter(Interpreter):
+    match_pattern = '```ask\n(.*?)\n```'
+
     async def prompt(self, messages) -> str:
         return ask_prompt
     
-    @property
-    def match_template(self):
-        return '```ask\n(.*?)\n```'
-    
     async def parse(self, string):
-        pattern = re.compile(self.match_template, re.DOTALL)
+        pattern = re.compile(self.match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
         question = match.group(1).strip()

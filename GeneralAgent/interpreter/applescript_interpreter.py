@@ -12,15 +12,14 @@ applescript_promt = """
 """
 
 class AppleScriptInterpreter(Interpreter):
+    
+    match_pattern = '```(\n)?applescript(.*?)\n```'
+
     async def prompt(self, messages) -> str:
         return applescript_promt
     
-    @property
-    def match_template(self):
-        return '```(\n)?applescript(.*?)\n```'
-    
     async def parse(self, string):
-        pattern = re.compile(self.match_template, re.DOTALL)
+        pattern = re.compile(self.match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
         if confirm_to_run():

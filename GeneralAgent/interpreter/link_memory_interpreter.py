@@ -5,6 +5,9 @@ from GeneralAgent.memory import LinkMemory
 
 
 class LinkMemoryInterpreter(Interpreter):
+    
+    match_pattern = '```read\n(.*?)\n```'
+
     def __init__(self, python_interpreter=None, sparks_dict_name='sparks'):
         self.python_intrepreter = python_interpreter
         self.sparks_dict_name = sparks_dict_name
@@ -15,10 +18,6 @@ class LinkMemoryInterpreter(Interpreter):
             return ''
         else:
             return await self.link_memory.get_memory(messages)
-
-    @property
-    def match_template(self):
-        return '```read\n(.*?)\n```'
     
     def update_python_variables(self):
         if self.python_intrepreter is not None:
@@ -28,7 +27,7 @@ class LinkMemoryInterpreter(Interpreter):
     
     async def parse(self, string):
         from GeneralAgent import skills
-        pattern = re.compile(self.match_template, re.DOTALL)
+        pattern = re.compile(self.match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
         file_paths = match.group(1).strip().split('\n')

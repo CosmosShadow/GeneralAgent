@@ -18,6 +18,9 @@ default_libs = skills.get_current_env_python_libs()
 
 class PythonInterpreter(Interpreter):
 
+    match_start_pattern = '```python\n'
+    match_pattern = '```python\n(.*?)\n```'
+
     python_prompt_template = """
 # Run python
 * Remember use print() to output
@@ -79,10 +82,6 @@ class PythonInterpreter(Interpreter):
         }
         return Template(self.python_prompt_template).render(**variables) + self.prompt_append
 
-    @property
-    def match_template(self):
-        return '```python\n(.*?)\n```'
-
     def save(self):
         if self.serialize_path is None:
             return
@@ -104,7 +103,7 @@ class PythonInterpreter(Interpreter):
 
     async def parse(self, string):
         sys_out = ''
-        pattern = re.compile(self.match_template, re.DOTALL)
+        pattern = re.compile(self.match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
         if confirm_to_run():

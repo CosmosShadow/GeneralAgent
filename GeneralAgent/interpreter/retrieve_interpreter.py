@@ -6,6 +6,9 @@ import logging
 from GeneralAgent.llm import embedding_batch
 
 class RetrieveInterpreter(Interpreter):
+    
+    match_pattern = '```read\n(.*?)\n```'
+
     def __init__(self, serialize_path='./read_data/', prompt_max_length=1000, useful_msg_count=2) -> None:
         self.prompt_max_length = prompt_max_length
         self.useful_msg_count = useful_msg_count
@@ -43,15 +46,11 @@ class RetrieveInterpreter(Interpreter):
                 break
             texts.append(x)
         return '\n'.join(texts)
-
-    @property
-    def match_template(self):
-        return '```read\n(.*?)\n```'
     
     async def parse(self, string):
         from GeneralAgent import skills
         information = []
-        pattern = re.compile(self.match_template, re.DOTALL)
+        pattern = re.compile(self.match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
         file_paths = match.group(1).strip().split('\n')

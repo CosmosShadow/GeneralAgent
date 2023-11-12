@@ -26,18 +26,14 @@ Read will print the content of the file with [line numbers] prefixed.
 
 
 class FileInterpreter(Interpreter):
-    def __init__(self) -> None:
-        pass
+    
+    match_pattern = '```(\n)?file(\n| )?(.*?) (write|read|delete) (-?\d+) (-?\d+)(.*?)```'
 
     async def prompt(self, messages) -> str:
         return file_prompt
-
-    @property
-    def match_template(self):
-        return '```(\n)?file(\n| )?(.*?) (write|read|delete) (-?\d+) (-?\d+)(.*?)```'
     
     def _parse_commands(self, string):
-        match = re.search(self.match_template, string, re.DOTALL)
+        match = re.search(self.match_pattern, string, re.DOTALL)
         assert match is not None
         file_path = match.group(3)
         operation = match.group(4)

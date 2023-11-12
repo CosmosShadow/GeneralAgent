@@ -3,7 +3,10 @@ from .interpreter import Interpreter
 import asyncio
 
 class UIInterpreter(Interpreter):
-    send_ui = None
+    
+    match_pattern = '```tsx\n(.*?)\n```'
+    match_start_pattern = '```tsx\n'
+
     ui_prompt = """
 # Send UI to user
 Use the following tsx architecture to write a React component. The component will be compiled into a UI and sent to the user. The user's input can be sent to you through the save_data function.
@@ -32,13 +35,9 @@ export default LibTemplate;
     async def prompt(self, messages) -> str:
         return self.ui_prompt
 
-    @property
-    def match_template(self):
-        return '```tsx\n(.*?)\n```'
-
     async def parse(self, string):
         from GeneralAgent import skills
-        pattern = re.compile(self.match_template, re.DOTALL)
+        pattern = re.compile(self.match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
         code = match.group(1)

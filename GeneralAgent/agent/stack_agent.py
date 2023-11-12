@@ -20,9 +20,11 @@ class Agent:
                  input_interpreters=[],
                  output_interpreters=[],
                  retrieve_interpreters=[],
-                 model_type='normal'
+                 model_type='normal',
+                 hide_output_parse=False,
                  ):
         self.is_running = False
+        self.hide_output_parse = hide_output_parse
         self.model_type = model_type
         self.stop_event = asyncio.Event()
         self.memory = memory or Memory(serialize_path=f'{workspace}/memory.json')
@@ -211,11 +213,21 @@ print({variable_name}['Hello world'])
             result = ''
             is_stop = False
             is_break = False
+            in_parse_content = False
             response = skills.llm_inference(all_messages, model_type=self.model_type, stream=True)
             for token in response:
                 if token is None: break
                 result += token
-                await output_callback(token)
+                if self.hide_output_parse:
+                    if not in_parse_content:
+                        for interpreter in self.output_interpreters:
+                            is_start_matched, string_matched = interpreter.match_start(result)
+                            if is_start_matched:
+                                in_parse_content = True
+                        if not in_parse_content:
+                            await output_callback(token)
+                else:
+                    await output_callback(token)
                 for interpreter in self.output_interpreters:
                     if interpreter.match(result):
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
@@ -223,6 +235,10 @@ print({variable_name}['Hello world'])
                         result += '\n' + output.strip() + '\n'
                         await output_callback('\n' + output + '\n')
                         is_break = True
+                        in_parse_content = False
+                        if self.hide_output_parse:
+                            is_matched, string_left = interpreter.match_end(result)
+                            output_callback(string_left)
                         break
                 if is_break:
                     break

@@ -51,13 +51,3 @@ You can use the following skills to help you solve the problem directly without 
         }
         the_prompt = Template(self.system_prompt_template).render(**data)
         return the_prompt
-
-    @property
-    def match_template(self):
-        return ''
-    
-    def match(self, string):
-        return False
-    
-    async def parse(self, string):
-        return '', False

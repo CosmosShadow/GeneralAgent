@@ -5,19 +5,17 @@ from GeneralAgent.memory import MemoryNode
 
 
 class PlanInterpreter(Interpreter):
+    match_pattern = '```runplan(.*?)?\n(.*?)\n```'
+    
     def __init__(self, memory, max_plan_depth=4) -> None:
         self.memory = memory
         self.max_plan_depth = max_plan_depth
 
     async def prompt(self, messages) -> str:
         return ''
-
-    @property
-    def match_template(self):
-        return '```runplan(.*?)?\n(.*?)\n```'
     
     async def parse(self, string):
-        pattern = re.compile(self.match_template, re.DOTALL)
+        pattern = re.compile(self.match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
         prefix = match.group(1).strip()
