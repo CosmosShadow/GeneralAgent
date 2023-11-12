@@ -226,16 +226,17 @@ print({variable_name}['Hello world'])
                             is_start_matched, string_matched = interpreter.match_start(result)
                             if is_start_matched:
                                 in_parse_content = True
-                                # 清空缓存
+                                # clear cache
                                 cache_tokens.append(token)
                                 left_count = len(string_matched)
                                 while left_count > 0:
                                     left_count -= len(cache_tokens[-1])
                                     cache_tokens.remove(cache_tokens[-1])
-                                for x in cache_tokens:
-                                    await output_callback(x)
+                                while len(cache_tokens) > 0:
+                                    pop_token = cache_tokens.pop(0)
+                                    await output_callback(pop_token)
                         if not in_parse_content:
-                            # 缓存cache
+                            # cache token
                             cache_tokens.append(token)
                             if len(cache_tokens) > 5:
                                 pop_token = cache_tokens.pop(0)
@@ -257,6 +258,9 @@ print({variable_name}['Hello world'])
                         break
                 if is_break:
                     break
+            while len(cache_tokens) > 0:
+                pop_token = cache_tokens.pop(0)
+                await output_callback(pop_token)
             await output_callback('\n')
             # update current node and answer node
             answer_node.content = result
