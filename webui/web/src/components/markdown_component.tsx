@@ -87,11 +87,11 @@ const MarkdownComponent: React.FC<Props> = (props) => {
     const links = splitStringWithLinks(props.message.msg as string)
     // console.log(props.message.msg)
     // console.log(links)
-    return (<div>{
+    return (<div style={{ whiteSpace: 'pre-wrap' }} >{
         links.map((item, index)=>{
         // console.log(item)
         if (item.type === 'text') {
-            return (<span style={{ whiteSpace: 'pre-wrap' }} key={index}>{item.title}</span>)
+            return (<span key={index}>{item.title}</span>)
         } else if (item.type === 'image') {
             return (<span><br/><ImageComponent image_url={get_chat_file_url(message.bot_id as string, message.chat_id as string, item.url)} /></span>)
         } else {

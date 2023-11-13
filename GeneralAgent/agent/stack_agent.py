@@ -66,17 +66,19 @@ class StackAgent(AbsAgent):
         return agent
 
     
-    async def run(self, input=None, input_for_memory_node_id=-1, output_callback=default_output_callback):
+    async def run(self, input=None, output_callback=default_output_callback, input_for_memory_node_id=-1):
         """
+        agent run: parse intput -> get llm messages -> run LLM and parse output
         input: str, user's new input, None means continue to run where it stopped
         input_for_memory_node_id: int, -1 means input is not from memory, None means input new, otherwise input is for memory node
         output_callback: async function, output_callback(content: str) -> None
         """
+        self.is_running = True
+        
         if input_for_memory_node_id == -1:
             memory_node_id = self.memory.current_node.node_id if self.memory.current_node is not None else None
         else:
             memory_node_id = input_for_memory_node_id
-        self.is_running = True
         input_node = self._insert_node(input, memory_node_id) if input is not None else None
 
         # input interpreter
@@ -89,15 +91,13 @@ class StackAgent(AbsAgent):
                 if interpreter.input_match(input_content):
                     logging.info('interpreter: ' + interpreter.__class__.__name__)
                     # await output_callback('input parsing\n')
-                    input_content, case_is_stop = await interpreter.input_parse()(input_content)
+                    input_content, case_is_stop = await interpreter.input_parse(input_content)
                     if case_is_stop:
+                        await output_callback(input_content)
                         input_stop = True
             input_node.content = input_content
             self.memory.update_node(input_node)
             if input_stop:
-                await output_callback(input_content)
-                await output_callback(None)
-                await asyncio.sleep(1)
                 self.memory.success_node(input_node)
                 self.is_running = False
                 return input_node.node_id
@@ -135,11 +135,10 @@ class StackAgent(AbsAgent):
         # construct system prompt
         from GeneralAgent import skills
         messages = self.memory.get_related_messages_for_node(node)
+        messages = skills.cut_messages(messages, 3000)
         system_prompt = '\n\n'.join([await interpreter.prompt(messages) for interpreter in self.interpreters])
-        all_messages = [{'role': 'system', 'content': system_prompt}]
-        all_messages += messages
-        if skills.messages_token_count(all_messages) > 3000:
-            all_messages = skills.cut_messages(all_messages, 3000)
+        messages = [{'role': 'system', 'content': system_prompt}] + messages
+
         # add answer node and set current node
         answer_node = StackMemoryNode(role='system', action='answer', content='')
         self.memory.add_node_after(node, answer_node)
@@ -154,7 +153,7 @@ class StackAgent(AbsAgent):
             is_break = False
             in_parse_content = False
             cache_tokens = []
-            response = skills.llm_inference(all_messages, model_type=self.model_type, stream=True)
+            response = skills.llm_inference(messages, model_type=self.model_type, stream=True)
             for token in response:
                 if token is None: break
                 result += token

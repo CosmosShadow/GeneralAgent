@@ -3,9 +3,9 @@ import os, re
 import asyncio
 import logging
 from GeneralAgent.utils import default_get_input, default_output_callback
-from GeneralAgent.memory import StackMemory, StackMemoryNode
+from GeneralAgent.memory import NormalMemory
 from GeneralAgent.interpreter import Interpreter
-from GeneralAgent.interpreter import PlanInterpreter, EmbeddingRetrieveInterperter, LinkRetrieveInterperter
+from GeneralAgent.interpreter import EmbeddingRetrieveInterperter, LinkRetrieveInterperter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, FileInterpreter
 from .abs_agent import AbsAgent
 
@@ -14,7 +14,7 @@ class NormalAgent(AbsAgent):
 
     def __init__(self, workspace='./'):
         super().__init__(workspace)
-        self.memory = StackMemory(serialize_path=f'{workspace}/memory.json')
+        self.memory = NormalMemory(serialize_path=f'{workspace}/normal_memory.json')
 
     @classmethod
     def empty(cls, workspace='./'):
@@ -37,7 +37,6 @@ class NormalAgent(AbsAgent):
         # interpreters
         role_interpreter = RoleInterpreter()
         python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
-        plan_interperter = PlanInterpreter(agent.memory)
         if retrieve_type == 'embedding':
             retrieve_interperter = EmbeddingRetrieveInterperter(serialize_path=f'{workspace}/read_interperter/')
         else:
@@ -45,7 +44,7 @@ class NormalAgent(AbsAgent):
         bash_interpreter = ShellInterpreter(workspace)
         applescript_interpreter = AppleScriptInterpreter()
         file_interpreter = FileInterpreter()
-        agent.interpreters = [role_interpreter, plan_interperter, retrieve_interperter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter]
+        agent.interpreters = [role_interpreter, retrieve_interperter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter]
         return agent
 
     @classmethod
@@ -66,95 +65,62 @@ class NormalAgent(AbsAgent):
         return agent
 
     
-    async def run(self, input=None, input_for_memory_node_id=-1, output_callback=default_output_callback):
+    async def run(self, input=None, output_callback=default_output_callback, input_for_memory_node_id=-1):
         """
-        input: str, user's new input, None means continue to run where it stopped
-        input_for_memory_node_id: int, -1 means input is not from memory, None means input new, otherwise input is for memory node
-        output_callback: async function, output_callback(content: str) -> None
+        agent run: parse intput -> get llm messages -> run LLM and parse output
+        @input: str, user's new input, None means continue to run where it stopped
+        @input_for_memory_node_id: int, -1 means input is not from memory, None means input new, otherwise input is for memory node
+        @output_callback: async function, output_callback(content: str) -> None
         """
-        if input_for_memory_node_id == -1:
-            memory_node_id = self.memory.current_node.node_id if self.memory.current_node is not None else None
-        else:
-            memory_node_id = input_for_memory_node_id
         self.is_running = True
-        input_node = self._insert_node(input, memory_node_id) if input is not None else None
 
-        # input interpreter
-        if input_node is not None:
-            input_content = input
-            input_stop = False
-            self.memory.set_current_node(input_node)
-            interpreter:Interpreter = None
-            for interpreter in self.interpreters:
-                if interpreter.input_match(input_content):
-                    logging.info('interpreter: ' + interpreter.__class__.__name__)
-                    # await output_callback('input parsing\n')
-                    input_content, case_is_stop = await interpreter.input_parse()(input_content)
-                    if case_is_stop:
-                        input_stop = True
-            input_node.content = input_content
-            self.memory.update_node(input_node)
-            if input_stop:
-                await output_callback(input_content)
-                await output_callback(None)
-                await asyncio.sleep(1)
-                self.memory.success_node(input_node)
+        input_stop = await self._parse_input(input, output_callback)
+        if input_stop:
+            self.is_running = False
+            return
+
+        while True:
+            messages = await self._get_llm_messages()
+            output_stop = await self._llm_and_parse_output(messages, output_callback)
+            if output_stop:
                 self.is_running = False
-                return input_node.node_id
-
-        # execute todo node from memory
-        todo_node = self.memory.get_todo_node() or input_node
-        logging.debug(self.memory)
-        while todo_node is not None:
-            new_node, is_stop = await self._execute_node(todo_node, output_callback)
-            logging.debug(self.memory)
-            logging.debug(new_node)
-            logging.debug(is_stop)
-            if is_stop:
-                return new_node.node_id
-            todo_node = self.memory.get_todo_node()
+                return
             await asyncio.sleep(0)
             if self.stop_event.is_set():
                 self.is_running = False
-                return None
-        self.is_running = False
-        return None
+                return
 
-    def _insert_node(self, input, memory_node_id=None):
-        node = StackMemoryNode(role='user', action='input', content=input)
-        if memory_node_id is None:
-            logging.debug(self.memory)
-            self.memory.add_node(node)
-        else:
-            for_node = self.memory.get_node(memory_node_id)
-            self.memory.add_node_after(for_node, node)
-            self.memory.success_node(for_node)
-        return node
+    async def _parse_input(self, input, output_callback):
+        self.memory.add_message('user', input)
+        input_content = input
+        input_stop = False
+        interpreter:Interpreter = None
+        for interpreter in self.interpreters:
+            if interpreter.input_match(input_content):
+                logging.info('interpreter: ' + interpreter.__class__.__name__)
+                parse_output, case_is_stop = await interpreter.input_parse(input_content)
+                if case_is_stop:
+                    await output_callback(parse_output)
+                    input_stop = True
+        return input_stop
     
-    async def _execute_node(self, node, output_callback):
-        # construct system prompt
+    async def _get_llm_messages(self):
         from GeneralAgent import skills
-        messages = self.memory.get_related_messages_for_node(node)
+        messages = self.memory.get_messages()
+        messages = skills.cut_messages(messages, 3000)
         system_prompt = '\n\n'.join([await interpreter.prompt(messages) for interpreter in self.interpreters])
-        all_messages = [{'role': 'system', 'content': system_prompt}]
-        all_messages += messages
-        if skills.messages_token_count(all_messages) > 3000:
-            all_messages = skills.cut_messages(all_messages, 3000)
-        # add answer node and set current node
-        answer_node = StackMemoryNode(role='system', action='answer', content='')
-        self.memory.add_node_after(node, answer_node)
-        self.memory.set_current_node(answer_node)
+        messages = [{'role': 'system', 'content': system_prompt}] + messages
+        return messages
 
-        if node.action == 'plan':
-            await output_callback(f'\n[{node.content}]\n')
-
+    async def _llm_and_parse_output(self, messages, output_callback):
+        from GeneralAgent import skills
         try:
             result = ''
-            is_stop = False
+            is_stop = True
             is_break = False
             in_parse_content = False
             cache_tokens = []
-            response = skills.llm_inference(all_messages, model_type=self.model_type, stream=True)
+            response = skills.llm_inference(messages, model_type=self.model_type, stream=True)
             for token in response:
                 if token is None: break
                 result += token
@@ -202,19 +168,11 @@ class NormalAgent(AbsAgent):
             while len(cache_tokens) > 0:
                 pop_token = cache_tokens.pop(0)
                 await output_callback(pop_token)
-            # await output_callback('\n')
-            # update current node and answer node
-            answer_node.content = result
-            self.memory.update_node(answer_node)
-            self.memory.success_node(node)
-            # llm run end with any interpreter, success the node
-            if not is_break:
-                self.memory.success_node(answer_node)
-            return answer_node, is_stop
+            # append messages
+            self.memory.append_message('assistant', result)
+            return is_stop
         except Exception as e:
             # if fail, recover
             logging.exception(e)
             await output_callback(str(e))
-            self.memory.delete_node(answer_node)
-            self.memory.set_current_node(node)
-            return node, True
+            return True
