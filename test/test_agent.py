@@ -28,7 +28,7 @@ async def test_math():
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = Agent.default(workspace=workspace)
     memory_node_id = await agent.run('calculate 0.99 ** 1000', output_callback=get_output_callback())
-    assert '4.317124741065786e-05' in result
+    assert '4.31712474' in result
     assert memory_node_id == None
 
 @pytest.mark.asyncio

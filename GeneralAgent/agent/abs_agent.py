@@ -14,7 +14,7 @@ class AbsAgent(metaclass=abc.ABCMeta):
     """
     memory = None
     interpreters = []
-    model_type = 'normal',
+    model_type = 'normal'
     hide_output_parse = True
 
     @abc.abstractmethod

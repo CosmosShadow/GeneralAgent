@@ -34,7 +34,7 @@ class PlanInterpreter(Interpreter):
         self.add_plans_for_node(current_node, plan_dict, prefix)
         return string, False
     
-    def _add_plans_for_node(self, node:MemoryNode, plan_dict, prefix):
+    def _add_plans_for_node(self, node:StackMemoryNode, plan_dict, prefix):
         if self.memory.get_node_level(node) >= self.max_plan_depth:
             return
         for k, v in plan_dict.items():

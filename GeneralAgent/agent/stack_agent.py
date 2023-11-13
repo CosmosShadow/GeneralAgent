@@ -4,6 +4,7 @@ import asyncio
 import logging
 from GeneralAgent.utils import default_get_input, default_output_callback
 from GeneralAgent.memory import StackMemory, StackMemoryNode
+from GeneralAgent.interpreter import Interpreter
 from GeneralAgent.interpreter import PlanInterpreter, EmbeddingRetrieveInterperter, LinkRetrieveInterperter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, FileInterpreter
 from .abs_agent import AbsAgent
@@ -11,13 +12,16 @@ from .abs_agent import AbsAgent
 
 class StackAgent(AbsAgent):
 
+    def __init__(self, workspace='./'):
+        super().__init__(workspace)
+        self.memory = StackMemory(serialize_path=f'{workspace}/memory.json')
+
     @classmethod
     def empty(cls, workspace='./'):
         """
         empty agent, only role interpreter and memory, work like a basic LLM chatbot
         """
         agent = cls(workspace)
-        agent.memory = StackMemory(serialize_path=f'{workspace}/memory.json')
         agent.interpreters = [RoleInterpreter()]
         return agent
 
@@ -30,7 +34,6 @@ class StackAgent(AbsAgent):
         """
         agent = cls(workspace)
         # memory
-        agent.memory = StackMemory(serialize_path=f'{workspace}/memory.json')
         # interpreters
         role_interpreter = RoleInterpreter()
         python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
@@ -55,7 +58,6 @@ class StackAgent(AbsAgent):
         @libs: str, libs
         """
         agent = cls(workspace)
-        agent.memory = StackMemory(serialize_path=f'{workspace}/memory.json')
         role_interpreter = RoleInterpreter(system_prompt=role_prompt)
         python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
         python_interpreter.function_tools = functions
@@ -82,11 +84,12 @@ class StackAgent(AbsAgent):
             input_content = input
             input_stop = False
             self.memory.set_current_node(input_node)
+            interpreter:Interpreter = None
             for interpreter in self.interpreters:
-                if interpreter.match(input_content):
+                if interpreter.input_match(input_content):
                     logging.info('interpreter: ' + interpreter.__class__.__name__)
                     # await output_callback('input parsing\n')
-                    input_content, case_is_stop = await interpreter.parse(input_content)
+                    input_content, case_is_stop = await interpreter.input_parse()(input_content)
                     if case_is_stop:
                         input_stop = True
             input_node.content = input_content
@@ -158,6 +161,7 @@ class StackAgent(AbsAgent):
                 # print(token)
                 if self.hide_output_parse:
                     if not in_parse_content:
+                        interpreter:Interpreter = None
                         for interpreter in self.interpreters:
                             is_start_matched, string_matched = interpreter.output_match_start(result)
                             if is_start_matched:
@@ -179,10 +183,11 @@ class StackAgent(AbsAgent):
                                 await output_callback(pop_token)
                 else:
                     await output_callback(token)
+                interpreter:Interpreter = None
                 for interpreter in self.interpreters:
-                    if interpreter.match(result):
+                    if interpreter.output_match(result):
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
-                        output, is_stop = await interpreter.parse(result)
+                        output, is_stop = await interpreter.output_parse(result)
                         result += output.strip()
                         if not self.hide_output_parse or is_stop:
                             await output_callback(output.strip())

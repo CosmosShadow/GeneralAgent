@@ -16,8 +16,8 @@ async def main(chat_history, input, file_path, output_callback, file_callback, s
     agent = Agent(workspace)
     python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
     python_interpreter.function_tools = functions
-    agent.output_interpreters = [RoleInterpreter(), python_interpreter, AppleScriptInterpreter(), ShellInterpreter(), UIInterpreter(send_ui)]
-    agent.model_type = 'smart'
+    agent.interpreters = [RoleInterpreter(), python_interpreter, AppleScriptInterpreter(), ShellInterpreter(), UIInterpreter(send_ui)]
+    # agent.model_type = 'smart'
 
     input_content = input
     if file_path is not None and file_path != '':
