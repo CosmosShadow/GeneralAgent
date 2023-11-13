@@ -21,8 +21,17 @@ class Agent:
                  output_interpreters=[],
                  retrieve_interpreters=[],
                  model_type='normal',
-                 hide_output_parse=False,
+                 hide_output_parse=True,
                  ):
+        """
+        workspace: str, workspace path
+        memory: Memory, memory
+        input_interpreters: list, input interpreters
+        output_interpreters: list, output interpreters
+        retrieve_interpreters: list, retrieve interpreters
+        model_type: str, 'normal' or 'smart' or 'long'. For OpenAI api, normal=gpt3.5, smart=gpt4, long=gpt3.5-16k
+        hide_output_parse: bool, hide the llm's output that output interpreters will parse, default True
+        """
         self.is_running = False
         self.hide_output_parse = hide_output_parse
         self.model_type = model_type
