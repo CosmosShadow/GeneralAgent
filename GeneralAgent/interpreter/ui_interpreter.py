@@ -4,8 +4,8 @@ import asyncio
 
 class UIInterpreter(Interpreter):
     
-    match_start_pattern = '```tsx\n'
-    match_pattern = '```tsx\n(.*?)\n```'
+    output_match_start_pattern = '```tsx\n'
+    output_match_pattern = '```tsx\n(.*?)\n```'
 
     ui_prompt = """
 # Send UI to user
@@ -35,9 +35,9 @@ export default LibTemplate;
     async def prompt(self, messages) -> str:
         return self.ui_prompt
 
-    async def parse(self, string):
+    async def output_parse(self, string) -> (str, bool):
         from GeneralAgent import skills
-        pattern = re.compile(self.match_pattern, re.DOTALL)
+        pattern = re.compile(self.output_match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
         code = match.group(1)

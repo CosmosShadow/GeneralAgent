@@ -28,7 +28,7 @@ class BasicPythonInterpreter(Interpreter):
     def prompt(self, messages) -> str:
         return python_prompt
 
-    def match(self, string) -> bool:
+    def output_match(self, string) -> bool:
         super().match(string)
 
 

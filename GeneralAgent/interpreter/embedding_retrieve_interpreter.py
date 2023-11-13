@@ -10,7 +10,7 @@ class EmbeddingRetrieveInterperter(Interpreter):
     EmbeddingRetrieveInterperter can retrieve the information from the memory by embedding.
     """
     
-    match_pattern = '```read\n(.*?)\n```'
+    input_match_pattern = '```read\n(.*?)\n```'
 
     def __init__(self, serialize_path='./read_data/', prompt_max_length=1000, useful_msg_count=2) -> None:
         self.prompt_max_length = prompt_max_length
@@ -50,10 +50,10 @@ class EmbeddingRetrieveInterperter(Interpreter):
             texts.append(x)
         return '\n'.join(texts)
     
-    async def parse(self, string):
+    async def input_parse(self, string) -> (str, bool):
         from GeneralAgent import skills
         information = []
-        pattern = re.compile(self.match_pattern, re.DOTALL)
+        pattern = re.compile(self.input_match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
         file_paths = match.group(1).strip().split('\n')

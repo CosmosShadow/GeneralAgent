@@ -22,8 +22,8 @@ class SyncPythonInterpreter(Interpreter):
     Sync Python Interpreter: run python code in the interpreter. Not same namespace with the agent & Can Only run synchronous code
     """
 
-    match_start_pattern = '```python\n'
-    match_pattern = '```python\n(.*?)\n```'
+    output_match_start_pattern = '```python\n'
+    output_match_pattern = '```python\n(.*?)\n```'
 
     python_prompt_template = """
 # Run python
@@ -103,9 +103,9 @@ class SyncPythonInterpreter(Interpreter):
             except Exception as e:
                 self.globals.__delitem__(key)
 
-    async def parse(self, string):
+    async def output_parse(self, string) -> (str, bool):
         sys_out = ''
-        pattern = re.compile(self.match_pattern, re.DOTALL)
+        pattern = re.compile(self.output_match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
         if confirm_to_run():

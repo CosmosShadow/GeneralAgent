@@ -3,7 +3,7 @@ import os, re
 import asyncio
 import logging
 from GeneralAgent.utils import default_get_input, default_output_callback
-from GeneralAgent.memory import Memory, MemoryNode
+from GeneralAgent.memory import StackMemory, StackMemoryNode
 from GeneralAgent.interpreter import PlanInterpreter, EmbeddingRetrieveInterperter, LinkRetrieveInterperter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, FileInterpreter
 from .abs_agent import AbsAgent
@@ -12,74 +12,57 @@ from .abs_agent import AbsAgent
 class StackAgent(AbsAgent):
 
     @classmethod
-    def default(cls, workspace):
-        # memory
-        agent = cls(workspace)
-        agent.memory = Memory(serialize_path=f'{workspace}/memory.json')
-        # input interpreter
-        plan_interperter = PlanInterpreter(agent.memory)
-        retrieve_interpreter = EmbeddingRetrieveInterperter(serialize_path=f'{workspace}/read_interperter/')
-        agent.input_interpreters = [plan_interperter, retrieve_interpreter]
-        # retrieve interpreter
-        agent.retrieve_interpreters = [retrieve_interpreter]
-        # output interpreter
-        role_interpreter = RoleInterpreter()
-        python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
-        bash_interpreter = ShellInterpreter(workspace)
-        applescript_interpreter = AppleScriptInterpreter()
-        file_interpreter = FileInterpreter()
-        agent.output_interpreters = [role_interpreter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter]
-        return agent
-    
-    @classmethod
-    def empty(cls, workspace):
+    def empty(cls, workspace='./'):
         """
         empty agent, only role interpreter and memory, work like a basic LLM chatbot
         """
         agent = cls(workspace)
-        agent.memory = Memory(serialize_path=f'{workspace}/memory.json')
-        agent.output_interpreters = [RoleInterpreter()]
+        agent.memory = StackMemory(serialize_path=f'{workspace}/memory.json')
+        agent.interpreters = [RoleInterpreter()]
+        return agent
+
+    @classmethod
+    def default(cls, workspace='./', retrieve_type='embedding'):
+        """
+        default agent, with all interpreters
+        @workspace: str, workspace path
+        @retrieve_type: str, 'embedding' or 'link'
+        """
+        agent = cls(workspace)
+        # memory
+        agent.memory = StackMemory(serialize_path=f'{workspace}/memory.json')
+        # interpreters
+        role_interpreter = RoleInterpreter()
+        python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
+        plan_interperter = PlanInterpreter(agent.memory)
+        if retrieve_type == 'embedding':
+            retrieve_interperter = EmbeddingRetrieveInterperter(serialize_path=f'{workspace}/read_interperter/')
+        else:
+            retrieve_interperter = LinkRetrieveInterperter(python_interpreter)
+        bash_interpreter = ShellInterpreter(workspace)
+        applescript_interpreter = AppleScriptInterpreter()
+        file_interpreter = FileInterpreter()
+        agent.interpreters = [role_interpreter, plan_interperter, retrieve_interperter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter]
         return agent
 
     @classmethod
     def with_functions(cls, functions, role_prompt=None, workspace = './', model_type='smart'):
         """
         functions: list, [function1, function2, ...]
-        role_prompt: str, role prompt
-        workspace: str, workspace path
-        import_code: str, import code
-        libs: str, libs
+        @role_prompt: str, role prompt
+        @workspace: str, workspace path
+        @import_code: str, import code
+        @libs: str, libs
         """
         agent = cls(workspace)
-        agent.memory = Memory(serialize_path=f'{workspace}/memory.json')
+        agent.memory = StackMemory(serialize_path=f'{workspace}/memory.json')
         role_interpreter = RoleInterpreter(system_prompt=role_prompt)
         python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
         python_interpreter.function_tools = functions
-        agent.output_interpreters = [role_interpreter, python_interpreter]
+        agent.interpreters = [role_interpreter, python_interpreter]
         agent.model_type = model_type
         return agent
-    
-    @classmethod
-    def with_link_memory(cls, workspace):
-        agent = cls(workspace)
-        link_memory_interpreter = LinkRetrieveInterperter(python_interpreter)
-        prompt_append = link_memory_interpreter.get_python_access_prompt()
-        python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin', prompt_append=prompt_append)
-        # memory
-        agent.memory = Memory(serialize_path=f'{workspace}/memory.json')
-        # input interpreter
-        plan_interperter = PlanInterpreter(agent.memory)
-        agent.input_interpreters = [plan_interperter, link_memory_interpreter]
-        # retrieve interpreter
-        agent.retrieve_interpreters = [link_memory_interpreter]
-        # output interpreter
-        role_interpreter = RoleInterpreter()
-        bash_interpreter = ShellInterpreter(workspace)
-        applescript_interpreter = AppleScriptInterpreter()
-        file_interpreter = FileInterpreter()
-        agent.output_interpreters = [role_interpreter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter]
-        # 
-        return agent
+
     
     async def run(self, input=None, input_for_memory_node_id=-1, output_callback=default_output_callback):
         """
@@ -99,7 +82,7 @@ class StackAgent(AbsAgent):
             input_content = input
             input_stop = False
             self.memory.set_current_node(input_node)
-            for interpreter in self.input_interpreters:
+            for interpreter in self.interpreters:
                 if interpreter.match(input_content):
                     logging.info('interpreter: ' + interpreter.__class__.__name__)
                     # await output_callback('input parsing\n')
@@ -135,7 +118,7 @@ class StackAgent(AbsAgent):
         return None
 
     def _insert_node(self, input, memory_node_id=None):
-        node = MemoryNode(role='user', action='input', content=input)
+        node = StackMemoryNode(role='user', action='input', content=input)
         if memory_node_id is None:
             logging.debug(self.memory)
             self.memory.add_node(node)
@@ -149,16 +132,13 @@ class StackAgent(AbsAgent):
         # construct system prompt
         from GeneralAgent import skills
         messages = self.memory.get_related_messages_for_node(node)
-        system_prompt = '\n\n'.join([await interpreter.prompt(messages) for interpreter in self.output_interpreters])
-        retrieve_prompt = '\n\n'.join([await interpreter.prompt(messages) for interpreter in self.retrieve_interpreters])
+        system_prompt = '\n\n'.join([await interpreter.prompt(messages) for interpreter in self.interpreters])
         all_messages = [{'role': 'system', 'content': system_prompt}]
-        if len(retrieve_prompt.strip()) > 0:
-            all_messages.append({'role': 'system', 'content': 'Background information: \n' + retrieve_prompt})
         all_messages += messages
         if skills.messages_token_count(all_messages) > 3000:
             all_messages = skills.cut_messages(all_messages, 3000)
         # add answer node and set current node
-        answer_node = MemoryNode(role='system', action='answer', content='')
+        answer_node = StackMemoryNode(role='system', action='answer', content='')
         self.memory.add_node_after(node, answer_node)
         self.memory.set_current_node(answer_node)
 
@@ -178,8 +158,8 @@ class StackAgent(AbsAgent):
                 # print(token)
                 if self.hide_output_parse:
                     if not in_parse_content:
-                        for interpreter in self.output_interpreters:
-                            is_start_matched, string_matched = interpreter.match_start(result)
+                        for interpreter in self.interpreters:
+                            is_start_matched, string_matched = interpreter.output_match_start(result)
                             if is_start_matched:
                                 in_parse_content = True
                                 # clear cache
@@ -199,7 +179,7 @@ class StackAgent(AbsAgent):
                                 await output_callback(pop_token)
                 else:
                     await output_callback(token)
-                for interpreter in self.output_interpreters:
+                for interpreter in self.interpreters:
                     if interpreter.match(result):
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
                         output, is_stop = await interpreter.parse(result)
@@ -209,7 +189,7 @@ class StackAgent(AbsAgent):
                         is_break = True
                         in_parse_content = False
                         if self.hide_output_parse:
-                            is_matched, string_left = interpreter.match_end(result)
+                            is_matched, string_left = interpreter.output_match_end(result)
                             output_callback(string_left)
                         break
                 if is_break:

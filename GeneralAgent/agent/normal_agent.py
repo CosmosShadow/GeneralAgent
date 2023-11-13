@@ -3,7 +3,7 @@ import os, re
 import asyncio
 import logging
 from GeneralAgent.utils import default_get_input, default_output_callback
-from GeneralAgent.memory import Memory, MemoryNode
+from GeneralAgent.memory import StackMemory, StackMemoryNode
 from GeneralAgent.interpreter import PlanInterpreter, EmbeddingRetrieveInterperter, LinkRetrieveInterperter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, AskInterpreter, FileInterpreter
 
@@ -19,7 +19,7 @@ class NormalAgent:
                  ):
         """
         workspace: str, workspace path
-        memory: Memory, memory
+        memory: StackMemory, memory
         input_interpreters: list, input interpreters
         output_interpreters: list, output interpreters
         retrieve_interpreters: list, retrieve interpreters
@@ -30,7 +30,7 @@ class NormalAgent:
         self.hide_output_parse = hide_output_parse
         self.model_type = model_type
         self.stop_event = asyncio.Event()
-        self.memory = memory or Memory(serialize_path=f'{workspace}/memory.json')
+        self.memory = memory or StackMemory(serialize_path=f'{workspace}/memory.json')
         self.input_interpreters = input_interpreters
         self.retrieve_interpreters = retrieve_interpreters
         self.output_interpreters = output_interpreters
@@ -40,7 +40,7 @@ class NormalAgent:
         if not os.path.exists(workspace):
             os.makedirs(workspace)
         # memory
-        memory = Memory(serialize_path=f'{workspace}/memory.json')
+        memory = StackMemory(serialize_path=f'{workspace}/memory.json')
         # input interpreter
         plan_interperter = PlanInterpreter(memory)
         retrieve_interpreter = EmbeddingRetrieveInterperter(serialize_path=f'{workspace}/read_interperter/')
@@ -71,7 +71,7 @@ print({variable_name}['Hello world'])
 """
         python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin', prompt_append=prompt_append)
         # memory
-        memory = Memory(serialize_path=f'{workspace}/memory.json')
+        memory = StackMemory(serialize_path=f'{workspace}/memory.json')
         # input interpreter
         plan_interperter = PlanInterpreter(memory)
         link_memory_interpreter = LinkRetrieveInterperter(python_interpreter, sparks_dict_name=variable_name)
@@ -95,7 +95,7 @@ print({variable_name}['Hello world'])
         """
         if not os.path.exists(workspace):
             os.makedirs(workspace)
-        memory = Memory(serialize_path=f'{workspace}/memory.json')
+        memory = StackMemory(serialize_path=f'{workspace}/memory.json')
         input_interpreters = []
         retrieve_interpreters = []
         output_interpreters = [RoleInterpreter()]
@@ -138,10 +138,10 @@ print({variable_name}['Hello world'])
             input_stop = False
             self.memory.set_current_node(input_node)
             for interpreter in self.input_interpreters:
-                if interpreter.match(input_content):
+                if interpreter.input_match(input_content):
                     logging.info('interpreter: ' + interpreter.__class__.__name__)
                     # await output_callback('input parsing\n')
-                    input_content, case_is_stop = await interpreter.parse(input_content)
+                    input_content, case_is_stop = await interpreter.input_parse(input_content)
                     if case_is_stop:
                         input_stop = True
             input_node.content = input_content
@@ -176,7 +176,7 @@ print({variable_name}['Hello world'])
         self.stop_event.set()
 
     def _insert_node(self, input, memory_node_id=None):
-        node = MemoryNode(role='user', action='input', content=input)
+        node = StackMemoryNode(role='user', action='input', content=input)
         if memory_node_id is None:
             logging.debug(self.memory)
             self.memory.add_node(node)
@@ -199,7 +199,7 @@ print({variable_name}['Hello world'])
         if skills.messages_token_count(all_messages) > 3000:
             all_messages = skills.cut_messages(all_messages, 3000)
         # add answer node and set current node
-        answer_node = MemoryNode(role='system', action='answer', content='')
+        answer_node = StackMemoryNode(role='system', action='answer', content='')
         self.memory.add_node_after(node, answer_node)
         self.memory.set_current_node(answer_node)
 
@@ -220,7 +220,7 @@ print({variable_name}['Hello world'])
                 if self.hide_output_parse:
                     if not in_parse_content:
                         for interpreter in self.output_interpreters:
-                            is_start_matched, string_matched = interpreter.match_start(result)
+                            is_start_matched, string_matched = interpreter.output_match_start(result)
                             if is_start_matched:
                                 in_parse_content = True
                                 # clear cache
@@ -241,16 +241,16 @@ print({variable_name}['Hello world'])
                 else:
                     await output_callback(token)
                 for interpreter in self.output_interpreters:
-                    if interpreter.match(result):
+                    if interpreter.output_match(result):
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
-                        output, is_stop = await interpreter.parse(result)
+                        output, is_stop = await interpreter.output_parse(result)
                         result += output.strip()
                         if not self.hide_output_parse or is_stop:
                             await output_callback(output.strip())
                         is_break = True
                         in_parse_content = False
                         if self.hide_output_parse:
-                            is_matched, string_left = interpreter.match_end(result)
+                            is_matched, string_left = interpreter.output_match_end(result)
                             output_callback(string_left)
                         break
                 if is_break:

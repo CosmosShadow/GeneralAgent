@@ -27,13 +27,13 @@ Read will print the content of the file with [line numbers] prefixed.
 
 class FileInterpreter(Interpreter):
     
-    match_pattern = '```(\n)?file(\n| )?(.*?) (write|read|delete) (-?\d+) (-?\d+)(.*?)```'
+    output_match_pattern = '```(\n)?file(\n| )?(.*?) (write|read|delete) (-?\d+) (-?\d+)(.*?)```'
 
     async def prompt(self, messages) -> str:
         return file_prompt
     
     def _parse_commands(self, string):
-        match = re.search(self.match_pattern, string, re.DOTALL)
+        match = re.search(self.output_match_pattern, string, re.DOTALL)
         assert match is not None
         file_path = match.group(3)
         operation = match.group(4)
@@ -46,7 +46,7 @@ class FileInterpreter(Interpreter):
             content = content[:-3].strip()
         return file_path, operation, start_line, end_line, content
 
-    async def parse(self, string):
+    async def output_parse(self, string) -> (str, bool):
         logging.debug('FileInterpreter:parse called')
         file_path, operation, start_line, end_line, content = self._parse_commands(string)
         is_stop = False

@@ -13,14 +13,14 @@ applescript_promt = """
 
 class AppleScriptInterpreter(Interpreter):
     
-    match_start_pattern = '```(\n)?applescript'
-    match_pattern = '```(\n)?applescript(.*?)\n```'
+    output_match_pattern = '```(\n)?applescript(.*?)\n```'
+    output_match_start_pattern = '```(\n)?applescript'
 
     async def prompt(self, messages) -> str:
         return applescript_promt
     
-    async def parse(self, string):
-        pattern = re.compile(self.match_pattern, re.DOTALL)
+    async def output_parse(self, string) -> (str, bool):
+        pattern = re.compile(self.output_match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
         if confirm_to_run():

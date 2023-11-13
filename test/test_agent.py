@@ -3,7 +3,6 @@ import pytest
 import shutil
 import asyncio
 from GeneralAgent.agent import Agent
-from GeneralAgent.tools import Tools, scrape_web
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter
 from GeneralAgent.utils import set_logging_level
 set_logging_level()
@@ -70,7 +69,9 @@ async def test_tool_use():
     if os.path.exists(workspace): shutil.rmtree(workspace)
     os.mkdir(workspace)
     serialize_path = f'{workspace}/code.bin'
-    python_interpreter = PythonInterpreter(serialize_path=serialize_path, tools=Tools([scrape_web]))
+    python_interpreter = PythonInterpreter(serialize_path=serialize_path)
+    from GeneralAgent import skills
+    python_interpreter.function_tools = [skills.scrape_web]
     agent = Agent(workspace=workspace, output_interpreters=[RoleInterpreter(), python_interpreter])
     memory_node_id = await agent.run("what's the tiltle of web page https://tongtianta.ai ?", output_callback=get_output_callback())
     global result

@@ -1,5 +1,5 @@
 import os
-from GeneralAgent.memory import Memory, MemoryNode
+from GeneralAgent.memory import StackMemory, StackMemoryNode
 from GeneralAgent.utils import set_logging_level
 set_logging_level()
 
@@ -7,11 +7,11 @@ def test_memory():
     serialize_path='./data/memory.json'
     if os.path.exists(serialize_path):
         os.remove(serialize_path)
-    memory = Memory(serialize_path=serialize_path)
-    node1 = MemoryNode(role='user', action='input', content='node1')
-    node2 = MemoryNode(role='system', action='answer', content='node2')
-    node3 = MemoryNode(role='system', action='answer', content='node3')
-    node4 = MemoryNode(role='system', action='answer', content='node4')
+    memory = StackMemory(serialize_path=serialize_path)
+    node1 = StackMemoryNode(role='user', action='input', content='node1')
+    node2 = StackMemoryNode(role='system', action='answer', content='node2')
+    node3 = StackMemoryNode(role='system', action='answer', content='node3')
+    node4 = StackMemoryNode(role='system', action='answer', content='node4')
     memory.add_node(node1)
     memory.add_node_in(node1, node2)
     memory.add_node_after(node2, node3)
@@ -39,7 +39,7 @@ def test_memory():
 
     # load from serialized file
     memory = None
-    memory = Memory(serialize_path=serialize_path)
+    memory = StackMemory(serialize_path=serialize_path)
     _assert_init_state(memory)
     description_2 = str(memory)
     assert description_1 == description_2

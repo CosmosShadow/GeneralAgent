@@ -4,8 +4,13 @@ import platform
 from jinja2 import Template
 from .interpreter import Interpreter
 
-# system prompt role
+
 class RoleInterpreter(Interpreter):
+    """
+    RoleInterpreter, a interpreter that can change the role of the agent.
+    Note: This should be the first interpreter in the agent.
+    """
+    
     system_prompt_template = \
 """
 Now: {{now}}

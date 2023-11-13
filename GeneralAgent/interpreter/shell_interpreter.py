@@ -10,8 +10,8 @@ shell_prompt = """
 
 class ShellInterpreter(Interpreter):
 
-    match_start_pattern = '```shell\n'
-    match_pattern = '```shell\n(.*?)\n```'
+    output_match_start_pattern = '```shell\n'
+    output_match_pattern = '```shell\n(.*?)\n```'
     
     def __init__(self, workspace='./') -> None:
         self.workspace = workspace
@@ -19,8 +19,8 @@ class ShellInterpreter(Interpreter):
     async def prompt(self, messages) -> str:
         return shell_prompt
 
-    async def parse(self, string):
-        pattern = re.compile(self.match_pattern, re.DOTALL)
+    async def output_parse(self, string) -> (str, bool):
+        pattern = re.compile(self.output_match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
         if confirm_to_run():

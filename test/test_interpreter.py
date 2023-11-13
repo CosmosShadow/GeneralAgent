@@ -1,6 +1,6 @@
 import os
 from GeneralAgent.interpreter import ShellInterpreter, AppleScriptInterpreter, PythonInterpreter, PlanInterpreter, AskInterpreter
-from GeneralAgent.memory import Memory, MemoryNode
+from GeneralAgent.memory import Memory, StackMemoryNode
 
 def test_bash_interperter():
     interpreter = ShellInterpreter()
@@ -29,7 +29,7 @@ def test_plan_interpreter():
     serialize_path = './data/plan_memory.json'
     if os.path.exists(serialize_path): os.remove(serialize_path)
     memory = Memory(serialize_path)
-    node = MemoryNode('user', 'input', content='hello world')
+    node = StackMemoryNode('user', 'input', content='hello world')
     memory.add_node(node)
     memory.set_current_node(node)
     interpreter = PlanInterpreter(memory, max_plan_depth=4)

@@ -5,7 +5,7 @@ from tinydb import TinyDB, Query
 
 
 @dataclass
-class MemoryNode:
+class StackMemoryNode:
     role: str
     action: str
     state: str = 'ready'
@@ -47,14 +47,14 @@ class MemoryNode:
         return cls(node_id=0, role='root', action='input', state='success', content='root', parent=None, childrens=[])
 
 
-class Memory:
+class StackMemory:
     def __init__(self, serialize_path='./memory.json'):
         self.db = TinyDB(serialize_path)
         nodes = [MemoryNode(**node) for node in self.db.all()]
         self.spark_nodes = dict(zip([node.node_id for node in nodes], nodes))
         # add root node
         if len(self.spark_nodes) == 0:
-            root_node = MemoryNode.new_root()
+            root_node = StackMemoryNode.new_root()
             self.spark_nodes[root_node.node_id] = root_node
             self.db.insert(root_node.__dict__)
         # load current_node
@@ -170,7 +170,7 @@ class Memory:
         ancestors = self.get_related_nodes_for_node(parent) if not parent.is_root() else []
         return ancestors + left_brothers + [('direct', node)]
     
-    def get_related_messages_for_node(self, node: MemoryNode):
+    def get_related_messages_for_node(self, node: StackMemoryNode):
         def _get_message(node, position='direct'):
             content = node.content if node.prefix is None else node.prefix + ' ' + node.content
             if position == 'brother' and node.action == 'plan' and len(node.childrens) > 0:
