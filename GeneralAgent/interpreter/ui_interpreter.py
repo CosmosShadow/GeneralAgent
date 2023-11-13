@@ -4,8 +4,8 @@ import asyncio
 
 class UIInterpreter(Interpreter):
     
-    match_pattern = '```tsx\n(.*?)\n```'
     match_start_pattern = '```tsx\n'
+    match_pattern = '```tsx\n(.*?)\n```'
 
     ui_prompt = """
 # Send UI to user

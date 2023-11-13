@@ -10,6 +10,7 @@ ask_prompt = """
 """
 
 class AskInterpreter(Interpreter):
+    match_start_pattern = '```ask\n'
     match_pattern = '```ask\n(.*?)\n```'
 
     async def prompt(self, messages) -> str:

@@ -10,6 +10,7 @@ shell_prompt = """
 
 class ShellInterpreter(Interpreter):
 
+    match_start_pattern = '```shell\n'
     match_pattern = '```shell\n(.*?)\n```'
     
     def __init__(self, workspace='./') -> None:

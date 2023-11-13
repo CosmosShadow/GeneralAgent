@@ -13,6 +13,7 @@ applescript_promt = """
 
 class AppleScriptInterpreter(Interpreter):
     
+    match_start_pattern = '```(\n)?applescript'
     match_pattern = '```(\n)?applescript(.*?)\n```'
 
     async def prompt(self, messages) -> str:
