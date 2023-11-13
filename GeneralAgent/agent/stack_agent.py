@@ -219,7 +219,7 @@ print({variable_name}['Hello world'])
             for token in response:
                 if token is None: break
                 result += token
-                print(token)
+                # print(token)
                 if self.hide_output_parse:
                     if not in_parse_content:
                         for interpreter in self.output_interpreters:
