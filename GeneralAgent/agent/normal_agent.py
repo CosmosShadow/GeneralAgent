@@ -124,6 +124,7 @@ class NormalAgent(AbsAgent):
             for token in response:
                 if token is None: break
                 result += token
+                # logging.debug(result)
                 # print(token)
                 if self.hide_output_parse:
                     if not in_parse_content:
@@ -154,14 +155,15 @@ class NormalAgent(AbsAgent):
                     if interpreter.output_match(result):
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
                         output, is_stop = await interpreter.output_parse(result)
-                        result += output.strip()
-                        if not self.hide_output_parse or is_stop:
-                            await output_callback(output.strip())
-                        is_break = True
-                        in_parse_content = False
                         if self.hide_output_parse:
                             is_matched, string_left = interpreter.output_match_end(result)
-                            output_callback(string_left)
+                            await output_callback(string_left)
+                        result += '\n' + output.strip() + '\n'
+                        # logging.debug(result)
+                        if not self.hide_output_parse or is_stop:
+                            await output_callback('\n' + output.strip() + '\n')
+                        is_break = True
+                        in_parse_content = False
                         break
                 if is_break:
                     break
@@ -169,6 +171,7 @@ class NormalAgent(AbsAgent):
                 pop_token = cache_tokens.pop(0)
                 await output_callback(pop_token)
             # append messages
+            # logging.debug(result)
             self.memory.append_message('assistant', result)
             return is_stop
         except Exception as e:
