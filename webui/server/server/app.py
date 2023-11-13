@@ -339,7 +339,8 @@ async def clear_messages(bot_id: str):
     # delete bot dir
     the_dir = get_bot_dir(bot_id)
     if os.path.exists(the_dir):
-        os.removedirs(the_dir)
+        import shutil
+        shutil.rmtree(the_dir)
     return 'ok'
 
 
@@ -353,7 +354,8 @@ async def delete_chat(bot_id: str, chat_id: str):
     # delete chat dir
     the_dir = get_chat_dir(bot_id, chat_id)
     if os.path.exists(the_dir):
-        os.removedirs(the_dir)
+        import shutil
+        shutil.rmtree(the_dir)
     return 'ok'
 
 
