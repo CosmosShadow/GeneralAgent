@@ -4,10 +4,10 @@ import asyncio
 import logging
 from GeneralAgent.utils import default_get_input, default_output_callback
 from GeneralAgent.memory import Memory, MemoryNode
-from GeneralAgent.interpreter import PlanInterpreter, RetrieveInterpreter, LinkMemoryInterpreter
+from GeneralAgent.interpreter import PlanInterpreter, EmbeddingRetrieveInterperter, LinkRetrieveInterperter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, AskInterpreter, FileInterpreter
 
-class Agent:
+class NormalAgent:
     def __init__(self, 
                  workspace='./',
                  memory=None,
@@ -43,7 +43,7 @@ class Agent:
         memory = Memory(serialize_path=f'{workspace}/memory.json')
         # input interpreter
         plan_interperter = PlanInterpreter(memory)
-        retrieve_interpreter = RetrieveInterpreter(serialize_path=f'{workspace}/read_interperter/')
+        retrieve_interpreter = EmbeddingRetrieveInterperter(serialize_path=f'{workspace}/read_interperter/')
         input_interpreters = [plan_interperter, retrieve_interpreter]
         # retrieve interpreter
         retrieve_interpreters = [retrieve_interpreter]
@@ -74,7 +74,7 @@ print({variable_name}['Hello world'])
         memory = Memory(serialize_path=f'{workspace}/memory.json')
         # input interpreter
         plan_interperter = PlanInterpreter(memory)
-        link_memory_interpreter = LinkMemoryInterpreter(python_interpreter, sparks_dict_name=variable_name)
+        link_memory_interpreter = LinkRetrieveInterperter(python_interpreter, sparks_dict_name=variable_name)
         input_interpreters = [plan_interperter, link_memory_interpreter]
         # retrieve interpreter
         retrieve_interpreters = [link_memory_interpreter]
@@ -102,7 +102,7 @@ print({variable_name}['Hello world'])
         return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters)
     
     @classmethod
-    def agent_with_functions(cls, functions, role_prompt=None, workspace = './', import_code=None, libs=None):
+    def with_functions(cls, functions, role_prompt=None, workspace = './', import_code=None, libs=None):
         """
         functions: list, [function1, function2, ...]
         role_prompt: str, role prompt
@@ -110,13 +110,13 @@ print({variable_name}['Hello world'])
         import_code: str, import code
         libs: str, libs
         """
-        from GeneralAgent.interpreter import RoleInterpreter, AsyncPythonInterpreter
-        from GeneralAgent.agent import Agent
+        if not os.path.exists(workspace):
+            os.makedirs(workspace)
         role_interpreter = RoleInterpreter(system_prompt=role_prompt)
-        python_interpreter = AsyncPythonInterpreter(serialize_path=f'{workspace}/code.bin', libs=libs, import_code=import_code)
-        python_interpreter.async_tools = functions
+        python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin', libs=libs, import_code=import_code)
+        python_interpreter.function_tools = functions
         output_interpreters = [role_interpreter, python_interpreter]
-        agent = Agent(workspace, output_interpreters=output_interpreters, model_type='smart')
+        agent = cls(workspace, output_interpreters=output_interpreters, model_type='smart')
         return agent
 
     async def run(self, input=None, input_for_memory_node_id=-1, output_callback=default_output_callback):

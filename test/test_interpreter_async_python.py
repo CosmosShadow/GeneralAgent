@@ -51,14 +51,14 @@ a = await increase(a)
         return x + 1
     
     python_interpreter = AsyncPythonInterpreter(serialize_path=serialize_path)
-    python_interpreter.async_tools = [increase]
+    python_interpreter.function_tools = [increase]
     await python_interpreter.run_code(code1)
     value = python_interpreter.get_variable('a')
     assert value == 1
 
     python_interpreter = None
     python_interpreter = AsyncPythonInterpreter(serialize_path=serialize_path)
-    python_interpreter.async_tools = [increase]
+    python_interpreter.function_tools = [increase]
     sys_out = await  python_interpreter.run_code(code2)
     value = python_interpreter.get_variable('a')
     assert value == 2

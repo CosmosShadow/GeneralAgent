@@ -411,7 +411,7 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
     functions = [
         skills.translate_text
     ]
-    agent = Agent.agent_with_functions(functions, role_prompt)
+    agent = Agent.with_functions(functions, role_prompt)
     await agent.run(input, output_callback=output_callback)
 ```python
 

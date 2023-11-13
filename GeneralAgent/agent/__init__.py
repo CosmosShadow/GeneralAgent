@@ -1,7 +1,9 @@
 # import 
-from .agent import Agent
+from .normal_agent import NormalAgent
 from .stack_agent import StackAgent
-from .link_agent import LinkAgent
+
+class Agent(NormalAgent):
+    pass
 
 import os
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', None)

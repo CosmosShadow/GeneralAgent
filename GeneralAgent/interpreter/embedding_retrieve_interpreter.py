@@ -5,7 +5,10 @@ import chromadb
 import logging
 from GeneralAgent.llm import embedding_batch
 
-class RetrieveInterpreter(Interpreter):
+class EmbeddingRetrieveInterperter(Interpreter):
+    """
+    EmbeddingRetrieveInterperter can retrieve the information from the memory by embedding.
+    """
     
     match_pattern = '```read\n(.*?)\n```'
 

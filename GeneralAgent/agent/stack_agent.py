@@ -4,111 +4,45 @@ import asyncio
 import logging
 from GeneralAgent.utils import default_get_input, default_output_callback
 from GeneralAgent.memory import Memory, MemoryNode
-from GeneralAgent.interpreter import PlanInterpreter, RetrieveInterpreter, LinkMemoryInterpreter
-from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, AskInterpreter, FileInterpreter
+from GeneralAgent.interpreter import PlanInterpreter, EmbeddingRetrieveInterperter, LinkRetrieveInterperter
+from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, FileInterpreter
+from .abs_agent import AbsAgent
 
-class StackAgent:
-    def __init__(self, 
-                 workspace='./',
-                 memory=None,
-                 input_interpreters=[],
-                 output_interpreters=[],
-                 retrieve_interpreters=[],
-                 model_type='normal',
-                 hide_output_parse=True,
-                 ):
-        """
-        workspace: str, workspace path
-        memory: Memory, memory
-        input_interpreters: list, input interpreters
-        output_interpreters: list, output interpreters
-        retrieve_interpreters: list, retrieve interpreters
-        model_type: str, 'normal' or 'smart' or 'long'. For OpenAI api, normal=gpt3.5, smart=gpt4, long=gpt3.5-16k
-        hide_output_parse: bool, hide the llm's output that output interpreters will parse, default True
-        """
-        self.is_running = False
-        self.hide_output_parse = hide_output_parse
-        self.model_type = model_type
-        self.stop_event = asyncio.Event()
-        self.memory = memory or Memory(serialize_path=f'{workspace}/memory.json')
-        self.input_interpreters = input_interpreters
-        self.retrieve_interpreters = retrieve_interpreters
-        self.output_interpreters = output_interpreters
-        
-        # # the first must be role interpreter
-        # if len(output_interpreters) > 0:
-        #     if not isinstance(output_interpreters[0], RoleInterpreter):
-        #         self.output_interpreters.insert(0, RoleInterpreter())
+
+class StackAgent(AbsAgent):
 
     @classmethod
     def default(cls, workspace):
-        if not os.path.exists(workspace):
-            os.makedirs(workspace)
         # memory
-        memory = Memory(serialize_path=f'{workspace}/memory.json')
+        agent = cls(workspace)
+        agent.memory = Memory(serialize_path=f'{workspace}/memory.json')
         # input interpreter
-        plan_interperter = PlanInterpreter(memory)
-        retrieve_interpreter = RetrieveInterpreter(serialize_path=f'{workspace}/read_interperter/')
-        input_interpreters = [plan_interperter, retrieve_interpreter]
+        plan_interperter = PlanInterpreter(agent.memory)
+        retrieve_interpreter = EmbeddingRetrieveInterperter(serialize_path=f'{workspace}/read_interperter/')
+        agent.input_interpreters = [plan_interperter, retrieve_interpreter]
         # retrieve interpreter
-        retrieve_interpreters = [retrieve_interpreter]
+        agent.retrieve_interpreters = [retrieve_interpreter]
         # output interpreter
         role_interpreter = RoleInterpreter()
         python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
         bash_interpreter = ShellInterpreter(workspace)
         applescript_interpreter = AppleScriptInterpreter()
         file_interpreter = FileInterpreter()
-        ask_interpreter = AskInterpreter()
-        output_interpreters = [role_interpreter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter, ask_interpreter]
-        # 
-        return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters)
-    
-    @classmethod
-    def with_link_memory(cls, workspace, model_type='normal'):
-        if not os.path.exists(workspace):
-            os.makedirs(workspace)
-        variable_name = 'sparks'
-        prompt_append = f"""
-You can access the values of <<key>> in all documents through the dictionary {variable_name}, such as <<Hello world>>:
-```
-print({variable_name}['Hello world'])
-```
-"""
-        python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin', prompt_append=prompt_append)
-        # memory
-        memory = Memory(serialize_path=f'{workspace}/memory.json')
-        # input interpreter
-        plan_interperter = PlanInterpreter(memory)
-        link_memory_interpreter = LinkMemoryInterpreter(python_interpreter, sparks_dict_name=variable_name)
-        input_interpreters = [plan_interperter, link_memory_interpreter]
-        # retrieve interpreter
-        retrieve_interpreters = [link_memory_interpreter]
-        # output interpreter
-        role_interpreter = RoleInterpreter()
-        bash_interpreter = ShellInterpreter(workspace)
-        applescript_interpreter = AppleScriptInterpreter()
-        file_interpreter = FileInterpreter()
-        ask_interpreter = AskInterpreter()
-        output_interpreters = [role_interpreter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter, ask_interpreter]
-        # 
-        return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters, model_type=model_type)
+        agent.output_interpreters = [role_interpreter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter]
+        return agent
     
     @classmethod
     def empty(cls, workspace):
         """
         empty agent, only role interpreter and memory, work like a basic LLM chatbot
         """
-        if not os.path.exists(workspace):
-            os.makedirs(workspace)
-        memory = Memory(serialize_path=f'{workspace}/memory.json')
-        input_interpreters = []
-        retrieve_interpreters = []
-        output_interpreters = [RoleInterpreter()]
-        return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters)
-    
-    
+        agent = cls(workspace)
+        agent.memory = Memory(serialize_path=f'{workspace}/memory.json')
+        agent.output_interpreters = [RoleInterpreter()]
+        return agent
+
     @classmethod
-    def agent_with_functions(cls, functions, role_prompt=None, workspace = './', import_code=None, libs=None):
+    def with_functions(cls, functions, role_prompt=None, workspace = './', model_type='smart'):
         """
         functions: list, [function1, function2, ...]
         role_prompt: str, role prompt
@@ -116,14 +50,37 @@ print({variable_name}['Hello world'])
         import_code: str, import code
         libs: str, libs
         """
-        from GeneralAgent.interpreter import RoleInterpreter, AsyncPythonInterpreter
+        agent = cls(workspace)
+        agent.memory = Memory(serialize_path=f'{workspace}/memory.json')
         role_interpreter = RoleInterpreter(system_prompt=role_prompt)
-        python_interpreter = AsyncPythonInterpreter(serialize_path=f'{workspace}/code.bin', libs=libs, import_code=import_code)
-        python_interpreter.async_tools = functions
-        output_interpreters = [role_interpreter, python_interpreter]
-        agent = cls(workspace, output_interpreters=output_interpreters, model_type='smart')
+        python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
+        python_interpreter.function_tools = functions
+        agent.output_interpreters = [role_interpreter, python_interpreter]
+        agent.model_type = model_type
         return agent
-
+    
+    @classmethod
+    def with_link_memory(cls, workspace):
+        agent = cls(workspace)
+        link_memory_interpreter = LinkRetrieveInterperter(python_interpreter)
+        prompt_append = link_memory_interpreter.get_python_access_prompt()
+        python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin', prompt_append=prompt_append)
+        # memory
+        agent.memory = Memory(serialize_path=f'{workspace}/memory.json')
+        # input interpreter
+        plan_interperter = PlanInterpreter(agent.memory)
+        agent.input_interpreters = [plan_interperter, link_memory_interpreter]
+        # retrieve interpreter
+        agent.retrieve_interpreters = [link_memory_interpreter]
+        # output interpreter
+        role_interpreter = RoleInterpreter()
+        bash_interpreter = ShellInterpreter(workspace)
+        applescript_interpreter = AppleScriptInterpreter()
+        file_interpreter = FileInterpreter()
+        agent.output_interpreters = [role_interpreter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter]
+        # 
+        return agent
+    
     async def run(self, input=None, input_for_memory_node_id=-1, output_callback=default_output_callback):
         """
         input: str, user's new input, None means continue to run where it stopped
@@ -176,9 +133,6 @@ print({variable_name}['Hello world'])
                 return None
         self.is_running = False
         return None
-    
-    def stop(self):
-        self.stop_event.set()
 
     def _insert_node(self, input, memory_node_id=None):
         node = MemoryNode(role='user', action='input', content=input)

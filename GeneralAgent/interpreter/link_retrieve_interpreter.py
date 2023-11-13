@@ -4,7 +4,10 @@ from .interpreter import Interpreter
 from GeneralAgent.memory import LinkMemory
 
 
-class LinkMemoryInterpreter(Interpreter):
+class LinkRetrieveInterperter(Interpreter):
+    """
+    LinkRetrieveInterperter store and retrieve the information from the memory by link embed in the document. like I live in <<My Home>>.
+    """
     
     match_pattern = '```read\n(.*?)\n```'
 
@@ -12,6 +15,15 @@ class LinkMemoryInterpreter(Interpreter):
         self.python_intrepreter = python_interpreter
         self.sparks_dict_name = sparks_dict_name
         self.link_memory = LinkMemory()
+
+    def get_python_access_prompt(self):
+        variable_name = self.sparks_dict_name
+        return f"""
+You can access the values of <<key>> in all documents through the dictionary {variable_name}, such as <<Hello world>>:
+```
+print({variable_name}['Hello world'])
+```
+"""
 
     async def prompt(self, messages) -> str:
         if self.link_memory.is_empty():

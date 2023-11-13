@@ -39,5 +39,5 @@ search_functions('scrape web page')
         skills.install_application,
         skills.uninstall_application
     ]
-    agent = Agent.agent_with_functions(functoins, role_prompt)
+    agent = Agent.with_functions(functoins, role_prompt)
     await agent.run(input, output_callback=output_callback)
