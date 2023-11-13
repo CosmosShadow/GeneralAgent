@@ -1,6 +1,0 @@
-{
-    "id": "agent_ui",
-    "name": "# Agent with UI",
-    "description": "Developing | Agent with dynamic UI | 可以根据需要，动态生成UI和用户交互的Agent",
-    "upload_file": "yes"
-}

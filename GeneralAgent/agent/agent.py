@@ -7,7 +7,7 @@ from GeneralAgent.memory import Memory, MemoryNode
 from GeneralAgent.interpreter import PlanInterpreter, RetrieveInterpreter, LinkMemoryInterpreter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, AskInterpreter, FileInterpreter
 
-class StackAgent:
+class Agent:
     def __init__(self, 
                  workspace='./',
                  memory=None,
@@ -34,11 +34,6 @@ class StackAgent:
         self.input_interpreters = input_interpreters
         self.retrieve_interpreters = retrieve_interpreters
         self.output_interpreters = output_interpreters
-        
-        # # the first must be role interpreter
-        # if len(output_interpreters) > 0:
-        #     if not isinstance(output_interpreters[0], RoleInterpreter):
-        #         self.output_interpreters.insert(0, RoleInterpreter())
 
     @classmethod
     def default(cls, workspace):
@@ -106,7 +101,6 @@ print({variable_name}['Hello world'])
         output_interpreters = [RoleInterpreter()]
         return cls(workspace, memory, input_interpreters, output_interpreters, retrieve_interpreters)
     
-    
     @classmethod
     def agent_with_functions(cls, functions, role_prompt=None, workspace = './', import_code=None, libs=None):
         """
@@ -117,11 +111,12 @@ print({variable_name}['Hello world'])
         libs: str, libs
         """
         from GeneralAgent.interpreter import RoleInterpreter, AsyncPythonInterpreter
+        from GeneralAgent.agent import Agent
         role_interpreter = RoleInterpreter(system_prompt=role_prompt)
         python_interpreter = AsyncPythonInterpreter(serialize_path=f'{workspace}/code.bin', libs=libs, import_code=import_code)
         python_interpreter.async_tools = functions
         output_interpreters = [role_interpreter, python_interpreter]
-        agent = cls(workspace, output_interpreters=output_interpreters, model_type='smart')
+        agent = Agent(workspace, output_interpreters=output_interpreters, model_type='smart')
         return agent
 
     async def run(self, input=None, input_for_memory_node_id=-1, output_callback=default_output_callback):
@@ -263,7 +258,7 @@ print({variable_name}['Hello world'])
             while len(cache_tokens) > 0:
                 pop_token = cache_tokens.pop(0)
                 await output_callback(pop_token)
-            # await output_callback('\n')
+            await output_callback('\n')
             # update current node and answer node
             answer_node.content = result
             self.memory.update_node(answer_node)
