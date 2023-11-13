@@ -101,9 +101,21 @@ def sync_worker():
     asyncio.run(worker())
 
 applications_data_dir = get_applications_data_dir()
+
+def get_bot_dir(bot_id):
+    """
+    Return the bot data dir
+    """
+    data_dir = os.path.join(applications_data_dir, bot_id)
+    return data_dir
+
 def get_chat_dir(bot_id, chat_id):
+    """
+    Return the chat data dir
+    """
     data_dir = os.path.join(applications_data_dir, bot_id, chat_id)
     return data_dir
+
 
 def history_to_messages(history):
     messages = []
@@ -316,22 +328,35 @@ async def user_chat_new(bot_id: str):
     return chats
 
 
-# 清空某个bot的消息
-@app.post('/clear/{bot_id}')
+@app.post('/clear_bot_chats/{bot_id}')
 async def clear_messages(bot_id: str):
+    """
+    clear all chats for bot
+    """
+    # clear messages
     db.table('messages').remove(Query().bot_id == bot_id)
     db.table('chats').remove(Query().bot_id == bot_id)
+    # delete bot dir
+    the_dir = get_bot_dir(bot_id)
+    if os.path.exists(the_dir):
+        os.removedirs(the_dir)
     return 'ok'
 
 
-# 删除某个对话
 @app.post('/delete_chat/{bot_id}/{chat_id}')
 async def delete_chat(bot_id: str, chat_id: str):
+    """
+    delete a chat
+    """
     db.table('messages').remove((Query().bot_id == bot_id) & (Query().chat_id == chat_id))
     db.table('chats').remove((Query().bot_id == bot_id) & (Query().id == chat_id))
+    # delete chat dir
+    the_dir = get_chat_dir(bot_id, chat_id)
+    if os.path.exists(the_dir):
+        os.removedirs(the_dir)
     return 'ok'
 
-# 获取某个bot下某轮chat的消息
+
 class MessagesInput(BaseModel):
     bot_id: str
     chat_id: str

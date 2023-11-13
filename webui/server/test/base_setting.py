@@ -10,7 +10,7 @@ HPPT_HOST = 'http://127.0.0.1:7777'
 WS_HOST = HPPT_HOST.replace('http', 'ws')
 
 def clear_bot(bot_id):
-    url = HPPT_HOST + '/clear/' + bot_id
+    url = HPPT_HOST + '/clear_bot_chats/' + bot_id
     result = requests.post(url)
 
 def get_chats(bot_id):

@@ -39,10 +39,9 @@ export async function apiChatList(bot_id:string): Promise<AxiosResponse> {
   return response;
 }
 
-// @app.post('/clear/{bot_id}')
-// 清空聊天记录
+// 清空bot的聊天记录
 export async function apiChatClear(bot_id:string): Promise<AxiosResponse> {
-  const url = `${HTTP_HOST}/clear/${bot_id}`;
+  const url = `${HTTP_HOST}/clear_bot_chats/${bot_id}`;
   const response = await axios.post(url);
   return response;
 }
