@@ -13,10 +13,26 @@ def get_current_env_python_libs() -> str:
 
 def get_python_version() -> str:
     """
-    Return the python version, like "3.8"
+    Return the python version, like "3.9.12"
     """
-    return '3.8'
+    import platform
+    python_version = platform.python_version()
+    return python_version
 
+def get_os_version() -> str:
+    import platform
+    system = platform.system()
+    if system == 'Windows':
+        version = platform.version()
+        return f"Windows version: {version}"
+    elif system == 'Darwin':
+        version = platform.mac_ver()[0]
+        return f"macOS version: {version}"
+    elif system == 'Linux':
+        version = platform.platform()
+        return f"Linux version: {version}"
+    else:
+        return "Unknown system"
 
 def get_python_code(content:str) -> str:
     """

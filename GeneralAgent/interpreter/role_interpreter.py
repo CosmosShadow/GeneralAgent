@@ -20,28 +20,9 @@ You can use the following skills to help you solve the problem directly without 
 """
 
     def __init__(self, system_prompt=None) -> None:
-        self.os_version = self.get_os_version()
+        from GeneralAgent import skills
+        self.os_version = skills.get_os_version()
         self.system_prompt = system_prompt
-
-    @classmethod
-    def get_os_version(cls):
-        system = platform.system()
-        if system == 'Windows':
-            version = platform.version()
-            return f"Windows version: {version}"
-        elif system == 'Darwin':
-            version = platform.mac_ver()[0]
-            return f"macOS version: {version}"
-        elif system == 'Linux':
-            dist = platform.linux_distribution()
-            if dist[0] == 'CentOS':
-                version = dist[1]
-                return f"CentOS version: {version}"
-            elif dist[0] == 'Ubuntu':
-                version = dist[1]
-                return f"Ubuntu version: {version}"
-        else:
-            return "Unknown system"
 
     async def prompt(self, messages) -> str:
         if self.system_prompt is not None:
