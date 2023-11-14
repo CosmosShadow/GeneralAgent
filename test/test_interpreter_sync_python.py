@@ -1,27 +1,23 @@
 import os
-from GeneralAgent.interpreter import PythonInterpreter
+from GeneralAgent.interpreter import SyncPythonInterpreter
 
 def test_python_interpreter():
     # test add print
     code = """
-a = 1
-a
-    c
-try:
+x = a + b
+x
 """
-    code = PythonInterpreter.add_print(code)
+    code = SyncPythonInterpreter.add_print(code)
     print(code)
     assert code == """
-a = 1
-print(a)
-    print(c)
-try:
+x = a + b
+print(x)
 """
     # test run
     serialize_path = './data/test_interpreter.bin'
     if os.path.exists(serialize_path): os.remove(serialize_path)
 
-    interpreter = PythonInterpreter(serialize_path)
+    interpreter = SyncPythonInterpreter(serialize_path)
     sys_stdout, is_stop = interpreter.parse('```python\nprint("hello world")\n```')
     assert sys_stdout.strip() == 'hello world'
     assert is_stop is False

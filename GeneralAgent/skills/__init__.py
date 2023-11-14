@@ -18,8 +18,9 @@ def load_functions_with_path(python_code_path):
         # 获取文件中的所有函数
         functions = inspect.getmembers(module, inspect.isfunction)
 
-        # 过滤functions中以下划线开头的函数
+        # 过滤functions中以下划线开头的函数、test_开头的函数
         functions = filter(lambda f: not f[0].startswith('_'), functions)
+        functions = filter(lambda f: not f[0].startswith('test_'), functions)
 
         return [f[1] for f in functions]
     except Exception as e:

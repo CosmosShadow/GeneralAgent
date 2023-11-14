@@ -2,7 +2,7 @@ import os
 import pytest
 import shutil
 import asyncio
-from GeneralAgent.agent import Agent
+from GeneralAgent.agent import NormalAgent
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter
 from GeneralAgent.utils import set_logging_level
 set_logging_level()
@@ -26,7 +26,7 @@ def get_output_callback():
 @pytest.mark.asyncio
 async def test_math():
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    agent = Agent.default(workspace=workspace)
+    agent = NormalAgent.default(workspace=workspace)
     memory_node_id = await agent.run('calculate 0.99 ** 1000', output_callback=get_output_callback())
     assert '4.31712474' in result
     assert memory_node_id == None
@@ -37,7 +37,7 @@ async def test_write_file():
     if os.path.exists(target_path):
         os.remove(target_path)
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    agent = Agent.default(workspace=workspace)
+    agent = NormalAgent.default(workspace=workspace)
     memory_node_id = await agent.run('Write the description of Chengdu to the file ./data/a.txt', output_callback=get_output_callback())
     assert memory_node_id == None
     assert os.path.exists(target_path)
@@ -56,7 +56,7 @@ async def test_read_file():
     with open(target_path, 'w') as f:
         f.write(content)
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    agent = Agent.default(workspace=workspace)
+    agent = NormalAgent.default(workspace=workspace)
     memory_node_id = await agent.run('what is in ./data/b.txt', output_callback=get_output_callback())
     global result
     assert 'Mount Qingcheng' in result
@@ -65,29 +65,26 @@ async def test_read_file():
         os.remove(target_path)
 
 @pytest.mark.asyncio
-async def test_tool_use():
+async def test_functions():
     if os.path.exists(workspace): shutil.rmtree(workspace)
     os.mkdir(workspace)
     serialize_path = f'{workspace}/code.bin'
     python_interpreter = PythonInterpreter(serialize_path=serialize_path)
     from GeneralAgent import skills
     python_interpreter.function_tools = [skills.scrape_web]
-    agent = Agent(workspace=workspace, output_interpreters=[RoleInterpreter(), python_interpreter])
-    memory_node_id = await agent.run("what's the tiltle of web page https://tongtianta.ai ?", output_callback=get_output_callback())
+    agent = NormalAgent(workspace=workspace)
+    agent.interpreters=[RoleInterpreter(), python_interpreter]
+    memory_node_id = await agent.run("what's the tiltle of web page https://www.baidu.com ?", output_callback=get_output_callback())
     global result
-    assert 'AI' in result
+    assert '百度' in result
     assert memory_node_id == None
     assert os.path.exists(serialize_path)
     shutil.rmtree(workspace)
 
-
-@pytest.mark.asyncio
-async def test_bash_interperter():
-    pass
 
 
 if __name__ == '__main__':
     # asyncio.run(test_math())
     # asyncio.run(test_write_file())
     # asyncio.run(test_read_file())
-    asyncio.run(test_tool_use())
+    asyncio.run(test_functions())
