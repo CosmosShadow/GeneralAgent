@@ -75,7 +75,7 @@ class SyncPythonInterpreter(Interpreter):
 
     async def prompt(self, messages) -> str:
         from GeneralAgent import skills
-        funtions = '\n'.join([skills.get_function_signature(x) for x in self.function_tools])
+        funtions = '\n\n'.join([skills.get_function_signature(x) for x in self.function_tools])
         variables = {
             'python_libs': self.python_libs,
             'python_funcs': funtions,

@@ -12,7 +12,7 @@ search_functions('scrape web page')
 ```
 
 # Note:
-- Don’t make up functions that don’t exist
+- Don't make up functions that don't exist
 - The required function does not exist, you can build it through edit_function and generate_llm_task_function
 - You can also uninstall the application according to user needs
 - edit_application_code will handle user input and output, including text and files, you don't need to care.
