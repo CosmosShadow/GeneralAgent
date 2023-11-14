@@ -147,69 +147,72 @@ def try_create_chat_name(message:Message, chat_messages):
 async def worker():
     logging.info('enter worker')
     while True:
-        message:Message = await to_thread(task_queue.get)
-        logging.info('Worker get a message')
-        chat_id = message.chat_id
-        bot_id = message.bot_id
-        msg_id = str(uuid.uuid4())
-        result = ''
-        async def _output_callback(token):
-            nonlocal result
-            nonlocal msg_id
-            if token is not None:
-                result += token
-                response:Message = message.response_template(is_token=True)
-                response.msg = token
-                response.id = msg_id
-                # await response_queue.put(response)
-                await to_thread(response_queue.put, response)
-            else:
+        try:
+            message = None
+            current_workspace_dir = None
+            message:Message = await to_thread(task_queue.get)
+            logging.info('Worker get a message')
+            chat_id = message.chat_id
+            bot_id = message.bot_id
+            msg_id = str(uuid.uuid4())
+            result = ''
+            async def _output_callback(token):
+                nonlocal result
+                nonlocal msg_id
+                if token is not None:
+                    result += token
+                    response:Message = message.response_template(is_token=True)
+                    response.msg = token
+                    response.id = msg_id
+                    # await response_queue.put(response)
+                    await to_thread(response_queue.put, response)
+                else:
+                    response:Message = message.response_template()
+                    response.msg = result
+                    response.id = msg_id
+                    await save_message(response)
+                    await to_thread(response_queue.put, response)
+                    # await response_queue.put(response)
+                    result = ''
+                    msg_id = str(uuid.uuid4())
+                    logging.info('sended message')
+
+            async def _file_callback(file_path):
+                file_path = skills.try_download_file(file_path)
                 response:Message = message.response_template()
-                response.msg = result
-                response.id = msg_id
+                response.file = file_path
                 await save_message(response)
                 await to_thread(response_queue.put, response)
-                # await response_queue.put(response)
-                result = ''
-                msg_id = str(uuid.uuid4())
-                logging.info('sended message')
+                logging.info('sended file')
 
-        async def _file_callback(file_path):
-            file_path = skills.try_download_file(file_path)
-            response:Message = message.response_template()
-            response.file = file_path
-            await save_message(response)
-            await to_thread(response_queue.put, response)
-            logging.info('sended file')
+            # async def _ui_callback(name, js_path, data={}):
+            #     """
+            #     Send UI to user, name: UI component name, js_path: js file address corresponding to UI component, data: data required by UI component
+            #     """
+            async def send_ui(component_name:str, js_path:str, data={}):
+                """
+                Send UI to user, component_name: UI component name, js_path: js file address corresponding to UI component, data: data required by UI component
+                """
+                response:Message = message.response_template()
+                response.ui = json.dumps({
+                    'name': component_name,
+                    'js': js_path,
+                    'data': data
+                })
+                await save_message(response)
+                await to_thread(response_queue.put, response)
+                logging.debug(response)
+            
+            # os.chdir(self.local_dir)
+            current_workspace_dir = os.getcwd()
+            application_module = skills.get_application_module(bot_id)
+            db.table('mesasges').clear_cache()
+            history = db.table('messages').search((Query().bot_id == bot_id) & (Query().chat_id == chat_id))[-20:]
+            chat_messages = history_to_messages(history)
 
-        # async def _ui_callback(name, js_path, data={}):
-        #     """
-        #     Send UI to user, name: UI component name, js_path: js file address corresponding to UI component, data: data required by UI component
-        #     """
-        async def send_ui(component_name:str, js_path:str, data={}):
-            """
-            Send UI to user, component_name: UI component name, js_path: js file address corresponding to UI component, data: data required by UI component
-            """
-            response:Message = message.response_template()
-            response.ui = json.dumps({
-                'name': component_name,
-                'js': js_path,
-                'data': data
-            })
-            await save_message(response)
-            await to_thread(response_queue.put, response)
-            logging.debug(response)
+            try_create_chat_name(message, chat_messages)
+
         
-        # os.chdir(self.local_dir)
-        current_workspace_dir = os.getcwd()
-        application_module = skills.get_application_module(bot_id)
-        db.table('mesasges').clear_cache()
-        history = db.table('messages').search((Query().bot_id == bot_id) & (Query().chat_id == chat_id))[-20:]
-        chat_messages = history_to_messages(history)
-
-        try_create_chat_name(message, chat_messages)
-
-        try:
             # data_dir = os.path.join(os.getcwd(), 'data', bot_id, chat_id)
             data_dir = get_chat_dir(bot_id, chat_id)
             if not os.path.exists(data_dir):
@@ -232,14 +235,16 @@ async def worker():
                 await to_thread(response_queue.put, response)
         except Exception as e:
             logging.exception(e)
-            response = message.response_template()
-            response.msg = str(e)
-            await save_message(response)
-            await to_thread(response_queue.put, response)
+            if message is not None:
+                response = message.response_template()
+                response.msg = str(e)
+                await save_message(response)
+                await to_thread(response_queue.put, response)
         finally:
-            os.chdir(current_workspace_dir)
-
-        task_queue.task_done()
+            if message is not None:
+                task_queue.task_done()
+            if current_workspace_dir is not None:
+                os.chdir(current_workspace_dir)
 
 @app.on_event("startup")
 async def startup_event():

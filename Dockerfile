@@ -1,11 +1,12 @@
 FROM general-agent-base:latest
 
+WORKDIR /workspace
+
 # install requirements
 ADD ./requirements.txt ./requirements.txt
 RUN pip install -r ./requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 # copy source
-WORKDIR /workspace
 RUN chmod -R a+w /workspace
 ADD GeneralAgent ./GeneralAgent
 ADD webui/server ./webui/server

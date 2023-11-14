@@ -26,5 +26,5 @@ replicate
 edge-tts
 pydub
 tinydb
-chromadb==0.4.7
+chromadb
 python-multipart

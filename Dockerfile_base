@@ -38,6 +38,16 @@ RUN npm install -g serve
 # ffmpeg
 RUN apt install ffmpeg -y
 
+# upgrade sqlite3
+RUN wget https://www.sqlite.org/2023/sqlite-autoconf-3440000.tar.gz && \
+    tar xvfz sqlite-autoconf-3440000.tar.gz && \
+    cd sqlite-autoconf-3440000 && \
+    ./configure --prefix=/usr && \
+    make -j 4&& \
+    make install && \
+    cd ..
+ENV LD_LIBRARY_PATH=/usr/lib
+
 # install requirements
 ADD ./requirements.txt ./requirements.txt
 RUN pip install -r ./requirements.txt -i https://mirrors.aliyun.com/pypi/simple/

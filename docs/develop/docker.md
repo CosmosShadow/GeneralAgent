@@ -79,6 +79,7 @@ docker run \
 -p 3000:3000 \
 -p 7777:7777 \
 -v `pwd`/.env:/workspace/.env \
+-v `pwd`/data:/workspace/data \
 --name=agent \
 --privileged=true \
 -d general-agent
@@ -89,6 +90,7 @@ docker run \
 -p 3000:3000 \
 -p 7777:7777 \
 -E "OPENAI_API_KEY=xxxx" \
+-v `pwd`/data:/workspace/data \
 --name=agent \
 --privileged=true \
 -d general-agent
@@ -98,7 +100,13 @@ docker run \
 -p 3000:3000 \
 -p 7777:7777 \
 -v `pwd`/.env:/workspace/.env \
+-v `pwd`/data:/workspace/data \
 --name=agent \
 --privileged=true \
 -d general-agent
+```
+
+## Stop
+```bash
+docker stop agent && docker rm agent
 ```
