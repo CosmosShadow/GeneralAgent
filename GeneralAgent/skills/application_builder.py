@@ -108,9 +108,9 @@ def create_application_icon(application_description:str) -> None:
 
 def edit_application_code(task_description:str) -> None:
     """
+    edit_application_code is an Agent. You just tell it what will be done and vailable functions, it will generate a python function to complete the task.
     Edit agent code by task_description. task description should be a string and include the detail of task, and what functions can be used. 
-    The code for handle user's input and output is already exist, you just need to write the core code to complete the task.
-    task_description example: "use skills.image_generation(prompt) generate a image with prompt (in english), return a image url\nskills.translate_text(xxx) to create a image creation Agent"
+    task_description example: "Create a image creation agent. Available functions:\n\nskills.image_generation(prompt) generate a image with prompt (in english), return a image url\n\nskills.translate_text(content, target_language)"
     """
     import os
     code_path = os.path.join(get_code_dir(),  'main.py')
