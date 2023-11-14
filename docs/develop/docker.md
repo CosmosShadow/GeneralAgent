@@ -70,7 +70,35 @@ npm run start
 serve -s build
 ```
 
-## Develop with docker
-```bash
+## Run Docker Image
 
+```bash
+# Run on Mac ARM
+docker run \
+--platform linux/amd64 \
+-p 3000:3000 \
+-p 7777:7777 \
+-v `pwd`/.env:/workspace/.env \
+--name=agent \
+--privileged=true \
+-d general-agent
+
+# or 
+docker run \
+--platform linux/amd64 \
+-p 3000:3000 \
+-p 7777:7777 \
+-E "OPENAI_API_KEY=xxxx" \
+--name=agent \
+--privileged=true \
+-d general-agent
+
+# Run on other
+docker run \
+-p 3000:3000 \
+-p 7777:7777 \
+-v `pwd`/.env:/workspace/.env \
+--name=agent \
+--privileged=true \
+-d general-agent
 ```

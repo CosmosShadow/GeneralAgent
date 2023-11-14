@@ -18,4 +18,4 @@ ENV PYTHONPATH=/workspace:$PYTHONPATH
 ADD ./start.sh ./start.sh
 RUN chmod +x ./start.sh
 
-CMD [ "./start.sh" ]
+CMD [ "bash", "./start.sh" ]
