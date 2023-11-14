@@ -27,7 +27,6 @@ class SyncPythonInterpreter(Interpreter):
 
     python_prompt_template = """
 # Run python
-* Remember use print() to output
 * format is : ```python\\nthe_code\\n```
 * the code will be executed
 * python version is {{python_version}}
@@ -153,7 +152,7 @@ class SyncPythonInterpreter(Interpreter):
         self.save()
 
     @classmethod
-    def add_print(cls, code_string):
+    def add_print_old(cls, code_string):
         pattern = r'^(\s*)(\w+)(\s*)$'
         lines = code_string.split('\n')
         for i, line in enumerate(lines):
@@ -164,7 +163,18 @@ class SyncPythonInterpreter(Interpreter):
             if match:
                 lines[i] = f'{match.group(1)}print({match.group(2)}){match.group(3)}'
         return '\n'.join(lines)
-
+    
+    @classmethod
+    def add_print(cls, code_string):
+        from GeneralAgent import skills
+        code = code_string.strip()
+        lines = code.split('\n')
+        if len(lines) > 0:
+            last_line = lines[-1]
+            if skills.python_line_is_variable_expression(last_line):
+                last_line = f'print({last_line})'
+                lines[-1] = last_line
+        return '\n'.join(lines)
 
 def _remove_unpickleable(namespace):
     import pickle
@@ -222,16 +232,6 @@ class AsyncPythonInterpreter(SyncPythonInterpreter):
 
     python_prompt_template = """
 # Run python
-- Remember use print() to show or output, otherwise it will not be shown. code like below is wrong.
-```python
-a = 10
-a
-```
-code like below is right: 
-```python
-a = 10
-print(a)
-```
 - format is : ```python\\nthe_code\\n```
 - the code will be executed
 - python version is {{python_version}}
