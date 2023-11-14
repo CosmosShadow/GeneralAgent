@@ -1,3 +1,4 @@
+fastapi
 requests
 tinydb
 openai
@@ -11,3 +12,19 @@ python-pptx
 python-docx
 yfinance
 beautifulsoup4
+python-dotenv
+uvicorn
+pytest
+tiktoken
+httpx
+pulsar-client
+pymongo
+websocket-client-py3
+websockets
+pypdf
+replicate
+edge-tts
+pydub
+tinydb
+chromadb==0.4.7
+python-multipart

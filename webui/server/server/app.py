@@ -26,8 +26,13 @@ from GeneralAgent import skills
 from GeneralAgent.utils import set_logging_level, get_server_dir, get_applications_data_dir
 set_logging_level(os.environ.get('LOG_LEVEL', 'ERROR'))
 
-
-
+import contextvars
+import functools
+async def to_thread(func, /, *args, **kwargs):
+    loop = asyncio.get_running_loop()
+    ctx = contextvars.copy_context()
+    func_call = functools.partial(ctx.run, func, *args, **kwargs)
+    return await loop.run_in_executor(None, func_call)
 
 @dataclass
 class Chat():
@@ -142,7 +147,7 @@ def try_create_chat_name(message:Message, chat_messages):
 async def worker():
     logging.info('enter worker')
     while True:
-        message:Message = await asyncio.to_thread(task_queue.get)
+        message:Message = await to_thread(task_queue.get)
         logging.info('Worker get a message')
         chat_id = message.chat_id
         bot_id = message.bot_id
@@ -157,13 +162,13 @@ async def worker():
                 response.msg = token
                 response.id = msg_id
                 # await response_queue.put(response)
-                await asyncio.to_thread(response_queue.put, response)
+                await to_thread(response_queue.put, response)
             else:
                 response:Message = message.response_template()
                 response.msg = result
                 response.id = msg_id
                 await save_message(response)
-                await asyncio.to_thread(response_queue.put, response)
+                await to_thread(response_queue.put, response)
                 # await response_queue.put(response)
                 result = ''
                 msg_id = str(uuid.uuid4())
@@ -174,7 +179,7 @@ async def worker():
             response:Message = message.response_template()
             response.file = file_path
             await save_message(response)
-            await asyncio.to_thread(response_queue.put, response)
+            await to_thread(response_queue.put, response)
             logging.info('sended file')
 
         # async def _ui_callback(name, js_path, data={}):
@@ -192,7 +197,7 @@ async def worker():
                 'data': data
             })
             await save_message(response)
-            await asyncio.to_thread(response_queue.put, response)
+            await to_thread(response_queue.put, response)
             logging.debug(response)
         
         # os.chdir(self.local_dir)
@@ -218,19 +223,19 @@ async def worker():
                     response.msg = result
                     response.id = msg_id
                     await save_message(response)
-                    await asyncio.to_thread(response_queue.put, response)
+                    await to_thread(response_queue.put, response)
             else:
                 response = message.response_template()
                 response.msg = 'application load error'
                 await save_message(response)
                 # await response_queue.put(response)
-                await asyncio.to_thread(response_queue.put, response)
+                await to_thread(response_queue.put, response)
         except Exception as e:
             logging.exception(e)
             response = message.response_template()
             response.msg = str(e)
             await save_message(response)
-            await asyncio.to_thread(response_queue.put, response)
+            await to_thread(response_queue.put, response)
         finally:
             os.chdir(current_workspace_dir)
 
@@ -259,7 +264,7 @@ async def save_message(message:Message):
 async def listen_message(websocket: WebSocket) -> None:
     while True:
         # message = await response_queue.get()
-        message:Message = await asyncio.to_thread(response_queue.get)
+        message:Message = await to_thread(response_queue.get)
         await websocket.send_text(message.to_text())
         response_queue.task_done()
 
@@ -282,7 +287,7 @@ async def websocket_user_endpoint(websocket: WebSocket):
                     message.role = 'user'
                     await save_message(message)
                     await websocket.send_text(message.to_text())
-                    await asyncio.to_thread(task_queue.put, message)
+                    await to_thread(task_queue.put, message)
                     # await task_queue.put(message)
     except Exception as e:
         if isinstance(e, WebSocketDisconnect):
