@@ -5,12 +5,13 @@ import os
 class NormalMemory:
     def __init__(self, serialize_path='./memory.json'):
         self.messages = []
+        self.serialize_path = serialize_path
         if os.path.exists(serialize_path):
             with open(serialize_path, 'r') as f:
                 self.messages = json.load(f)
 
     def save(self):
-        with open('./memory.json', 'w') as f:
+        with open(self.serialize_path, 'w') as f:
             json.dump(self.messages, f)
 
     def add_message(self, role, content):
@@ -28,3 +29,14 @@ class NormalMemory:
 
     def get_messages(self):
         return self.messages
+    
+
+def test_NormalMemory():
+    serialize_path = './memory.json'
+    mem = NormalMemory(serialize_path=serialize_path)
+    mem.add_message('user', 'hello')
+    mem.add_message('assistant', 'hi')
+    mem = NormalMemory(serialize_path=serialize_path)
+    assert len(mem.get_messages()) == 2
+    mem.append_message('assistant', 'hi')
+    assert len(mem.get_messages()) == 2
