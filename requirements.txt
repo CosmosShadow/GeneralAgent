@@ -1,7 +1,7 @@
 fastapi
 requests
 tinydb
-openai
+openai==0.27.6
 jinja2
 numpy
 bs4

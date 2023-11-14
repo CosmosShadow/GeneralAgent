@@ -1,56 +1,19 @@
-FROM ubuntu:18.04
+FROM general-agent-base:latest
 
-RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
-    sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
-    apt-get update && apt-get install -y \
-    libgl1-mesa-glx libglib2.0-dev \
-    build-essential \
-    cmake \
-    wget \
-    curl \
-    unzip \
-    ca-certificates \
-    libjpeg-dev \
-    libpng-dev \
-    libopenblas-dev \
-    libatlas-base-dev \
-    gdebi-core
-
-RUN apt-get update && apt-get install -y software-properties-common gcc && \
-    add-apt-repository -y ppa:deadsnakes/ppa
-ARG DEBIAN_FRONTEND=noninteractive
-
-WORKDIR /tmp/
-
-# python3.8
-RUN apt-get update &&apt-get install -y python3.8 python3.8-distutils
-RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3.8 get-pip.py && rm get-pip.py
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.8 10
-
-# python3.8 compile env
-RUN apt-get update && apt-get install -y python3.8-dev
-
-# install node、npm
-RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash -
-RUN apt-get update && apt-get install -y nodejs
-RUN npm install -g serve
-
-# ffmpeg
-# RUN apt install ffmpeg -y
+# install requirements
+ADD ./requirements.txt ./requirements.txt
+RUN pip install -r ./requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 # copy source
 WORKDIR /workspace
 RUN chmod -R a+w /workspace
 ADD GeneralAgent ./GeneralAgent
-ADD webui ./webui
+ADD webui/server ./webui/server
+ADD webui/web/build ./webui/web/build
 RUN mkdir ./data
 
 # /workspace添加到python环境变量
 ENV PYTHONPATH=/workspace:$PYTHONPATH
-
-# install requirements
-ADD ./requirements.txt ./requirements.txt
-RUN pip install -r ./requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 ADD ./start.sh ./start.sh
 RUN chmod +x ./start.sh
