@@ -16,7 +16,7 @@ async def main(chat_history, input, file_path, output_callback, file_callback, s
     agent = Agent(workspace)
     python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
     python_interpreter.function_tools = functions
-    agent.interpreters = [RoleInterpreter(), python_interpreter, AppleScriptInterpreter(), ShellInterpreter(), UIInterpreter(send_ui)]
+    agent.interpreters = [RoleInterpreter(), python_interpreter, AppleScriptInterpreter(), ShellInterpreter(), UIInterpreter(send_ui, output_callback)]
     # agent.model_type = 'smart'
 
     input_content = input

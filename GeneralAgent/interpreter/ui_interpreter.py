@@ -24,12 +24,13 @@ export default LibTemplate;
 ```
 """
 
-    def __init__(self, send_ui, workspace=None) -> None:
+    def __init__(self, send_ui, output_callback, workspace=None) -> None:
         """
         :param send_ui: the async function to send ui to user
         :param workspace: workspace for the interpreter
         """
         self.send_ui = send_ui
+        self.output_callback = output_callback
         self.workspace = workspace
 
     async def prompt(self, messages) -> str:
@@ -42,10 +43,9 @@ export default LibTemplate;
         assert match is not None
         code = match.group(1)
         lib_name, js_path = skills.parse_tsx_to_ui(code, save_dir=self.workspace)
-        if self.send_ui is not None:
-            async def delay_send_ui(lib_name, js_path):
-                await asyncio.sleep(0.5)
-                await self.send_ui(lib_name, js_path)
-            asyncio.create_task(delay_send_ui(lib_name, js_path))
-            print('Send UI to user successfuly.')
-        return 'Send UI successfully', True
+        # Terminate the output callback
+        await self.output_callback(None)
+        # Send UI to user
+        await self.send_ui(lib_name, js_path)
+        print('Send UI to user successfuly.')
+        return '', True

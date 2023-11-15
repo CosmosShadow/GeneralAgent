@@ -75,8 +75,9 @@ export default MyLibrary;
 
 def test_compile_tsx():
     from GeneralAgent import skills
+    lib_name = 'LibTest'
     target_dir = './data/ui/'
-    success = skills.compile_tsx(code, target_dir)
+    success = skills.compile_tsx(lib_name, code, target_dir)
     assert success
 
 def test_create_ui():
@@ -90,5 +91,5 @@ def test_create_ui():
     assert lib_name in js_path
 
 if __name__ == '__main__':
-    # test_compile_tsx()
-    test_create_ui()
+    test_compile_tsx()
+    # test_create_ui()
