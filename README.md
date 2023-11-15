@@ -1,7 +1,7 @@
 <h1 align="center">GeneralAgent: From LLM to Agent</h1>
 <p align="center">
 <a href="README.md"><img src="https://img.shields.io/badge/document-English-blue.svg" alt="EN doc"></a>
-<a href="README_CN.md"><img src="https://img.shields.io/badge/文档-中文版-blue.svg" alt="CN doc"></a>
+<!-- <a href="README_CN.md"><img src="https://img.shields.io/badge/文档-中文版-blue.svg" alt="CN doc"></a> -->
 <img src="https://img.shields.io/static/v1?label=license&message=MIT&color=white&style=flat" alt="License"/>
 </p>
 <p align='center'>
@@ -11,17 +11,26 @@ A simple, general, customizable Agent framework
 
 ## Features
 
-* Simple、Fast、Stable: stable with GPT3.5.
-* GeneralAgent support serialization, include python state.
+* Simple、Fast、Stable: **stable with GPT3.5**.
+* GeneralAgent support **serialization**, include **python state**.
 * Build-in interpreters: Python, AppleScript, Shell, File, Plan, Retrieve Embedding etc.
-* Dynamic UI: Agent can create dynamic ui to user who can use.
-* WebUI with agent builder. You can use natural language to create agent without coding.
+* **Dynamic UI**: Agent can create dynamic ui to user who can use.
+* **WebUI with agent builder**. You can use natural language to create agent without coding.
 
 
 
 ## Architecture
 
-![Architecture](./docs/images/Architecture.png)
+**GeneralAgent**
+
+![Architecture](./docs/images/Architecture_2023.11.15.png)
+
+**WebUI**
+
+<p align="center">
+<img src="./docs/images/webui_2023.11.15.png" alt="WebUI" width=600/>
+</p>
+
 
 
 
