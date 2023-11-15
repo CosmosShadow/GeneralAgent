@@ -2,21 +2,20 @@
 import re
 import asyncio
 from GeneralAgent.agent import Agent
-from GeneralAgent.interpreter import Interpreter
+from GeneralAgent.interpreter import Interpreter, RoleInterpreter
 from GeneralAgent.utils import confirm_to_run
 
 python_prompt = """
 # Run python
-* Remember use print() to output
 * format is : ```python\\nthe_code\\n```
 * the code will be executed
 * python version is 3.9
 """
 
-class BasicPythonInterpreter(Interpreter):
-    @property
-    def match_template(self) -> bool:
-        return  r'```python\n([\s\S]*)\n```'
+class CustomPythonInterpreter(Interpreter):
+    input_match_pattern = None
+    output_match_start_pattern = '```python\n'
+    output_match_pattern = '```python\n(.*?)\n```'
 
     def parse(self, string) -> (str, bool):
         pattern = re.compile(self.match_template, re.DOTALL)
@@ -28,12 +27,9 @@ class BasicPythonInterpreter(Interpreter):
     def prompt(self, messages) -> str:
         return python_prompt
 
-    def output_match(self, string) -> bool:
-        super().match(string)
-
-
 async def main():
-    agent = Agent(output_interpreters=[BasicPythonInterpreter()])
+    agent = Agent()
+    agent.interpreters = [RoleInterpreter(), CustomPythonInterpreter()]
     while True:
         input_content = input('>>>')
         await agent.run(input_content)

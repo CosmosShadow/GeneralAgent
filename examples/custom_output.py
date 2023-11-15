@@ -9,7 +9,7 @@ async def custom_output(token):
         print(token, end='', flush=True)
 
 async def main():
-    agent = Agent.default('./basic')
+    agent = Agent.default()
     while True:
         input_content = input('>>>')
         await agent.run(input_content, output_callback=custom_output)
