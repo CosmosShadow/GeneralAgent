@@ -21,6 +21,7 @@ def test_parse_command():
 
 
 def test_write_read():
+    import os
     interpreter = FileInterpreter()
     target_path = './data/a.txt'
     if os.path.exists(target_path):

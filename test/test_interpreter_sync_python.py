@@ -5,14 +5,12 @@ def test_python_interpreter():
     # test add print
     code = """
 x = a + b
-x
-"""
+x"""
     code = SyncPythonInterpreter.add_print(code)
     print(code)
     assert code == """
 x = a + b
-print(x)
-"""
+print(x)"""
     # test run
     serialize_path = './data/test_interpreter.bin'
     if os.path.exists(serialize_path): os.remove(serialize_path)

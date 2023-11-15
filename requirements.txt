@@ -28,3 +28,4 @@ pydub
 tinydb
 chromadb
 python-multipart
+pytest-asyncio>=0.21.1

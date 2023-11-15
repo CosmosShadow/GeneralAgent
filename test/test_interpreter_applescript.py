@@ -3,9 +3,13 @@ from GeneralAgent.interpreter import AppleScriptInterpreter
 def test_match():
     content = """```\napplescript\nxxxx\n```"""
     interpreter = AppleScriptInterpreter()
-    assert interpreter.match(content)
+    assert interpreter.output_match(content)
 
 def test_open_url():
+    import platform
+    system = platform.system()
+    if system != 'Darwin':
+        return
     interpreter = AppleScriptInterpreter()
     content = """```applescript
 tell application "Safari"
@@ -13,7 +17,7 @@ tell application "Safari"
     open location "https://www.google.com"
 end tell
 ```"""
-    output, is_stop = interpreter.parse(content)
+    output, is_stop = interpreter.output_parse(content)
     assert is_stop is False
     assert output.strip() == 'run successfully'
 

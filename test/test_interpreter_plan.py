@@ -11,7 +11,7 @@ def test_structure_plan():
 2.xxx
 
 """
-    plan_dict = PlanInterpreter.structure_plan(content)
+    plan_dict = PlanInterpreter._structure_plan(content)
     assert len(plan_dict) == 2
     key0 = list(plan_dict.keys())[0]
     key1 = list(plan_dict.keys())[1]
@@ -36,7 +36,7 @@ def test_plan_interpreter():
 
 ```
 """
-    output, is_stop = interpreter.parse(content)
+    output, is_stop = interpreter.input_parse(content)
     assert output == content
     assert is_stop is False
     assert memory.node_count() == 4
