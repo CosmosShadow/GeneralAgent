@@ -1,69 +1,35 @@
 # Work with docker
 
-## setting
+## Build
 
 ```bash
-# support multi arches
+# setting
 docker buildx create --use
-```
 
-## Build Base Docker
+# build base image
+docker buildx build --platform linux/amd64,linux/arm64 -f ./Dockerfile_base -t cosmosshadow/general-agent-base:0.0.1 . --push
 
-```bash
-# Mac build
-docker buildx build \
---platform linux/amd64 \
--f ./Dockerfile_base \
--t general-agent-base .
-
-# Other build
-docker build \
--f ./Dockerfile_base \
--t general-agent-base .
-
-docker buildx build --platform linux/amd64,linux/arm64 -f ./Dockerfile_base -t general-agent-base .
-```
-
-## Build Docker Image
-
-```bash
 # build web
 cd webui/web && npm run build && cd ../../
 
-# Mac build
-docker buildx build \
---platform linux/amd64 \
--f ./Dockerfile \
--t general-agent .
+# build general-agent with amd64 and arm64
+docker buildx build --platform linux/amd64,linux/arm64 -f ./Dockerfile -t cosmosshadow/general-agent:0.0.1 . --push
 
-# Other build
-docker build \
--f ./Dockerfile \
--t general-agent .
+# build general-agent-local
+docker build -f ./Dockerfile -t cosmosshadow/general-agent-local:0.0.1 .
 ```
 
 ## Develop
 ```bash
 # Mac run
 docker run \
---platform linux/amd64 \
 -p 3000:3000 \
 -p 7777:7777 \
 --name=agent \
 --privileged=true \
 -v `pwd`:/workspace \
 --rm=true \
--it general-agent /bin/bash
-
-# Other run
-docker run \
--p 3000:3000 \
--p 7777:7777 \
---name=agent \
---privileged=true \
--v `pwd`:/workspace \
---rm=true \
--it general-agent /bin/bash
+-it cosmosshadow/general-agent:0.0.1 /bin/bash
 
 # run server
 export $(grep -v '^#' /workspace/.env | sed 's/^export //g' | xargs)
@@ -79,21 +45,20 @@ npm run start
 serve -s build
 ```
 
-## Run Docker Image
+## Run
 
 ```bash
-# Run on Mac ARM
+# Run with .env file
 docker run \
---platform linux/amd64 \
 -p 3000:3000 \
 -p 7777:7777 \
 -v `pwd`/.env:/workspace/.env \
 -v `pwd`/data:/workspace/data \
 --name=agent \
 --privileged=true \
--d general-agent
+-d cosmosshadow/general-agent:0.0.1
 
-# or 
+# RUN with ENV
 docker run \
 --platform linux/amd64 \
 -p 3000:3000 \
@@ -102,20 +67,8 @@ docker run \
 -v `pwd`/data:/workspace/data \
 --name=agent \
 --privileged=true \
--d general-agent
+-d cosmosshadow/general-agent:0.0.1
 
-# Run on other
-docker run \
--p 3000:3000 \
--p 7777:7777 \
--v `pwd`/.env:/workspace/.env \
--v `pwd`/data:/workspace/data \
---name=agent \
---privileged=true \
--d general-agent
-```
-
-## Stop
-```bash
+# Stop
 docker stop agent && docker rm agent
 ```

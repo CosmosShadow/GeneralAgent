@@ -10,22 +10,26 @@ A simple, general, customizable Agent framework
 
 ![Architecture](./docs/images/Architecture.png)
 
+
+
+## Features
+
 * From LLM to Agent
     * Let a single LLM knows everything what's happening.
     * thoughts become actions in nature and immediately.
     * receive the information from the outside world, and then decide what to do immediately.
-* GPT-3.5 run stably.
+* GPT-3.5 run stably
 * Support customization by customizing interpreters, role system prompt and tools.
 * Support serialization.
 * Build-in interpreters: Python, AppleScript, Shell, File, Plan, Retrieve etc.
-* Build-in tools: google search, wikipedia_search, scrabe web.
+
+
 
 
 ## Demo
 
-
-
 https://github.com/CosmosShadow/GeneralAgent/assets/13933465/9d9b4d6b-0c9c-404d-87d8-7f8e03f3772b
+
 
 
 
@@ -44,6 +48,7 @@ git clone https://github.com/CosmosShadow/GeneralAgent
 cd GeneralAgent
 python setup.py install
 ```
+
 
 
 ## Usage
