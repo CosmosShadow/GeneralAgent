@@ -3,7 +3,6 @@ import re
 from .interpreter import Interpreter
 import chromadb
 import logging
-from GeneralAgent.llm import embedding_batch
 
 class EmbeddingRetrieveInterperter(Interpreter):
     """
@@ -27,7 +26,7 @@ class EmbeddingRetrieveInterperter(Interpreter):
         querys = []
         for x in messages[-self.useful_msg_count:]:
             querys += skills.split_text(x['content'], 200)
-        query_embeddings = embedding_batch(querys)
+        query_embeddings = skills.embedding_batch(querys)
         result = self.collection.query(
             query_embeddings=query_embeddings,
             n_results=2,
@@ -61,7 +60,7 @@ class EmbeddingRetrieveInterperter(Interpreter):
             paragraphs = skills.split_text(skills.read_file_content(file_path), max_token=300)
             if len(paragraphs) > 0:
                 information.append(f'The content of file {file_path} is: ' + '\n'.join(paragraphs)[:100] + '\n......')
-            embeddings = embedding_batch(paragraphs)
+            embeddings = skills.embedding_batch(paragraphs)
             logging.debug(paragraphs[:2])
             logging.debug(embeddings[:2])
             self.collection.add(

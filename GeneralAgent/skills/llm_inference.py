@@ -88,6 +88,15 @@ def embedding_batch(texts) -> [[float]]:
     return [embeddings[text] for text in texts]
 
 
+def cos_sim(a, b):
+    import numpy as np
+    from numpy.linalg import norm
+    # This function calculates the cosine similarity (scalar value) between two input vectors 'a' and 'b' (1-D array object), and return the similarity.
+    a = a if isinstance(a, np.ndarray) else np.array(a)
+    b = b if isinstance(b, np.ndarray) else np.array(b)
+    return np.dot(a, b)/(norm(a)*norm(b))
+
+
 def search_similar_texts(focal:str, texts:[str], top_k=5):
     """
     search the most similar texts in texts, and return the top_k similar texts

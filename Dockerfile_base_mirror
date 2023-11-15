@@ -1,6 +1,8 @@
 FROM ubuntu:18.04
 
-RUN apt-get update && apt-get install -y \
+RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+    sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+    apt-get update && apt-get install -y \
     libgl1-mesa-glx libglib2.0-dev \
     build-essential \
     cmake \
@@ -48,7 +50,7 @@ ENV LD_LIBRARY_PATH=/usr/lib
 
 # install requirements
 ADD ./requirements.txt ./requirements.txt
-RUN pip install -r ./requirements.txt
+RUN pip install -r ./requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 # /workspace添加到python环境变量
 ENV PYTHONPATH=/workspace:$PYTHONPATH

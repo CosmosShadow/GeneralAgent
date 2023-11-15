@@ -1,5 +1,12 @@
 # Work with docker
 
+## setting
+
+```bash
+# support multi arches
+docker buildx create --use
+```
+
 ## Build Base Docker
 
 ```bash
@@ -13,6 +20,8 @@ docker buildx build \
 docker build \
 -f ./Dockerfile_base \
 -t general-agent-base .
+
+docker buildx build --platform linux/amd64,linux/arm64 -f ./Dockerfile_base -t general-agent-base .
 ```
 
 ## Build Docker Image
