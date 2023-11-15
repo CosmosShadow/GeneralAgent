@@ -159,7 +159,7 @@ async def worker():
             async def _output_callback(token):
                 nonlocal result
                 nonlocal msg_id
-                if token is not None:
+                if token is not None and len(token) > 0:
                     result += token
                     response:Message = message.response_template(is_token=True)
                     response.msg = token
