@@ -167,15 +167,16 @@ async def worker():
                     # await response_queue.put(response)
                     await to_thread(response_queue.put, response)
                 else:
-                    response:Message = message.response_template()
-                    response.msg = result
-                    response.id = msg_id
-                    await save_message(response)
-                    await to_thread(response_queue.put, response)
-                    # await response_queue.put(response)
-                    result = ''
-                    msg_id = str(uuid.uuid4())
-                    logging.info('sended message')
+                    if len(result.strip()) > 0:
+                        response:Message = message.response_template()
+                        response.msg = result
+                        response.id = msg_id
+                        await save_message(response)
+                        await to_thread(response_queue.put, response)
+                        # await response_queue.put(response)
+                        result = ''
+                        msg_id = str(uuid.uuid4())
+                        logging.info('sended message')
 
             async def _file_callback(file_path):
                 file_path = skills.try_download_file(file_path)
@@ -221,7 +222,7 @@ async def worker():
             if application_module is not None:
                 file = None if message.file == '' else message.file
                 await application_module.main(chat_messages, message.msg, file, _output_callback, _file_callback, send_ui)
-                if len(result) > 0:
+                if len(result.strip()) > 0:
                     response = message.response_template()
                     response.msg = result
                     response.id = msg_id
