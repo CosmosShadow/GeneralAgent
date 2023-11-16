@@ -21,7 +21,7 @@ docker build -f ./Dockerfile -t cosmosshadow/general-agent-local:0.0.1 .
 
 ## Develop
 ```bash
-# Mac run
+# run docker
 docker run \
 -p 3000:3000 \
 -p 7777:7777 \

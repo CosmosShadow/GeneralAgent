@@ -151,6 +151,19 @@ async def worker():
             message = None
             current_workspace_dir = None
             message:Message = await to_thread(task_queue.get)
+            # try:
+            #     # logging.info('Worker waiting for a message')
+            #     message: Message = await asyncio.wait_for(to_thread(task_queue.get), timeout=5.0)
+            # except asyncio.TimeoutError:
+            #     logging.info('Worker waiting for a message timed out.')
+            #     continue
+            # while True:  # Add a loop here
+            #     try:
+            #         message: Message = await asyncio.wait_for(to_thread(task_queue.get), timeout=5.0)
+            #         break  # If the message is successfully got, break the loop
+            #     except asyncio.TimeoutError:
+            #         logging.info('Worker waiting for a message timed out.')
+            
             logging.info('Worker get a message')
             chat_id = message.chat_id
             bot_id = message.bot_id
@@ -159,7 +172,7 @@ async def worker():
             async def _output_callback(token):
                 nonlocal result
                 nonlocal msg_id
-                if token is not None and len(token) > 0:
+                if token is not None:
                     result += token
                     response:Message = message.response_template(is_token=True)
                     response.msg = token
@@ -293,6 +306,7 @@ async def websocket_user_endpoint(websocket: WebSocket):
                     message.role = 'user'
                     await save_message(message)
                     await websocket.send_text(message.to_text())
+                    logging.info('Websocket sended message')
                     await to_thread(task_queue.put, message)
                     # await task_queue.put(message)
     except Exception as e:
