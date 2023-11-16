@@ -1,5 +1,6 @@
 import os
 import asyncio
+import random
 from pydantic import BaseModel
 from fastapi import FastAPI, WebSocket, Depends, File, UploadFile, HTTPException, WebSocketDisconnect, Query, Request, BackgroundTasks, Form, Path
 from fastapi.responses import RedirectResponse, Response, FileResponse
@@ -150,20 +151,15 @@ async def worker():
         try:
             message = None
             current_workspace_dir = None
-            message:Message = await to_thread(task_queue.get)
-            # try:
-            #     # logging.info('Worker waiting for a message')
-            #     message: Message = await asyncio.wait_for(to_thread(task_queue.get), timeout=5.0)
-            # except asyncio.TimeoutError:
-            #     logging.info('Worker waiting for a message timed out.')
-            #     continue
-            # while True:  # Add a loop here
-            #     try:
-            #         message: Message = await asyncio.wait_for(to_thread(task_queue.get), timeout=5.0)
-            #         break  # If the message is successfully got, break the loop
-            #     except asyncio.TimeoutError:
-            #         logging.info('Worker waiting for a message timed out.')
-            
+            # message:Message = await to_thread(task_queue.get)
+            while True:  # Add a loop here
+                try:
+                    message: Message = await to_thread(task_queue.get_nowait)
+                    break  # If the message is successfully got, break the loop
+                except queue.Empty:
+                    # if random.random() < 0.01:
+                    #     logging.info('Worker waiting for a message.')
+                    await asyncio.sleep(0)  # Wait for a while before the next attempt
             logging.info('Worker get a message')
             chat_id = message.chat_id
             bot_id = message.bot_id
@@ -283,9 +279,17 @@ async def save_message(message:Message):
 async def listen_message(websocket: WebSocket) -> None:
     while True:
         # message = await response_queue.get()
-        message:Message = await to_thread(response_queue.get)
-        await websocket.send_text(message.to_text())
-        response_queue.task_done()
+        # message:Message = await to_thread(response_queue.get)
+        # await websocket.send_text(message.to_text())
+        # response_queue.task_done()
+        try:
+            message: Message = await to_thread(response_queue.get_nowait)
+            await websocket.send_text(message.to_text())
+            response_queue.task_done()
+        except queue.Empty:
+            # if random.random() < 0.01:
+            #     logging.info('Socket waiting for a message.')
+            await asyncio.sleep(0)
 
 
 @app.websocket("/ws/user/")
