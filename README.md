@@ -105,10 +105,12 @@ localhost:3000
 ```
 
 
-
 ### Terminal
 
 ```bash
+# Setting enviroment
+export OPENAI_API_KEY='xxxx'
+# RUn
 GeneralAgent
 ```
 
@@ -124,6 +126,11 @@ GeneralAgent --workspace ./test --new --auto_run
 
 
 ### Python
+
+# Setting enviroment
+```bash
+export OPENAI_API_KEY='xxxx'
+```
 
 * [examples](examples)
 * [webui/server/server/applications](webui/server/server/applications)
