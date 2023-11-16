@@ -46,7 +46,7 @@ class Skills:
         if name.startswith('_'):
             object.__setattr__(self, name, value)
         else:
-            raise ValueError('The code should not run')
+            self._local_funs[name] = value
 
     def __getattr__(self, name):
         if name.startswith('_'):

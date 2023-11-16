@@ -189,7 +189,8 @@ def simple_llm_inference(messages, json_schema=None):
     Note:
     The total number of tokens in the messages and the returned string must be less than 16000.
     """
-    return llm_inference(messages, json_schema=json_schema)
+    from GeneralAgent import skills
+    return skills.llm_inference(messages, json_schema=json_schema)
 
 
 @_retry(stop_max_attempt_number=3)
