@@ -14,9 +14,10 @@ cd webui/web && npm run build && cd ../../
 
 # build general-agent with amd64 and arm64
 docker buildx build --platform linux/amd64,linux/arm64 -f ./Dockerfile -t cosmosshadow/general-agent:0.0.5 . --push
+docker buildx build --platform linux/amd64,linux/arm64 -f ./Dockerfile -t cosmosshadow/general-agent:latest . --push
 
 # build general-agent-local
-docker build -f ./Dockerfile -t cosmosshadow/general-agent-local:0.0.1 .
+docker build -f ./Dockerfile -t cosmosshadow/general-agent-local:0.0.5 .
 ```
 
 ## Develop
