@@ -61,7 +61,7 @@ class StackAgent(AbsAgent):
         role_interpreter = RoleInterpreter(system_prompt=role_prompt)
         python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
         python_interpreter.function_tools = functions
-        agent.interpreters = [role_interpreter, python_interpreter]
+        agent.interpreters = [role_interpreter, python_interpreter, ShellInterpreter()]
         agent.model_type = model_type
         return agent
 
