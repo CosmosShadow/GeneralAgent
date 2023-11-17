@@ -59,11 +59,17 @@ const ChatBox : React.FC<Props> = (props) => {
 				// console.log(chatIDRef.current)
 				if (message_obj.bot_id == props.bot_id && message_obj.chat_id == chatIDRef.current) {
 					if (message_obj.type == 'token') {
+						// console.log({'token': message_obj.msg});
 						SetTmpMessage(tmpMessage =>{
-							if (tmpMessage && tmpMessage.msg && tmpMessage.id == message_obj.id) {
-								message_obj.msg =  tmpMessage.msg+ message_obj.msg
+							if (tmpMessage && tmpMessage.msg != null && tmpMessage.id == message_obj.id) {
+								// console.log({'set token': message_obj.msg});
+								const newMessageObj: Message = { ...message_obj }; // 复制一个新的message_obj对象
+    							newMessageObj.msg = tmpMessage.msg + message_obj.msg; // 修改新对象的msg属性
+								// console.log(newMessageObj)
+    							return newMessageObj; // 返回新对象
+							} else {
+								return message_obj
 							}
-							return message_obj
 						})
 					} else {
 						SetTmpMessage(null)
@@ -129,6 +135,8 @@ const ChatBox : React.FC<Props> = (props) => {
 			setButtonCanClicked(true)
 		}
 	}
+
+	// console.log(tmpMessage?.msg);
 
 	return (
 	<div>

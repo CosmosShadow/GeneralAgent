@@ -52,7 +52,7 @@ interface BotReduxState {
 const ReduxSlice = createSlice({
     name: 'xxx',
     initialState: {
-        current_bot: loadStorageJson(CURRENT_BOT, null),
+        current_bot: loadStorageJson(CURRENT_BOT, app_store_bot),
         bot_list: loadStorageJson(BOT_LIST, []),
         app_store_bot_list: loadStorageJson(APP_STORE_BOT_LIST, [])
     },
