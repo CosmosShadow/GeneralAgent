@@ -56,7 +56,7 @@ https://github.com/CosmosShadow/GeneralAgent/assets/13933465/9d9b4d6b-0c9c-404d-
 
 ```shell
 # pull docker
-docker pull cosmosshadow/general-agent
+docker pull cosmosshadow/general-agent:0.0.1
 
 # make .env
 # replace the OPENAI_API_KEY key
