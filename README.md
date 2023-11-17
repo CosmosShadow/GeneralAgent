@@ -110,7 +110,9 @@ localhost:3000
 ```bash
 # Setting enviroment
 export OPENAI_API_KEY='xxxx'
-# RUn
+# or export all enviroment
+export $(grep -v '^#' .env | sed 's/^export //g' | xargs)
+# Run
 GeneralAgent
 ```
 
