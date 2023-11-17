@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from tinydb import TinyDB, Query
 from dotenv import load_dotenv
 import threading
+import logging
 import queue
 import uuid
 import uuid, json
@@ -21,7 +22,7 @@ data_dir = os.environ.get('DATA_DIR', None)
 if data_dir is None:
     the_dir = os.path.join(os.path.dirname(__file__), '../../../data/')
     # logging.info('enviroment DATA_DIR (user data directory) is not set, use default: %s', the_dir)
-    print('enviroment DATA_DIR (user data directory) is not set, use default: %s', the_dir)
+    print('enviroment DATA_DIR (user data directory) is not set, use default: %s' % the_dir)
     os.environ['DATA_DIR'] = the_dir
 
 from GeneralAgent import skills
@@ -30,9 +31,6 @@ from GeneralAgent.utils import set_logging_level, get_server_dir, get_applicatio
 set_logging_level(os.environ.get('LOG_LEVEL', 'ERROR'))
 set_tsx_builder_dir(os.path.join(os.path.dirname(__file__), 'ts_builder'))
 set_local_applications_dir(os.path.join(os.path.dirname(__file__), 'applications'))
-
-import logging
-logging.info('hello')
 
 # load env
 # if os.path.exists('.env'):
@@ -181,7 +179,7 @@ async def worker():
                 nonlocal msg_id
                 if token is not None:
                     result += token
-                    logging.info({'token': token})
+                    # logging.debug({'token': token})
                     response:Message = message.response_template(is_token=True)
                     response.msg = token
                     response.id = msg_id

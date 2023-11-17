@@ -36,6 +36,8 @@ def confirm_to_run():
             print('Please input y or n')
 
 def set_logging_level(log_level=None):
+    for handler in logging.root.handlers[:]:
+       logging.root.removeHandler(handler)
     if log_level is None:
         log_level = os.environ.get('LOG_LEVEL', 'ERROR')
     log_level = log_level.upper()
