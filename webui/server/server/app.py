@@ -18,6 +18,11 @@ from datetime import datetime
 from dataclasses import dataclass
 from GeneralAgent import skills
 
+from GeneralAgent.utils import set_local_applications_dir, set_tsx_builder_dir
+
+# set tsx builder dir and local applications dir
+set_tsx_builder_dir(os.path.join(os.path.dirname(__file__), 'ts_builder'))
+set_local_applications_dir(os.path.join(os.path.dirname(__file__), 'applications'))
 
 # load env
 # if os.path.exists('.env'):

@@ -90,3 +90,17 @@ def get_server_dir():
     if not os.path.exists(server_dir):
         os.makedirs(server_dir)
     return server_dir
+
+def set_tsx_builder_dir(the_dir):
+    os.environ['TSX_BUILDER_DIR'] = the_dir
+
+def get_tsx_builder_dir():
+    tsx_builder_dir = os.environ.get('TSX_BUILDER_DIR', None)
+    return tsx_builder_dir
+
+def set_local_applications_dir(the_dir):
+    os.environ['LOCAL_APPLICATIONS_DIR'] = the_dir
+
+def get_local_applications_dir():
+    local_applications_dir = os.environ.get('LOCAL_APPLICATIONS_DIR', None)
+    return local_applications_dir

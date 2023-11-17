@@ -7,9 +7,8 @@ def load_applications():
 
 
 def _get_local_applications_dir():
-    import os
-    return os.path.join(os.path.dirname(__file__), '../../webui/server/server/applications/')
-
+    from GeneralAgent.utils import get_local_applications_dir
+    return get_local_applications_dir()
 
 def _load_bots(code_dir):
     """
