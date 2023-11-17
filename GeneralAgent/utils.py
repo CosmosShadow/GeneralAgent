@@ -56,15 +56,9 @@ def set_logging_level(log_level=None):
         datefmt='%Y-%m-%d %H:%M:%S'
     )
 
-def set_data_dir(the_dir, force=False):
-    if force:
-        os.environ['DATA_DIR'] = the_dir
-    else:
-        data_dir = os.environ.get('DATA_DIR', None)
-        if data_dir is None:
-            os.environ['DATA_DIR'] = the_dir
-
 def get_data_dir():
+    # import traceback
+    # traceback.print_stack()
     data_dir = os.environ.get('DATA_DIR', None)
     if data_dir is None:
         data_dir = os.path.join(os.path.expanduser('~'), '.generalagent')
@@ -92,6 +86,7 @@ def get_functions_dir():
     functions_dir = os.path.join(data_dir, 'functions')
     if not os.path.exists(functions_dir):
         os.makedirs(functions_dir)
+    logging.info('functions_dir: %s', functions_dir)
     return functions_dir
 
 def get_server_dir():
