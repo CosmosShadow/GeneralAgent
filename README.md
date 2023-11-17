@@ -71,7 +71,7 @@ docker run \
 -v `pwd`/data:/workspace/data \
 --name=agent \
 --privileged=true \
--d cosmosshadow/general-agent
+-d cosmosshadow/general-agent:0.0.1
 
 # open: localhost:3000
 ```

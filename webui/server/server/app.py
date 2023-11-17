@@ -170,6 +170,7 @@ async def worker():
                 nonlocal msg_id
                 if token is not None:
                     result += token
+                    # logging.info({'token': token})
                     response:Message = message.response_template(is_token=True)
                     response.msg = token
                     response.id = msg_id
@@ -178,7 +179,7 @@ async def worker():
                 else:
                     if len(result.strip()) > 0:
                         response:Message = message.response_template()
-                        response.msg = result
+                        response.msg = result.strip()
                         response.id = msg_id
                         await save_message(response)
                         await to_thread(response_queue.put, response)
