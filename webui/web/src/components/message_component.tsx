@@ -50,7 +50,7 @@ const MessageComponent: React.FC<Props> = (props) => {
 	}
 
 	if (message.role == 'user') {
-		return (<div style={{ whiteSpace: 'pre-wrap' }}>{message.msg}</div>)
+		return (<div style={{ whiteSpace: 'pre-wrap' }}>{message.msg?.trim()}</div>)
 	} else {
 		return (<MarkdownComponent message={message} />)
 	}

@@ -175,7 +175,7 @@ async def worker():
                 nonlocal msg_id
                 if token is not None:
                     result += token
-                    # logging.info({'token': token})
+                    logging.info({'token': token})
                     response:Message = message.response_template(is_token=True)
                     response.msg = token
                     response.id = msg_id

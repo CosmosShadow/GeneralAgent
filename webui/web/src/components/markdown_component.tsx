@@ -84,7 +84,7 @@ interface Props {
 
 const MarkdownComponent: React.FC<Props> = (props) => {
     const message = props.message
-    const links = splitStringWithLinks(props.message.msg as string)
+    const links = splitStringWithLinks(props.message.msg?.trim() as string)
     // console.log(props.message.msg)
     // console.log(links)
     return (<div style={{ whiteSpace: 'pre-wrap' }} >{
