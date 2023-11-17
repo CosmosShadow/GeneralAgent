@@ -127,7 +127,7 @@ GeneralAgent --workspace ./test --new --auto_run
 
 ### Python
 
-# Setting enviroment
+#### Setting enviroment
 ```bash
 export OPENAI_API_KEY='xxxx'
 ```
@@ -136,9 +136,11 @@ export OPENAI_API_KEY='xxxx'
 * [webui/server/server/applications](webui/server/server/applications)
 
 
+
 ## Develop
 
 See [docs/develop/docker.md](docs/develop/docker.md)
+
 
 
 ## Join us

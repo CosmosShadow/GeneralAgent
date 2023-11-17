@@ -3,7 +3,7 @@ FROM cosmosshadow/general-agent-base:0.0.1
 WORKDIR /workspace
 
 # install requirements
-ADD ./requirements.txt ./requirements.txt
+ADD ./GeneralAgent/requirements.txt ./requirements.txt
 RUN pip install -r ./requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 # copy source

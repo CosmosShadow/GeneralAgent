@@ -14,6 +14,7 @@ async def main(chat_history, input, file_path, output_callback, file_callback, s
     ]
     workspace = './'
     agent = Agent(workspace)
+    agent.hide_output_parse = False
     python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
     python_interpreter.function_tools = functions
     agent.interpreters = [RoleInterpreter(), python_interpreter, AppleScriptInterpreter(), ShellInterpreter(), UIInterpreter(send_ui, output_callback)]

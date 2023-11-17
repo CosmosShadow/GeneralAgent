@@ -4,7 +4,7 @@ def get_current_env_python_libs() -> str:
     Return the python libs that installed in current env
     """
     import os
-    requirements_path = os.path.join(os.path.dirname(__file__), '../../requirements.txt')
+    requirements_path = os.path.join(os.path.dirname(__file__), '../requirements.txt')
     with open(requirements_path, 'r') as f:
         requirements = f.read()
         requirements = requirements.replace('\n', ' ')

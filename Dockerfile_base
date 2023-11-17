@@ -47,7 +47,7 @@ RUN wget https://www.sqlite.org/2023/sqlite-autoconf-3440000.tar.gz && \
 ENV LD_LIBRARY_PATH=/usr/lib
 
 # install requirements
-ADD ./requirements.txt ./requirements.txt
+ADD ./GeneralAgent/requirements.txt ./requirements.txt
 RUN pip install -r ./requirements.txt
 
 # /workspace添加到python环境变量

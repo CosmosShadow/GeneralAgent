@@ -61,7 +61,7 @@ export default function ChatList (props: Props) {
 		getChatList();
 	  }, [props.bot]); 
 
-    if (props.bot.id == 'app_store' || props.bot.id == 'personal_setting') {
+    if (props.bot && props.bot.id && (props.bot.id == 'app_store' || props.bot.id == 'personal_setting')) {
         return null;
     }
 
