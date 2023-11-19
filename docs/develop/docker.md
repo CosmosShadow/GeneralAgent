@@ -13,10 +13,11 @@ docker buildx build --platform linux/amd64,linux/arm64 -f ./Dockerfile_base -t c
 cd webui/web && npm run build && cd ../../
 
 # build general-agent with amd64 and arm64
-docker buildx build --platform linux/amd64,linux/arm64 -f ./Dockerfile -t cosmosshadow/general-agent:0.0.1 . --push
+docker buildx build --platform linux/amd64,linux/arm64 -f ./Dockerfile -t cosmosshadow/general-agent:0.0.5 . --push
+docker buildx build --platform linux/amd64,linux/arm64 -f ./Dockerfile -t cosmosshadow/general-agent:latest . --push
 
 # build general-agent-local
-docker build -f ./Dockerfile -t cosmosshadow/general-agent-local:0.0.1 .
+docker build -f ./Dockerfile -t cosmosshadow/general-agent-local:0.0.5 .
 ```
 
 ## Develop
@@ -29,7 +30,7 @@ docker run \
 --privileged=true \
 -v `pwd`:/workspace \
 --rm=true \
--it cosmosshadow/general-agent:0.0.1 /bin/bash
+-it cosmosshadow/general-agent:0.0.5 /bin/bash
 
 # run server
 export $(grep -v '^#' /workspace/.env | sed 's/^export //g' | xargs)
@@ -56,7 +57,7 @@ docker run \
 -v `pwd`/data:/workspace/data \
 --name=agent \
 --privileged=true \
--d cosmosshadow/general-agent:0.0.1
+-d cosmosshadow/general-agent:0.0.5
 
 # RUN with ENV
 docker run \
@@ -67,7 +68,7 @@ docker run \
 -v `pwd`/data:/workspace/data \
 --name=agent \
 --privileged=true \
--d cosmosshadow/general-agent:0.0.1
+-d cosmosshadow/general-agent:0.0.5
 
 # Stop
 docker stop agent && docker rm agent

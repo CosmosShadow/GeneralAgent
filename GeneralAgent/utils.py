@@ -36,6 +36,8 @@ def confirm_to_run():
             print('Please input y or n')
 
 def set_logging_level(log_level=None):
+    for handler in logging.root.handlers[:]:
+       logging.root.removeHandler(handler)
     if log_level is None:
         log_level = os.environ.get('LOG_LEVEL', 'ERROR')
     log_level = log_level.upper()
@@ -57,8 +59,12 @@ def set_logging_level(log_level=None):
     )
 
 def get_data_dir():
-    default_dir = os.path.join(os.path.dirname(__file__), '../data')
-    data_dir = os.environ.get('DATA_DIR', default_dir)
+    # import traceback
+    # traceback.print_stack()
+    data_dir = os.environ.get('DATA_DIR', None)
+    if data_dir is None:
+        data_dir = os.path.join(os.path.expanduser('~'), '.generalagent')
+        logging.warning('enviroment DATA_DIR (user data directory) is not set, use default: %s', data_dir)
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
     return data_dir
@@ -82,6 +88,7 @@ def get_functions_dir():
     functions_dir = os.path.join(data_dir, 'functions')
     if not os.path.exists(functions_dir):
         os.makedirs(functions_dir)
+    logging.info('functions_dir: %s', functions_dir)
     return functions_dir
 
 def get_server_dir():
@@ -96,6 +103,8 @@ def set_tsx_builder_dir(the_dir):
 
 def get_tsx_builder_dir():
     tsx_builder_dir = os.environ.get('TSX_BUILDER_DIR', None)
+    if tsx_builder_dir is None:
+        raise Exception('enviroment TSX_BUILDER_DIR (ui builder project directory) is not set')
     return tsx_builder_dir
 
 def set_local_applications_dir(the_dir):
@@ -103,4 +112,6 @@ def set_local_applications_dir(the_dir):
 
 def get_local_applications_dir():
     local_applications_dir = os.environ.get('LOCAL_APPLICATIONS_DIR', None)
+    if local_applications_dir is None:
+        raise Exception('enviroment LOCAL_APPLICATIONS_DIR is not set')
     return local_applications_dir

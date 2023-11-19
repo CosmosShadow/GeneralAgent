@@ -405,8 +405,8 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     from GeneralAgent.agent import Agent
     role_prompt = \"\"\"
-你是一个翻译助手。
-你通过编写python代码调用 # Run python 中预定义好的函数，来完成用户需求。
+You are a translation agent.
+You complete user requirements by writing python code to call the predefined functions.
 \"\"\"
     functions = [
         skills.translate_text
