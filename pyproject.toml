@@ -1,10 +1,11 @@
 [tool.poetry]
 name = "GeneralAgent"
-version = "0.0.5"
+version = "0.0.6"
 description = "General Agent: From LLM to Agent"
 authors = ["Chen Li <lichenarthurdata@gmail.com>"]
 license = "Apache 2.0"
 readme = "README.md"
+repository = "https://github.com/CosmosShadow/GeneralAgent"
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -45,6 +46,21 @@ pytest = "^7.4.3"
 pytest-asyncio = "^0.21.1"
 
 
+[[tool.poetry.source]]
+name = "PyPI"
+priority="primary"
+
+
+[[tool.poetry.source]]
+name = "tuna"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+priority = "default"
+
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry.scripts]
+GeneralAgent= 'GeneralAgent.cli:main'
