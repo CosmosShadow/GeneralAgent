@@ -11,25 +11,7 @@ poetry install
 # 添加新依赖
 poetry add 依赖包
 # 打包
-poetry build 
+poetry build -f 指定格式 wheel或sdist
 # 发布包
-poetry publish
-```
-
-
-# 安装开发环境(旧)
-
-```bash
-# 安装依赖库
-pip install twine
-
-# 本地安装
-python setup.py install
-
-# 打包 & 上传
-python setup.py sdist bdist_wheel
-rm -rf ./GeneralAgent.egg-info
-rm -rf ./build
-twine upload dist/*
-rm -rf ./dist
+poetry publish -u 用户名 -p 密码
 ```
