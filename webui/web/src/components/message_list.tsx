@@ -4,11 +4,13 @@ import {Message, Bot} from '../components/interface'
 import MessageComponent from '../components/message_component';
 import {defualt_user_avator, get_application_icon_src} from './api'
 import ImageComponentPublic from './image_component_public'
+import UIApplication from './ui_application';
 
 interface Props {
     messages: Message[];
     tmp_message: Message | null;
-    bot: Bot | null;
+    bot: Bot;
+    chat_id: string;
   }
 
 
@@ -74,13 +76,15 @@ const MessageList: React.FC<Props> = (props) => {
     const showMore = (<div style={{height: 20, margin: 10}}>下滑显示更多</div>)
     const noMore = (<div style={{height: 20, margin: 10}}>没有更多消息了</div>)
 
+    const is_application = props?.bot?.type == 'application';
+
     return (
-    <div style={{height: 'calc(100vh - 130px)', overflow: 'scroll', paddingBottom: 20}} ref={messagesDivRef} onScroll={onScroll} >
+    <div style={{height: is_application ? 'calc(100vh - 80px)' : 'calc(100vh - 130px)', overflow: 'scroll', paddingBottom: 20}} ref={messagesDivRef} onScroll={onScroll} >
         {/* {show_messages && messages && show_messages.length < messages.length ? showMore : null} */}
         {show_messages && show_messages.map((message: Message, index: number) => {
             return (
                 <Row
-                    style={{ padding: 8, borderBottom: ((index === show_messages.length - 1) && (!tmp_message)) ? "none" : "1px solid #F0F0FF" }}
+                    style={{ padding: 8, borderBottom: (((index === show_messages.length - 1) && (!tmp_message)) && !is_application)? "none" : "1px solid #F0F0FF" }}
                     key={message.id}
                 >
                     <Col span={1}>
@@ -104,6 +108,18 @@ const MessageList: React.FC<Props> = (props) => {
                 </Col>
                 <Col span={23} style={{wordWrap: 'break-word', marginTop: 5, paddingLeft: 5, textAlign: 'left', lineHeight: '1.5'}}>
                     <MessageComponent message={tmp_message} />
+                </Col>
+            </Row>
+        )}
+        {is_application && (
+            <Row style={{ padding: 8}} >
+                <Col span={1}>
+                    <div style={{height: 30}}>
+                        <ImageComponentPublic style={avator_style}  src={defualt_user_avator} />
+                    </div>
+                </Col>
+                <Col span={23} style={{wordWrap: 'break-word', marginTop: 5, paddingLeft: 5, textAlign: 'left', lineHeight: '1.5'}}>
+                    <UIApplication bot={props.bot} chat_id={props.chat_id}/>
                 </Col>
             </Row>
         )}

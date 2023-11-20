@@ -7,6 +7,9 @@ export interface Bot {
     tags: string[];
     icon_url?: string;
     upload_file?: string;
+    type?: string;
+    js_name?: string,
+    js_path?: string,
 }
 
 // Chat

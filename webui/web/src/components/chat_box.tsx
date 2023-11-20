@@ -137,25 +137,29 @@ const ChatBox : React.FC<Props> = (props) => {
 	}
 
 	// console.log(tmpMessage?.msg);
+	const is_application = current_bot.type == 'application';
 
 	return (
 	<div>
-		<MessageList messages={messages as Message[]} tmp_message={tmpMessage} bot={current_bot}/>
-		<div style={{ height: '80px', display: 'flex', position: 'relative', marginBottom: 10, marginTop: 10}}>
-			<div style={{width: 40, bottom: 47, position: 'absolute', left: 15}}>
-				{props.can_upload_file && <FileUploadButton bot_id={props.bot_id} chat_id={props.chat_id} onUploadSuccess={sendFile}/>}
+		<MessageList messages={messages as Message[]} tmp_message={tmpMessage} bot={current_bot} chat_id={props.chat_id}/>
+		{!is_application && 
+			<div style={{ height: '80px', display: 'flex', position: 'relative', marginBottom: 10, marginTop: 10}}>
+				<div style={{width: 40, bottom: 47, position: 'absolute', left: 15}}>
+					{props.can_upload_file && <FileUploadButton bot_id={props.bot_id} chat_id={props.chat_id} onUploadSuccess={sendFile}/>}
+				</div>
+				{/* <div style={{width: 40, bottom: 47, position: 'absolute', left: 75}}><Button><ClearOutlined /></Button></div> */}
+				<TextArea
+					ref={textAreaRef}
+					autoSize={{ minRows: 1, maxRows: 20 }}
+					value={inputValue}
+					style={{ width: 760, bottom: 47, left: 90, position: 'absolute' }}
+					placeholder='input...'
+					onChange={onTextAreaChanged}
+				/>
+				<Button style={{width: 80, position: 'absolute', bottom: 47, left: 880}} type='primary' disabled={!buttonCanClicked} onClick={(e) => {onHandleSend()}}>Send</Button>
 			</div>
-			{/* <div style={{width: 40, bottom: 47, position: 'absolute', left: 75}}><Button><ClearOutlined /></Button></div> */}
-			<TextArea
-				ref={textAreaRef}
-				autoSize={{ minRows: 1, maxRows: 20 }}
-				value={inputValue}
-				style={{ width: 760, bottom: 47, left: 90, position: 'absolute' }}
-				placeholder='input...'
-				onChange={onTextAreaChanged}
-			/>
-			<Button style={{width: 80, position: 'absolute', bottom: 47, left: 880}} type='primary' disabled={!buttonCanClicked} onClick={(e) => {onHandleSend()}}>Send</Button>
-		</div>
+		}
+	
 	</div>
 	);
 };

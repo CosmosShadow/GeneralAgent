@@ -26,6 +26,7 @@ export default function ChatPage () {
 	const [chat_id, setChatID] = useState(''); // Chat
 	
 	const onHandleSelectBot = (bot: Bot) => {
+		console.log('onHandleSelectBot', bot)
 		dispatch(open_bot(bot));
 		setChatID('')
 	}

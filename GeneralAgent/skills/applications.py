@@ -25,6 +25,8 @@ def _load_bots(code_dir):
                     bot_json = json.load(f)
                     if 'icon' in bot_json:
                         bot_json['icon_url'] = os.path.join(code_dir, bot_name, bot_json['icon'])
+                    if 'js_path' in bot_json:
+                        bot_json['js_path'] = os.path.join(code_dir, bot_name, bot_json['js_path'])
                     bot_json['nickname'] = bot_json['name']
                     result.append(bot_json)
     return result

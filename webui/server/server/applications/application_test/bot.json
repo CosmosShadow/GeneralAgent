@@ -1,0 +1,9 @@
+{
+    "id": "application_test",
+    "name": "Application Test",
+    "description": "Application with UI",
+    "upload_file": "yes",
+    "type": "application",
+    "js_name": "Libbd2e",
+    "js_path": "Libbd2e/index.js"
+}
