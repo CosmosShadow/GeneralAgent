@@ -1,11 +1,14 @@
 [tool.poetry]
 name = "GeneralAgent"
-version = "0.0.6"
+version = "0.0.8"
 description = "General Agent: From LLM to Agent"
 authors = ["Chen Li <lichenarthurdata@gmail.com>"]
 license = "Apache 2.0"
 readme = "README.md"
 repository = "https://github.com/CosmosShadow/GeneralAgent"
+packages = [
+    { include = "GeneralAgent" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.8"
