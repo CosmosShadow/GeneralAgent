@@ -9,10 +9,11 @@ interface Props {
   chat_id: string;
   bot_id: string;
   onUploadSuccess: (file_path: string) => void;
+  title?: string;
 }
 
 
-export default function FileUploadButton(props: Props) {
+export function FileUploadButton(props: Props) {
   // 定义用于显示modal的state以及文件的state
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [file, setFile] = useState(null);
@@ -62,10 +63,23 @@ export default function FileUploadButton(props: Props) {
          if (fileInput) {
             fileInput.click();
          }
-      }}><UploadOutlined /></Button>
+      }}>{props.title == null ? <UploadOutlined /> : props.title}</Button>
       <Modal title="上传文件" open={isModalVisible} onOk={handleModalOk} onCancel={handleModalCancel}>
         {file && <p>{(file as any).name}</p>}
       </Modal>
     </>
   );
 }
+
+interface NewProps {
+  title?: string;
+  onUploadSuccess: (file_path: string) => void;
+}
+
+export const withChatAndBotId = (bot_id: string, chat_id: string) => {
+  return (Component: React.ComponentType<Props>) => {
+    return (props: NewProps) => <Component {...props} chat_id={chat_id} bot_id={bot_id} />;
+  };
+};
+
+// export const NewFileUploadButton = withChatAndBotId('your_chat_id', 'your_bot_id')(FileUploadButton);

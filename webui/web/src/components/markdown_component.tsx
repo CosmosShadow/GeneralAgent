@@ -84,7 +84,7 @@ const MarkdownComponent: React.FC<Props> = (props) => {
     const message = props.message
     const links = splitStringWithLinks(props.message.msg?.trim() as string)
     // console.log(props.message.msg)
-    console.log(links)
+    // console.log(links)
     return (<div style={{ whiteSpace: 'pre-wrap' }} >{
         links.map((item, index)=>{
         // console.log(item)

@@ -5,17 +5,31 @@
 import React from 'react';
 import * as antd from 'antd';
 
-
+interface Props {
+  save_data: (data:any)=>void,
+  component: (props: {onUploadSuccess: (file_path: string) => void, title?: string}) => React.ReactElement
+}
 
 const [Form, DatePicker, Button] = [antd.Form, antd.DatePicker, antd.Button];
 
-const Lib06f4 = ({save_data}: {save_data: (data:any)=>void}) => {
+const Lib06f4 = (props: Props) => {
+  const [file_path, set_file_path] = React.useState('' as string)
+
   const onFinish = (values: any) => {
-    save_data(values);
+    values['file_path'] = file_path
+    props.save_data(values);
   };
 
+  const handleUploadSuccess = (file_path: string) => {
+    console.log('handleUploadSuccess called')
+    console.log(file_path)
+    set_file_path(file_path)
+  }
+
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+    <div style={{}}>
+      <props.component onUploadSuccess={handleUploadSuccess} title='上传文件'/>
+      <div style={{padding: 10}}>file_path: </div>
       <Form onFinish={onFinish}>
         <Form.Item name="date" rules={[{ required: true, message: 'Please select a date' }]}>
           <DatePicker />

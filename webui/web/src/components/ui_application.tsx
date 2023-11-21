@@ -4,6 +4,8 @@ import DynamicUI from './dynamic_ui';
 import { message, Button} from 'antd';
 import {get_system_file} from './api'
 import { WebSocketContext } from './WebSocketContext';
+import Lib06f4 from './Lib06f4';
+import {FileUploadButton, withChatAndBotId} from './file_upload_button';
 
 interface Props {
     bot: Bot;
@@ -32,9 +34,11 @@ const UIApplication: React.FC<Props> = (props) => {
 		}));
     }
 
+    const NewFileUploadButton = withChatAndBotId(bot.id as string, props.chat_id)(FileUploadButton);
+
     return (
-        <DynamicUI name={lib_name} js_url={js_url} data={null} save_data={save_data}/>
-        // <Lib06f4 send_data={send_data}/>
+        // <DynamicUI name={lib_name} js_url={js_url} data={null} save_data={save_data}/>
+        <Lib06f4 save_data={save_data} component={NewFileUploadButton}/>
     );
 }
 

@@ -1,10 +1,8 @@
 import React, { useContext, useEffect, useState, useRef} from 'react'
 import {Message} from './interface';
 import DynamicUI from './dynamic_ui';
-import { message, Button} from 'antd';
 import {get_chat_file_url} from './api'
 import { WebSocketContext } from './WebSocketContext';
-import Lib06f4 from './Lib06f4';
 
 interface Props {
     message: Message;
@@ -34,7 +32,6 @@ const UIMesasge: React.FC<Props> = (props) => {
 
     return (
         <DynamicUI name={lib_name} js_url={js_url} data={data} save_data={save_data}/>
-        // <Lib06f4 send_data={send_data}/>
     );
 }
 

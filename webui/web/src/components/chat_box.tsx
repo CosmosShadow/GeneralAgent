@@ -5,7 +5,7 @@ import { Layout, Button, Input} from 'antd';
 import {useSelector, useDispatch } from 'react-redux'
 import {top_bot} from '../db/redux'
 import {Bot, Message} from '../components/interface'
-import FileUploadButton from '../components/file_upload_button'
+import {FileUploadButton} from '../components/file_upload_button'
 import { ClearOutlined } from '@ant-design/icons';
 import MessageList from '../components/message_list';
 import {apiMessages} from '../components/api'
