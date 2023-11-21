@@ -29,7 +29,7 @@ const Lib06f4 = (props: Props) => {
   return (
     <div style={{}}>
       <props.component onUploadSuccess={handleUploadSuccess} title='上传文件'/>
-      <div style={{padding: 10}}>file_path: </div>
+      <div style={{padding: 10}}>file_path: {file_path}</div>
       <Form onFinish={onFinish}>
         <Form.Item name="date" rules={[{ required: true, message: 'Please select a date' }]}>
           <DatePicker />

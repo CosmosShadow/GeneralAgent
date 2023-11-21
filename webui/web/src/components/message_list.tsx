@@ -1,10 +1,11 @@
 import React, {useRef} from 'react'
 import { Row, Col, Avatar, Button} from 'antd';
-import {Message, Bot} from '../components/interface'
+import {Message, Bot, theme_blue} from '../components/interface'
 import MessageComponent from '../components/message_component';
 import {defualt_user_avator, get_application_icon_src} from './api'
 import ImageComponentPublic from './image_component_public'
 import UIApplication from './ui_application';
+
 
 interface Props {
     messages: Message[];
@@ -92,7 +93,8 @@ const MessageList: React.FC<Props> = (props) => {
                             <ImageComponentPublic style={avator_style}  src={(message.role === 'bot') ? applicatoin_icon_url : defualt_user_avator} />
                         </div>
                     </Col>
-                    <Col span={23} style={{wordWrap: 'break-word', marginTop: 5, paddingLeft: 5, textAlign: 'left', lineHeight: '1.5'}}>
+                    <Col span={23} style={{wordWrap: 'break-word', marginTop:-2, paddingLeft: 5, textAlign: 'left', lineHeight: '1.5'}}>
+                        <div style={{fontSize: 14, paddingBottom: 8, color: theme_blue}}>{message.create_at?.slice(0, 19)}</div>
                         <MessageComponent message={message} />
                     </Col>
                 </Row>
@@ -107,6 +109,7 @@ const MessageList: React.FC<Props> = (props) => {
                     </div>
                 </Col>
                 <Col span={23} style={{wordWrap: 'break-word', marginTop: 5, paddingLeft: 5, textAlign: 'left', lineHeight: '1.5'}}>
+                    <div style={{fontSize: 14, paddingBottom: 8, color: theme_blue}}>{tmp_message.create_at?.slice(0, 19)}</div>
                     <MessageComponent message={tmp_message} />
                 </Col>
             </Row>
