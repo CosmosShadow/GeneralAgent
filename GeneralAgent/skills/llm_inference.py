@@ -129,7 +129,7 @@ def _get_llm_model(messages, model_type):
     assert model_type in ['normal', 'smart', 'long']
     if model_type == 'normal' and skills.messages_token_count(messages) > 3000:
         model_type = 'long'
-    api_type = os.environ.get('API_TYPE', 'OPENAI')
+    api_type = os.environ.get('LLM_SOURCE', 'OPENAI')
     model_key = f'{api_type}_LLM_MODEL_{model_type.upper()}'
     model = os.environ.get(model_key, None)
     if model is not None:
@@ -139,13 +139,13 @@ def _get_llm_model(messages, model_type):
 
 def _get_embedding_model():
     import os
-    api_type = os.environ.get('API_TYPE', 'OPENAI')
+    api_type = os.environ.get('LLM_SOURCE', 'OPENAI')
     embedding_model = os.environ.get(f'{api_type}_EMBEDDING_MODEL', 'text-embedding-ada-002')
     return embedding_model
 
 def _get_temperature():
     import os
-    temperature = float(os.environ.get('TEMPERATURE', 0.5))
+    temperature = float(os.environ.get('LLM_TEMPERATURE', 0.5))
     return temperature
 
 

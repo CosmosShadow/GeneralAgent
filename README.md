@@ -50,18 +50,18 @@ https://github.com/CosmosShadow/GeneralAgent/assets/13933465/9d9b4d6b-0c9c-404d-
 
 
 
-## Installation
+## Usage
 
-**docker**
+### docker
 
-```shell
+```bash
 # pull docker
-docker pull cosmosshadow/general-agent:0.0.5
+docker pull cosmosshadow/general-agent
 
-# make .env
-# replace the OPENAI_API_KEY key
-# replace the REPLICATE_API_TOKEN key='xx' If you want to use other ai tools like ai draw、tts、...
+# make .env and replace variables like LLM_SOURCE、OPENAI_API_KEY
 cp .env.example .env
+vim .env
+# 配置.env文件中的环境变量，比如OPENAI_API_KEY
 
 # run
 docker run \
@@ -71,83 +71,69 @@ docker run \
 -v `pwd`/data:/workspace/data \
 --name=agent \
 --privileged=true \
--d cosmosshadow/general-agent:0.0.5
+-d cosmosshadow/general-agent
 
-# open: localhost:3000
+# open web with localhost:3000
 ```
 
 
 
-**local install**
+### 本地安装使用
 
-install from pip:
+#### 安装
 
 ```bash
 pip install GeneralAgent
 ```
 
-install from source code:
-
-```shell
-git clone https://github.com/CosmosShadow/GeneralAgent
-cd GeneralAgent
-python setup.py install
-```
-
-
-
-## Usage
-
-### Web
-
-```
-localhost:3000
-```
-
-
-### Terminal
+#### 设置环境变量
 
 ```bash
-# Setting enviroment
-export OPENAI_API_KEY='xxxx'
-# or export all enviroment
+cp .env.example .env
+vim .env
+# 配置.env文件中的环境变量，比如OPENAI_API_KEY
 export $(grep -v '^#' .env | sed 's/^export //g' | xargs)
-# Run
-GeneralAgent
 ```
 
-Optional parameters:
+#### 命令行工具
 
 ```shell
+GeneralAgent
+# or
 GeneralAgent --workspace ./test --new --auto_run
 # worksapce: Set workspace directory, default ./general_agent
 # new: if workspace exists, create a new workspace, like ./general_agent_2023xxx
 # auto_run: if auto_run, the agent will run the code automatically, default no
 ```
 
+#### WebUI
 
-
-### Python
-
-#### Setting enviroment
 ```bash
-export OPENAI_API_KEY='xxxx'
+git clone https://github.com/CosmosShadow/GeneralAgent
+cd GeneralAgent
+# 准备工作
+cd webui/web/ && npm install && cd ../../
+cd webui/server/server/ts_builder && npm install && cd ../../../../
+# 启动服务端
+cd webui/server/server/
+uvicorn app:app --host 0.0.0.0 --port 7777
+# 启动web服务
+cd webui/web
+npm run start
 ```
+
+#### Python使用
+
+使用请参考代码
 
 * [examples](examples)
 * [webui/server/server/applications](webui/server/server/applications)
 
 
 
-## Develop
+## 加入我们
 
-See [docs/develop/docker.md](docs/develop/docker.md)
-
-
-
-## Join us
-
-wechat 
+微信扫码下面二维码
 
 <p align="center">
 <img src="./docs/images/wechat.jpg" alt="wechat" width=400/>

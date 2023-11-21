@@ -34,3 +34,4 @@ data/*
 test/data/read_interpreter/chroma.sqlite3
 
 .idea/*
+scripts/*
