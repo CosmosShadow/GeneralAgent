@@ -129,28 +129,19 @@ def _get_llm_model(messages, model_type):
     assert model_type in ['normal', 'smart', 'long']
     if model_type == 'normal' and skills.messages_token_count(messages) > 3000:
         model_type = 'long'
-    api_type = os.environ.get('API_TYPE','openai')
-    if api_type == 'openai':
-        model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
-        if model_type == 'smart':
-            model = 'gpt-4'
-        if model_type == 'long':
-            model = 'gpt-3.5-turbo-16k'
+    api_type = os.environ.get('API_TYPE', 'OPENAI')
+    model_key = f'{api_type}_LLM_MODEL_{model_type.upper()}'
+    model = os.environ.get(model_key, None)
+    if model is not None:
         return model
-    elif api_type == 'azure_openai':
-        model = os.environ.get('AZURE_API_MODEL','azure/gpt35t')
-        model = 'azure/gpt4' if model_type =='smart' else model
-        model = 'azure/gpt4x32k' if model_type =='long' else model
-    return model
+    model_key = f'{api_type}_LLM_MODEL_NORMAL'
+    return os.environ.get(model_key, 'gpt-3.5-turbo')
 
 def _get_embedding_model():
     import os
-    api_type = os.environ.get('API_TYPE', 'openai')
-    if api_type == 'openai':
-        model = 'text-embedding-ada-002'
-    elif api_type == 'azure_openai':
-        model = 'azure/ada002'
-    return model
+    api_type = os.environ.get('API_TYPE', 'OPENAI')
+    embedding_model = os.environ.get(f'{api_type}_EMBEDDING_MODEL', 'text-embedding-ada-002')
+    return embedding_model
 
 def _get_temperature():
     import os
