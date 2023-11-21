@@ -1,10 +1,10 @@
-FROM cosmosshadow/general-agent-base:0.0.1
+FROM cosmosshadow/general-agent-base:0.0.2
 
 WORKDIR /workspace
 
 # install requirements
-ADD ./GeneralAgent/requirements.txt ./requirements.txt
-RUN pip install -r ./requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
+ADD ./pyproject.toml ./pyproject.toml
+RUN pip install poetry && poetry install
 
 # copy source
 RUN chmod -R a+w /workspace

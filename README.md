@@ -61,7 +61,7 @@ docker pull cosmosshadow/general-agent
 # make .env and replace variables like LLM_SOURCE、OPENAI_API_KEY
 cp .env.example .env
 vim .env
-# 配置.env文件中的环境变量，比如OPENAI_API_KEY
+# 配置.env文件中的环境变量，比如OPENAI_API_KEY等
 
 # run
 docker run \
@@ -91,7 +91,7 @@ pip install GeneralAgent
 ```bash
 cp .env.example .env
 vim .env
-# 配置.env文件中的环境变量，比如OPENAI_API_KEY
+# 配置.env文件中的环境变量，比如OPENAI_API_KEY等
 export $(grep -v '^#' .env | sed 's/^export //g' | xargs)
 ```
 

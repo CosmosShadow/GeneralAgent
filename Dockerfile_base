@@ -47,8 +47,8 @@ RUN wget https://www.sqlite.org/2023/sqlite-autoconf-3440000.tar.gz && \
 ENV LD_LIBRARY_PATH=/usr/lib
 
 # install requirements
-ADD ./GeneralAgent/requirements.txt ./requirements.txt
-RUN pip install -r ./requirements.txt
+ADD ./pyproject.toml ./pyproject.toml
+RUN pip install poetry && poetry install
 
 # /workspace添加到python环境变量
 ENV PYTHONPATH=/workspace:$PYTHONPATH
