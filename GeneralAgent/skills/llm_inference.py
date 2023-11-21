@@ -248,6 +248,8 @@ def _llm_inference_with_stream(messages, model_type='normal'):
         for chunk in response:
             if chunk['choices'][0]['finish_reason'] is None:
                 token = chunk['choices'][0]['delta']['content']
+                if token is None:
+                    continue
                 result += token
                 global_cache.set_llm_cache(key, result)
                 yield token

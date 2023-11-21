@@ -4,7 +4,8 @@ if [ -f /workspace/.env ]; then
 fi
 
 cd /workspace/webui/server/server
-nohup uvicorn app:app --host 0.0.0.0 --port 7777 & 
+# poetry shell, python app.py
+poetry run uvicorn app:app --host 0.0.0.0 --port 7777 > /dev/null 2>&1 &
 
 cd /workspace/webui/web
 serve -s build
