@@ -16,6 +16,7 @@ A simple, general, customizable Agent framework
 * Build-in interpreters: Python, AppleScript, Shell, File, Plan, Retrieve Embedding etc.
 * **Dynamic UI**: Agent can create dynamic ui to user who can use.
 * **WebUI with agent builder**. You can use natural language to create agent without coding.
+* [AthenaAgent](https://github.com/sigworld/AthenaAgent) is a TypeScript port of GeneralAgent.
 
 
 
@@ -30,8 +31,6 @@ A simple, general, customizable Agent framework
 <p align="center">
 <img src="./docs/images/webui_2023.11.15.png" alt="WebUI" width=600/>
 </p>
-
-
 
 
 ## Demo
@@ -128,6 +127,12 @@ npm run start
 
 * [examples](examples)
 * [webui/server/server/applications](webui/server/server/applications)
+
+
+
+## 其他
+
+* GeneralAgent使用[litellm](https://docs.litellm.ai/docs/)来接入各种平台的大模型。
 
 
 
