@@ -1,5 +1,8 @@
 
 def load_applications():
+    """
+    load all applications(bots) metadata
+    """
     from GeneralAgent.utils import get_applications_dir
     local_bots = _load_bots(_get_local_applications_dir())
     remote_bots=  _load_bots(get_applications_dir())
@@ -10,29 +13,50 @@ def _get_local_applications_dir():
     from GeneralAgent.utils import get_local_applications_dir
     return get_local_applications_dir()
 
+
 def _load_bots(code_dir):
-    """
-    加载所有应用的名称
-    """
     import os, json
     result = []
     for bot_name in os.listdir(code_dir):
         bot_dir = os.path.join(code_dir, bot_name)
         if os.path.isdir(bot_dir):
-            bot_json_path = os.path.join(bot_dir, 'bot.json')
-            if os.path.exists(bot_json_path):
-                with open(bot_json_path, 'r') as f:
-                    bot_json = json.load(f)
-                    if 'icon' in bot_json:
-                        bot_json['icon_url'] = os.path.join(code_dir, bot_name, bot_json['icon'])
-                    if 'js_path' in bot_json:
-                        bot_json['js_path'] = os.path.join(code_dir, bot_name, bot_json['js_path'])
-                    bot_json['nickname'] = bot_json['name']
-                    result.append(bot_json)
+            result.append(_load_bot_metadata(bot_dir))
     return result
-    
+
+
+def _load_bot_metadata(bot_dir):
+    import os, json
+    bot_json_path = os.path.join(bot_dir, 'bot.json')
+    if os.path.exists(bot_json_path):
+        with open(bot_json_path, 'r') as f:
+            bot_json = json.load(f)
+            if 'icon' in bot_json:
+                bot_json['icon_url'] = os.path.join(bot_dir, bot_json['icon'])
+            if 'js_path' in bot_json:
+                bot_json['js_path'] = os.path.join(bot_dir, bot_json['js_path'])
+            bot_json['nickname'] = bot_json['name']
+            return bot_json
+    return None
+
+
+def load_bot_metadata_by_id(bot_id):
+    """
+    load bot metadata by bot id
+    """
+    import os
+    local_dir = _get_local_applications_dir()
+    from GeneralAgent.utils import get_applications_dir
+    remote_dir = get_applications_dir()
+    bot_dir = os.path.join(local_dir, bot_id)
+    if not os.path.exists(bot_dir):
+        bot_dir = os.path.join(remote_dir, bot_id)
+    return _load_bot_metadata(bot_dir)
+
 
 def get_application_module(bot_id):
+    """
+    get application module by bot id
+    """
     import os
     from GeneralAgent.utils import get_applications_dir
     local_dir = _get_local_applications_dir()

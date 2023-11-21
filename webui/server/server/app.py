@@ -230,7 +230,11 @@ async def worker():
             history = db.table('messages').search((Query().bot_id == bot_id) & (Query().chat_id == chat_id))[-20:]
             chat_messages = history_to_messages(history)
 
-            try_create_chat_name(message, chat_messages)
+            bot_meta = skills.load_bot_metadata_by_id(bot_id)
+
+            bot_is_agent = bot_meta.get('type', 'agent') == 'agent'
+            if bot_is_agent:
+                try_create_chat_name(message, chat_messages)
 
         
             # data_dir = os.path.join(os.getcwd(), 'data', bot_id, chat_id)
