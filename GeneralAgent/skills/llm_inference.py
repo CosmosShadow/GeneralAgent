@@ -55,8 +55,10 @@ def embedding_single(text) -> [float]:
         # print('embedding cache hitted')
         return embedding
     texts = [text]
-    import openai
-    resp = openai.Embedding.create(input=texts,engine="text-embedding-ada-002")
+    from litellm import embedding
+    resp = embedding(model = _get_embedding_model(),
+                     input=texts
+                     )
     result = [x['embedding'] for x in resp['data']]
     embedding = result[0]
     global_cache.get_embedding_cache(key, embedding)
@@ -78,8 +80,10 @@ def embedding_batch(texts) -> [[float]]:
         else:
             remain_texts.append(text)
     if len(remain_texts) > 0:
-        import openai
-        resp = openai.Embedding.create(input=remain_texts, engine="text-embedding-ada-002")
+        from litellm import embedding
+        resp = embedding(model=_get_embedding_model(),
+                         input=texts
+                         )
         result = [x['embedding'] for x in resp['data']]
         for text, embedding in zip(remain_texts, result):
             key = _md5(text)
@@ -125,11 +129,26 @@ def _get_model(messages, model_type):
     assert model_type in ['normal', 'smart', 'long']
     if model_type == 'normal' and skills.messages_token_count(messages) > 3000:
         model_type = 'long'
-    model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
-    if model_type == 'smart':
-        model = 'gpt-4'
-    if model_type == 'long':
-        model = 'gpt-3.5-turbo-16k'
+    api_type = os.environ.get('API_TYPE','openai')
+    if api_type == 'openai':
+        model = os.environ.get('OPENAI_API_MODEL', 'gpt-3.5-turbo')
+        if model_type == 'smart':
+            model = 'gpt-4'
+        if model_type == 'long':
+            model = 'gpt-3.5-turbo-16k'
+        return model
+    elif api_type == 'azure_openai':
+        model = os.environ.get('AZURE_API_MODEL','azure/gpt35t')
+        model = 'azure/gpt4' if model_type =='smart' else model
+        model = 'azure/gpt4x32k' if model_type =='long' else model
+    return model
+
+def _get_embedding_model():
+    api_type = os.environ.get('API_TYPE', 'openai')
+    if api_type == 'openai':
+        model = 'text-embedding-ada-002'
+    elif api_type == 'azure_openai':
+        model = 'azure/ada002'
     return model
 
 def _get_temperature():
@@ -216,7 +235,7 @@ def _llm_inference_with_stream(messages, model_type='normal'):
     """
     messages: llm messages, model_type: normal, smart, long
     """
-    import openai
+    from litellm import completion
     import logging
     # from GeneralAgent import skills
     model = _get_model(messages, model_type)
@@ -232,7 +251,7 @@ def _llm_inference_with_stream(messages, model_type='normal'):
         # yield None
     else:
         temperature = _get_temperature()
-        response = openai.ChatCompletion.create(model=model, messages=messages, stream=True, temperature=temperature)
+        response = completion(model=model, messages=messages, stream=True, temperature=temperature)
         result = ''
         for chunk in response:
             if chunk['choices'][0]['finish_reason'] is None:
@@ -243,10 +262,14 @@ def _llm_inference_with_stream(messages, model_type='normal'):
         # logging.info(result)
         # yield None
 
+# if we choose to use local llm for inferce, we can use the following completion function.
+#def compeltion(model,messages,temperature):
+#    pass
+
 
 @_retry(stop_max_attempt_number=3)
 def _llm_inference_without_stream(messages, model_type='normal'):
-    import openai
+    from litellm import completion
     import logging
     global global_cache
     logging.debug(messages)
@@ -257,7 +280,8 @@ def _llm_inference_without_stream(messages, model_type='normal'):
         return result
     model = _get_model(messages, model_type)
     temperature = _get_temperature()
-    response = openai.ChatCompletion.create(model=model, messages=messages, temperature=temperature)
+    # response = openai.ChatCompletion.create(model=model, messages=messages, temperature=temperature)
+    response = completion(model=model, messages=messages, temperature=temperature)
     result = response['choices'][0]['message']['content']
     global_cache.set_llm_cache(key, result)
     return result
