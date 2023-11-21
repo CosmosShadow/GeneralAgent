@@ -19,11 +19,11 @@ const UIApplication: React.FC<Props> = (props) => {
     const js_url = get_system_file(bot.js_path as string)
     // const data = ui_dict['data']
 
-    const save_data = (data:any) => {
+    const save_data = (user_data:any) => {
         const mes: Message = {
             bot_id: bot.id,
             chat_id: props.chat_id,
-            msg: JSON.stringify(data),
+            msg: JSON.stringify({'data': user_data}),
             type: 'message',
         }
         sendMessage(JSON.stringify({
