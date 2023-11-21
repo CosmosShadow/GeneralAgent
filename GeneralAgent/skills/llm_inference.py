@@ -123,7 +123,7 @@ def _md5(obj):
         return hashlib.md5(json.dumps(obj).encode('utf-8')).hexdigest()
 
 
-def _get_model(messages, model_type):
+def _get_llm_model(messages, model_type):
     import os
     from GeneralAgent import skills
     assert model_type in ['normal', 'smart', 'long']
@@ -144,6 +144,7 @@ def _get_model(messages, model_type):
     return model
 
 def _get_embedding_model():
+    import os
     api_type = os.environ.get('API_TYPE', 'openai')
     if api_type == 'openai':
         model = 'text-embedding-ada-002'
@@ -214,7 +215,7 @@ def simple_llm_inference(messages, json_schema=None):
 
 @_retry(stop_max_attempt_number=3)
 async def async_llm_inference(messages, model_type='normal'):
-    import openai
+    from litellm import acompletion
     import logging
     global global_cache
     logging.debug(messages)
@@ -222,9 +223,9 @@ async def async_llm_inference(messages, model_type='normal'):
     result = global_cache.get_llm_cache(key)
     if result is not None:
         return result
-    model = _get_model(messages, model_type)
+    model = _get_llm_model(messages, model_type)
     temperature = _get_temperature()
-    response = await openai.ChatCompletion.acreate(model=model, messages=messages, temperature=temperature)
+    response = await acompletion(model=model, messages=messages, temperature=temperature)
     result = response['choices'][0]['message']['content']
     global_cache.set_llm_cache(key, result)
     return result
@@ -238,7 +239,7 @@ def _llm_inference_with_stream(messages, model_type='normal'):
     from litellm import completion
     import logging
     # from GeneralAgent import skills
-    model = _get_model(messages, model_type)
+    model = _get_llm_model(messages, model_type)
     logging.debug(messages)
     global global_cache
     key = _md5(messages)
@@ -278,9 +279,8 @@ def _llm_inference_without_stream(messages, model_type='normal'):
     result = global_cache.get_llm_cache(key)
     if result is not None:
         return result
-    model = _get_model(messages, model_type)
+    model = _get_llm_model(messages, model_type)
     temperature = _get_temperature()
-    # response = openai.ChatCompletion.create(model=model, messages=messages, temperature=temperature)
     response = completion(model=model, messages=messages, temperature=temperature)
     result = response['choices'][0]['message']['content']
     global_cache.set_llm_cache(key, result)
