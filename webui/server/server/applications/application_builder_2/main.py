@@ -41,4 +41,5 @@ search_functions('scrape web page')
         skills.uninstall_application
     ]
     agent = Agent.with_functions(functoins, role_prompt)
+    agent.hide_output_parse = False
     await agent.run(input, output_callback=output_callback)

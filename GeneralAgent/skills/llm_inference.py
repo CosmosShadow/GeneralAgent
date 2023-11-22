@@ -80,16 +80,23 @@ def embedding_batch(texts) -> [[float]]:
         else:
             remain_texts.append(text)
     if len(remain_texts) > 0:
-        from litellm import embedding
-        resp = embedding(model=_get_embedding_model(),
-                         input=texts
-                         )
-        result = [x['embedding'] for x in resp['data']]
+        result = _embedding_many(remain_texts)
         for text, embedding in zip(remain_texts, result):
             key = _md5(text)
             global_cache.set_embedding_cache(key, embedding)
             embeddings[text] = embedding
     return [embeddings[text] for text in texts]
+
+
+def _embedding_many(texts) -> [[float]]:
+    from litellm import embedding
+    # 每次最多embedding 16个
+    max_batch_size = 16
+    result = []
+    for i in range(0, len(texts), max_batch_size):
+        resp = embedding(model=_get_embedding_model(),input=texts[i:i+max_batch_size])
+        result += [x['embedding'] for x in resp['data']]
+    return result
 
 
 def cos_sim(a, b):
@@ -204,7 +211,7 @@ def simple_llm_inference(messages, json_schema=None):
     return skills.llm_inference(messages, json_schema=json_schema)
 
 
-@_retry(stop_max_attempt_number=3)
+@_retry(stop_max_attempt_number=3, wait_fixed=3000)
 async def async_llm_inference(messages, model_type='normal'):
     from litellm import acompletion
     import logging
@@ -222,7 +229,7 @@ async def async_llm_inference(messages, model_type='normal'):
     return result
 
 
-@_retry(stop_max_attempt_number=3)
+@_retry(stop_max_attempt_number=3, wait_fixed=3000)
 def _llm_inference_with_stream(messages, model_type='normal'):
     """
     messages: llm messages, model_type: normal, smart, long
@@ -261,7 +268,7 @@ def _llm_inference_with_stream(messages, model_type='normal'):
 #    pass
 
 
-@_retry(stop_max_attempt_number=3)
+@_retry(stop_max_attempt_number=3, wait_fixed=3000)
 def _llm_inference_without_stream(messages, model_type='normal'):
     from litellm import completion
     import logging
