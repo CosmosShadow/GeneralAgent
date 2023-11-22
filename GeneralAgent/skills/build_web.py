@@ -1,7 +1,13 @@
 from ast import Tuple
 import os
 
-def compile_tsx(lib_name, code, target_dir):
+def compile_tsx(lib_name:str, code:str, target_dir:str):
+    """
+    Compile tsx code into a UI library.
+    @lib_name: the name of the UI library
+    @code: the tsx code
+    @target_dir: the directory to save the UI library
+    """
     # 目标目录不存在就创建
     if os.path.exists(target_dir):
         import shutil
@@ -81,7 +87,10 @@ Please reponse the component code which finish the task without any explaination
     return result
 
 
-def _extract_tsx_code(content):
+def extract_tsx_code(content):
+    """
+    Extract tsx code from markdown content.
+    """
     import re
     # 兼容tsx和ts
     pattern = re.compile(r'```tsx?\n([\s\S]*)\n```')
@@ -109,6 +118,7 @@ def create_ui(task: str, ui_dir: str = './ui', component_name: str = None) -> (s
         create_ui('A task description with all the necessary details')
     """
     import uuid
+    import os
     lib_name = component_name
     if lib_name is None:
         lib_name = 'Lib' + str(uuid.uuid1())[:4]
@@ -116,7 +126,7 @@ def create_ui(task: str, ui_dir: str = './ui', component_name: str = None) -> (s
         os.makedirs(ui_dir)
     target_dir = os.path.join(ui_dir, lib_name)
     content = _llm_write_ui_lib(lib_name, task)
-    code = _extract_tsx_code(content)
+    code = extract_tsx_code(content)
     success = compile_tsx(lib_name, code, target_dir)
     if success:
         return lib_name, os.path.join(target_dir, 'index.js')

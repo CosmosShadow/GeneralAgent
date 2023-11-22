@@ -102,9 +102,10 @@ def set_tsx_builder_dir(the_dir):
     os.environ['TSX_BUILDER_DIR'] = the_dir
 
 def get_tsx_builder_dir():
-    tsx_builder_dir = os.environ.get('TSX_BUILDER_DIR', None)
-    if tsx_builder_dir is None:
-        raise Exception('enviroment TSX_BUILDER_DIR (ui builder project directory) is not set')
+    default_tsx_builder_dir = os.path.join(os.path.dirname(__file__), '../webui/server/server/ts_builder')
+    tsx_builder_dir = os.environ.get('TSX_BUILDER_DIR', default_tsx_builder_dir)
+    if not os.path.exists(os.path.join(default_tsx_builder_dir, 'package.json')):
+        raise Exception('enviroment TSX_BUILDER_DIR (ui builder project directory) is not set, the package.json file not exists')
     return tsx_builder_dir
 
 def set_local_applications_dir(the_dir):

@@ -84,12 +84,13 @@ def test_create_ui():
     from GeneralAgent import skills
     task = "用户输入姓名、家庭住址、手机号的表单，并且点击提交的时候，弹窗显示"
     lib_name = 'LibTest'
-    js_path, lib_name = skills.create_ui(task, lib_name=lib_name)
-    # 验证js文件存在
+    target_dir = './data/ui/'
+    lib_name, js_path = skills.create_ui(task, ui_dir=target_dir, component_name=lib_name)
     import os
     assert os.path.exists(js_path)
     assert lib_name in js_path
 
+
 if __name__ == '__main__':
     test_compile_tsx()
-    # test_create_ui()
+    test_create_ui()

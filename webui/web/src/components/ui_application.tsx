@@ -38,7 +38,7 @@ const UIApplication: React.FC<Props> = (props) => {
 
     return (
         // <DynamicUI name={lib_name} js_url={js_url} data={null} save_data={save_data}/>
-        <Lib06f4 save_data={save_data} component={NewFileUploadButton}/>
+        <Lib06f4 save_data={save_data} FileUploadConponent={NewFileUploadButton}/>
     );
 }
 
