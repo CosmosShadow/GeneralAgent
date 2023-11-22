@@ -11,7 +11,7 @@ def test__llm_write_ui_lib():
 def test_create_application_ui():
     from GeneralAgent import skills
     lib_name = 'LibTest'
-    lib_name, js_path = skills.create_application_ui(task, component_name=lib_name)
+    lib_name, js_path, code = skills.create_application_ui(task, component_name=lib_name)
     # 验证js文件存在
     import os
     assert os.path.exists(js_path)

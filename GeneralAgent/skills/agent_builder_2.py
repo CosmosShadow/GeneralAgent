@@ -58,14 +58,12 @@ Please reponse the component code which finish the task without any explaination
 
 def create_application_ui(task: str, ui_dir: str = './ui', component_name: str = None) -> (str, str):
     """
-    Convert a given task description into UI components.
-
-    Args:
-        task: A string representing the task description with all the necessary details.
-
-    Returns:
-        A tuple containing the name of the UI component and the path to the JavaScript file.
-
+    Convert a given task description into UI components. 
+    In the code, user_data will be processed into a string through save_data using JSON.stringify({'data': user_data}) and sent to the backend
+    @param task: The task description.
+    @param ui_dir: The directory to store the UI library.
+    @param component_name: The name of the UI library.
+    @return: The name of the UI library,  the path of the UI library, the code of the UI library. None if failed. 
     Example:
         create_application_ui('A task description with all the necessary details')
     """
@@ -82,6 +80,6 @@ def create_application_ui(task: str, ui_dir: str = './ui', component_name: str =
     code = skills.extract_tsx_code(content)
     success = skills.compile_tsx(lib_name, code, target_dir)
     if success:
-        return lib_name, os.path.join(target_dir, 'index.js')
+        return lib_name, os.path.join(target_dir, 'index.js'), code
     else:
         return None
