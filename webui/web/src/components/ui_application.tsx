@@ -37,8 +37,8 @@ const UIApplication: React.FC<Props> = (props) => {
     const NewFileUploadButton = withChatAndBotId(bot.id as string, props.chat_id)(FileUploadButton);
 
     return (
-        // <DynamicUI name={lib_name} js_url={js_url} data={null} save_data={save_data}/>
-        <Lib06f4 save_data={save_data} FileUploadConponent={NewFileUploadButton}/>
+        <DynamicUI name={lib_name} js_url={js_url} data={null} save_data={save_data} FileUploadConponent={NewFileUploadButton}/>
+        // <Lib06f4 save_data={save_data} FileUploadConponent={NewFileUploadButton}/>
     );
 }
 

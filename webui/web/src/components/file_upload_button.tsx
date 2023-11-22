@@ -63,7 +63,7 @@ export function FileUploadButton(props: Props) {
          if (fileInput) {
             fileInput.click();
          }
-      }}>{props.title == null ? <UploadOutlined /> : props.title}</Button>
+      }}>{props.title ? props.title : <UploadOutlined />}</Button>
       <Modal title="上传文件" open={isModalVisible} onOk={handleModalOk} onCancel={handleModalCancel}>
         {file && <p>{(file as any).name}</p>}
       </Modal>

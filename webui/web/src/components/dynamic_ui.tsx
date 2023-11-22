@@ -7,6 +7,7 @@ interface Props {
   js_url: string;
   data: any;
   save_data: (data: any) => void;
+  FileUploadConponent?: any;
 }
 
 const DynamicUI: React.FC<Props> = (props) => {
@@ -47,7 +48,7 @@ const DynamicUI: React.FC<Props> = (props) => {
   return (
     <div>
       {/* {Component && <Component data={props.data} save_data={props.save_data}/>} */}
-      {Component && <Component save_data={props.save_data}/>}
+      {Component && <Component save_data={props.save_data} FileUploadConponent={props.FileUploadConponent}/>}
     </div>
   );
 }

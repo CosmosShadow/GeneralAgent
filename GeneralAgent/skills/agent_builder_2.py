@@ -13,6 +13,7 @@ You are a React and Typescript expert.
 Create a React function component named LibTemplate in tsx language. 
 The component should have the following functionality:
 {{task}}
+Note: The component only save data to backend, no need to display data, or result of task.
 
 # Import
 Use the following import syntax:
@@ -33,10 +34,17 @@ interface Props {
   FileUploadConponent: (props: {onUploadSuccess: (file_path: string) => void, title?: string}) => React.ReactElement
 }
 
+// user save_data to save the user_data
+// user_data will be processed into a string through save_data using JSON.stringify({'data': user_data}) and sent to the backend
+// use FileUploadConponent to upload file (<props.FileUploadConponent onUploadSuccess={handleUploadSuccess} title=''/>) and add file_path to data before save
+
 const LibTemplate = (props: Props) => {
-  // user save_data to save the user_data
-  // user_data will be processed into a string through save_data using JSON.stringify({'data': user_data}) and sent to the backend
-  // use FileUploadConponent to upload file (<props.FileUploadConponent onUploadSuccess={handleUploadSuccess} title='上传xx'/>) and add file_path to data before save
+
+  const handleCommit = () => {
+    #   props.save_data(all_data_should_save)
+  };
+
+  return (<>{xxx}</>);
 };
 
 export default LibTemplate;
@@ -56,12 +64,11 @@ Please reponse the component code which finish the task without any explaination
     return result
 
 
-def create_application_ui(task: str, ui_dir: str = './ui', component_name: str = None) -> (str, str):
+def create_application_ui(task: str, component_name: str = None) -> (str, str):
     """
     Convert a given task description into UI components. 
     In the code, user_data will be processed into a string through save_data using JSON.stringify({'data': user_data}) and sent to the backend
-    @param task: The task description.
-    @param ui_dir: The directory to store the UI library.
+    @param task: Task description, should include all details related to creating the UI
     @param component_name: The name of the UI library.
     @return: The name of the UI library,  the path of the UI library, the code of the UI library. None if failed. 
     Example:
@@ -73,14 +80,12 @@ def create_application_ui(task: str, ui_dir: str = './ui', component_name: str =
     lib_name = component_name
     if lib_name is None:
         lib_name = 'Lib' + str(uuid.uuid1())[:4]
-    if not os.path.exists(ui_dir):
-        os.makedirs(ui_dir)
-    target_dir = os.path.join(ui_dir, lib_name)
+    target_dir = os.path.join(skills.get_code_dir(), lib_name)
     content = _llm_write_ui_lib(lib_name, task)
     code = skills.extract_tsx_code(content)
     success = skills.compile_tsx(lib_name, code, target_dir)
     if success:
-        js_path = os.path.join(target_dir, 'index.js')
+        js_path = os.path.join(lib_name, 'index.js')
         print(f'UI library created successfully.\n js_component_name: {lib_name}\n js_path: {js_path}\n code: \n```tsx\n{code}\n```')
         return lib_name, js_path, code
     else:
@@ -128,8 +133,8 @@ def update_application_meta_2(
     if description is not None:
         app_json['description'] = description
     app_json['upload_file'] = 'yes'
-    if js_name is not None:
-        app_json['js_name'] = js_name
+    if js_component_name is not None:
+        app_json['js_name'] = js_component_name
     if js_path is not None:
         app_json['js_path'] = js_path
     if agent_can_upload_file is not None:
@@ -145,7 +150,7 @@ def update_application_meta_2(
 def edit_application_code_2(task_description:str) -> str:
     """
     edit_application_code_2 is an Agent. You just tell it what will be done and vailable functions, it will generate a python function to complete the task. the code will be saved in main.py, which will be used to create a normal application or agent application.
-    @param task_description: task description, should be a string and include the detail of task, and what functions can be used, example: "Create a image creation application. Available functions:\n\nskills.image_generation(prompt) generate a image with prompt (in english), return a image url\n\nskills.translate_text(content, target_language)"
+    @param task_description: task description, should be a string and include the detail of task, and what functions can be used and the data that ui save to backend when build a normal application, example: "Create a image creation application. Available functions:\n\nskills.image_generation(prompt) generate a image with prompt (in english), return a image url\n\nskills.translate_text(content, target_language), data format is {'data': {'prompt': 'xxxxx'}}"
     @return: python code for the task
     """
     import os
