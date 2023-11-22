@@ -53,6 +53,7 @@ export default function ChatList (props: Props) {
             } else if (index === 0 && (chat_list as any).length > 1) {
                 onHandleSelectChat((chat_list as any)[1])
             } else {
+                onhandleNewChat()
             }
         });
     }

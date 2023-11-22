@@ -1,4 +1,4 @@
-from base_setting import *
+from .base_setting import *
 import websockets
 import logging
 from server.interface import Message, Token

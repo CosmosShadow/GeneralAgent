@@ -1,4 +1,4 @@
-from base_setting import *
+from .base_setting import *
 import requests
 import pytest
 import shutil
