@@ -388,16 +388,11 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
 - Give the function a name that describe the task
 - The docstring of the function should be as concise as possible without losing key information, only one line, and output in English
 
-# DEMO 1 : Application with A large language model
+# DEMO 1 : write user's input to a file and return
 ```python
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     from GeneralAgent import skills
-    chat_history = skills.cut_messages(chat_history, 4000)
-    messages = [{{"role": "system", "content": "You are a helpful assistant."}}] + chat_history
-    response = skills.llm_inference(messages, stream=True)
-    for token in response:
-        await output_callback(token)
-    await output_callback(None)
+    
 ```
 
 # DEMO 2 : Agent with functions

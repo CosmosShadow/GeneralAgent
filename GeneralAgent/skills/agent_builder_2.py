@@ -138,3 +138,96 @@ def update_application_meta_2(
         del app_json['icon']
     with open(bot_json_path, 'w') as f:
         f.write(json.dumps(app_json, indent=4))
+
+
+def edit_application_code_2(task_description:str) -> str:
+    """
+    edit_application_code_2 is an Agent. You just tell it what will be done and vailable functions, it will generate a python function to complete the task. the code will be saved in main.py, which will be used to create a normal application or agent application.
+    @param task_description: task description, should be a string and include the detail of task, and what functions can be used, example: "Create a image creation application. Available functions:\n\nskills.image_generation(prompt) generate a image with prompt (in english), return a image url\n\nskills.translate_text(content, target_language)"
+    @return: python code for the task
+    """
+    import os
+    from GeneralAgent import skills
+    code_path = os.path.join(skills.get_code_dir(),  'main.py')
+    old_code = None
+    if os.path.exists(code_path):
+        with open(code_path, 'r') as f:
+            old_code = f.read()
+    code = _generate_agent_code(task_description, default_code=old_code)
+    with open(code_path, 'w') as f:
+        f.write(code)
+    return code
+
+
+def _generate_agent_code(task_description, default_code=None):
+    """Return the python code text that completes the task to build a chat bot, when default_code is not None, update default_code by task"""
+    from GeneralAgent import skills
+    python_version = skills.get_python_version()
+    requirements = skills.get_current_env_python_libs()
+    prompt = f"""
+You are a python expert, write a python function to complete user's task.
+The function in code will be used to create a chat bot, like slack, discord.
+
+# Function signature
+```
+async def main(messages, input, output_callback):
+    # messages is a list of dict, like [{{"role": "user", "content": "hello"}}, {{"role": "system", "content": "hi"}}]
+    # input is a string, user's input in agent application, or json string by save_data in UI in normal application.
+    # output_callback is a async function, output_callback(content: str) -> None. output_callback will send content to user. the content should be markdown format. file should be like [title](sandbox:file_path)
+```
+
+# Python Version: {python_version}
+
+# Python Libs installed
+{requirements}
+
+# CONSTRAINTS:
+- Do not import the lib that the function not use.
+- Import the lib in the function
+- In the code, Intermediate files are written directly to the current directory (./)
+- Give the function a name that describe the task
+- The docstring of the function should be as concise as possible without losing key information, only one line, and output in English
+
+# DEMO 1 : normal application, write user's input to a file and return
+```python
+async def main(messages, input, output_callback):
+    from GeneralAgent import skills
+    import json
+    data = json.loads(input)['data']
+    file_path = './user_data.json'
+    with open(file_path, 'w') as f:
+        f.write(json.dumps(data))
+    await output_callback(f'file saved: [user_data.json](sandbox:{{file_path}})')
+```
+
+# DEMO 2 : agent application, Agent with functions
+```python
+async def main(messages, input, output_callback):
+    from GeneralAgent.agent import Agent
+    role_prompt = \"\"\"
+You are a translation agent.
+You complete user requirements by writing python code to call the predefined functions.
+\"\"\"
+    functions = [
+        skills.translate_text
+    ]
+    agent = Agent.with_functions(functions, role_prompt)
+    await agent.run(input, output_callback=output_callback)
+```python
+
+# There are two function types:
+1. Application: like DEMO1, The application process is fixed and less flexible, but the function will be more stable
+2. Agent: like DEMO2, Agent is a chat bot that can use functions to complete user's task. The agent will automatic handle user's input and output
+You can choose one of them to complete the task.
+
+Please think step by step carefully, consider any possible situation, and write a complete code like DEMO
+Just reponse the python code, no any explain, no start with ```python, no end with ```, no any other text.
+"""
+
+    messages = [{"role": "system", "content": prompt}]
+    if default_code is not None:
+        messages += [{"role": "system", "content": "user's code: " + default_code}]
+    messages += [{"role": "system", "content": f"user's task: {task_description}"}]
+    code = skills.llm_inference(messages, model_type='smart')
+    code = skills.get_python_code(code)
+    return code

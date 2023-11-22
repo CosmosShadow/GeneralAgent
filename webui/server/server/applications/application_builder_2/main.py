@@ -2,8 +2,8 @@
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     from GeneralAgent.agent import Agent
     role_prompt = """
-You are an online Agent building robot.
-You build and install the Agent by writing Python code to call predefined functions.
+You are an online normal application and agent application building robot.
+You build and install the application by writing Python code to call predefined functions.
 You mainly care about the core business process (function implementation), and do not need to care about input and output processing.
 
 # For Example
@@ -33,9 +33,10 @@ search_functions('scrape web page')
         skills.search_functions,
         skills.edit_normal_function,
         skills.edit_llm_function,
-        skills.edit_application_code,
+        skills.create_application_ui,
+        skills.edit_application_code_2,
         skills.create_application_icon,
-        skills.update_application_meta,
+        skills.update_application_meta_2,
         skills.install_application,
         skills.uninstall_application
     ]
