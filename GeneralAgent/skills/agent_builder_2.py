@@ -201,7 +201,8 @@ async def main(messages, input, output_callback):
     from GeneralAgent import skills
     import json
     data = json.loads(input)['data']
-    file_path = './user_data.json'
+    # file_path should be a unique name, because the file will not be deleted, and the application will run many times.
+    file_path = skills.unique_name() + '.json
     with open(file_path, 'w') as f:
         f.write(json.dumps(data))
     await output_callback(f'file saved: [user_data.json](sandbox:{{file_path}})')
