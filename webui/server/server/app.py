@@ -244,7 +244,12 @@ async def worker():
             os.chdir(data_dir)
             if application_module is not None:
                 file = None if message.file == '' else message.file
-                await application_module.main(chat_messages, message.msg, file, _output_callback, _file_callback, send_ui)
+                # 获取application_module.main函数参数个数
+                params_count = application_module.main.__code__.co_argcount
+                if params_count == 3:
+                    await application_module.main(chat_messages, message.msg, _output_callback)
+                else:
+                    await application_module.main(chat_messages, message.msg, file, _output_callback, _file_callback, send_ui)
                 if len(result.strip()) > 0:
                     response = message.response_template()
                     response.msg = result
