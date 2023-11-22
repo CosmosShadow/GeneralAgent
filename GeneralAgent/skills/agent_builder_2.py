@@ -80,7 +80,9 @@ def create_application_ui(task: str, ui_dir: str = './ui', component_name: str =
     code = skills.extract_tsx_code(content)
     success = skills.compile_tsx(lib_name, code, target_dir)
     if success:
-        return lib_name, os.path.join(target_dir, 'index.js'), code
+        js_path = os.path.join(target_dir, 'index.js')
+        print(f'UI library created successfully.\n js_component_name: {lib_name}\n js_path: {js_path}\n code: \n```tsx\n{code}\n```')
+        return lib_name, js_path, code
     else:
         return None
     
@@ -90,17 +92,17 @@ def update_application_meta_2(
         type:str=None,
         application_name:str=None,
         description:str=None,
-        js_name:str=None,
+        js_component_name:str=None,
         js_path:str=None,
         agent_can_upload_file=None,
         ) -> None:
     """
-    Update application meta data. When type is application, you should provide js_name and js_path. When type is agent, you should ignore js_name and js_path.
+    Update application meta data. When type is application, you should provide js_component_name and js_path. When type is agent, you should ignore js_component_name and js_path.
     @param application_id: application id, You should name it, example: translat_text, ai_draw
     @param type: application type, one of ['application', 'agent']. application is a normal application with ui, agent is a agent application with chat interface.
     @param application_name: application name
     @param description: application description
-    @param js_name: js file name
+    @param js_component_name: js component name
     @param js_path: js file path
     @param agent_can_upload_file: agent can upload file or not, default is False, if True, agent can upload file to the application
     @return: None

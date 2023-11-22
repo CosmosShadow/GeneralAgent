@@ -44,3 +44,8 @@ def read_file_content(file_path):
         # 默认当做文本文件
         with open(file_path, 'r') as f:
             return '\n'.join(f.readlines())
+
+def write_file_content(file_path, content):
+    """write content to txt, md"""
+    with open(file_path, 'w') as f:
+        f.write(content)
