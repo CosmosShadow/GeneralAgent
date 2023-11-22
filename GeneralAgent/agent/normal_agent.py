@@ -158,10 +158,10 @@ class NormalAgent(AbsAgent):
                         if self.hide_output_parse:
                             is_matched, string_left = interpreter.output_match_end(result)
                             await output_callback(string_left)
-                        result += output.strip()
+                        result += '\n' + output.strip()
                         # logging.debug(result)
                         if not self.hide_output_parse or is_stop:
-                            await output_callback(output.strip())
+                            await output_callback('\n' + output.strip())
                         is_break = True
                         in_parse_content = False
                         break
