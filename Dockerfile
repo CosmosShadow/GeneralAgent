@@ -15,6 +15,7 @@ RUN mkdir ./data
 
 # /workspace添加到python环境变量
 ENV PYTHONPATH=/workspace:$PYTHONPATH
+ENV DATA_DIR='/workspace/data/'
 
 ADD ./start.sh ./start.sh
 RUN chmod +x ./start.sh

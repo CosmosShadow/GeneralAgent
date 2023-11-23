@@ -5,10 +5,12 @@ def get_weather(city:str):
     """
     get weather from city
     """
-    return 'weather is good, sunny.'
+    state = 'weather is good, sunny.'
+    print(state)
+    return state
 
 async def main():
-    agent = Agent.with_functions([get_weather()])
+    agent = Agent.with_functions([get_weather])
     while True:
         input_content = input('>>>')
         await agent.run(input_content)

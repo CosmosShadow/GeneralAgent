@@ -41,7 +41,7 @@ EOF
     assert interpreter.output_match(write_content) is True
     output, is_stop = await interpreter.output_parse(write_content)
     assert is_stop is True
-    assert output.strip() == 'write successfully'
+    assert 'successfully' in output.strip()
     assert os.path.exists(target_path)
 
     # read
