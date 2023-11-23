@@ -1,5 +1,5 @@
 # from retrying import retry as _retry
-from tenacity import retry, stop_after_attempt, wait_fixed
+# from tenacity import retry, stop_after_attempt, wait_fixed
 
 class TinyDBCache():
     def __init__(self):
@@ -62,7 +62,7 @@ def embedding_single(text) -> [float]:
                      )
     result = [x['embedding'] for x in resp['data']]
     embedding = result[0]
-    global_cache.get_embedding_cache(key, embedding)
+    global_cache.set_embedding_cache(key, embedding)
     return embedding
 
 
@@ -212,7 +212,7 @@ def simple_llm_inference(messages, json_schema=None):
     return skills.llm_inference(messages, json_schema=json_schema)
 
 
-@retry(stop=stop_after_attempt(3), wait=wait_fixed(3))
+# @retry(stop=stop_after_attempt(3), wait=wait_fixed(3))
 async def async_llm_inference(messages, model_type='normal'):
     from litellm import acompletion
     import logging
@@ -224,13 +224,21 @@ async def async_llm_inference(messages, model_type='normal'):
         return result
     model = _get_llm_model(messages, model_type)
     temperature = _get_temperature()
-    response = await acompletion(model=model, messages=messages, temperature=temperature)
-    result = response['choices'][0]['message']['content']
-    global_cache.set_llm_cache(key, result)
-    return result
+    try_count = 3
+    while try_count > 0:
+        try:
+            response = await acompletion(model=model, messages=messages, temperature=temperature)
+            result = response['choices'][0]['message']['content']
+            global_cache.set_llm_cache(key, result)
+            return result
+        except Exception as e:
+            try_count -= 1
+            import asyncio
+            await asyncio.sleep(3)
+    return ''
 
 
-@retry(stop=stop_after_attempt(3), wait=wait_fixed(3))
+# @retry(stop=stop_after_attempt(3), wait=wait_fixed(3))
 def _llm_inference_with_stream(messages, model_type='normal'):
     """
     messages: llm messages, model_type: normal, smart, long
@@ -251,16 +259,24 @@ def _llm_inference_with_stream(messages, model_type='normal'):
         # yield None
     else:
         temperature = _get_temperature()
-        response = completion(model=model, messages=messages, stream=True, temperature=temperature)
-        result = ''
-        for chunk in response:
-            if chunk['choices'][0]['finish_reason'] is None:
-                token = chunk['choices'][0]['delta']['content']
-                if token is None:
-                    continue
-                result += token
-                global_cache.set_llm_cache(key, result)
-                yield token
+        try_count = 3
+        while try_count > 0:
+            try:
+                response = completion(model=model, messages=messages, stream=True, temperature=temperature)
+                result = ''
+                for chunk in response:
+                    if chunk['choices'][0]['finish_reason'] is None:
+                        token = chunk['choices'][0]['delta']['content']
+                        if token is None:
+                            continue
+                        result += token
+                        global_cache.set_llm_cache(key, result)
+                        yield token
+                break
+            except Exception as e:
+                try_count -= 1
+                import time
+                time.sleep(3)
         # logging.info(result)
         # yield None
 
@@ -269,7 +285,7 @@ def _llm_inference_with_stream(messages, model_type='normal'):
 #    pass
 
 
-@retry(stop=stop_after_attempt(3), wait=wait_fixed(3))
+# @retry(stop=stop_after_attempt(3), wait=wait_fixed(3))
 def _llm_inference_without_stream(messages, model_type='normal'):
     from litellm import completion
     import logging
@@ -282,10 +298,18 @@ def _llm_inference_without_stream(messages, model_type='normal'):
         return result
     model = _get_llm_model(messages, model_type)
     temperature = _get_temperature()
-    response = completion(model=model, messages=messages, temperature=temperature)
-    result = response['choices'][0]['message']['content']
-    global_cache.set_llm_cache(key, result)
-    return result
+    try_count = 3
+    while try_count > 0:
+        try:
+            response = completion(model=model, messages=messages, temperature=temperature)
+            result = response['choices'][0]['message']['content']
+            global_cache.set_llm_cache(key, result)
+            return result
+        except Exception as e:
+            try_count -= 1
+            import time
+            time.sleep(3)
+    return ''
 
 
 def fix_llm_json_str(string):

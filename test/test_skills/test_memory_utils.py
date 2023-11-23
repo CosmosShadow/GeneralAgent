@@ -32,7 +32,7 @@ background = """
 
 
 def test_parse_segment_llm_result():
-    from GeneralAgent.memory_utils import _parse_segment_llm_result
+    from GeneralAgent.skills.memory_utils import _parse_segment_llm_result
     string = "<<Nougat: Neural Optical Understanding for Academic Documents>>\n0: 15\n\n<<Abstract>>\n6: 15\n\n<<Introduction>>\n17: 32\n\n<<Primary Contributions>>\n34: 38"
     nodes = _parse_segment_llm_result(string)
     assert nodes['Abstract'] == (6, 15)

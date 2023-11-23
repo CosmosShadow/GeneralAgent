@@ -35,3 +35,4 @@ test/data/read_interpreter/chroma.sqlite3
 
 .idea/*
 scripts/*
+test/test_skills/code/*

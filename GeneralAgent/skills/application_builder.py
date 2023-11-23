@@ -41,7 +41,10 @@ def search_functions(task_description:str) -> str:
 
 def edit_normal_function(function_name:str, task_description:str) -> None:
     """
-    Edit normal function code by task_description. task description should be a string and include the detail of task, and what function can be used.
+    Edit normal function code by task_description
+    @param function_name: The name of the function to be generated.
+    @param task_description (str): A description of the task that the generated function should perform and what functions can be used.
+    @return: The generated Python function signature as a string.
     """
     return _edit_function(function_name, task_description, _generate_function_code)
 
@@ -51,7 +54,7 @@ def edit_llm_function(function_name: str, task_description:str) -> str:
     This function generates a Python function to perform a specific task using a large language model (LLM), such as translation, planning, answering general knowledge questions and so on.
     @param function_name: The name of the function to be generated.
     @param task_description (str): A description of the task that the generated function should perform.
-    @return: The generated Python function code as a string.
+    @return: The generated Python function signature as a string.
     """
     return _edit_function(function_name, task_description, _generate_llm_task_function)
 

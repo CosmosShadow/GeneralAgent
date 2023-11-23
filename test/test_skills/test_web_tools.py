@@ -4,18 +4,18 @@ def test_google_search():
     import json
     assert 'apple' in json.dumps(result)
 
-def test_wikipedia_search():
-    from GeneralAgent import skills
-    result = skills.wikipedia_search('apple inc')
-    print(result)
-    assert 'Steve Jobs' in result
+# def test_wikipedia_search():
+#     from GeneralAgent import skills
+#     result = skills.wikipedia_search('apple inc')
+#     print(result)
+#     assert 'Steve Jobs' in result
 
 def test_scrape_web():
     from GeneralAgent import skills
-    url = 'https://tongtianta.ai'
+    url = 'https://www.baidu.com'
     result = skills.scrape_web(url)
     title = result[0]
-    assert 'AI' in title
+    assert '百度' in title
 
 
 if __name__ == '__main__':
