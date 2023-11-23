@@ -31,8 +31,10 @@ test/test_skills/llm_cache.json
 webui/server/server/applications/test_application_id/bot.json
 webui/server/server/applications/test_application_id/main.py
 data/*
-test/data/read_interpreter/chroma.sqlite3
 
 .idea/*
 scripts/*
 test/test_skills/code/*
+test/data/ui/*
+test/code/*
+test/data/read_interpreter/*
