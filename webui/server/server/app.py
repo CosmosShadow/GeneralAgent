@@ -247,6 +247,8 @@ async def worker():
                 # 获取application_module.main函数参数个数
                 params_count = application_module.main.__code__.co_argcount
                 if params_count == 3:
+                    if file is not None:
+                        message.msg = f'uploaded a file: {message.file}'
                     await application_module.main(chat_messages, message.msg, _output_callback)
                 else:
                     await application_module.main(chat_messages, message.msg, file, _output_callback, _file_callback, send_ui)

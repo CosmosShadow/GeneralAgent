@@ -85,7 +85,7 @@ const MarkdownComponent: React.FC<Props> = (props) => {
         } else if (item.type === 'image') {
             return (<span key={index}><br/><ImageComponent image_url={get_chat_file_url(message.bot_id as string, message.chat_id as string, item.url)} /></span>)
         } else {
-            return (<span key={index}>&nbsp; <FileDownloadCompoent file_path={get_chat_file_url(message.bot_id as string, message.chat_id as string, item.url)} title={item.title}/>&nbsp;</span>)
+            return (<span key={index}><FileDownloadCompoent file_path={get_chat_file_url(message.bot_id as string, message.chat_id as string, item.url)} title={item.title}/></span>)
         }
     })
     }</div>)

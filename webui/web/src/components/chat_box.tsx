@@ -81,18 +81,21 @@ const ChatBox : React.FC<Props> = (props) => {
 	  }, [subscribe]);
 
 	const sendFile = (file_path: string) => {
-		const message: Message = {
-			type: 'message',
-			bot_id: props.bot_id,
-			chat_id: props.chat_id,
-			msg: '',
-			file: file_path,
-		}
-		sendMessage(JSON.stringify({
-			'type': 'message',
-			'data': message
-		}));
-		dispatch(top_bot(current_bot))
+		// const message: Message = {
+		// 	type: 'message',
+		// 	bot_id: props.bot_id,
+		// 	chat_id: props.chat_id,
+		// 	msg: '',
+		// 	file: file_path,
+		// }
+		// sendMessage(JSON.stringify({
+		// 	'type': 'message',
+		// 	'data': message
+		// }));
+		// dispatch(top_bot(current_bot))
+		setInputValue((inputValue) => {
+			return inputValue + '[](' + file_path + ')'
+		})
 	}
 	
 	// 输入框聚焦

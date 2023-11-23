@@ -49,11 +49,12 @@ const MessageComponent: React.FC<Props> = (props) => {
 		return <FileDownloadCompoent file_path={file_url} />
 	}
 
-	if (message.role == 'user') {
-		return (<div style={{ whiteSpace: 'pre-wrap' }}>{message.msg?.trim()}</div>)
-	} else {
-		return (<MarkdownComponent message={message} />)
-	}
+	// if (message.role == 'user') {
+	// 	return (<div style={{ whiteSpace: 'pre-wrap' }}>{message.msg?.trim()}</div>)
+	// } else {
+	// 	return (<MarkdownComponent message={message} />)
+	// }
+	return (<MarkdownComponent message={message} />)
 	// return (<div style={{ whiteSpace: 'pre-wrap' }}>{parse(md.render(message.msg as string))}</div>)
 	// return (<div style={{ whiteSpace: 'pre-wrap' }}>{message.msg}</div>)
 	// + '<a href=\'www.baidu.com\'>afafaf</a>'
