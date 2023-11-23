@@ -49,16 +49,16 @@ class FileInterpreter(Interpreter):
     async def output_parse(self, string) -> (str, bool):
         logging.debug('FileInterpreter:parse called')
         file_path, operation, start_line, end_line, content = self._parse_commands(string)
-        is_stop = False
+        is_stop = True
         if operation == 'write':
             self._write_file(file_path, content, start_line, end_line)
-            return 'write successfully', is_stop
+            return f'Content write to {file_path} successfully\n', is_stop
         elif operation == 'delete':
             self._delete_file(file_path, start_line, end_line)
-            return 'delete successfully', is_stop
+            return f'Delete lines of {file_path} successfully\n', is_stop
         elif operation == 'read':
             content = self._read_file(file_path, start_line, end_line)
-            return content, is_stop
+            return f'Read {file_path} succesfully, the content is below: \n\n```{content}\n```\n', is_stop
     
     def _write_file(self, file_path, content, start_index, end_index):
         # if .py file, remove ```python  and ``` pair

@@ -61,8 +61,8 @@ class EmbeddingRetrieveInterperter(Interpreter):
             if len(paragraphs) > 0:
                 information.append(f'The content of file {file_path} is: ' + '\n'.join(paragraphs)[:100] + '\n......')
             embeddings = skills.embedding_batch(paragraphs)
-            logging.debug(paragraphs[:2])
-            logging.debug(embeddings[:2])
+            # logging.debug(paragraphs[:2])
+            # logging.debug(embeddings[:2])
             self.collection.add(
                 documents=paragraphs,
                 embeddings=embeddings,

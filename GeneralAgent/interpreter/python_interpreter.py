@@ -13,7 +13,8 @@ from GeneralAgent import skills
 """
 
 # default_libs = ' '.join(["requests", "tinydb", "openai", "jinja2", "numpy", "bs4", "playwright", "retrying", "pymupdf", "python-pptx", "python-docx", "yfinance"])
-default_libs = skills.get_current_env_python_libs()
+# default_libs = skills.get_current_env_python_libs()
+default_libs = ''
 
 # from GeneralAgent.tools import Tools
 

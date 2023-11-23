@@ -31,7 +31,7 @@ class PlanInterpreter(Interpreter):
         structure_data = match.group(2).strip()
         plan_dict = self._structure_plan(structure_data)
         current_node = self.memory.current_node
-        self.add_plans_for_node(current_node, plan_dict, prefix)
+        self._add_plans_for_node(current_node, plan_dict, prefix)
         return string, False
     
     def _add_plans_for_node(self, node:StackMemoryNode, plan_dict, prefix):

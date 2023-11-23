@@ -1,4 +1,6 @@
 import os
+import pytest
+import asyncio
 from GeneralAgent.interpreter import PlanInterpreter
 from GeneralAgent.memory import StackMemory, StackMemoryNode
 
@@ -19,7 +21,8 @@ def test_structure_plan():
     assert len(plan_dict[key0]) == 1
     assert len(plan_dict[key1]) == 0
 
-def test_plan_interpreter():
+@pytest.mark.asyncio
+async def test_plan_interpreter():
     serialize_path = './data/plan_memory.json'
     if os.path.exists(serialize_path): os.remove(serialize_path)
     memory = StackMemory(serialize_path)
@@ -36,7 +39,7 @@ def test_plan_interpreter():
 
 ```
 """
-    output, is_stop = interpreter.input_parse(content)
+    output, is_stop = await interpreter.input_parse(content)
     assert output == content
     assert is_stop is False
     assert memory.node_count() == 4

@@ -158,6 +158,9 @@ class NormalAgent(AbsAgent):
                         if self.hide_output_parse:
                             is_matched, string_left = interpreter.output_match_end(result)
                             await output_callback(string_left)
+                        while len(cache_tokens) > 0:
+                            pop_token = cache_tokens.pop(0)
+                            await output_callback(pop_token)
                         result += '\n' + output.strip() + '\n'
                         # logging.debug(result)
                         if not self.hide_output_parse or is_stop:

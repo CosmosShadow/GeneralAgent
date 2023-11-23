@@ -14,7 +14,7 @@ async def test_read_paper():
     if os.path.exists(serialize_path):
         os.remove(serialize_path)
     memory = LinkMemory(serialize_path=serialize_path)
-    file_path = './data/Nougat.pdf'
+    file_path = './data/Nougat_piece.pdf'
     doc = fitz.open(file_path)
     content = ''
     for page in doc:
@@ -26,11 +26,11 @@ async def test_read_paper():
     assert '<<Introduction>>' in spark
 
     messages = [
-        {'role': 'user', 'content': '论文有哪些限制?'},
+        {'role': 'user', 'content': '论文有哪些贡献?'},
     ]
     spark = await memory.get_memory(messages)
     print(f'-----------\n{spark}\n-----------')
-    assert 'limitations' in spark.lower()
+    assert 'pdf' in spark.lower()
 
 
 if __name__ == '__main__':

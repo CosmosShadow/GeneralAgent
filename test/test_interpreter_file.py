@@ -1,6 +1,6 @@
+import pytest
+import asyncio
 from GeneralAgent.interpreter import FileInterpreter
-from GeneralAgent.utils import set_logging_level
-set_logging_level()
 
 
 def test_parse_command():
@@ -19,8 +19,8 @@ def test_parse_command():
         assert end_line == -1
         assert content == 'hello world'
 
-
-def test_write_read():
+@pytest.mark.asyncio
+async def test_write_read():
     import os
     interpreter = FileInterpreter()
     target_path = './data/a.txt'
@@ -38,9 +38,9 @@ EOF
 ```
 
 """ % (target_path, target_path)
-    assert interpreter.match(write_content) is True
-    output, is_stop = interpreter.parse(write_content)
-    assert is_stop is False
+    assert interpreter.output_match(write_content) is True
+    output, is_stop = await interpreter.output_parse(write_content)
+    assert is_stop is True
     assert output.strip() == 'write successfully'
     assert os.path.exists(target_path)
 
@@ -51,12 +51,13 @@ firsrt, read the file.
 file %s read 0 -1
 ```
 """ % (target_path, )
-    assert interpreter.match(read_content) is True
-    output, is_stop = interpreter.parse(read_content)
-    assert is_stop is False
+    assert interpreter.output_match(read_content) is True
+    output, is_stop = await interpreter.output_parse(read_content)
+    assert is_stop is True
     assert 'Chengdu is a sub-provincial city' in output
 
 
 if __name__ == '__main__':
-    test_parse_command()
+    # test_parse_command()
     # test_write_read()
+    pass

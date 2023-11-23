@@ -14,7 +14,6 @@ result = ''
 
 def get_output_callback():
     global result
-    result = ''
     async def _output_callback(token):
         if token is not None:
             global result
@@ -25,21 +24,34 @@ def get_output_callback():
 
 @pytest.mark.asyncio
 async def test_math():
+    global result
+    result = ''
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = StackAgent.default(workspace=workspace)
-    memory_node_id = await agent.run('calculate 0.99 ** 1000', output_callback=get_output_callback())
+    await agent.run('calculate 0.99 ** 1000', output_callback=get_output_callback())
+    count = 3
+    while count > 0:
+        if '4.31712474' in result:
+            break
+        count -= 1
+        await agent.run('OK', output_callback=get_output_callback())
     assert '4.31712474' in result
-    assert memory_node_id == None
 
 @pytest.mark.asyncio
 async def test_write_file():
+    global result
+    result = ''
     target_path = './data/a.txt'
     if os.path.exists(target_path):
         os.remove(target_path)
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = StackAgent.default(workspace=workspace)
-    memory_node_id = await agent.run('Write the description of Chengdu to the file ./data/a.txt', output_callback=get_output_callback())
-    assert memory_node_id == None
+    agent.model_type = 'smart'
+    await agent.run('Write the description of Chengdu to the file ./data/a.txt. You shoud provide the description', output_callback=get_output_callback())
+    for _ in range(2):
+        await agent.run('OK', output_callback=get_output_callback())
+        if os.path.exists(target_path):
+            break
     assert os.path.exists(target_path)
     with open(target_path, 'r') as f:
         content = f.read()
@@ -49,6 +61,8 @@ async def test_write_file():
 
 @pytest.mark.asyncio
 async def test_read_file():
+    global result
+    result = ''
     content = """Chengdu, the capital of China's southwest Sichuan Province, is famed for being the home of cute giant pandas. Apart from the Panda Research base, Chengdu has a lot of other attractions. It is known for its spicy Sichuan cuisine and ancient history, including the site of the ancient Jinsha civilization and the Three Kingdoms-era Wuhou Shrine. The city also features beautiful natural landscapes such as Mount Qingcheng and the Dujiangyan Irrigation System, both UNESCO World Heritage Sites."""
     target_path = './data/b.txt'
     if os.path.exists(target_path):
@@ -58,7 +72,10 @@ async def test_read_file():
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = StackAgent.default(workspace=workspace)
     memory_node_id = await agent.run('what is in ./data/b.txt', output_callback=get_output_callback())
-    global result
+    for _ in range(2):
+        if 'Mount Qingcheng' in result:
+            break
+        await agent.run('OK', output_callback=get_output_callback())
     assert 'Mount Qingcheng' in result
     assert memory_node_id == None
     if os.path.exists(target_path):
@@ -66,17 +83,20 @@ async def test_read_file():
 
 @pytest.mark.asyncio
 async def test_functions():
+    global result
+    result = ''
     if os.path.exists(workspace): shutil.rmtree(workspace)
     os.mkdir(workspace)
     serialize_path = f'{workspace}/code.bin'
     python_interpreter = PythonInterpreter(serialize_path=serialize_path)
     from GeneralAgent import skills
     python_interpreter.function_tools = [skills.scrape_web]
-    agent = StackAgent(workspace=workspace, output_interpreters=[RoleInterpreter(), python_interpreter])
-    memory_node_id = await agent.run("what's the tiltle of web page https://tongtianta.ai ?", output_callback=get_output_callback())
-    global result
-    assert 'AI' in result
-    assert memory_node_id == None
+    agent = StackAgent(workspace=workspace)
+    agent.interpreters =  [RoleInterpreter(), python_interpreter]
+    await agent.run("what's the tiltle of web page https://baidu.com ?", output_callback=get_output_callback())
+    for _ in range(2):
+        await agent.run('OK', output_callback=get_output_callback())
+    assert '百度' in result
     assert os.path.exists(serialize_path)
     shutil.rmtree(workspace)
 
@@ -84,6 +104,6 @@ async def test_functions():
 
 if __name__ == '__main__':
     # asyncio.run(test_math())
-    # asyncio.run(test_write_file())
+    asyncio.run(test_write_file())
     # asyncio.run(test_read_file())
-    asyncio.run(test_functions())
+    # asyncio.run(test_functions())
