@@ -45,16 +45,13 @@ def edit_normal_function(function_name:str, task_description:str) -> None:
     """
     return _edit_function(function_name, task_description, _generate_function_code)
 
+
 def edit_llm_function(function_name: str, task_description:str) -> str:
     """
     This function generates a Python function to perform a specific task using a large language model (LLM), such as translation, planning, answering general knowledge questions and so on.
-    
-    Parameters:
-    function_name: The name of the function to be generated.
-    task_description (str): A description of the task that the generated function should perform.
-
-    Returns:
-    str: The generated Python function signature as a string.
+    @param function_name: The name of the function to be generated.
+    @param task_description (str): A description of the task that the generated function should perform.
+    @return: The generated Python function code as a string.
     """
     return _edit_function(function_name, task_description, _generate_llm_task_function)
 
@@ -438,63 +435,105 @@ def _generate_llm_task_function(task_description, default_code=None):
     Returns:
     str: The generated Python function code as a string.
     """
+    import os
     from GeneralAgent import skills
-    from jinja2 import Template
-    prompt_template = """
-You are a Python expert.
-Your job is to have a large language model (LLM) perform specific tasks, such as translation, planning, answering general knowledge questions, etc.
-Large language model calling function:
+    python_version = skills.get_python_version()
+    requirements = skills.get_current_env_python_libs()
+    the_skills_can_use = skills._search_functions(task_description) if search_functions else ''
+    prompt = f"""
+You are a python expert, write a function to complete user's task
 
+# Python Version
+{python_version}
+
+# Python Libs installed
+{requirements}
+
+# You can use skills lib(from GeneralAgent import skills), the function in the lib are:
+
+def skills.simple_llm_inference(messages, json_schema):
+     Run LLM (large language model) inference on the provided messages, The total number of tokens in the messages and the returned string must be less than 8000.
+     @param messages: Input messages for the model, like [{{'role': 'system', 'content': 'You are a helpful assistant'}}, {{'role': 'user', 'content': 'translate blow to english:\nxxxx'}}]
+     @param json_schema: the json schema of return dictionary, like {{"type": "object", "properties": {{"name": {{"type": "string"}}, "age": {{"type": "integer" }} }} }}
+     @return returned as a dictionary According to the provided JSON schema.
+
+{the_skills_can_use}
+
+# CONSTRAINTS:
+- Do not import the lib that the function not use.
+- Import the lib in the function, any import statement must be placed in the function
+- docstring the function simplely
+- Do not use other libraries
+- In the code, Intermediate files are written directly to the current directory (./)
+- Give the function a name that describle the task
+- The docstring of the function should be as concise as possible without losing key information, only one line, and output in English
+- The code should be as simple as possible and the operation complexity should be low
+
+# Demo:
 ```python
-def simple_llm_inference(messages, json_schema):
-     \"\"\"
-     Run LLM (large language model) inference on the provided messages
-    
-     Parameters:
-     messages: Input messages for the model, like [{'role': 'system', 'content': 'You are a helpful assistant'}, {'role': 'user', 'content': 'What is your name ?'}]
-     json_schema: the json schema of return dictionary, like {"type": "object", "properties": {"name": {"type": "string"}, "age": {"type": "integer" }}}
-
-     Returns:
-     returned as a dictionary According to the provided JSON schema.
-
-     Note:
-     The total number of tokens in the messages and the returned string must be less than 8000.
-     \"\"\"
+def translate(text:str, language:str) -> str:
+    \"\"\"
+    translate, return the translated text
+    Parameters: text -- user text, string
+    Returns: the translated text, string
+    \"\"\"
+    from GeneralAgent import skills
+    contents = text.split('.')
+    translated = []
+    for x in contents:
+        prompt = "Translate the following text to " + language + "\n" + x
+        translated += [skills.llm_inference([{{'role': 'system', 'content': prompt}}])
+    return '. '.join(translated)
 ```
 
-# Installed libraries:
-
-[numpy]
-
-# Your output's structure like below
-
-```python
-def xxx(xxx):
-     \"\"\"
-     xxx
-     \"\"\"
-     from GeneralAgent import skills
-     # skills.simple_llm_inference
-```
-
-# Task
-
-{{task}}
-
-# Note:
-
-- All imports should be placed inside the function.
-- While creating your function, consider the all edge cases.
-- Do not use any other libraries except simple_llm_inference and installed libraries.
-- The simple_llm_inference function requires that the input messages are less than 8000, and the output length is less than 8000. - 
-- When the task cannot be completed through one simple_llm_inference, you should consider task disassembly.
+Please think step by step carefully, consider any possible situation, and write a complete function.
+Just reponse the python code, no any explain, no start with ```python, no end with ```, no any other text.
 """
-    prompt = Template(prompt_template).render({'task': task_description})
+    messages = [{"role": "system", "content": prompt}]
     if default_code is not None:
-        prompt += '\n' + 'user\'s code: ' + default_code + '\nUpdate the code to complete the task'
-    result = skills.llm_inference([{'role': 'system', 'content': prompt}, {'role': 'user', 'content': 'You are a python expert.'}, {'role': 'user', 'content': prompt}], model_type="smart")
-    code = skills.get_python_code(result)
+        messages += [{"role": "system", "content": "user's code: " + default_code}]
+    messages += [{"role": "system", "content": f"user's task: {task_description}"}]
+    code = skills.llm_inference(messages, model_type='smart')
+    code = skills.get_python_code(code)
     return code
+
+#     from GeneralAgent import skills
+#     from jinja2 import Template
+#     prompt_template = """
+# 你是一个python专家。
+
+
+# Your job is to have a large language model (LLM) perform specific tasks, such as translation, planning, answering general knowledge questions, etc.
+# Your job is to have a large language model (LLM) perform specific tasks, such as translation, planning, answering general knowledge questions, etc.
+# Large language model calling function:
+
+# ```python
+# def xxx(xxx):
+#      \"\"\"
+#      xxx
+#      \"\"\"
+#      from GeneralAgent import skills
+#      # skills.simple_llm_inference
+# ```
+
+# # Task
+
+# {{task}}
+
+# # Note:
+
+# - All imports should be placed inside the function.
+# - While creating your function, consider the all edge cases.
+# - Do not use any other libraries except simple_llm_inference and installed libraries.
+# - The simple_llm_inference function requires that the input messages are less than 8000, and the output length is less than 8000. - 
+# - When the task cannot be completed through one simple_llm_inference, you should consider task disassembly.
+# """
+#     prompt = Template(prompt_template).render({'task': task_description})
+#     if default_code is not None:
+#         prompt += '\n' + 'user\'s code: ' + default_code + '\nUpdate the code to complete the task'
+#     result = skills.llm_inference([{'role': 'system', 'content': prompt}, {'role': 'user', 'content': 'You are a python expert.'}, {'role': 'user', 'content': prompt}], model_type="smart")
+#     code = skills.get_python_code(result)
+#     return code
 
 
 # def create_function(func_name:str, task_description:str):

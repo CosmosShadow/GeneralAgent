@@ -1,0 +1,10 @@
+{
+    "id": "file_translate",
+    "type": "application",
+    "name": "\u6587\u4ef6\u7ffb\u8bd1",
+    "description": "\u6587\u4ef6\u7ffb\u8bd1\u5e94\u7528",
+    "upload_file": "yes",
+    "js_name": "Libf0b0",
+    "js_path": "Libf0b0/index.js",
+    "icon": "icon.jpg"
+}

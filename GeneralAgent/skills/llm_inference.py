@@ -1,4 +1,5 @@
-from retrying import retry as _retry
+# from retrying import retry as _retry
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 class TinyDBCache():
     def __init__(self):
@@ -211,7 +212,7 @@ def simple_llm_inference(messages, json_schema=None):
     return skills.llm_inference(messages, json_schema=json_schema)
 
 
-@_retry(stop_max_attempt_number=3, wait_fixed=3000)
+@retry(stop=stop_after_attempt(3), wait=wait_fixed(3))
 async def async_llm_inference(messages, model_type='normal'):
     from litellm import acompletion
     import logging
@@ -229,7 +230,7 @@ async def async_llm_inference(messages, model_type='normal'):
     return result
 
 
-@_retry(stop_max_attempt_number=3, wait_fixed=3000)
+@retry(stop=stop_after_attempt(3), wait=wait_fixed(3))
 def _llm_inference_with_stream(messages, model_type='normal'):
     """
     messages: llm messages, model_type: normal, smart, long
@@ -268,7 +269,7 @@ def _llm_inference_with_stream(messages, model_type='normal'):
 #    pass
 
 
-@_retry(stop_max_attempt_number=3, wait_fixed=3000)
+@retry(stop=stop_after_attempt(3), wait=wait_fixed(3))
 def _llm_inference_without_stream(messages, model_type='normal'):
     from litellm import completion
     import logging
