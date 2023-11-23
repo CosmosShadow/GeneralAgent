@@ -1,4 +1,4 @@
-from .base_setting import *
+from base_setting import *
 import requests
 import pytest
 import shutil
@@ -28,15 +28,15 @@ def test_file():
 
 @pytest.mark.asyncio
 async def test_load_application():
-    from server.server import load_application
-    application = load_application('hello')
-    assert application is not None
-    assert hasattr(application, 'main')
+    from GeneralAgent import skills
+    application_module = skills.get_application_module('hello')
+    assert application_module is not None
+    assert hasattr(application_module, 'main')
     result = ''
     async def _output(token):
         nonlocal result
         result += token
-    await application.main(None, None, None, _output)
+    await application_module.main(None, None, None, _output)
     assert 'hello' in result
 
 

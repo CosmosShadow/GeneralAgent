@@ -1,9 +1,22 @@
-from .base_setting import *
+from base_setting import *
 import websockets
 import logging
-from server.interface import Message, Token
 import json
+from dataclasses import dataclass
+from typing import Optional
 
+@dataclass
+class Message():
+    type: Optional[str] = 'message' # token | message
+    id: Optional[str] = None
+    role: Optional[str] = ''               # user / bot
+    bot_id: Optional[str] = ''           # bot id
+    chat_id: Optional[str] = ''          # chat id
+    create_at: Optional[str] = None
+    msg: Optional[str] = ''
+    file: Optional[str] = ''
+    ui: Optional[str] = ''      # UI组件(js, name, data)
+    extention: Optional[str] = None     # 扩展字段
 
 @pytest.mark.asyncio
 async def test_user_chat():
