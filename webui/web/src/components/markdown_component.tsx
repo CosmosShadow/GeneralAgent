@@ -13,7 +13,7 @@ type LinkObject = {
   };
   
   function splitStringWithLinks(str: string): LinkObject[] {
-    const regex = /(\[.*?\]\(sandbox:\/?[^\)]+\))|(\!\[.*?\]\(sandbox:\/?[^\)]+\))|([^!]\[.*?\]\(sandbox:\/?[^\)]+\))/g;
+    const regex = /(!?\[.*?\]\((sandbox:\/?)?[^\)]+\))/g;
     const matches = str.match(regex);
     const result: LinkObject[] = [];
 
@@ -29,27 +29,19 @@ type LinkObject = {
                     url: ''
                 });
             }
-            if (match.startsWith('!')) {
+            const url = match.match(/\((sandbox:\/?)?([^\)]+)\)/)![2];
+            if (match.startsWith('!') || url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.gif')) {
                 result.push({
                     type: 'image',
                     title: match.match(/\[(.*?)\]/)![1],
-                    url: match.match(/\(sandbox:\/?([^\)]+)\)/)![1]
+                    url: url
                 });
             } else {
-                const url = match.match(/\(sandbox:\/?([^\)]+)\)/)![1]
-                if (url.endsWith('.png') || url.endsWith('.jpg') || url.endsWith('.jpeg') || url.endsWith('.gif')) {
-                    result.push({
-                        type: 'image',
-                        title: match.match(/\[(.*?)\]/)![1],
-                        url: url
-                    });
-                } else {
-                    result.push({
-                        type: 'file',
-                        title: match.match(/\[(.*?)\]/)![1],
-                        url: url
-                    });
-                }
+                result.push({
+                    type: 'file',
+                    title: match.match(/\[(.*?)\]/)![1],
+                    url: url
+                });
             }
             lastIndex = index + match.length;
         });
