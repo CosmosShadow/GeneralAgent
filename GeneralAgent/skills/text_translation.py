@@ -4,9 +4,13 @@ def translate_text(text, language):
     from GeneralAgent import skills
     segments = skills.split_text(text, 1800)
     translated = []
-    system_prompt = [{"role": "system", "content": f"You are a translator, translate the following text to {language}."}]
+    # system_prompt = [{"role": "system", "content": f"You are a translator, translate the following text to {language}."}]
     for x in segments:
-        messages = system_prompt + [{"role": "user", "content": x}]
+        # messages = system_prompt + [{"role": "user", "content": x}]
+        messages = [
+            {"role": "system", "content": 'You are a helpful assistant that translates text.'},
+            {"role": "user", "content": f'翻译下面被---------包围起来的文字成{language}。注意，返回翻译全文，不要任何解释和描述。: \n---------\n{x}\n---------\n'}
+        ]
         translated += [skills.llm_inference(messages)]
     return '. '.join(translated)
 

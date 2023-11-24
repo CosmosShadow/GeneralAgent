@@ -1,7 +1,7 @@
 <h1 align="center">GeneralAgent: From LLM to Agent</h1>
 <p align="center">
 <a href="README.md"><img src="https://img.shields.io/badge/document-English-blue.svg" alt="EN doc"></a>
-<!-- <a href="README_CN.md"><img src="https://img.shields.io/badge/文档-中文版-blue.svg" alt="CN doc"></a> -->
+<a href="README_CN.md"><img src="https://img.shields.io/badge/文档-中文版-blue.svg" alt="CN doc"></a>
 <img src="https://img.shields.io/static/v1?label=license&message=MIT&color=white&style=flat" alt="License"/>
 </p>
 <p align='center'>
@@ -57,10 +57,10 @@ https://github.com/CosmosShadow/GeneralAgent/assets/13933465/9d9b4d6b-0c9c-404d-
 # pull docker
 docker pull cosmosshadow/general-agent
 
-# make .env and replace variables like LLM_SOURCE、OPENAI_API_KEY
+# make .env
 cp .env.example .env
 vim .env
-# 配置.env文件中的环境变量，比如OPENAI_API_KEY等
+# Configure environment variables in the .env file, such as OPENAI_API_KEY, etc.
 
 # run
 docker run \
@@ -77,24 +77,24 @@ docker run \
 
 
 
-### 本地安装使用
+### Local installation and usage
 
-#### 安装
+#### Installation
 
 ```bash
 pip install GeneralAgent
 ```
 
-#### 设置环境变量
+#### Set environment variables
 
 ```bash
 cp .env.example .env
 vim .env
-# 配置.env文件中的环境变量，比如OPENAI_API_KEY等
+# Configure environment variables in the .env file, such as OPENAI_API_KEY, etc.
 export $(grep -v '^#' .env | sed 's/^export //g' | xargs)
 ```
 
-#### 命令行工具
+#### Command line tool
 
 ```shell
 GeneralAgent
@@ -110,35 +110,36 @@ GeneralAgent --workspace ./test --new --auto_run
 ```bash
 git clone https://github.com/CosmosShadow/GeneralAgent
 cd GeneralAgent
-# 准备工作
+# Preparation
 cd webui/web/ && npm install && cd ../../
 cd webui/server/server/ts_builder && npm install && cd ../../../../
-# 启动服务端
+# Start the server
 cd webui/server/server/
 uvicorn app:app --host 0.0.0.0 --port 7777
-# 启动web服务
+# Start the web service
 cd webui/web
 npm run start
 ```
 
-#### Python使用
+#### Python usage
 
-使用请参考代码
+Please refer to the code for usage
 
 * [examples](examples)
 * [webui/server/server/applications](webui/server/server/applications)
 
 
 
-## 其他
+## Others
 
-* GeneralAgent使用[litellm](https://docs.litellm.ai/docs/)来接入各种平台的大模型。
+* GeneralAgent uses [litellm](https://docs.litellm.ai/docs/) to access various platforms of large models.
 
 
 
-## 加入我们
 
-微信扫码下面二维码
+## Join us
+
+Scan the QR code below with WeChat
 
 <p align="center">
 <img src="./docs/images/wechat.jpg" alt="wechat" width=400/>

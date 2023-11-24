@@ -33,7 +33,6 @@ webui/server/server/applications/test_application_id/main.py
 data/*
 
 .idea/*
-scripts/*
 test/test_skills/code/*
 test/data/ui/*
 test/code/*
