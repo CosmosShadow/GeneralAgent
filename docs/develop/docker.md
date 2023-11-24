@@ -7,17 +7,17 @@
 docker buildx create --use
 
 # build base image
-docker buildx build --platform linux/amd64,linux/arm64 -f ./Dockerfile_base -t cosmosshadow/general-agent-base:0.0.2 . --push
+docker buildx build --platform linux/amd64,linux/arm64 -f ./docker/Dockerfile_base -t cosmosshadow/general-agent-base:0.0.2 . --push
 
 # build web
 cd webui/web && npm run build && cd ../../
 
 # build general-agent with amd64 and arm64
-docker buildx build --platform linux/amd64,linux/arm64 -f ./Dockerfile -t cosmosshadow/general-agent:0.0.9 . --push
-docker buildx build --platform linux/amd64,linux/arm64 -f ./Dockerfile -t cosmosshadow/general-agent:latest . --push
+docker buildx build --platform linux/amd64,linux/arm64 -f ./docker/Dockerfile -t cosmosshadow/general-agent:0.0.9 . --push
+docker buildx build --platform linux/amd64,linux/arm64 -f ./docker/Dockerfile -t cosmosshadow/general-agent:latest . --push
 
 # build general-agent-local
-docker build -f ./Dockerfile -t cosmosshadow/general-agent-local:0.0.5 .
+docker build -f ./docker/Dockerfile -t cosmosshadow/general-agent-local:0.0.5 .
 ```
 
 ## Develop
