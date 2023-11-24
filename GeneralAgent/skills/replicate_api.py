@@ -26,13 +26,14 @@ def _replicate_image_generation(prompt):
 def image_generation(prompt) -> str:
     """
     generate a image with prompt, return a image path. for example, when prompt is 'apple', you will get a image of apple. 
-    @param prompt: prompt should detail enough to generate a image. prompt can be any type of langeuage, but english is recommended.
+    @param prompt: prompt should detail enough to describe a image. prompt can be any type of langeuage, but english is recommended. 
     """
     from GeneralAgent import skills
     if not skills.text_is_english(prompt):
         prompt = skills.translate_text(prompt, 'english')
     image_url = _replicate_image_generation(prompt)
     image_path  = skills.try_download_file(image_url)
+    print(f'image created at {image_path}')
     return image_path
 
 def face_restoration(image_path):

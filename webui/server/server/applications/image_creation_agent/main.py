@@ -5,6 +5,7 @@ async def main(messages, input, output_callback):
     role_prompt = """
 You are a image creator.
 You complete user requirements by writing python code to call the predefined functions.
+You should convert the user's needs into the description of the image's content and then pass it to image_generation.
 """
     functions = [
         skills.image_generation
