@@ -274,6 +274,7 @@ async def worker():
         finally:
             if message is not None:
                 task_queue.task_done()
+                logging.info('Worker process message successfully')
             if current_workspace_dir is not None:
                 os.chdir(current_workspace_dir)
 

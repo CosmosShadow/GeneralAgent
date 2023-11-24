@@ -4,6 +4,8 @@ import logging
 import json
 from dataclasses import dataclass
 from typing import Optional
+from datetime import datetime
+import uuid
 
 @dataclass
 class Message():
@@ -17,6 +19,28 @@ class Message():
     file: Optional[str] = ''
     ui: Optional[str] = ''      # UI组件(js, name, data)
     extention: Optional[str] = None     # 扩展字段
+
+    def __post_init__(self):
+        if self.create_at is None:
+            self.create_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")
+        if self.id is None:
+            self.id = str(uuid.uuid4())
+
+    def response_template(self, is_token=False):
+        new_message = Message(
+            role='bot',
+            bot_id=self.bot_id,
+            chat_id=self.chat_id,
+            type='token' if is_token else 'message',
+        )
+        return new_message
+    
+    def to_text(self):
+        data = {
+            'type': 'message',
+            'data': self.__dict__
+        }
+        return json.dumps(data)
 
 @pytest.mark.asyncio
 async def test_user_chat():
