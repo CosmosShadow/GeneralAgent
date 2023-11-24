@@ -68,7 +68,7 @@ export default function AppStore ({ onHandleSelectBot }: { onHandleSelectBot: (b
 		apiBotList().then(function(res){
             // 过滤掉hello
             const new_bot_list = res.data.filter((bot: Bot) => {
-                return bot.id != 'hello';
+                return bot && bot.id != 'hello';
             });
 			dispatch(update_app_store_bot_list(new_bot_list));
             setBotList(new_bot_list)
