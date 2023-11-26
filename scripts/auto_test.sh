@@ -12,16 +12,13 @@ poetry run uvicorn app:app --host 0.0.0.0 --port 7777 > /dev/null 2>&1 &
 # start web
 cd /workspace/webui/web
 nohup serve -s build &
-cd ../../../
 
 export LLM_CACHE='yes'
 
 # global unit test
-cd test
-poetry pytest -s -v
-cd ..
+cd /workspace/test
+poetry run pytest -s -v
 
 # test server
 cd webui/server/test
-poetry pytest -s -v
-cd ../../../
+poetry run pytest -s -v

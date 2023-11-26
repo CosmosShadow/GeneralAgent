@@ -69,7 +69,7 @@ class SyncPythonInterpreter(Interpreter):
         if self.serialize_path is None:
             return {}
         if os.path.exists(self.serialize_path):
-            with open(self.serialize_path, 'rb', encoding='utf-8') as f:
+            with open(self.serialize_path, 'rb') as f:
                 data = pickle.loads(f.read())
                 return data['globals']
         return {}
@@ -89,7 +89,7 @@ class SyncPythonInterpreter(Interpreter):
             return
         self._remove_unpickleable()
         # save
-        with open(self.serialize_path, 'wb', encoding='utf-8') as f:
+        with open(self.serialize_path, 'wb') as f:
             data = {'globals': self.globals}
             f.write(pickle.dumps(data))
 

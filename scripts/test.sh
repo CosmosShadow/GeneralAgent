@@ -17,7 +17,7 @@ docker run \
 -v `pwd`/data:/workspace/data \
 -v `pwd`/test:/workspace/test \
 -v `pwd`/webui/server/test:/workspace/webui/server/test \
--v `pwd`/scripts/auto_test.sh:/workspace/start.sh
+-v `pwd`/scripts/auto_test.sh:/workspace/start.sh \
 --name=agent \
 --privileged=true \
 -d cosmosshadow/general-agent:test
