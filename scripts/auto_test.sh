@@ -20,5 +20,5 @@ cd /workspace/test
 poetry run pytest -s -v
 
 # test server
-cd webui/server/test
+cd /workspace/webui/server/test
 poetry run pytest -s -v

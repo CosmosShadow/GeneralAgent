@@ -15,7 +15,7 @@ A simple, general, customizable Agent framework
 * GeneralAgent support **serialization**, include **python state**.
 * Build-in interpreters: Python, AppleScript, Shell, File, Plan, Retrieve Embedding etc.
 * **Dynamic UI**: Agent can create dynamic ui to user who can use.
-* **WebUI with agent builder**. You can use natural language to create agent without coding.
+* **Agent Builder**: Create agents using natural language and use them immediately, without coding.
 * [AthenaAgent](https://github.com/sigworld/AthenaAgent) is a TypeScript port of GeneralAgent.
 
 
@@ -34,6 +34,14 @@ A simple, general, customizable Agent framework
 
 
 ## Demo
+
+**Version 0.0.11**
+
+![agent builder](./docs/images/2023_11_27_builder_agent.jpg)
+
+![agent created](./docs/images/2023_11_27_image_creator.jpg)
+
+
 
 **Version 0.03**
 
@@ -121,12 +129,22 @@ cd webui/web
 npm run start
 ```
 
+
+
 #### Python usage
 
 Please refer to the code for usage
 
 * [examples](examples)
 * [webui/server/server/applications](webui/server/server/applications)
+
+
+
+## Development
+
+* Build, code development and release in docker environment: [docs/develop/docker.md](docs/develop/docker.md)
+* pip library packaging process: [docs/develop/package.md](docs/develop/package.md)
+* Unit testing and release (pip & docker) process: [docs/develop/test_publish.md](docs/develop/test_publish.md)
 
 
 

@@ -22,7 +22,7 @@
 
 * **动态UI**：Agent可以为用户创建动态UI。
 
-* **带有Agent构建器的WebUI**。您可以使用自然语言创建Agent而无需编码。
+* **Agent Builder**: 使用自然语言创建Agent，并可以马上使用，而无需编码。
 
 * [AthenaAgent](https://github.com/sigworld/AthenaAgent)是GeneralAgent的TypeScript版本。
 
@@ -46,6 +46,12 @@
 
 
 ## 演示
+
+**Version 0.0.11**
+
+![agent builder](./docs/images/2023_11_27_builder_agent.jpg)
+
+![agent created](./docs/images/2023_11_27_image_creator.jpg)
 
 **版本0.03**
 
@@ -159,6 +165,14 @@ npm run start
 * [examples](examples)
 
 * [webui/server/server/applications](webui/server/server/applications)
+
+
+
+## 开发
+
+* docker环境下的build、代码开发、发布: [docs/develop/docker.md](docs/develop/docker.md)
+* pip库打包流程: [docs/develop/package.md](docs/develop/package.md)
+* 单元测试和发布(pip & docker)流程: [docs/develop/test_publish.md](docs/develop/test_publish.md)
 
 
 
