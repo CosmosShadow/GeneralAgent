@@ -6,5 +6,5 @@ poetry publish -u lichen -p $PYPI_PASSWORD
 
 # docker
 cd webui/web && npm run build && cd ../../
-docker buildx build --platform linux/amd64,linux/arm64 -f ./docker/Dockerfile -t cosmosshadow/general-agent:0.0.12 . --push
+docker buildx build --platform linux/amd64,linux/arm64 -f ./docker/Dockerfile -t cosmosshadow/general-agent:0.0.13 . --push
 docker buildx build --platform linux/amd64,linux/arm64 -f ./docker/Dockerfile -t cosmosshadow/general-agent:latest . --push
