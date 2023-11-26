@@ -2,7 +2,7 @@
 import axios, { AxiosResponse } from "axios";
 import {Bot} from './interface'
 
-const HOST = '127.0.0.1:7777'
+const HOST = window.location.hostname + ':7777'
 
 export const HTTP_HOST = 'http://' + HOST;
 export const WS_HOST = 'ws://' + HOST;

@@ -5,6 +5,5 @@ server/server/data/*
 server/server/files/*
 server/server/llm_cache.json
 server/test/ui/*
-server/server/ts_builder/src/lib/index.tsx
 server/test/llm_cache.json
 server/server/ts_builder/webpack.config.js
