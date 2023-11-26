@@ -1,50 +1,53 @@
 const React = (window as any).React;
 const antd = (window as any).antd;
 
-const [Form, Input, Button] = [antd.Form, antd.Input, antd.Button];
+interface Props {
+  save_data: (user_data:any)=>void,
+  FileUploadConponent: (props: {onUploadSuccess: (file_path: string) => void, title?: string}) => React.ReactElement
+}
 
-const LibTest = ({save_data}: {save_data: (data:any)=>void}) => {
-  const onFinish = (values: any) => {
-    save_data(values);
-    antd.Modal.success({
-      title: 'Success',
-      content: 'Data saved successfully',
-    });
+const Lib2257 = (props: Props) => {
+  const [file1Path, setFile1Path] = React.useState("");
+  const [file2Path, setFile2Path] = React.useState("");
+  const [outputPath, setOutputPath] = React.useState("");
+
+  const handleFile1UploadSuccess = (path: string) => {
+    setFile1Path(path);
+  };
+
+  const handleFile2UploadSuccess = (path: string) => {
+    setFile2Path(path);
+  };
+
+  const handleCommit = () => {
+    const allDataShouldSave = {
+      file1Path,
+      file2Path,
+      outputPath
+    };
+    props.save_data(allDataShouldSave);
   };
 
   return (
-    <Form onFinish={onFinish}>
-      <Form.Item
-        label="Name"
-        name="name"
-        rules={[{ required: true, message: 'Please input your name!' }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        label="Address"
-        name="address"
-        rules={[{ required: true, message: 'Please input your address!' }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        label="Phone Number"
-        name="phone"
-        rules={[{ required: true, message: 'Please input your phone number!' }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
-          Submit
-        </Button>
-      </Form.Item>
-    </Form>
+    <>
+      <props.FileUploadConponent
+        onUploadSuccess={handleFile1UploadSuccess}
+        title="Select File 1"
+      />
+      <props.FileUploadConponent
+        onUploadSuccess={handleFile2UploadSuccess}
+        title="Select File 2"
+      />
+      <antd.Input
+        value={outputPath}
+        onChange={(e: any) => setOutputPath(e.target.value)}
+        placeholder="Output File Path"
+      />
+      <antd.Button type="primary" onClick={handleCommit}>
+        Save
+      </antd.Button>
+    </>
   );
-}
+};
 
-export default LibTest;
+export default Lib2257;

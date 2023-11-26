@@ -18,16 +18,16 @@ def compile_tsx(lib_name:str, code:str, target_dir:str):
     ts_builder_dir = get_tsx_builder_dir()
 
     code_path = os.path.join(ts_builder_dir, 'src/lib/index.tsx')
-    with open(code_path, 'w') as f:
+    with open(code_path, 'w', encoding='utf-8') as f:
         f.write(code)
     # 写入lib名称
     webpack_template_path = os.path.join(ts_builder_dir, 'webpack.config.template.js')
     webpack_template = ''
-    with open(webpack_template_path, 'r') as f:
+    with open(webpack_template_path, 'r', encoding='utf-8') as f:
         webpack_template = f.read()
     webpack_template = webpack_template.replace('LibTemplate', lib_name)
     webpack_path = os.path.join(ts_builder_dir, 'webpack.config.js')
-    with open(webpack_path, 'w') as f:
+    with open(webpack_path, 'w', encoding='utf-8') as f:
         f.write(webpack_template)
     # 获取编译的标准输出
     output = os.popen(f"cd {ts_builder_dir} && npm run build").read()

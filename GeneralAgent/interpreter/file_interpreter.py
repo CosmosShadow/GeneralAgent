@@ -67,39 +67,39 @@ class FileInterpreter(Interpreter):
             content = content.replace('```', '')
         # file_path = os.path.join(self.workspace, file_path)
         if not os.path.exists(file_path):
-            with open(file_path, 'w') as f:
+            with open(file_path, 'w', encoding='utf-8') as f:
                 f.write('')
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
         if start_index == -1:
             start_index = len(lines)
         if end_index == -1:
             end_index = len(lines)
         lines = lines[:start_index] + [content] + lines[end_index+1:]
-        with open(file_path, 'w') as f:
+        with open(file_path, 'w', encoding='utf-8') as f:
             f.writelines(lines)
 
     def _delete_file(self, file_path, start_index, end_index):
         # file_path = os.path.join(self.workspace, file_path)
         if not os.path.exists(file_path):
-            with open(file_path, 'w') as f:
+            with open(file_path, 'w', encoding='utf-8') as f:
                 f.write('')
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
         if start_index == -1:
             start_index = len(lines)
         if end_index == -1:
             end_index = len(lines)
         lines = lines[:start_index] + lines[end_index+1:]
-        with open(file_path, 'w') as f:
+        with open(file_path, 'w', encoding='utf-8') as f:
             f.writelines(lines)
 
     def _read_file(self, file_path, start_index, end_index):
         # file_path = os.path.join(self.workspace, file_path)
         if not os.path.exists(file_path):
-            with open(file_path, 'w') as f:
+            with open(file_path, 'w', encoding='utf-8') as f:
                 f.write('')
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
         if start_index == -1:
             start_index = len(lines)

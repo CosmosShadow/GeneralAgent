@@ -7,11 +7,11 @@ class NormalMemory:
         self.messages = []
         self.serialize_path = serialize_path
         if os.path.exists(serialize_path):
-            with open(serialize_path, 'r') as f:
+            with open(serialize_path, 'r', encoding='utf-8') as f:
                 self.messages = json.load(f)
 
     def save(self):
-        with open(self.serialize_path, 'w') as f:
+        with open(self.serialize_path, 'w', encoding='utf-8') as f:
             json.dump(self.messages, f)
 
     def add_message(self, role, content):

@@ -66,11 +66,11 @@ def _edit_function(function_name: str, task_description:str, code_fun) -> str:
     file_path = os.path.join(get_functions_dir(), function_name + '.py')
     code = None
     if os.path.exists(file_path):
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             code = f.read()
     task_description += f'\n# Function name: {function_name}'
     code = code_fun(task_description, default_code=code)
-    with open(file_path, 'w') as f:
+    with open(file_path, 'w', encoding='utf-8') as f:
         f.write(code)
     funcs, error = skills.load_functions_with_path(file_path)
     funcs = [x for x in funcs if x.__name__ == function_name]
@@ -116,11 +116,11 @@ def edit_application_code(task_description:str) -> None:
     code_path = os.path.join(get_code_dir(),  'main.py')
     old_code = None
     if os.path.exists(code_path):
-        with open(code_path, 'r') as f:
+        with open(code_path, 'r', encoding='utf-8') as f:
             old_code = f.read()
     from GeneralAgent import skills
     code = _generate_agent_code(task_description, default_code=old_code)
-    with open(code_path, 'w') as f:
+    with open(code_path, 'w', encoding='utf-8') as f:
         f.write(code)
 
 
@@ -145,7 +145,7 @@ def update_application_meta(application_id:str=None, application_name:str=None, 
     import os, json
     bot_json_path = os.path.join(get_code_dir(), 'bot.json')
     if os.path.exists(bot_json_path):
-        with open(bot_json_path, 'r') as f:
+        with open(bot_json_path, 'r', encoding='utf-8') as f:
             app_json = json.loads(f.read())
     else:
         app_json = {}
@@ -165,7 +165,7 @@ def update_application_meta(application_id:str=None, application_name:str=None, 
         app_json['icon'] = 'icon.jpg'
     else:
         del app_json['icon']
-    with open(bot_json_path, 'w') as f:
+    with open(bot_json_path, 'w', encoding='utf-8') as f:
         f.write(json.dumps(app_json, indent=4))
 
 
@@ -177,7 +177,7 @@ def install_application() -> None:
     import os, json
     bot_json_path = os.path.join(get_code_dir(), 'bot.json')
     if os.path.exists(bot_json_path):
-        with open(bot_json_path, 'r') as f:
+        with open(bot_json_path, 'r', encoding='utf-8') as f:
             app_json = json.loads(f.read())
     else:
         print('applicatoin meta not exists')
@@ -201,7 +201,7 @@ def uninstall_application() -> None:
     import os, json
     bot_json_path = os.path.join(get_code_dir(), 'bot.json')
     if os.path.exists(bot_json_path):
-        with open(bot_json_path, 'r') as f:
+        with open(bot_json_path, 'r', encoding='utf-8') as f:
             app_json = json.loads(f.read())
     else:
         print('applicatoin meta not exists')
@@ -547,7 +547,7 @@ Just reponse the python code, no any explain, no start with ```python, no end wi
 #     import os
 #     code = _generate_function_code(task_description)
 #     file_path = os.path.join(get_code_dir(), func_name + '.py')
-#     with open(file_path, 'w') as f:
+#     with open(file_path, 'w', encoding='utf-8') as f:
 #         f.write(code)
 
 # def delete_function(func_name:str) -> None:
@@ -576,7 +576,7 @@ Just reponse the python code, no any explain, no start with ```python, no end wi
 #     import os
 #     file_path = os.path.join(get_code_dir(), func_name + '.py')
 #     if os.path.exists(file_path):
-#         with open(file_path, 'r') as f:
+#         with open(file_path, 'r', encoding='utf-8') as f:
 #             code = f.read()
 #         return code
 #     else:
@@ -592,5 +592,5 @@ Just reponse the python code, no any explain, no start with ```python, no end wi
 #     # code = application_code_generation(task_description)
 #     code = _generate_agent_code(task_description)
 #     code_path = os.path.join(get_code_dir(),  'main.py')
-#     with open(code_path, 'w') as f:
+#     with open(code_path, 'w', encoding='utf-8') as f:
 #         f.write(code)

@@ -116,7 +116,7 @@ def update_application_meta_2(
     from GeneralAgent import skills
     bot_json_path = os.path.join(skills.get_code_dir(), 'bot.json')
     if os.path.exists(bot_json_path):
-        with open(bot_json_path, 'r') as f:
+        with open(bot_json_path, 'r', encoding='utf-8') as f:
             app_json = json.loads(f.read())
     else:
         app_json = {}
@@ -143,7 +143,7 @@ def update_application_meta_2(
         app_json['icon'] = 'icon.jpg'
     else:
         del app_json['icon']
-    with open(bot_json_path, 'w') as f:
+    with open(bot_json_path, 'w', encoding='utf-8') as f:
         f.write(json.dumps(app_json, indent=4))
 
 
@@ -158,10 +158,10 @@ def edit_application_code_2(task_description:str) -> str:
     code_path = os.path.join(skills.get_code_dir(),  'main.py')
     old_code = None
     if os.path.exists(code_path):
-        with open(code_path, 'r') as f:
+        with open(code_path, 'r', encoding='utf-8') as f:
             old_code = f.read()
     code = _generate_agent_code(task_description, default_code=old_code)
-    with open(code_path, 'w') as f:
+    with open(code_path, 'w', encoding='utf-8') as f:
         f.write(code)
     return code
 
@@ -203,7 +203,7 @@ async def main(messages, input, output_callback):
     data = json.loads(input)['data']
     # file_path should be a unique name, because the file will not be deleted, and the application will run many times.
     file_path = skills.unique_name() + '.json
-    with open(file_path, 'w') as f:
+    with open(file_path, 'w', encoding='utf-8') as f:
         f.write(json.dumps(data))
     await output_callback(f'file saved: [user_data.json](sandbox:{{file_path}})')
 ```

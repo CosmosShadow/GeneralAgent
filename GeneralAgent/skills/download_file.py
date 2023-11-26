@@ -6,7 +6,7 @@ def download_file(file_url, save_path):
     import logging
     try:
         response = requests.get(file_url)
-        with open(save_path, "wb") as f:
+        with open(save_path, "wb", encoding='utf-8') as f:
             f.write(response.content)
         # print("Success: 文件(%s)已下载至 %s" % (file_url, save_path))
         return True

@@ -42,10 +42,10 @@ def read_file_content(file_path):
         return read_ppt(file_path)
     else:
         # 默认当做文本文件
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             return '\n'.join(f.readlines())
 
 def write_file_content(file_path, content):
     """write content to txt, md"""
-    with open(file_path, 'w') as f:
+    with open(file_path, 'w', encoding='utf-8') as f:
         f.write(content)
