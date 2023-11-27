@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Button, Modal, notification} from "antd";
 import { apiUploadFile } from "./api"; // 假设这个文件存放apiUploadFile函数
 import {
@@ -17,6 +17,7 @@ export function FileUploadButton(props: Props) {
   // 定义用于显示modal的state以及文件的state
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [file, setFile] = useState(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 处理选择文件的函数
   function handleSelectFile(e:any) {
@@ -55,21 +56,29 @@ export function FileUploadButton(props: Props) {
     setFile(null);
   }
 
+  const handleButtonClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+
   return (
     <>
-      <input type="file" style={{ display: "none" }} onChange={handleSelectFile} accept="text/plain;charset=utf-8"/>
-      <Button onClick={() => {
-         const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-         if (fileInput) {
-            fileInput.click();
-         }
-      }}>{props.title ? props.title : <UploadOutlined />}</Button>
+      <input ref={fileInputRef} type="file" style={{ display: "none" }} onChange={handleSelectFile} accept="text/plain;charset=utf-8"/>
+      <Button onClick={handleButtonClick}>{props.title ? props.title : <UploadOutlined />}</Button>
       <Modal title="上传文件" open={isModalVisible} onOk={handleModalOk} onCancel={handleModalCancel}>
         {file && <p>{(file as any).name}</p>}
       </Modal>
     </>
   );
 }
+
+// export function withChatBotId<P extends Props>(Component: React.ComponentType<P>, chat_id: string, bot_id: string) {
+//   return function WrappedComponent(props: Omit<P, 'chat_id' | 'bot_id'>) {
+//     return <Component {...props as P} chat_id={chat_id} bot_id={bot_id} />;
+//   };
+// }
 
 interface NewProps {
   title?: string;
@@ -81,5 +90,8 @@ export const withChatAndBotId = (bot_id: string, chat_id: string) => {
     return (props: NewProps) => <Component {...props} chat_id={chat_id} bot_id={bot_id} />;
   };
 };
+
+// 使用高阶组件创建新的组件
+// const NewFileUploadButton = withChatBotId(FileUploadButton, 'new_chat_id', 'new_bot_id');
 
 // export const NewFileUploadButton = withChatAndBotId('your_chat_id', 'your_bot_id')(FileUploadButton);

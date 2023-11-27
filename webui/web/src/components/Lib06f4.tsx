@@ -13,34 +13,46 @@ interface Props {
 const [Form, DatePicker, Button] = [antd.Form, antd.DatePicker, antd.Button];
 
 const Lib06f4 = (props: Props) => {
-  const [file_path, set_file_path] = React.useState('' as string)
+  const [file1Path, setFile1Path] = React.useState("");
+  const [file2Path, setFile2Path] = React.useState("");
+  const [outputPath, setOutputPath] = React.useState("");
 
-  const onFinish = (values: any) => {
-    values['file_path'] = file_path
-    props.save_data(values);
+  const handleFile1UploadSuccess = (path: string) => {
+    setFile1Path(path);
   };
 
-  const handleUploadSuccess = (file_path: string) => {
-    console.log('handleUploadSuccess called')
-    console.log(file_path)
-    set_file_path(file_path)
-  }
+  const handleFile2UploadSuccess = (path: string) => {
+    setFile2Path(path);
+  };
+
+  const handleCommit = () => {
+    const allDataShouldSave = {
+      file1Path,
+      file2Path,
+      outputPath
+    };
+    props.save_data(allDataShouldSave);
+  };
 
   return (
-    <div style={{}}>
-      <props.FileUploadConponent onUploadSuccess={handleUploadSuccess} title='上传文件'/>
-      <div style={{padding: 10}}>file_path: {file_path}</div>
-      <Form onFinish={onFinish}>
-        <Form.Item name="date" rules={[{ required: true, message: 'Please select a date' }]}>
-          <DatePicker />
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
-      </Form>
-    </div>
+    <>
+      <props.FileUploadConponent
+        onUploadSuccess={handleFile1UploadSuccess}
+        title="Select File 1"
+      />
+      <props.FileUploadConponent
+        onUploadSuccess={handleFile2UploadSuccess}
+        title="Select File 2"
+      />
+      <antd.Input
+        value={outputPath}
+        onChange={(e: any) => setOutputPath(e.target.value)}
+        placeholder="Output File Path"
+      />
+      <antd.Button type="primary" onClick={handleCommit}>
+        Save
+      </antd.Button>
+    </>
   );
 };
 
