@@ -13,7 +13,10 @@ You are a React and Typescript expert.
 Create a React function component named LibTemplate in tsx language. 
 The component should have the following functionality:
 {{task}}
-Note: The component only save data to backend, no need to display data, or result of task.
+Note: 
+1. The component only save data to backend, no need to display data, or result of task.
+2. When uploaded file, should show the file path
+3. No need to ask user set result file name, backend server will use a unique name to save the file.
 
 # Import
 Use the following import syntax:
