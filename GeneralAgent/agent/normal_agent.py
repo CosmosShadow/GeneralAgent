@@ -107,7 +107,8 @@ class NormalAgent(AbsAgent):
     async def _get_llm_messages(self):
         from GeneralAgent import skills
         messages = self.memory.get_messages()
-        messages = skills.cut_messages(messages, 3000)
+        token_limit = skills.get_llm_token_limit(self.model_type)
+        messages = skills.cut_messages(messages, int(token_limit*0.8))
         system_prompt = '\n\n'.join([await interpreter.prompt(messages) for interpreter in self.interpreters])
         messages = [{'role': 'system', 'content': system_prompt}] + messages
         return messages

@@ -145,6 +145,43 @@ def _get_llm_model(messages, model_type):
     model_key = f'{api_type}_LLM_MODEL_NORMAL'
     return os.environ.get(model_key, 'gpt-3.5-turbo')
 
+
+def get_llm_token_limit(model_type):
+    """
+    return the token limit for the model
+    """
+    import os
+    assert model_type in ['normal', 'smart', 'long']
+    api_type = os.environ.get('LLM_SOURCE', 'OPENAI')
+    # OPENAI_LLM_MODEL_SMART_LIMIT
+    limit_key = f'{api_type}_LLM_MODEL_{model_type.upper()}_LIMIT'
+    limit = os.environ.get(limit_key, None)
+    if limit is not None:
+        return int(limit)
+    limit_key = f'{api_type}_LLM_MODEL_NORMAL_LIMIT'
+    return int(os.environ.get(limit_key, 4000))
+
+
+def test_get_llm_token_limit():
+    import os
+    x = os.environ.get('LLM_SOURCE', None)
+    y = os.environ.get('OPENAI_LLM_MODEL_SMART_LIMIT', None)
+
+    os.environ['LLM_SOURCE'] = 'OPENAI'
+    os.environ['OPENAI_LLM_MODEL_SMART_LIMIT'] = '8000'
+    assert get_llm_token_limit('smart') == 8000
+
+    # set back
+    if x is not None:
+        os.environ['LLM_SOURCE'] = x
+    else:
+        del os.environ['LLM_SOURCE']
+    if y is not None:
+        os.environ['OPENAI_LLM_MODEL_SMART_LIMIT'] = y
+    else:
+        del os.environ['OPENAI_LLM_MODEL_SMART_LIMIT']
+
+
 def _get_embedding_model():
     import os
     api_type = os.environ.get('LLM_SOURCE', 'OPENAI')
