@@ -15,6 +15,10 @@ nohup serve -s build &
 
 export LLM_CACHE='yes'
 
+# test GeneralAgent
+cd /workspace/GeneralAgent
+poetry run pytest -s -v
+
 # global unit test
 cd /workspace/test
 poetry run pytest -s -v
