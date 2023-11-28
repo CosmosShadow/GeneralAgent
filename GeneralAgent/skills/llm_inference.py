@@ -74,6 +74,30 @@ def embedding_single(text) -> [float]:
     return embedding
 
 
+def test_embedding_single():
+    size = None
+    from GeneralAgent.utils import EnvironmentVariableManager
+    with EnvironmentVariableManager('EMBEDDING_CACHE', 'no'):
+        for source_type in ['OPENAI', 'AZURE']:
+            with EnvironmentVariableManager('LLM_SOURCE', source_type):
+                result = embedding_single("Say this is a test")
+                # print(source_type, result)
+                if size is not None:
+                    assert len(result) == size
+                size = len(result)
+
+def test_embedding_batch():
+    size = None
+    from GeneralAgent.utils import EnvironmentVariableManager
+    with EnvironmentVariableManager('EMBEDDING_CACHE', 'no'):
+        for source_type in ['OPENAI', 'AZURE']:
+            with EnvironmentVariableManager('LLM_SOURCE', source_type):
+                result = embedding_batch(["Say this is a test"])
+                if size is not None:
+                    assert len(result[0]) == size
+                size = len(result[0])
+
+
 def embedding_batch(texts) -> [[float]]:
     """
     embedding the texts(list of string), and return a list of embedding (list of float) for every string
@@ -423,3 +447,6 @@ Response JSON schema: \n"""
 #         return json.loads(fix_llm_json_str(result))
 #     else:
 #         result = llm_inference([{'role': 'system', 'content': prompt}], model_type='smart')
+
+if __name__ == '__main__':
+    test_embedding_single()
