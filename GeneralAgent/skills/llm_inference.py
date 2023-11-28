@@ -229,6 +229,13 @@ def llm_inference(messages, model_type='normal', stream=False, json_schema=None)
             print(result)
             return json.loads(fix_llm_json_str(result))
         
+def test_llm_inference():
+    # NO cache情况下，测试效果
+    # 分别是OPENAI、AZURE
+    LLM_SOURCE='OPENAI'
+
+
+        
 
 def simple_llm_inference(messages, json_schema=None):
     """
@@ -302,6 +309,7 @@ def _llm_inference_with_stream(messages, model_type='normal'):
                 response = completion(model=model, messages=messages, stream=True, temperature=temperature)
                 result = ''
                 for chunk in response:
+                    # print(chunk)
                     if chunk['choices'][0]['finish_reason'] is None:
                         token = chunk['choices'][0]['delta']['content']
                         if token is None:
