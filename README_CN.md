@@ -180,6 +180,25 @@ npm run start
 
 * GeneralAgent使用[litellm](https://docs.litellm.ai/docs/)来接入各种平台的大模型。
 
+* 如果接入本地LLM和Embedding，可以参考代码:
+[llm_inference.py](https://github.com/CosmosShadow/GeneralAgent/blob/main/GeneralAgent/skills/llm_inference.py)，重写下面三个方法:
+
+```python
+from GeneralAgent import skills
+
+def llm_inference(messages, model_type='normal', stream=False, json_schema=None):
+    pass
+skills.llm_inference = llm_inference
+
+def embedding_single(text) -> [float]:
+    pass
+skills.embedding_single = embedding_single
+
+def embedding_batch(texts) -> [[float]]:
+    pass
+skills.embedding_batch = embedding_batch
+
+```
 
 
 ## 加入我们

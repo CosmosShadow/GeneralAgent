@@ -152,7 +152,25 @@ Please refer to the code for usage
 
 * GeneralAgent uses [litellm](https://docs.litellm.ai/docs/) to access various platforms of large models.
 
+* If you access local LLM and Embedding, you can refer to the code:
+[llm_inference.py](https://github.com/CosmosShadow/GeneralAgent/blob/main/GeneralAgent/skills/llm_inference.py), rewrite the following three methods:
 
+```python
+from GeneralAgent import skills
+
+def llm_inference(messages, model_type='normal', stream=False, json_schema=None):
+     pass
+skills.llm_inference = llm_inference
+
+def embedding_single(text) -> [float]:
+     pass
+skills.embedding_single = embedding_single
+
+def embedding_batch(texts) -> [[float]]:
+     pass
+skills.embedding_batch = embedding_batch
+
+```
 
 
 ## Join us
