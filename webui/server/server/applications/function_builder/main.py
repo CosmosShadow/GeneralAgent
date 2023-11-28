@@ -2,7 +2,7 @@
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     from GeneralAgent.agent import Agent
     from GeneralAgent import skills
-    from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, FileInterpreter
+    from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, FileInterpreter, ShellInterpreter
     from GeneralAgent.utils import get_functions_dir
     function_dir = get_functions_dir()
     role_prompt = f"""
@@ -54,7 +54,7 @@ skills.test_xxx()
     role_interpreter = RoleInterpreter(system_prompt=role_prompt)
     python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
     python_interpreter.function_tools = functoins
-    agent.interpreters = [role_interpreter, python_interpreter, FileInterpreter()]
+    agent.interpreters = [role_interpreter, python_interpreter, FileInterpreter(), ShellInterpreter()]
     agent.model_type = 'smart'
     agent.hide_output_parse = False
     await agent.run(input, output_callback=output_callback)
