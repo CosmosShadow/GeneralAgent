@@ -58,7 +58,7 @@ class FileInterpreter(Interpreter):
             return f'Delete lines of {file_path} successfully\n', is_stop
         elif operation == 'read':
             content = self._read_file(file_path, start_line, end_line)
-            return f'Read {file_path} succesfully, the content is below: \n\n```{content}\n```\n', is_stop
+            return f'Read {file_path} succesfully, the content is below: \n\n```\n{content}\n```\n', is_stop
     
     def _write_file(self, file_path, content, start_index, end_index):
         # if .py file, remove ```python  and ``` pair
@@ -108,7 +108,7 @@ class FileInterpreter(Interpreter):
         content = ''
         end_index = min(end_index + 1, len(lines))
         for index in range(start_index, end_index):
-            new_add = f'[{index}]{lines[index]}\n'
+            new_add = f'[{index}]{lines[index]}'
             if len(content + new_add) > 2000:
                 left_count = len(lines) - index
                 content += f'...\n[there are {left_count} lines left]'
