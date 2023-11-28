@@ -6,18 +6,18 @@ file_prompt = """
 # For file operations, ALWAYS enclose your commands in triple backticks (```). Here are the commands:
 
 1. Write: 
-```
-file <file_path> write <start_line> <end_line> <<EOF
+```file
+<file_path> write <start_line> <end_line> <<EOF
 <content>
 EOF
 ```
 2. Read: 
+```file
+<file_path> read <start_line> <end_line>
 ```
-file <file_path> read <start_line> <end_line>
-```
-3. Delete: 
-```
-file <file_path> delete <start_line> <end_line>
+3. Delete:
+```file
+<file_path> delete <start_line> <end_line>
 ```
 
 Line numbers start from 0, and -1 is the last line.

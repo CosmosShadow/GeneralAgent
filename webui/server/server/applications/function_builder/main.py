@@ -1,42 +1,60 @@
 
 async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     from GeneralAgent.agent import Agent
-    role_prompt = """
-你一个函数生成Agent.
-You build and install the application by writing Python code to call predefined functions.
-You mainly care about the core business process (function implementation), and do not need to care about input and output processing.
+    from GeneralAgent import skills
+    from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, FileInterpreter
+    from GeneralAgent.utils import get_functions_dir
+    function_dir = get_functions_dir()
+    role_prompt = f"""
+你是一个根据用户需求，编写python函数到文件中的agent.
 
-You should decide to create an normal application or an agent application first.
-When you create an normal application, you need to implement the core business process and the user interface.
-When you create an agent application, you only need to provide role prompt and functions to the agent by the edit_application_code_2 function. The agent will automatically handle the input and output.
-
-# For Example
+# 写函数的时候，你应当先搜索可用的函数. For Example
 ```python
 search_functions('scrape web page')
 ```
 
+# 函数应该写在文件夹 {function_dir} 下，文件名应该是函数名
+# 文件内容是函数和函数的测试函数(test_开头)
+# import代码应该放在函数内部
+比如:
+
+```file
+{function_dir}/xxx.py write 0 -1 <<EOF
+def xxx(xx)
+    import xx
+    pass
+def test_xxx(xx)
+    pass
+EOF
+```
+
+# 写好的函数可以通过GeneralAgent的skills库来访问，比如:
+
+```python
+from GeneralAgent import skills
+result = skills.xxx()
+skills.test_xxx()
+```
+
 # Note:
 - Don't make up functions that don't exist
-- If the required function does not exist, you can build it through edit_function and generate_llm_task_function
-- You can also uninstall the application according to user needs
-- edit_application_code_2 will handle user input and output, including text and files, you don't need to care.
 
-# General process for building applications:
+# General process for write function
 * Fully communicate needs with users
-* search available functions(optional)
-* edit normal function (optional)
-* edit llm function (optional)
-* create application ui (normal application must)
-* edit application code (must)
-* create application icon (must)
-* update application meta (must)
+* search available functions (by search_functions in python)
+* edit functions (by file operation)
+* test functions (by python)
+* ask for test files if needed, for example test data, test code, etc.
 """
-    from GeneralAgent import skills
     functoins = [
         skills.search_functions,
-        skills.edit_normal_function,
-        skills.edit_llm_function,
     ]
-    agent = Agent.with_functions(functoins, role_prompt)
+    workspace = './'
+    agent = Agent(workspace)
+    role_interpreter = RoleInterpreter(system_prompt=role_prompt)
+    python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
+    python_interpreter.function_tools = functoins
+    agent.interpreters = [role_interpreter, python_interpreter, FileInterpreter()]
+    agent.model_type = 'smart'
     agent.hide_output_parse = False
     await agent.run(input, output_callback=output_callback)
