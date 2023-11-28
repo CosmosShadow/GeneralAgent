@@ -116,3 +116,21 @@ def get_local_applications_dir():
     if local_applications_dir is None:
         raise Exception('enviroment LOCAL_APPLICATIONS_DIR is not set')
     return local_applications_dir
+
+import os
+
+class EnvironmentVariableManager:
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+        self.original_value = None
+
+    def __enter__(self):
+        self.original_value = os.environ.get(self.key)
+        os.environ[self.key] = self.value
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.original_value is None:
+            del os.environ[self.key]
+        else:
+            os.environ[self.key] = self.original_value

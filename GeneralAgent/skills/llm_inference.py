@@ -10,8 +10,16 @@ class TinyDBCache():
             from GeneralAgent.utils import get_server_dir
             llm_path = os.path.join(get_server_dir(), 'cache.json')
         self.db = TinyDB(llm_path)
-        self.cache_llm = os.environ.get('LLM_CACHE', 'no') in ['yes', 'y', 'YES']
-        self.cache_embedding = os.environ.get('EMBEDDING_CACHE', 'no') in ['yes', 'y', 'YES']
+
+    @property
+    def cache_llm(self):
+        import os
+        return os.environ.get('LLM_CACHE', 'no') in ['yes', 'y', 'YES']
+    
+    @property
+    def cache_embedding(self):
+        import os
+        return os.environ.get('EMBEDDING_CACHE', 'no') in ['yes', 'y', 'YES']
 
     def get(self, table, key):
         from tinydb import Query
@@ -163,23 +171,10 @@ def get_llm_token_limit(model_type):
 
 
 def test_get_llm_token_limit():
-    import os
-    x = os.environ.get('LLM_SOURCE', None)
-    y = os.environ.get('OPENAI_LLM_MODEL_SMART_LIMIT', None)
-
-    os.environ['LLM_SOURCE'] = 'OPENAI'
-    os.environ['OPENAI_LLM_MODEL_SMART_LIMIT'] = '8000'
-    assert get_llm_token_limit('smart') == 8000
-
-    # set back
-    if x is not None:
-        os.environ['LLM_SOURCE'] = x
-    else:
-        del os.environ['LLM_SOURCE']
-    if y is not None:
-        os.environ['OPENAI_LLM_MODEL_SMART_LIMIT'] = y
-    else:
-        del os.environ['OPENAI_LLM_MODEL_SMART_LIMIT']
+    from GeneralAgent.utils import EnvironmentVariableManager
+    with EnvironmentVariableManager('LLM_SOURCE', 'OPENAI'):
+        with EnvironmentVariableManager('OPENAI_LLM_MODEL_SMART_LIMIT', '8000'):
+            assert get_llm_token_limit('smart') == 8000
 
 
 def _get_embedding_model():
@@ -212,7 +207,7 @@ def llm_inference(messages, model_type='normal', stream=False, json_schema=None)
     Note:
     The total number of tokens in the messages and the returned string must be less than 4000 when model_variant is 'normal', and less than 16000 when model_variant is 'long'.
     """
-
+    import logging
     if stream:
         return _llm_inference_with_stream(messages, model_type)
     else:
@@ -224,18 +219,29 @@ def llm_inference(messages, model_type='normal', stream=False, json_schema=None)
                 json_schema = json.dumps(json_schema)
             messages[-1]['content'] += '\n' + return_json_prompt + json_schema
             # messages += [{'role': 'user', 'content': return_json_prompt + json_schema}]
-            print(messages)
+            logging.debug(messages)
             result = _llm_inference_without_stream(messages, model_type)
-            print(result)
+            logging.debug(result)
             return json.loads(fix_llm_json_str(result))
-        
+
+
 def test_llm_inference():
-    # NO cache情况下，测试效果
-    # 分别是OPENAI、AZURE
-    LLM_SOURCE='OPENAI'
+    from GeneralAgent.utils import EnvironmentVariableManager
+    with EnvironmentVariableManager('LLM_CACHE', 'no'):
+        for source_type in ['OPENAI', 'AZURE']:
+            with EnvironmentVariableManager('LLM_SOURCE', source_type):
+                model_types = ['normal', 'smart', 'long']
+                for model_type in model_types:
+                    result = llm_inference([{"role": "user","content": "Say this is a test",}], model_type=model_type, stream=False)
+                    print(source_type, model_type, result)
+                    assert 'test' in result
+                    result = ''
+                    response = llm_inference([{"role": "user","content": "Say this is a test",}], model_type=model_type, stream=True)
+                    for token in response:
+                        result += token
+                    print(source_type, model_type, result)
+                    assert 'test' in result
 
-
-        
 
 def simple_llm_inference(messages, json_schema=None):
     """
