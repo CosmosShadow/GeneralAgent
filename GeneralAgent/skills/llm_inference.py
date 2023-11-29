@@ -309,6 +309,8 @@ async def async_llm_inference(messages, model_type='normal'):
             try_count -= 1
             import asyncio
             await asyncio.sleep(3)
+        if try_count == 0:
+            raise ValueError('LLM(Large Languate Model) error, Please check your key or base_url, or network')
     return ''
 
 
@@ -352,6 +354,8 @@ def _llm_inference_with_stream(messages, model_type='normal'):
                 try_count -= 1
                 import time
                 time.sleep(3)
+            if try_count == 0:
+                raise ValueError('LLM(Large Languate Model) error, Please check your key or base_url, or network')
         # logging.info(result)
         # yield None
 
@@ -384,6 +388,8 @@ def _llm_inference_without_stream(messages, model_type='normal'):
             try_count -= 1
             import time
             time.sleep(3)
+        if try_count == 0:
+                raise ValueError('LLM(Large Languate Model) error, Please check your key or base_url, or network')
     return ''
 
 
