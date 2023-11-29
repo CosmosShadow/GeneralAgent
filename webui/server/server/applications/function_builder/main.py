@@ -54,6 +54,13 @@ skills.test_xxx()
     role_interpreter = RoleInterpreter(system_prompt=role_prompt)
     python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
     python_interpreter.function_tools = functoins
+    
+    # when file operation(python file), reload functions
+    file_interpreter = FileInterpreter()
+    async def file_callback():
+        skills._load_remote_funs()
+    
+    file_interpreter.outptu_parse_done_recall = file_callback
     agent.interpreters = [role_interpreter, python_interpreter, FileInterpreter(), ShellInterpreter()]
     agent.model_type = 'smart'
     agent.hide_output_parse = False

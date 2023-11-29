@@ -156,6 +156,8 @@ class NormalAgent(AbsAgent):
                     if interpreter.output_match(result):
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
                         output, is_stop = await interpreter.output_parse(result)
+                        if interpreter.outptu_parse_done_recall is not None:
+                            await interpreter.outptu_parse_done_recall()
                         if self.hide_output_parse:
                             is_matched, string_left = interpreter.output_match_end(result)
                             await output_callback(string_left)
