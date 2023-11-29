@@ -109,13 +109,14 @@ class SyncPythonInterpreter(Interpreter):
         match = pattern.search(string)
         assert match is not None
         if confirm_to_run():
-            sys_out = await self.run_code(match.group(1))
+            sys_out, stop = await self.run_code(match.group(1))
             result = 'Python run result:\n' + sys_out.strip()
-            return result, False
+            return result, stop
         else:
             return '', False
 
     async def run_code(self, code):
+        stop = False
         code = self.add_print(code)
         code = self.import_code + '\n' + code
         globals_backup = self.load()
@@ -131,6 +132,7 @@ class SyncPythonInterpreter(Interpreter):
             import traceback
             sys_stdout += traceback.format_exc()
             self.globals = globals_backup
+            stop = True
         finally:
             sys_stdout += output.getvalue()
             sys.stdout = sys.__stdout__
@@ -139,7 +141,7 @@ class SyncPythonInterpreter(Interpreter):
         sys_stdout = sys_stdout.strip()
         if sys_stdout == '':
             sys_stdout = 'run successfully'
-        return sys_stdout
+        return sys_stdout, stop
 
     def get_variable(self, name):
         if name in self.globals:
@@ -246,6 +248,7 @@ class AsyncPythonInterpreter(SyncPythonInterpreter):
 """
 
     async def run_code(self, code):
+        stop = False
         code = self.add_print(code)
         code = code_wrap(code, self.globals)
         code = self.import_code + '\n' + code
@@ -283,6 +286,7 @@ class AsyncPythonInterpreter(SyncPythonInterpreter):
             sys_stdout += traceback.format_exc()
             self.globals = globals_backup
             logging.exception((e))
+            stop = True
         finally:
             sys_stdout += output.getvalue()
             sys.stdout = sys.__stdout__
@@ -291,7 +295,7 @@ class AsyncPythonInterpreter(SyncPythonInterpreter):
         sys_stdout = sys_stdout.strip()
         if sys_stdout == '':
             sys_stdout = 'run successfully'
-        return sys_stdout
+        return sys_stdout, stop
     
 
 # class PythonInterpreter(AsyncPythonInterpreter):
