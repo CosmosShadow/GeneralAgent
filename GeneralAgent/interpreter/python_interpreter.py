@@ -47,7 +47,8 @@ class SyncPythonInterpreter(Interpreter):
                  serialize_path:str=None, 
                  libs: str=default_libs, 
                  import_code:str=None,
-                 prompt_append=''
+                 prompt_append='',
+                 stop_wrong_count = 2
                  ):
         """
         Args:
@@ -55,6 +56,7 @@ class SyncPythonInterpreter(Interpreter):
             libs ([str], optional): libraries can be to used. Defaults to skills.get_current_env_python_libs()
             import_code (str, optional): code to import. The tools used should be imported. Defaults to default_import_code.
             prompt_append: append to the prompt, custom prompt can be added here
+            stop_wrong_count: stop running when the code is wrong for stop_wrong_count times
         """
         from GeneralAgent import skills
         self.globals = {}  # global variables shared by all code
@@ -64,6 +66,9 @@ class SyncPythonInterpreter(Interpreter):
         self.prompt_append = prompt_append
         # self.tools = tools or Tools([])
         self.globals = self.load()
+        # count the number of times the code is wrong, and stop running when it reaches the threshold
+        self.run_wrong_count = 0
+        self.stop_wrong_count = stop_wrong_count
 
     def load(self):
         if self.serialize_path is None:
@@ -128,11 +133,14 @@ class SyncPythonInterpreter(Interpreter):
         try:
             exec(code, self.globals)
             success = True
+            self.run_wrong_count = 0
         except Exception as e:
             import traceback
             sys_stdout += traceback.format_exc()
             self.globals = globals_backup
-            stop = True
+            self.run_wrong_count += 1
+            if self.run_wrong_count >= self.stop_wrong_count:
+                stop = True
         finally:
             sys_stdout += output.getvalue()
             sys.stdout = sys.__stdout__
@@ -281,12 +289,15 @@ class AsyncPythonInterpreter(SyncPythonInterpreter):
             self.globals = local_vars
 
             success = True
+            self.run_wrong_count = 0
         except Exception as e:
             import traceback
             sys_stdout += traceback.format_exc()
             self.globals = globals_backup
             logging.exception((e))
-            stop = True
+            self.run_wrong_count += 1
+            if self.run_wrong_count >= self.stop_wrong_count:
+                stop = True
         finally:
             sys_stdout += output.getvalue()
             sys.stdout = sys.__stdout__
