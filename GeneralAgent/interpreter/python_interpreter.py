@@ -115,7 +115,7 @@ class SyncPythonInterpreter(Interpreter):
         assert match is not None
         if confirm_to_run():
             sys_out, stop = await self.run_code(match.group(1))
-            result = 'Python run result:\n' + sys_out.strip()
+            result = 'python runs result:\n' + sys_out.strip()
             return result, stop
         else:
             return '', False

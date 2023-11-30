@@ -23,10 +23,11 @@ def _replicate_image_generation(prompt):
 
     return image_url
 
+
 def image_generation(prompt) -> str:
     """
-    generate a image with prompt, return a image path. for example, when prompt is 'apple', you will get a image of apple. 
-    @param prompt: prompt should detail enough to describe a image. prompt can be any type of langeuage, but english is recommended. 
+    Generate an image according to the prompt and return the image path. For example, when the prompt is "apple" you will get an image of an apple. Note: The prompt should describe objective things in detail, not abstract concepts. For example, if you want to draw a picture of Chengdu, the prompt should be "Picture of Chengdu, with giant pandas playing in the bamboo forest, people eating hot pot around, and a Jinsha Sunbird totem next to it" instead of "Draw a picture of Chengdu" "painting"
+    @param prompt: The prompt should be detailed enough to describe the image. Tips can be in any type of language, but English is recommended.
     """
     from GeneralAgent import skills
     if not skills.text_is_english(prompt):

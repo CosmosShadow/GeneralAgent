@@ -82,18 +82,17 @@ const MarkdownComponent: React.FC<Props> = (props) => {
         // console.log(item)
         if (item.type === 'text') {
             return (<span key={index}>{item.title}</span>)
-        } else if (item.type === 'image') {
-            return (<span key={index}><br/><ImageComponent image_url={get_chat_file_url(message.bot_id as string, message.chat_id as string, item.url)} /></span>)
+        } else if (item.url && item.url.startsWith('http')) {
+            // 新开一个页面
+            return (<span key={index}><a  target='_blank' href={item.url}>{item.title}</a></span>)
         } else {
-            // if url is start with http or https, then return <a>, otherwise return <FileDownloadCompoent>
-            console.log(item.url)
-            if (item.url && item.url.startsWith('http')) {
-                return (<span key={index}><a href={item.url}>{item.title}</a></span>)
+            if (item.type === 'image') {
+                return (<span key={index}><br/><ImageComponent image_url={get_chat_file_url(message.bot_id as string, message.chat_id as string, item.url)} /></span>)
             } else {
                 return (<span key={index}><FileDownloadCompoent file_path={get_chat_file_url(message.bot_id as string, message.chat_id as string, item.url)} title={item.title}/></span>)
             }
-            
         }
+        
     })
     }</div>)
   };
