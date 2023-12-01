@@ -17,6 +17,17 @@ class AbsAgent(metaclass=abc.ABCMeta):
     model_type = 'normal'
     hide_output_parse = True
 
+    def add_role_prompt(self, prompt):
+        """
+        add role prompt
+        """
+        if len(self.interpreters) > 0 and self.interpreters[0].__class__.__name__ == 'RoleInterpreter':
+            role_interpreter = self.interpreters[0]
+            if role_interpreter.system_prompt is not None:
+                role_interpreter.system_prompt += '\n' + prompt
+            else:
+                role_interpreter.system_prompt_template += '\n' + prompt
+
     @abc.abstractmethod
     async def run(self, input=None, output_callback=default_output_callback, input_for_memory_node_id=-1):
         """
