@@ -3,6 +3,7 @@ import { apiDownloadURL } from './api';
 import { Button} from 'antd';
 import {
 	PlayCircleOutlined,
+    PauseCircleOutlined
   } from '@ant-design/icons';
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 const AudioPlayer: React.FC<Props> = (props) => {
     const audioRef = useRef<HTMLAudioElement>(null);
     const [audioSrc, setAudioSrc] = useState('');
+    const [readyPlay, setReadyPlay] = useState(false); // 输入框的内容
 
     const handleAudioDataLoad = async () => {
         if (audioSrc == '') {
@@ -22,7 +24,17 @@ const AudioPlayer: React.FC<Props> = (props) => {
 
     const handlePlay = () => {
         if (audioRef.current) {
-            audioRef.current.play();
+            if (!readyPlay) {
+                audioRef.current.load();
+                audioRef.current.play();
+                setReadyPlay(true);
+            } else {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+                setReadyPlay(false);
+            }
+            // setReadyPlay(true);
+            // audioRef.current.play();
         }
     }
 
@@ -33,8 +45,8 @@ const AudioPlayer: React.FC<Props> = (props) => {
     return (
         <>
             {/* <audio ref={audioRef} src={audioSrc} controls/> */}
-            <audio ref={audioRef} src={audioSrc} />
-            <Button type='link' onClick={handlePlay} title='点击播放'><PlayCircleOutlined /></Button>
+            <audio ref={audioRef} src={audioSrc}/>
+            <Button type='link' onClick={handlePlay} title='点击播放'>{readyPlay ? <PauseCircleOutlined /> : <PlayCircleOutlined />}</Button>
         </>
     );
 }

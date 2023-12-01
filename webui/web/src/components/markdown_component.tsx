@@ -4,10 +4,11 @@ import { Message } from './interface';
 import { message } from 'antd';
 import ImageComponent from './image_component'
 import FileDownloadCompoent from './file_download'
+import AudioPlayer from './audio_player';
 
 
 type LinkObject = {
-    type: 'text' | 'image' | 'file',
+    type: 'text' | 'image' | 'file' | 'audio',
     title: string,
     url: string
   };
@@ -36,6 +37,12 @@ type LinkObject = {
                     title: match.match(/\[(.*?)\]/)![1],
                     url: url
                 });
+            } else if (url.endsWith('.mp3') || url.endsWith('.wav')) {
+                result.push({
+                    type: 'audio',
+                    title: match.match(/\[(.*?)\]/)![1],
+                    url: url
+                })
             } else {
                 result.push({
                     type: 'file',
@@ -86,10 +93,13 @@ const MarkdownComponent: React.FC<Props> = (props) => {
             // 新开一个页面
             return (<span key={index}><a  target='_blank' href={item.url}>{item.title}</a></span>)
         } else {
+            const url = get_chat_file_url(message.bot_id as string, message.chat_id as string, item.url);
             if (item.type === 'image') {
-                return (<span key={index}><br/><ImageComponent image_url={get_chat_file_url(message.bot_id as string, message.chat_id as string, item.url)} /></span>)
+                return (<span key={index}><br/><ImageComponent image_url={url} /></span>)
+            } else if (item.type == 'audio') {
+                return (<span><FileDownloadCompoent file_path={url} title={item.title}/><AudioPlayer file={url}/></span>)
             } else {
-                return (<span key={index}><FileDownloadCompoent file_path={get_chat_file_url(message.bot_id as string, message.chat_id as string, item.url)} title={item.title}/></span>)
+                return (<span key={index}><FileDownloadCompoent file_path={url} title={item.title}/></span>)
             }
         }
         
