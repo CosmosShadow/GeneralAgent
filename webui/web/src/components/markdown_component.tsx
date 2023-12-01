@@ -8,7 +8,7 @@ import AudioPlayer from './audio_player';
 
 
 type LinkObject = {
-    type: 'text' | 'image' | 'file' | 'audio',
+    type: 'text' | 'image' | 'file' | 'audio' | 'video',
     title: string,
     url: string
   };
@@ -40,6 +40,12 @@ type LinkObject = {
             } else if (url.endsWith('.mp3') || url.endsWith('.wav')) {
                 result.push({
                     type: 'audio',
+                    title: match.match(/\[(.*?)\]/)![1],
+                    url: url
+                })
+            } else if (url.endsWith('.mp4') || url.endsWith('.mov')) {
+                result.push({
+                    type: 'video',
                     title: match.match(/\[(.*?)\]/)![1],
                     url: url
                 })
@@ -98,11 +104,12 @@ const MarkdownComponent: React.FC<Props> = (props) => {
                 return (<span key={index}><br/><ImageComponent image_url={url} /></span>)
             } else if (item.type == 'audio') {
                 return (<span key={index}><FileDownloadCompoent file_path={url} title={item.title}/><AudioPlayer file={url}/></span>)
+            } else if (item.type == 'video') {
+                return (<span key={index}><FileDownloadCompoent file_path={url} title={item.title}/><br/><video controls src={url}></video><br/></span>)
             } else {
                 return (<span key={index}><FileDownloadCompoent file_path={url} title={item.title}/></span>)
             }
         }
-        
     })
     }</div>)
   };
