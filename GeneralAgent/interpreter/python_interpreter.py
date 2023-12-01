@@ -249,6 +249,16 @@ class AsyncPythonInterpreter(SyncPythonInterpreter):
 - Pickleable objects can be shared between different codes and variables
 - The output display should be limited in length and should be truncated when displaying characters whose length is unknown. for example: print(a[:100])
 - Available libraries: {{python_libs}}
+Complete the entire process in one code instead of writing multiple codes to run step by step. For example, the following code is allowed:
+```python
+# step 1
+a = fun1(xx)
+# step 2
+c = fun2(a)
+# step 3
+d = fun3(c)
+...
+```
 - The following functions can be used in code (already implemented and imported for you):
 ```
 {{python_funcs}}
