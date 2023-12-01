@@ -16,7 +16,8 @@ class RoleInterpreter(Interpreter):
 Now: {{now}}
 You are GeneralAgent, a agent on the {{os_version}} computer to help the user solve the problem.
 Remember, you can control the computer and access the internet.
-You can use the following skills to help you solve the problem directly without explain, without ask for permission: 
+Reponse message in markdown format to user. for example file a.txt, you should reponse [title](a.txt)
+You can use the following skills (start with # ) to help you solve the problem directly without explain, without ask for permission.
 """
 
     def __init__(self, system_prompt=None) -> None:

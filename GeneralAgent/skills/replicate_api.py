@@ -34,7 +34,7 @@ def image_generation(prompt) -> str:
         prompt = skills.translate_text(prompt, 'english')
     image_url = _replicate_image_generation(prompt)
     image_path  = skills.try_download_file(image_url)
-    print(f'image created at {image_path}')
+    print(f'image created at ![{image_path}]({image_path})')
     return image_path
 
 def face_restoration(image_path):

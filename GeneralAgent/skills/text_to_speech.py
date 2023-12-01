@@ -1,6 +1,6 @@
 
-async def text_to_speech(text, save_path='./tmp.mp3'):
-    """Convert text to speech, save in save_path"""
+async def text_to_speech(text):
+    """Convert text to speech, retrun the audio file path"""
     # import asyncio
     # 查看所有的声音: edge-tts --list-voices
     # https://github.com/rany2/edge-tts
@@ -8,8 +8,12 @@ async def text_to_speech(text, save_path='./tmp.mp3'):
     # VOICE = "zh-CN-XiaoxiaoNeural"
     VOICE = "zh-CN-XiaoyiNeural"
 
+    from GeneralAgent import skills
+    save_path= skills.unique_name() + '.mp3'
     # asyncio.run(_create_tts(text, VOICE, save_path))
     await _create_tts(text, VOICE, save_path)
+    print('audio created at [{save_path}]({save_path})')
+    return save_path
 
 
 async def _create_tts(text, voice, output_file):

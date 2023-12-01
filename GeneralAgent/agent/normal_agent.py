@@ -57,11 +57,13 @@ class NormalAgent(AbsAgent):
         @libs: str, libs
         """
         agent = cls(workspace)
-        role_interpreter = RoleInterpreter(system_prompt=role_prompt)
+        role_interpreter = RoleInterpreter()
         python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
         python_interpreter.function_tools = functions
         agent.interpreters = [role_interpreter, python_interpreter, ShellInterpreter()]
         agent.model_type = model_type
+        if role_prompt is not None:
+            agent.add_role_prompt(role_prompt)
         return agent
 
     

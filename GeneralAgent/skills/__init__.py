@@ -106,7 +106,7 @@ class Skills:
         """
         from .llm_inference import search_similar_texts
         signatures = self._all_function_signatures()
-        results = search_similar_texts(task_description, signatures, top_k=3)
+        results = search_similar_texts(task_description, signatures, top_k=5)
         if return_list:
             return results
         else:
@@ -114,8 +114,8 @@ class Skills:
     
     def _all_function_signatures(self):
         from .python_envs import get_function_signature
-        locals = [get_function_signature(fun, 'skills') for fun in self._local_funs.values()]
-        remotes = [get_function_signature(fun, 'skills') for fun in self._remote_funs.values()]
+        locals = [get_function_signature(fun, 'skills') for fun in self._local_funs.values() if not fun.__name__.startswith('test_')]
+        remotes = [get_function_signature(fun, 'skills') for fun in self._remote_funs.values() if not fun.__name__.startswith('test_')]
         return locals + remotes
 
 skills = Skills._instance()
