@@ -97,7 +97,7 @@ const MarkdownComponent: React.FC<Props> = (props) => {
             if (item.type === 'image') {
                 return (<span key={index}><br/><ImageComponent image_url={url} /></span>)
             } else if (item.type == 'audio') {
-                return (<span><FileDownloadCompoent file_path={url} title={item.title}/><AudioPlayer file={url}/></span>)
+                return (<span key={index}><FileDownloadCompoent file_path={url} title={item.title}/><AudioPlayer file={url}/></span>)
             } else {
                 return (<span key={index}><FileDownloadCompoent file_path={url} title={item.title}/></span>)
             }
