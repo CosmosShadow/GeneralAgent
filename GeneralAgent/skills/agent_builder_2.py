@@ -218,6 +218,7 @@ async def main(messages, input, output_callback):
     role_prompt = \"\"\"
 You are a translation agent.
 You complete user requirements by writing python code to call the predefined functions.
+Reponse message in markdown format to user.
 \"\"\"
     functions = [
         skills.translate_text
