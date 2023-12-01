@@ -1,10 +1,9 @@
-def merge_video_audio(video_path:str, narration_path:str, music_path:str, base_element:str='video') -> str:
+def merge_video_audio(video_path:str, narration_path:str, music_path:str) -> str:
     """
-    Merge video, narration, and background music into a final video based on the length of the base element.
+    Merge video, narration, and background music into a final video based on the shortest length among all elements.
     Parameters: video_path -- path of the video file, string
                 narration_path -- path of the narration audio file, string
                 music_path -- path of the background music file, string
-                base_element -- which element's length to use as the base, string, default is 'video'
     Returns: the path of the final video file, string
     """
     from moviepy.editor import VideoFileClip, AudioFileClip, CompositeAudioClip
@@ -17,12 +16,7 @@ def merge_video_audio(video_path:str, narration_path:str, music_path:str, base_e
     video = VideoFileClip(video_path)
 
     # Determine base length
-    if base_element == 'video':
-        base_length = video.duration
-    elif base_element == 'narration':
-        base_length = narration.duration
-    elif base_element == 'music':
-        base_length = music.duration
+    base_length = min(video.duration, narration.duration, music.duration)
 
     # Adjust lengths of elements
     narration = narration.subclip(0, base_length)
@@ -32,12 +26,14 @@ def merge_video_audio(video_path:str, narration_path:str, music_path:str, base_e
     final_audio = CompositeAudioClip([narration, music])
 
     # Set audio of video file to final audio
-    final_video = video.set_audio(final_audio)
+    final_video = video.subclip(0, base_length).set_audio(final_audio)
 
     # Save final video file
     from GeneralAgent import skills
     final_video_path = skills.unique_name() + ".mp4"
     final_video.write_videofile(final_video_path)
+
+    print(f'merge video file: [{final_video_path}]({final_video_path})')
 
     return final_video_path
 

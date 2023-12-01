@@ -105,7 +105,7 @@ const MarkdownComponent: React.FC<Props> = (props) => {
             } else if (item.type == 'audio') {
                 return (<span key={index}><FileDownloadCompoent file_path={url} title={item.title}/><AudioPlayer file={url}/></span>)
             } else if (item.type == 'video') {
-                return (<span key={index}><FileDownloadCompoent file_path={url} title={item.title}/><br/><video controls src={url}></video><br/></span>)
+                return (<span key={index}><FileDownloadCompoent file_path={url} title={item.title}/><br/><video controls src={url} muted={false}></video><br/></span>)
             } else {
                 return (<span key={index}><FileDownloadCompoent file_path={url} title={item.title}/></span>)
             }

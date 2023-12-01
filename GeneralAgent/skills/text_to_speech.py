@@ -1,12 +1,25 @@
 
-async def text_to_speech(text):
-    """Convert text to speech, retrun the audio file path"""
+async def text_to_speech(text, voice_name='zh-CN-XiaoyiNeural'):
+    """
+Convert text to speech, retrun the audio file path. Available voices are below:
+# voice_name: en-US-GuyNeural
+# Gender: Male
+
+# voice_name: en-US-AriaNeural
+# Gender: Female
+
+# voice_name: zh-CN-XiaoyiNeural
+# Gender: Female
+
+# voice_name: zh-CN-YunxiNeural
+# Gender: Male
+    """
     # import asyncio
     # 查看所有的声音: edge-tts --list-voices
     # https://github.com/rany2/edge-tts
     # VOICE = "en-GB-SoniaNeural"
     # VOICE = "zh-CN-XiaoxiaoNeural"
-    VOICE = "zh-CN-XiaoyiNeural"
+    VOICE = voice_name
 
     from GeneralAgent import skills
     save_path= skills.unique_name() + '.mp3'
