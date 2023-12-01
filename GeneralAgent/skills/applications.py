@@ -6,6 +6,8 @@ def load_applications():
     from GeneralAgent.utils import get_applications_dir
     local_bots = _load_bots(_get_local_applications_dir())
     remote_bots=  _load_bots(get_applications_dir())
+    for bot in remote_bots:
+        bot['nickname'] = '# ' + bot['nickname']
     return local_bots + remote_bots
 
 

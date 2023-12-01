@@ -12,7 +12,7 @@ async def text_to_speech(text):
     save_path= skills.unique_name() + '.mp3'
     # asyncio.run(_create_tts(text, VOICE, save_path))
     await _create_tts(text, VOICE, save_path)
-    print('audio created at [{save_path}]({save_path})')
+    print(f'audio created at [{save_path}]({save_path})')
     return save_path
 
 

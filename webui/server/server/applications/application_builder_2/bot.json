@@ -1,7 +1,7 @@
 {
     "id": "application_builder_2",
-    "name": "Agent Builder 2",
-    "description": "Version 2: build application or agent only by chat without any code",
+    "name": "Agent Builder",
+    "description": "version 2, build application or agent only by chat without any code",
     "icon": "icon.png",
     "upload_file": "yes"
 }
