@@ -31,7 +31,7 @@ def stable_video_diffusion(image_path:str, video_length='14_frames_with_svd', si
     )
     from GeneralAgent import skills
     video_path  = skills.try_download_file(video_url)
-    print(f'video created at [{video_path}]({video_path})')
+    print(f'video created at {video_path}')
     return video_path
 
 def test_stable_video_diffusion():
