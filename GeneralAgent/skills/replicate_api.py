@@ -38,13 +38,15 @@ def image_generation(prompt) -> str:
     return image_path
 
 def face_restoration(image_path):
-    """ Practical face restoration algorithm for old photos or AI-generated faces. input image path, and return image url"""
+    """ Practical face restoration algorithm for old photos or AI-generated faces. input image path, and return the new image path"""
     import replicate
+    from GeneralAgent import skills
     image_url = replicate.run(
         "tencentarc/gfpgan:9283608cc6b7be6b65a8e44983db012355fde4132009bf99d976b2f0896856a3",
         input={"img": open(image_path, "rb")}
     )
-    return image_url
+    new_image_path  = skills.try_download_file(image_url)
+    return new_image_path
 
 def qrcode_stable_diffusion(prompt, qr_code_content):
     """generate a qrcode image with prompt, return a image url"""
