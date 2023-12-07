@@ -76,7 +76,8 @@ https://github.com/CosmosShadow/GeneralAgent/assets/13933465/9d9b4d6b-0c9c-404d-
 docker pull cosmosshadow/general-agent
 
 
-# 创建.env文件并替换变量，如LLM_SOURCE、OPENAI_API_KEY
+# 下载.env.example并拷贝成.env，替换其中的变量，如LLM_SOURCE、OPENAI_API_KEY
+wget https://github.com/CosmosShadow/GeneralAgent/blob/main/.env.example
 cp .env.example .env
 vim .env
 # 配置.env文件中的环境变量，比如OPENAI_API_KEY等
@@ -110,6 +111,8 @@ pip install GeneralAgent
 #### 设置环境变量
 
 ```bash
+# 下载.env.example并拷贝成.env，替换其中的变量，如LLM_SOURCE、OPENAI_API_KEY
+wget https://github.com/CosmosShadow/GeneralAgent/blob/main/.env.example
 cp .env.example .env
 vim .env
 # 配置.env文件中的环境变量，比如OPENAI_API_KEY等

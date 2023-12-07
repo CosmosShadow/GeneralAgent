@@ -66,6 +66,8 @@ https://github.com/CosmosShadow/GeneralAgent/assets/13933465/9d9b4d6b-0c9c-404d-
 docker pull cosmosshadow/general-agent
 
 # make .env
+# download .env.example and copy to .env, then configure environment variables in the .env file, such as OPENAI_API_KEY, etc.
+wget https://github.com/CosmosShadow/GeneralAgent/blob/main/.env.example
 cp .env.example .env
 vim .env
 # Configure environment variables in the .env file, such as OPENAI_API_KEY, etc.
@@ -96,9 +98,11 @@ pip install GeneralAgent
 #### Set environment variables
 
 ```bash
+# download .env.example and copy to .env, then configure environment variables in the .env file, such as OPENAI_API_KEY, etc.
+wget https://github.com/CosmosShadow/GeneralAgent/blob/main/.env.example
 cp .env.example .env
 vim .env
-# Configure environment variables in the .env file, such as OPENAI_API_KEY, etc.
+
 export $(grep -v '^#' .env | sed 's/^export //g' | xargs)
 ```
 
