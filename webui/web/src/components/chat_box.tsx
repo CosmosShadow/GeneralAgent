@@ -23,6 +23,7 @@ interface Props {
 const ChatBox : React.FC<Props> = (props) => {
 	const dispatch = useDispatch();
 	const [inputValue, setInputValue] = useState('');
+	const [uploadFiles, setUploadFiles] = useState<any[]>([]);
 	const [buttonCanClicked, setButtonCanClicked] = useState(false);
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [tmpMessage, SetTmpMessage] = useState<Message | null>(null);
@@ -81,6 +82,7 @@ const ChatBox : React.FC<Props> = (props) => {
 	  }, [subscribe]);
 
 	const sendFile = (file_path: string) => {
+		setUploadFiles(uploadFiles => [...uploadFiles, file_path]);
 		// const message: Message = {
 		// 	type: 'message',
 		// 	bot_id: props.bot_id,
@@ -121,7 +123,9 @@ const ChatBox : React.FC<Props> = (props) => {
 			bot_id: props.bot_id,
 			chat_id: props.chat_id,
 			msg: text,
+			file: JSON.stringify(uploadFiles)
 		}
+		setUploadFiles([]);
 		// console.log(props.chat_id)
 		sendMessage(JSON.stringify({
 			'type': 'message',

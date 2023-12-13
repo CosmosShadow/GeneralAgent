@@ -250,6 +250,10 @@ async def worker():
                     if file is not None:
                         message.msg = f'uploaded a file: {message.file}'
                     await application_module.main(chat_messages, message.msg, _output_callback)
+                elif params_count == 4:
+                    print(message.file)
+                    files = json.loads(message.file) if message.file != '' else []
+                    await application_module.main(chat_messages, message.msg, files, _output_callback)
                 else:
                     await application_module.main(chat_messages, message.msg, file, _output_callback, _file_callback, send_ui)
                 if len(result.strip()) > 0:
