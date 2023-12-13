@@ -107,6 +107,7 @@ class StackAgent(AbsAgent):
         logging.debug(self.memory)
         while todo_node is not None:
             new_node, is_stop = await self._execute_node(todo_node, output_callback)
+            output_callback(None)
             logging.debug(self.memory)
             logging.debug(new_node)
             logging.debug(is_stop)

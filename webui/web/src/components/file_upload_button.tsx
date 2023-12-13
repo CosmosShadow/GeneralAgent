@@ -14,61 +14,58 @@ interface Props {
 
 
 export function FileUploadButton(props: Props) {
-  // 定义用于显示modal的state以及文件的state
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 处理选择文件的函数
-  function handleSelectFile(e:any) {
-    // console.log('handleSelectFile called')
+  function handleSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     const fileList = e.target.files;
-    if (fileList.length > 0) {
-      // 更新选中的文件
-      setFile(fileList[0]);
-      // 显示modal
+    if (fileList && fileList.length > 0) {
+      setFiles(Array.from(fileList));
       setIsModalVisible(true);
-      // 清空input的值，这样下次选择同一个文件还能触发onChange事件
-      // console.log('清空input的值')
-      e.target.value = null;
+      e.target.value = '';
     }
   }
 
-  // 处理modal确定按钮的函数
   async function handleModalOk() {
-    // console.log('handleModalOk called')
     try {
-      let file_path = await apiUploadFile(props.bot_id, props.chat_id, file as any); // 调用apiUploadFile函数上传文件
-      // 处理上传成功的逻辑
+      for (let i = 0; i < files.length; i++) {
+        let file_path = await apiUploadFile(props.bot_id, props.chat_id, files[i]);
+        notification.success({ message: `文件 ${files[i].name} 上传成功` });
+        props.onUploadSuccess(file_path);
+      }
       setIsModalVisible(false);
-      notification.success({ message: '上传成功' });
-      setFile(null);
-      props.onUploadSuccess(file_path)
+      setFiles([]);
     } catch (err) {
       // 处理上传失败的逻辑
-      // ...
+      notification.error({ message: '上传失败' });
     }
   }
 
-  // 处理modal取消按钮的函数
   function handleModalCancel() {
     setIsModalVisible(false);
-    setFile(null);
+    setFiles([]);
   }
 
   const handleButtonClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+    fileInputRef.current?.click();
   };
-
 
   return (
     <>
-      <input ref={fileInputRef} type="file" style={{ display: "none" }} onChange={handleSelectFile} accept="text/plain;charset=utf-8"/>
+      <input
+        ref={fileInputRef}
+        type="file"
+        style={{ display: 'none' }}
+        onChange={handleSelectFile}
+        accept="text/plain;charset=utf-8"
+        multiple
+      />
       <Button onClick={handleButtonClick}>{props.title ? props.title : <UploadOutlined />}</Button>
       <Modal title="上传文件" open={isModalVisible} onOk={handleModalOk} onCancel={handleModalCancel}>
-        {file && <p>{(file as any).name}</p>}
+        {files.map((file, index) => (
+          <div key={index}>{file.name}</div>
+        ))}
       </Modal>
     </>
   );
