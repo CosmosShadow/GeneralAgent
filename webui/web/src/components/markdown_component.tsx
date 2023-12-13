@@ -87,6 +87,9 @@ interface Props {
 
 const MarkdownComponent: React.FC<Props> = (props) => {
     const message = props.message
+    if (message.file && message.file !== '') {
+        message.msg = message.file + message.msg?.trim()
+    }
     const links = splitStringWithLinks(props.message.msg?.trim() as string)
     // console.log(props.message.msg)
     // console.log(links)

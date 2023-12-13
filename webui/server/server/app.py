@@ -331,10 +331,12 @@ async def websocket_user_endpoint(websocket: WebSocket):
             else:
                 data = json.loads(data)
                 logging.info('Websocket get a message')
+                logging.info(data)
                 if data['type'] == 'message':
                     message = Message(**data['data'])
                     message.role = 'user'
                     await save_message(message)
+                    logging.info(message.to_text())
                     await websocket.send_text(message.to_text())
                     logging.info('Websocket sended message')
                     await to_thread(task_queue.put, message)

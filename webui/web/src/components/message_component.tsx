@@ -24,13 +24,14 @@ const MessageComponent: React.FC<Props> = (props) => {
 	const message: Message = props.message;
 	// 去掉前后的空格
 	// message.msg = message.msg?.trim();
+	console.log(message);
 	const bot_id: string = message.bot_id as string;
 	const chat_id: string = message.chat_id as string;
 	const file_url = get_chat_file_url(bot_id, chat_id, message.file as string);
 	const isImage = message.file && /\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(message.file);
 	const isAudio = message.file && /\.(mp3|wav)$/i.test(message.file);
 	const isUI = message.ui && message.ui !== ''
-	const isFile = message.file && !isImage && !isAudio;
+	const isFile = message.file && !isImage && !isAudio && message.msg == '';
 	if (isUI) {
 		return <UIMesasge message={message} />
 	}

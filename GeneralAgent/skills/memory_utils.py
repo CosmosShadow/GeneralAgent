@@ -2,6 +2,9 @@
 
 def _parse_segment_llm_result(text):
     import logging
+    logging.info('-----------<_parse_segment_llm_result>------------')
+    logging.info(text)
+    logging.info('-----------</_parse_segment_llm_result>------------')
     lines = text.strip().split('\n')
     key = None
     nodes = {}

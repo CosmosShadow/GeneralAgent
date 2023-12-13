@@ -11,10 +11,10 @@ export const WebSocketProvider: React.FC<PropsWithChildren<Props>> = ({ children
 
   const connectWebSocket = () => {
     const socket = new WebSocket(WS_HOST + '/ws/user/');
-    console.log('WebSocket连接OK');
+    console.log('WebSocket connect success.');
     socketRef.current = socket;
     socket.onclose = () => {
-			console.log('WebSocket连接已断开');
+			console.log('WebSocket connect closed.');
 			if (shouldReconnect) {
 				// 随机的3~5秒后自动重连
 				const random = (Math.random() * (5 - 3) + 3) * 1000;
@@ -40,7 +40,7 @@ export const WebSocketProvider: React.FC<PropsWithChildren<Props>> = ({ children
 	useEffect(() => {
 		const timer = setInterval(() => {
 			if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-        console.log('ping')
+        // console.log('ping')
 				socketRef.current.send('ping');
 			}
 		}, 10000);
@@ -58,7 +58,7 @@ export const WebSocketProvider: React.FC<PropsWithChildren<Props>> = ({ children
       socketRef.current.onmessage = (event) => {
         // console.log(event);
         if (event.data == 'pong') {
-          console.log('pong')
+          // console.log('pong')
         } else {
           messageHandler(event.data);
         }
