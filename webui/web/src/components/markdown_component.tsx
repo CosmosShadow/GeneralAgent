@@ -5,6 +5,7 @@ import { message } from 'antd';
 import ImageComponent from './image_component'
 import FileDownloadCompoent from './file_download'
 import AudioPlayer from './audio_player';
+import { link } from 'fs';
 
 
 type LinkObject = {
@@ -87,10 +88,18 @@ interface Props {
 
 const MarkdownComponent: React.FC<Props> = (props) => {
     const message = props.message
+    var links = splitStringWithLinks(props.message.msg?.trim() as string)
     if (message.file && message.file !== '') {
-        message.msg = message.file + message.msg?.trim()
+        const files = JSON.parse(message.file)
+        const result: LinkObject[] = files.map((item: any) => {
+            return {
+                type: 'file',
+                title: item + '\n',
+                url: item
+            }
+        });
+        var links = result.concat(links);
     }
-    const links = splitStringWithLinks(props.message.msg?.trim() as string)
     // console.log(props.message.msg)
     // console.log(links)
     return (<div style={{ whiteSpace: 'pre-wrap' }} >{

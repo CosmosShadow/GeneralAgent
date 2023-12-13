@@ -31,7 +31,8 @@ In Python, You can access the values of <<key>> in all documents through the dic
 print({self.sparks_dict_name}['Hello world'])
 ```
 """
-            return await 'Background Information: \n' + self.link_memory.get_memory(messages) + access_prompt
+            info = await self.link_memory.get_memory(messages)
+            return 'Background Information: \n' + info + access_prompt
     
     async def input_parse(self, string) -> (str, bool):
         from GeneralAgent import skills
