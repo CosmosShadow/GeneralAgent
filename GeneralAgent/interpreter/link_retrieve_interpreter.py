@@ -23,7 +23,7 @@ class LinkRetrieveInterperter(Interpreter):
 
     async def prompt(self, messages) -> str:
         if self.link_memory.is_empty():
-            return None
+            return ''
         else:
             access_prompt = f"""
 In Python, You can access the values of <<key>> in all documents through the dictionary {self.sparks_dict_name}, such as <<Hello world>>:
