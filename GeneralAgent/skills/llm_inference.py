@@ -178,7 +178,7 @@ def _get_llm_model(messages, model_type):
     return os.environ.get(model_key, 'gpt-3.5-turbo')
 
 
-def get_llm_token_limit(model_type):
+def get_llm_token_limit(model_type='smart'):
     """
     return the token limit for the model
     """

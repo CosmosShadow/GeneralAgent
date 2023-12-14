@@ -107,6 +107,7 @@ class StackAgent(AbsAgent):
         logging.debug(self.memory)
         while todo_node is not None:
             new_node, is_stop = await self._execute_node(todo_node, output_callback)
+            logging.info(is_stop)
             await output_callback(None)
             logging.debug(self.memory)
             logging.debug(new_node)
@@ -114,6 +115,7 @@ class StackAgent(AbsAgent):
             if is_stop:
                 return new_node.node_id
             todo_node = self.memory.get_todo_node()
+            logging.info(todo_node)
             await asyncio.sleep(0)
             if self.stop_event.is_set():
                 self.is_running = False
@@ -136,7 +138,9 @@ class StackAgent(AbsAgent):
         # construct system prompt
         from GeneralAgent import skills
         messages = self.memory.get_related_messages_for_node(node)
-        messages = skills.cut_messages(messages, 3000)
+        token_limit = int(skills.get_llm_token_limit() * 0.8)
+        logging.info(f'token_limit: {token_limit}')
+        messages = skills.cut_messages(messages, token_limit)
         system_prompt = '\n\n'.join([await interpreter.prompt(messages) for interpreter in self.interpreters])
         messages = [{'role': 'system', 'content': system_prompt}] + messages
 

@@ -49,7 +49,7 @@ class FileInterpreter(Interpreter):
     async def output_parse(self, string) -> (str, bool):
         logging.debug('FileInterpreter:parse called')
         file_path, operation, start_line, end_line, content = self._parse_commands(string)
-        is_stop = True
+        is_stop = False
         if operation == 'write':
             self._write_file(file_path, content, start_line, end_line)
             return f'Content write to {file_path} successfully\n', is_stop
@@ -76,6 +76,7 @@ class FileInterpreter(Interpreter):
             lines = f.readlines()
         if start_index == -1:
             start_index = len(lines)
+            content = '\n' + content
         if end_index == -1:
             end_index = len(lines)
         lines = lines[:start_index] + [content] + lines[end_index+1:]
