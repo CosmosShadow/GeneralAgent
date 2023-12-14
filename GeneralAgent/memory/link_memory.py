@@ -56,14 +56,14 @@ class LinkMemory():
             # await self._oncurrent_summarize_content(content, output_callback)
             await self._summarize_content(content, output_callback)
     
-    async def get_memory(self, messages=None):
+    async def get_memory(self, messages=None, limit_token_count=3000):
         from GeneralAgent import skills
         if len(self.concepts) == 0:
             return ''
         if messages is None:
             return self.short_memory
         else:
-            messages = skills.cut_messages(messages, 1000)
+            messages = skills.cut_messages(messages, 10*1000)
             xx = self.short_memory.split('\n')
             background = '\n'.join([f'#{line} {xx[line]}' for line in range(len(xx))])
             task = '\n'.join([f'{x["role"]}: {x["content"]}' for x in messages])
@@ -73,9 +73,13 @@ class LinkMemory():
             for line_number in line_numbers:
                 if line_number < len(xx) and line_number >= 0:
                     result.append(xx[line_number])
+                    if skills.string_token_count('\n'.join(result)) > limit_token_count:
+                        return '\n'.join(result[:-1])
             for key in keys:
                 if key in self.concepts:
                     result.append(f'{key}\n{self.concepts[key]}\n')
+                    if skills.string_token_count('\n'.join(result)) > limit_token_count:
+                        return '\n'.join(result[:-1])
             return '\n'.join(result)
 
     def _load_short_memory(self):

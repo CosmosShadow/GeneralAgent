@@ -119,6 +119,7 @@ If no relevant information is found, please output "[Nothing]".
 ```
 [Nothing]
 ```
+Note: <<titles>> and line numbers provide up to 5 items each, so please select the most relevant.
 """
 
     from GeneralAgent import skills
