@@ -76,21 +76,30 @@ class NormalAgent(AbsAgent):
         """
         self.is_running = True
 
-        input_stop = await self._parse_input(input, output_callback)
+        result = ''
+        async def inner_output(token):
+            nonlocal result
+            if token is not None:
+                result += token
+            else:
+                result += '\n'
+            await output_callback(token)
+
+        input_stop = await self._parse_input(input, inner_output)
         if input_stop:
             self.is_running = False
-            return
+            return result
 
         while True:
             messages = await self._get_llm_messages()
-            output_stop = await self._llm_and_parse_output(messages, output_callback)
+            output_stop = await self._llm_and_parse_output(messages, inner_output)
             if output_stop:
                 self.is_running = False
-                return
+                return result
             await asyncio.sleep(0)
             if self.stop_event.is_set():
                 self.is_running = False
-                return
+                return result
 
     async def _parse_input(self, input, output_callback):
         self.memory.add_message('user', input)
