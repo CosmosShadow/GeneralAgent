@@ -92,15 +92,19 @@ class NormalAgent(AbsAgent):
             self.is_running = False
             return result
 
+        inner_output(None)
+        
         while True:
             messages = self._get_llm_messages()
             output_stop = self._llm_and_parse_output(messages, inner_output)
             if output_stop:
                 self.is_running = False
+                inner_output(None)
                 return result
             asyncio.sleep(0)
             if self.stop_event.is_set():
                 self.is_running = False
+                inner_output(None)
                 return result
 
     def _parse_input(self, input, output_callback):
@@ -179,10 +183,11 @@ class NormalAgent(AbsAgent):
                             pop_token = cache_tokens.pop(0)
                             output_callback(pop_token)
                         result += '\n' + output.strip() + '\n'
-                        self.memory.append_message('assistant', '\n' + output.strip() + '\n')
+                        self.memory.add_message('assistant', '\n' + output.strip() + '\n')
                         result = ''
                         # logging.debug(result)
                         if not self.hide_output_parse or is_stop:
+                            output_callback(None)
                             output_callback('\n' + output.strip() + '\n')
                         is_break = True
                         in_parse_content = False

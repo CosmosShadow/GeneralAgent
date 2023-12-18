@@ -25,6 +25,7 @@ class SyncPythonInterpreter(Interpreter):
 
     output_match_start_pattern = '```python\n'
     output_match_pattern = '```python\n(.*?)\n```'
+    agent = None
 
     python_prompt_template = """
 # Run python
@@ -115,12 +116,14 @@ class SyncPythonInterpreter(Interpreter):
         assert match is not None
         if confirm_to_run():
             sys_out, stop = self.run_code(match.group(1))
-            result = 'python runs result:\n' + sys_out.strip()
+            result = '\nThe execution of the python code is completed, and the running situation is as follows:\n' + sys_out.strip() + '\n'
             return result, stop
         else:
             return '', False
 
     def run_code(self, code):
+        if self.agent is not None:
+            self.globals['agent'] = self.agent
         stop = False
         code = self.add_print(code)
         code = self.import_code + '\n' + code
@@ -148,7 +151,7 @@ class SyncPythonInterpreter(Interpreter):
             self.save()
         sys_stdout = sys_stdout.strip()
         if sys_stdout == '':
-            sys_stdout = 'run successfully'
+            sys_stdout = 'Run successfully without error.'
         return sys_stdout, stop
 
     def get_variable(self, name):
@@ -187,53 +190,53 @@ class SyncPythonInterpreter(Interpreter):
                 lines[-1] = last_line
         return '\n'.join(lines)
 
-def _remove_unpickleable(namespace):
-    import pickle
-    if '__builtins__' in namespace:
-        namespace.__delitem__('__builtins__')
-    keys = list(namespace.keys())
-    for key in keys:
-        try:
-            pickle.dumps(namespace[key])
-        except Exception as e:
-            namespace.__delitem__(key)
-    return namespace
+# def _remove_unpickleable(namespace):
+#     import pickle
+#     if '__builtins__' in namespace:
+#         namespace.__delitem__('__builtins__')
+#     keys = list(namespace.keys())
+#     for key in keys:
+#         try:
+#             pickle.dumps(namespace[key])
+#         except Exception as e:
+#             namespace.__delitem__(key)
+#     return namespace
 
 
-def code_wrap(code, namespace):
-    lines = code.split('\n')
-    code = '\n    '.join(lines)
-    variables = '\n    '.join([f'{name} = globals()[\'{name}\']' for name, value in namespace.items()])
-    content = f"""
-import asyncio
+# def code_wrap(code, namespace):
+#     lines = code.split('\n')
+#     code = '\n    '.join(lines)
+#     variables = '\n    '.join([f'{name} = globals()[\'{name}\']' for name, value in namespace.items()])
+#     content = f"""
+# import asyncio
 
-def _remove_unpickleable(namespace):
-    import pickle
-    if '__builtins__' in namespace:
-        namespace.__delitem__('__builtins__')
-    keys = list(namespace.keys())
-    for key in keys:
-        try:
-            pickle.dumps(namespace[key])
-        except Exception as e:
-            namespace.__delitem__(key)
-    for name in ['__name', '__value', '__namespace']:
-        if name in namespace:
-            namespace.__delitem__(name)
-    return namespace
+# def _remove_unpickleable(namespace):
+#     import pickle
+#     if '__builtins__' in namespace:
+#         namespace.__delitem__('__builtins__')
+#     keys = list(namespace.keys())
+#     for key in keys:
+#         try:
+#             pickle.dumps(namespace[key])
+#         except Exception as e:
+#             namespace.__delitem__(key)
+#     for name in ['__name', '__value', '__namespace']:
+#         if name in namespace:
+#             namespace.__delitem__(name)
+#     return namespace
 
-__namespace = None
+# __namespace = None
 
-def __main():
-    {variables}
-    {code}
-    global __namespace
-    __namespace = _remove_unpickleable(locals().copy())
-"""
-    # print('----------<code>--------')
-    # print(content)
-    # print('----------</code>--------')
-    return content
+# def __main():
+#     {variables}
+#     {code}
+#     global __namespace
+#     __namespace = _remove_unpickleable(locals().copy())
+# """
+#     # print('----------<code>--------')
+#     # print(content)
+#     # print('----------</code>--------')
+#     return content
 
 
 # class AsyncPythonInterpreter(SyncPythonInterpreter):
