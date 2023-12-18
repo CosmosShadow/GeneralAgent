@@ -236,87 +236,87 @@ def __main():
     return content
 
 
-class AsyncPythonInterpreter(SyncPythonInterpreter):
-    """
-    Sync Python Interpreter: run python code in the interpreter. Same namespace with the agent & Can run code
-    """
+# class AsyncPythonInterpreter(SyncPythonInterpreter):
+#     """
+#     Sync Python Interpreter: run python code in the interpreter. Same namespace with the agent & Can run code
+#     """
 
-    python_prompt_template = """
-# Run python
-- format is : ```python\\nthe_code\\n```
-- the code will be executed
-- python version is {{python_version}}
-- Pickleable objects can be shared between different codes and variables
-- The output display should be limited in length and should be truncated when displaying characters whose length is unknown. for example: print(a[:100])
-- Available libraries: {{python_libs}}
-Complete the entire process in one code instead of writing multiple codes to run step by step. For example, the following code is allowed:
-```python
-# step 1
-a = fun1(xx)
-# step 2
-c = fun2(a)
-# step 3
-d = fun3(c)
-...
-```
-- The following functions can be used in code (already implemented and imported for you):
-```
-{{python_funcs}}
-```
-"""
+#     python_prompt_template = """
+# # Run python
+# - format is : ```python\\nthe_code\\n```
+# - the code will be executed
+# - python version is {{python_version}}
+# - Pickleable objects can be shared between different codes and variables
+# - The output display should be limited in length and should be truncated when displaying characters whose length is unknown. for example: print(a[:100])
+# - Available libraries: {{python_libs}}
+# Complete the entire process in one code instead of writing multiple codes to run step by step. For example, the following code is allowed:
+# ```python
+# # step 1
+# a = fun1(xx)
+# # step 2
+# c = fun2(a)
+# # step 3
+# d = fun3(c)
+# ...
+# ```
+# - The following functions can be used in code (already implemented and imported for you):
+# ```
+# {{python_funcs}}
+# ```
+# """
 
-    def run_code(self, code):
-        stop = False
-        code = self.add_print(code)
-        code = code_wrap(code, self.globals)
-        code = self.import_code + '\n' + code
-        # print('hello')
-        # print(code)
-        # print(self.function_tools)
-        globals_backup = self.load()
-        logging.debug(code)
-        sys_stdout = ''
-        output = io.StringIO()
-        sys.stdout = output
-        success = False
-        try:
-            # exec(code, self.globals)
-            # run python code
-            local_vars = self.globals
-            # register functions
-            for fun in self.function_tools:
-                local_vars[fun.__name__] = fun
-            # print(local_vars)
-            exec(code, local_vars, local_vars)
-            main_function = local_vars['__main']
-            asyncio.create_task(main_function())
-            local_vars = _remove_unpickleable(local_vars)
-            local_vars = local_vars['__namespace']
-            # remove functions
-            for fun in self.function_tools:
-                if fun.__name__ in local_vars:
-                    local_vars.__delitem__(fun.__name__)
-            self.globals = local_vars
+#     def run_code(self, code):
+#         stop = False
+#         code = self.add_print(code)
+#         code = code_wrap(code, self.globals)
+#         code = self.import_code + '\n' + code
+#         # print('hello')
+#         # print(code)
+#         # print(self.function_tools)
+#         globals_backup = self.load()
+#         logging.debug(code)
+#         sys_stdout = ''
+#         output = io.StringIO()
+#         sys.stdout = output
+#         success = False
+#         try:
+#             # exec(code, self.globals)
+#             # run python code
+#             local_vars = self.globals
+#             # register functions
+#             for fun in self.function_tools:
+#                 local_vars[fun.__name__] = fun
+#             # print(local_vars)
+#             exec(code, local_vars, local_vars)
+#             main_function = local_vars['__main']
+#             asyncio.create_task(main_function())
+#             local_vars = _remove_unpickleable(local_vars)
+#             local_vars = local_vars['__namespace']
+#             # remove functions
+#             for fun in self.function_tools:
+#                 if fun.__name__ in local_vars:
+#                     local_vars.__delitem__(fun.__name__)
+#             self.globals = local_vars
 
-            success = True
-            self.run_wrong_count = 0
-        except Exception as e:
-            import traceback
-            sys_stdout += traceback.format_exc()
-            self.globals = globals_backup
-            logging.exception((e))
-            self.run_wrong_count += 1
-            if self.run_wrong_count >= self.stop_wrong_count:
-                stop = True
-        finally:
-            sys_stdout += output.getvalue()
-            sys.stdout = sys.__stdout__
-        if success:
-            self.save()
-        sys_stdout = sys_stdout.strip()
-        if sys_stdout == '':
-            sys_stdout = 'run successfully'
-        return sys_stdout, stop
+#             success = True
+#             self.run_wrong_count = 0
+#         except Exception as e:
+#             import traceback
+#             sys_stdout += traceback.format_exc()
+#             self.globals = globals_backup
+#             logging.exception((e))
+#             self.run_wrong_count += 1
+#             if self.run_wrong_count >= self.stop_wrong_count:
+#                 stop = True
+#         finally:
+#             sys_stdout += output.getvalue()
+#             sys.stdout = sys.__stdout__
+#         if success:
+#             self.save()
+#         sys_stdout = sys_stdout.strip()
+#         if sys_stdout == '':
+#             sys_stdout = 'run successfully'
+#         return sys_stdout, stop
     
 
 # class PythonInterpreter(AsyncPythonInterpreter):
