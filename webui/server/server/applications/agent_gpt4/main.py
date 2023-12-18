@@ -1,6 +1,6 @@
 from GeneralAgent.agent import Agent
 
-async def main(chat_history, input, file_path, output_callback, file_callback, send_ui):
+def main(chat_history, input, file_path, output_callback, file_callback, send_ui):
     from GeneralAgent.agent import Agent
     from GeneralAgent import skills
     from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, AppleScriptInterpreter, ShellInterpreter, UIInterpreter
@@ -22,4 +22,4 @@ async def main(chat_history, input, file_path, output_callback, file_callback, s
     input_content = input
     if file_path is not None and file_path != '':
         input_content = "user upload a file: " + file_path
-    await agent.run(input_content, output_callback=output_callback)
+    agent.run(input_content, output_callback=output_callback)

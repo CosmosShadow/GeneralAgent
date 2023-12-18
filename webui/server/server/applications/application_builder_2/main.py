@@ -1,5 +1,5 @@
 
-async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
+def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     from GeneralAgent.agent import Agent
     role_prompt = """
 You are an online normal application and agent application building robot.
@@ -47,6 +47,6 @@ search_functions('scrape web page')
     ]
     agent = Agent.with_functions(functoins, role_prompt)
     agent.hide_output_parse = False
-    await agent.run(input, output_callback=output_callback)
+    agent.run(input, output_callback=output_callback)
 
     # 实现一个文件翻译应用，用户上传一个文件，选择要翻译的语言(可选项包括中文、日文、英文，默认中文)，然后翻译成目标语言，返回翻译后的文件。

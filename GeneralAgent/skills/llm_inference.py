@@ -287,7 +287,7 @@ def simple_llm_inference(messages, json_schema=None):
 
 
 # @retry(stop=stop_after_attempt(3), wait=wait_fixed(3))
-async def async_llm_inference(messages, model_type='normal'):
+def async_llm_inference(messages, model_type='normal'):
     from litellm import acompletion
     import logging
     global global_cache
@@ -301,14 +301,14 @@ async def async_llm_inference(messages, model_type='normal'):
     try_count = 3
     while try_count > 0:
         try:
-            response = await acompletion(model=model, messages=messages, temperature=temperature)
+            response = acompletion(model=model, messages=messages, temperature=temperature)
             result = response['choices'][0]['message']['content']
             global_cache.set_llm_cache(key, result)
             return result
         except Exception as e:
             try_count -= 1
             import asyncio
-            await asyncio.sleep(3)
+            asyncio.sleep(3)
         if try_count == 0:
             raise ValueError('LLM(Large Languate Model) error, Please check your key or base_url, or network')
     return ''

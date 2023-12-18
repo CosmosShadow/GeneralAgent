@@ -94,7 +94,7 @@ def get_function_signature(func, module:str=None):
     if module is not None:
         desc = f'{module}.{desc}'
     if inspect.iscoroutinefunction(func):
-        desc = "async " + desc
+        desc = "" + desc
     return desc
 
 

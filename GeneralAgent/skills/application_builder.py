@@ -296,13 +296,13 @@ The function in code will be used to create a chat bot, like slack, discord.
 
 # Function signature
 ```
-async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
+def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     # chat_history is a list of dict, like [{{"role": "user", "content": "hello"}}, {{"role": "system", "content": "hi"}}]
     # input is a string, user's input
     # file_path is a string, user's file path
-    # output_callback is a async function, output_callback(content: str) -> None
-    # file_callback is a async function, file_callback(file_path: str) -> None
-    # ui_callback is a async function, ui_callback(name:str, js_path:str, data={{}}) -> None
+    # output_callback is a function, output_callback(content: str) -> None
+    # file_callback is a function, file_callback(file_path: str) -> None
+    # ui_callback is a function, ui_callback(name:str, js_path:str, data={{}}) -> None
 ```
 
 # Python Version: {python_version}
@@ -322,25 +322,25 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
 
 # DEMO 1 : Chat with A large language model
 ```python
-async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
+def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     from GeneralAgent import skills
     chat_history = skills.cut_messages(chat_history, 4000)
     messages = [{{"role": "system", "content": "You are a helpful assistant."}}] + chat_history
     response = skills.llm_inference(messages, stream=True)
     for token in response:
-        await output_callback(token)
-    await output_callback(None)
+        output_callback(token)
+    output_callback(None)
 ```
 
 # DEMO 2 : Create a image by user's prompt
 ```python
-async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
+def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     from GeneralAgent import skills
     prompt = input
     if not skills.text_is_english(prompt):
         prompt = skills.translate_text(prompt, 'english')
     image_url = skills.image_generation(prompt)
-    await file_callback(image_url)
+    file_callback(image_url)
 ```
 
 Please think step by step carefully, consider any possible situation, and write a complete code like DEMO
@@ -367,13 +367,13 @@ The function in code will be used to create a chat bot, like slack, discord.
 
 # Function signature
 ```
-async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
+def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     # chat_history is a list of dict, like [{{"role": "user", "content": "hello"}}, {{"role": "system", "content": "hi"}}]
     # input is a string, user's input
     # file_path is a string, user's file path
-    # output_callback is a async function, output_callback(content: str) -> None
-    # file_callback is a async function, file_callback(file_path: str) -> None
-    # ui_callback is a async function, ui_callback(name:str, js_path:str, data={{}}) -> None
+    # output_callback is a function, output_callback(content: str) -> None
+    # file_callback is a function, file_callback(file_path: str) -> None
+    # ui_callback is a function, ui_callback(name:str, js_path:str, data={{}}) -> None
 ```
 
 # Python Version: {python_version}
@@ -391,14 +391,14 @@ async def main(chat_history, input, file_path, output_callback, file_callback, u
 
 # DEMO 1 : write user's input to a file and return
 ```python
-async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
+def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     from GeneralAgent import skills
     
 ```
 
 # DEMO 2 : Agent with functions
 ```python
-async def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
+def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
     from GeneralAgent.agent import Agent
     role_prompt = \"\"\"
 You are a translation agent.
@@ -408,7 +408,7 @@ You complete user requirements by writing python code to call the predefined fun
         skills.translate_text
     ]
     agent = Agent.with_functions(functions, role_prompt)
-    await agent.run(input, output_callback=output_callback)
+    agent.run(input, output_callback=output_callback)
 ```python
 
 # There are two function types:

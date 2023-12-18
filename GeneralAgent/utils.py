@@ -15,7 +15,7 @@ def default_get_input():
     text = '\n'.join(lines)
     return text
 
-async def default_output_callback(token):
+def default_output_callback(token):
     if token is not None:
         print(token, end='', flush=True)
     else:

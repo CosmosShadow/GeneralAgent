@@ -9,7 +9,7 @@ set_logging_level()
 
 
 @pytest.mark.asyncio
-async def test_read_paper():
+def test_read_paper():
     serialize_path = './summary_memory.json'
     if os.path.exists(serialize_path):
         os.remove(serialize_path)
@@ -19,16 +19,16 @@ async def test_read_paper():
     content = ''
     for page in doc:
         content += '\n' + page.get_text()
-    new_content = await memory.add_memory(content, output_callback=None)
-    # new_content = await memory.add_memory(content, output_callback=default_output_callback)
-    spark = await memory.get_memory()
+    new_content = memory.add_memory(content, output_callback=None)
+    # new_content = memory.add_memory(content, output_callback=default_output_callback)
+    spark = memory.get_memory()
     # print(f'-----------\n{spark}\n-----------')
     assert '<<Introduction>>' in spark
 
     messages = [
         {'role': 'user', 'content': '论文有哪些贡献?'},
     ]
-    spark = await memory.get_memory(messages)
+    spark = memory.get_memory(messages)
     print(f'-----------\n{spark}\n-----------')
     assert 'pdf' in spark.lower()
 

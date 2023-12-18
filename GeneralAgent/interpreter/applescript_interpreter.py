@@ -16,10 +16,10 @@ class AppleScriptInterpreter(Interpreter):
     output_match_pattern = '```(\n)?applescript(.*?)\n```'
     output_match_start_pattern = '```(\n)?applescript'
 
-    async def prompt(self, messages) -> str:
+    def prompt(self, messages) -> str:
         return applescript_promt
     
-    async def output_parse(self, string) -> (str, bool):
+    def output_parse(self, string) -> (str, bool):
         pattern = re.compile(self.output_match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None

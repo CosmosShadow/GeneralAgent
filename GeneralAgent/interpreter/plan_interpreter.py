@@ -20,10 +20,10 @@ class PlanInterpreter(Interpreter):
         self.memory = memory
         self.max_plan_depth = max_plan_depth
 
-    async def prompt(self, messages) -> str:
+    def prompt(self, messages) -> str:
         return ''
     
-    async def input_parse(self, string) -> (str, bool):
+    def input_parse(self, string) -> (str, bool):
         pattern = re.compile(self.input_match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None

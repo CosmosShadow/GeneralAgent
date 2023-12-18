@@ -16,10 +16,10 @@ class ShellInterpreter(Interpreter):
     def __init__(self, workspace='./') -> None:
         self.workspace = workspace
 
-    async def prompt(self, messages) -> str:
+    def prompt(self, messages) -> str:
         return shell_prompt
 
-    async def output_parse(self, string) -> (str, bool):
+    def output_parse(self, string) -> (str, bool):
         pattern = re.compile(self.output_match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None

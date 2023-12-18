@@ -29,7 +29,7 @@ class FileInterpreter(Interpreter):
     
     output_match_pattern = '```(\n)?file(\n| )?(.*?) (write|read|delete) (-?\d+) (-?\d+)(.*?)```'
 
-    async def prompt(self, messages) -> str:
+    def prompt(self, messages) -> str:
         return file_prompt
     
     def _parse_commands(self, string):
@@ -46,7 +46,7 @@ class FileInterpreter(Interpreter):
             content = content[:-3].strip()
         return file_path, operation, start_line, end_line, content
 
-    async def output_parse(self, string) -> (str, bool):
+    def output_parse(self, string) -> (str, bool):
         logging.debug('FileInterpreter:parse called')
         file_path, operation, start_line, end_line, content = self._parse_commands(string)
         is_stop = False

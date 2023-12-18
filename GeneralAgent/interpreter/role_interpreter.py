@@ -25,7 +25,7 @@ You can use the following skills (start with # ) to help you solve the problem d
         self.os_version = skills.get_os_version()
         self.system_prompt = system_prompt
 
-    async def prompt(self, messages) -> str:
+    def prompt(self, messages) -> str:
         if self.system_prompt is not None:
             return self.system_prompt
         if os.environ.get('LLM_CACHE', 'no') in ['yes', 'y', 'YES']:

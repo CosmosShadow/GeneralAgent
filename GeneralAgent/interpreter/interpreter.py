@@ -15,7 +15,7 @@ class Interpreter(metaclass=abc.ABCMeta):
     output_match_start_pattern = None
     outptu_parse_done_recall = None
 
-    async def prompt(self, messages) -> str:
+    def prompt(self, messages) -> str:
         """
         :param messages: list of messages
         :return: string
@@ -66,13 +66,13 @@ class Interpreter(metaclass=abc.ABCMeta):
         else:
             return False, ''
         
-    async def input_parse(self, string) -> (str, bool):
+    def input_parse(self, string) -> (str, bool):
         """
         parse the input、output string, and return the output string and is_stop
         """
         return '', False
 
-    async def output_parse(self, string) -> (str, bool):
+    def output_parse(self, string) -> (str, bool):
         """
         parse the input、output string, and return the output string and is_stop
         """

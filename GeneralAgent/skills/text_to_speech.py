@@ -1,5 +1,5 @@
 
-async def text_to_speech(text, voice_name='zh-CN-XiaoyiNeural'):
+def text_to_speech(text, voice_name='zh-CN-XiaoyiNeural'):
     """
 Convert text to speech, retrun the audio file path. Available voices are below:
 # voice_name: en-US-GuyNeural
@@ -24,15 +24,15 @@ Convert text to speech, retrun the audio file path. Available voices are below:
     from GeneralAgent import skills
     save_path= skills.unique_name() + '.mp3'
     # asyncio.run(_create_tts(text, VOICE, save_path))
-    await _create_tts(text, VOICE, save_path)
+    _create_tts(text, VOICE, save_path)
     print(f'audio created at [{save_path}]({save_path})')
     return save_path
 
 
-async def _create_tts(text, voice, output_file):
+def _create_tts(text, voice, output_file):
     import edge_tts
     communicate = edge_tts.Communicate(text, voice)
-    await communicate.save(output_file)
+    communicate.save(output_file)
 
 if __name__ == '__main__':
     text_to_speech('hello world')

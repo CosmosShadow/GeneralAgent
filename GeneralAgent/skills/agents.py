@@ -1,5 +1,5 @@
 
-async def get_function_builder_agent():
+def get_function_builder_agent():
     """
     Get a function builder agent
     """
@@ -95,7 +95,7 @@ skills.test_function_name()
     
     # when file operation(python file), reload functions
     file_interpreter = FileInterpreter()
-    async def reload_funs():
+    def reload_funs():
         skills._load_remote_funs()
     
     file_interpreter.outptu_parse_done_recall = reload_funs

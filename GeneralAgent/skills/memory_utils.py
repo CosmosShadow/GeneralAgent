@@ -28,7 +28,7 @@ def _parse_segment_llm_result(text):
     return nodes
 
 
-async def segment_text(text):
+def segment_text(text):
     """
     将文本进行语义分段，返回分段后的文本和key组成的字典nodes
     """
@@ -72,7 +72,7 @@ Please note, each title should not exceed 10 words. Titles exceeding this limit 
     model_type='normal'
     if skills.messages_token_count(messages) > 3500:
         model_type = 'long'
-    result = await skills.async_llm_inference(messages, model_type)
+    result = skills.async_llm_inference(messages, model_type)
     # print(result)
     nodes = _parse_segment_llm_result(result)
     for key in nodes:
@@ -81,7 +81,7 @@ Please note, each title should not exceed 10 words. Titles exceeding this limit 
     return nodes
 
 
-async def summarize_text(text):
+def summarize_text(text):
     from GeneralAgent import skills
     prompt = "Please distill the content between --------- into a concise phrase or sentence that captures the essence without any introductory phrases."
     # prompt = "请将---------之间的内容提炼成一个简洁的短语或句子，抓住要点，无需任何介绍性短语。"
@@ -89,10 +89,10 @@ async def summarize_text(text):
         {'role': 'system','content': 'You are a helpful assistant'},
         {'role': 'user','content': f'{prompt}.\n---------\n{text}\n---------'}
         ]
-    result = await skills.async_llm_inference(messages)
+    result = skills.async_llm_inference(messages)
     return result
 
-async def extract_info(background, task):
+def extract_info(background, task):
     prompt_template = """
 Background (line number is indicated by #number, and <<title>> is a link to the details):
 ---------
@@ -129,7 +129,7 @@ Note: <<titles>> and line numbers provide up to 5 items each, so please select t
         {'role': 'system','content': 'You are a helpful assistant'},
         {'role': 'user','content': prompt}
         ]
-    result = await skills.async_llm_inference(messages)
+    result = skills.async_llm_inference(messages)
     return result
 
 

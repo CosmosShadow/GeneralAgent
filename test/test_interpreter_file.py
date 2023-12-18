@@ -20,7 +20,7 @@ def test_parse_command():
         assert content == 'hello world'
 
 @pytest.mark.asyncio
-async def test_write_read():
+def test_write_read():
     import os
     interpreter = FileInterpreter()
     target_path = './data/a.txt'
@@ -39,7 +39,7 @@ EOF
 
 """ % (target_path, target_path)
     assert interpreter.output_match(write_content) is True
-    output, is_stop = await interpreter.output_parse(write_content)
+    output, is_stop = interpreter.output_parse(write_content)
     assert is_stop is True
     assert 'successfully' in output.strip()
     assert os.path.exists(target_path)
@@ -52,7 +52,7 @@ file %s read 0 -1
 ```
 """ % (target_path, )
     assert interpreter.output_match(read_content) is True
-    output, is_stop = await interpreter.output_parse(read_content)
+    output, is_stop = interpreter.output_parse(read_content)
     assert is_stop is True
     assert 'Chengdu is a sub-provincial city' in output
 

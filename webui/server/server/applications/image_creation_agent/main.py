@@ -1,4 +1,4 @@
-async def main(messages, input, output_callback):
+def main(messages, input, output_callback):
     from GeneralAgent.agent import Agent
     from GeneralAgent import skills
 
@@ -12,4 +12,4 @@ response markdown format text to user.
         skills.image_generation
     ]
     agent = Agent.with_functions(functions, role_prompt)
-    await agent.run(input, output_callback=output_callback)
+    agent.run(input, output_callback=output_callback)

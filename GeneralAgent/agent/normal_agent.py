@@ -67,43 +67,43 @@ class NormalAgent(AbsAgent):
         return agent
 
     
-    async def run(self, input=None, output_callback=default_output_callback, input_for_memory_node_id=-1):
+    def run(self, input=None, output_callback=default_output_callback, input_for_memory_node_id=-1):
         """
         agent run: parse intput -> get llm messages -> run LLM and parse output
         @input: str, user's new input, None means continue to run where it stopped
         @input_for_memory_node_id: int, -1 means input is not from memory, None means input new, otherwise input is for memory node
-        @output_callback: async function, output_callback(content: str) -> None
+        @output_callback: function, output_callback(content: str) -> None
         """
         self.is_running = True
         if self.output_callback is not None:
             output_callback = self.output_callback
 
         result = ''
-        async def inner_output(token):
+        def inner_output(token):
             nonlocal result
             if token is not None:
                 result += token
             else:
                 result += '\n'
-            await output_callback(token)
+            output_callback(token)
 
-        input_stop = await self._parse_input(input, inner_output)
+        input_stop = self._parse_input(input, inner_output)
         if input_stop:
             self.is_running = False
             return result
 
         while True:
-            messages = await self._get_llm_messages()
-            output_stop = await self._llm_and_parse_output(messages, inner_output)
+            messages = self._get_llm_messages()
+            output_stop = self._llm_and_parse_output(messages, inner_output)
             if output_stop:
                 self.is_running = False
                 return result
-            await asyncio.sleep(0)
+            asyncio.sleep(0)
             if self.stop_event.is_set():
                 self.is_running = False
                 return result
 
-    async def _parse_input(self, input, output_callback):
+    def _parse_input(self, input, output_callback):
         self.memory.add_message('user', input)
         input_content = input
         input_stop = False
@@ -111,22 +111,22 @@ class NormalAgent(AbsAgent):
         for interpreter in self.interpreters:
             if interpreter.input_match(input_content):
                 logging.info('interpreter: ' + interpreter.__class__.__name__)
-                parse_output, case_is_stop = await interpreter.input_parse(input_content)
+                parse_output, case_is_stop = interpreter.input_parse(input_content)
                 if case_is_stop:
-                    await output_callback(parse_output)
+                    output_callback(parse_output)
                     input_stop = True
         return input_stop
     
-    async def _get_llm_messages(self):
+    def _get_llm_messages(self):
         from GeneralAgent import skills
         messages = self.memory.get_messages()
         token_limit = skills.get_llm_token_limit(self.model_type)
         messages = skills.cut_messages(messages, int(token_limit*0.8))
-        system_prompt = '\n\n'.join([await interpreter.prompt(messages) for interpreter in self.interpreters])
+        system_prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.interpreters])
         messages = [{'role': 'system', 'content': system_prompt}] + messages
         return messages
 
-    async def _llm_and_parse_output(self, messages, output_callback):
+    def _llm_and_parse_output(self, messages, output_callback):
         from GeneralAgent import skills
         try:
             result = ''
@@ -155,35 +155,35 @@ class NormalAgent(AbsAgent):
                                     cache_tokens.remove(cache_tokens[-1])
                                 while len(cache_tokens) > 0:
                                     pop_token = cache_tokens.pop(0)
-                                    await output_callback(pop_token)
+                                    output_callback(pop_token)
                         if not in_parse_content:
                             # cache token
                             cache_tokens.append(token)
                             if len(cache_tokens) > 5:
                                 pop_token = cache_tokens.pop(0)
-                                await output_callback(pop_token)
+                                output_callback(pop_token)
                 else:
-                    await output_callback(token)
+                    output_callback(token)
                 interpreter:Interpreter = None
                 for interpreter in self.interpreters:
                     if interpreter.output_match(result):
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
                         self.memory.append_message('assistant', result)
-                        output, is_stop = await interpreter.output_parse(result)
+                        output, is_stop = interpreter.output_parse(result)
                         if interpreter.outptu_parse_done_recall is not None:
-                            await interpreter.outptu_parse_done_recall()
+                            interpreter.outptu_parse_done_recall()
                         if self.hide_output_parse:
                             is_matched, string_left = interpreter.output_match_end(result)
-                            await output_callback(string_left)
+                            output_callback(string_left)
                         while len(cache_tokens) > 0:
                             pop_token = cache_tokens.pop(0)
-                            await output_callback(pop_token)
+                            output_callback(pop_token)
                         result += '\n' + output.strip() + '\n'
                         self.memory.append_message('assistant', '\n' + output.strip() + '\n')
                         result = ''
                         # logging.debug(result)
                         if not self.hide_output_parse or is_stop:
-                            await output_callback('\n' + output.strip() + '\n')
+                            output_callback('\n' + output.strip() + '\n')
                         is_break = True
                         in_parse_content = False
                         break
@@ -191,7 +191,7 @@ class NormalAgent(AbsAgent):
                     break
             while len(cache_tokens) > 0:
                 pop_token = cache_tokens.pop(0)
-                await output_callback(pop_token)
+                output_callback(pop_token)
             # append messages
             # logging.debug(result)
             self.memory.append_message('assistant', result)
@@ -199,5 +199,5 @@ class NormalAgent(AbsAgent):
         except Exception as e:
             # if fail, recover
             logging.exception(e)
-            await output_callback(str(e))
+            output_callback(str(e))
             return True

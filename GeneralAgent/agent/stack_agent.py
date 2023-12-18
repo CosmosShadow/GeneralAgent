@@ -66,12 +66,12 @@ class StackAgent(AbsAgent):
         return agent
 
     
-    async def run(self, input=None, output_callback=default_output_callback, input_for_memory_node_id=-1):
+    def run(self, input=None, output_callback=default_output_callback, input_for_memory_node_id=-1):
         """
         agent run: parse intput -> get llm messages -> run LLM and parse output
         input: str, user's new input, None means continue to run where it stopped
         input_for_memory_node_id: int, -1 means input is not from memory, None means input new, otherwise input is for memory node
-        output_callback: async function, output_callback(content: str) -> None
+        output_callback: function, output_callback(content: str) -> None
         """
         self.is_running = True
         
@@ -90,10 +90,10 @@ class StackAgent(AbsAgent):
             for interpreter in self.interpreters:
                 if interpreter.input_match(input_content):
                     logging.info('interpreter: ' + interpreter.__class__.__name__)
-                    # await output_callback('input parsing\n')
-                    input_content, case_is_stop = await interpreter.input_parse(input_content)
+                    # output_callback('input parsing\n')
+                    input_content, case_is_stop = interpreter.input_parse(input_content)
                     if case_is_stop:
-                        await output_callback(input_content)
+                        output_callback(input_content)
                         input_stop = True
             input_node.content = input_content
             self.memory.update_node(input_node)
@@ -106,9 +106,9 @@ class StackAgent(AbsAgent):
         todo_node = self.memory.get_todo_node() or input_node
         logging.debug(self.memory)
         while todo_node is not None:
-            new_node, is_stop = await self._execute_node(todo_node, output_callback)
+            new_node, is_stop = self._execute_node(todo_node, output_callback)
             logging.info(is_stop)
-            await output_callback(None)
+            output_callback(None)
             logging.debug(self.memory)
             logging.debug(new_node)
             logging.debug(is_stop)
@@ -116,7 +116,7 @@ class StackAgent(AbsAgent):
                 return new_node.node_id
             todo_node = self.memory.get_todo_node()
             logging.info(todo_node)
-            await asyncio.sleep(0)
+            asyncio.sleep(0)
             if self.stop_event.is_set():
                 self.is_running = False
                 return None
@@ -134,14 +134,14 @@ class StackAgent(AbsAgent):
             self.memory.success_node(for_node)
         return node
     
-    async def _execute_node(self, node, output_callback):
+    def _execute_node(self, node, output_callback):
         # construct system prompt
         from GeneralAgent import skills
         messages = self.memory.get_related_messages_for_node(node)
         token_limit = int(skills.get_llm_token_limit() * 0.8)
         logging.info(f'token_limit: {token_limit}')
         messages = skills.cut_messages(messages, token_limit)
-        system_prompt = '\n\n'.join([await interpreter.prompt(messages) for interpreter in self.interpreters])
+        system_prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.interpreters])
         messages = [{'role': 'system', 'content': system_prompt}] + messages
 
         # add answer node and set current node
@@ -150,7 +150,7 @@ class StackAgent(AbsAgent):
         self.memory.set_current_node(answer_node)
 
         if node.action == 'plan':
-            await output_callback(f'\n[{node.content}]\n')
+            output_callback(f'\n[{node.content}]\n')
 
         try:
             result = ''
@@ -178,28 +178,28 @@ class StackAgent(AbsAgent):
                                     cache_tokens.remove(cache_tokens[-1])
                                 while len(cache_tokens) > 0:
                                     pop_token = cache_tokens.pop(0)
-                                    await output_callback(pop_token)
+                                    output_callback(pop_token)
                         if not in_parse_content:
                             # cache token
                             cache_tokens.append(token)
                             if len(cache_tokens) > 5:
                                 pop_token = cache_tokens.pop(0)
-                                await output_callback(pop_token)
+                                output_callback(pop_token)
                 else:
-                    await output_callback(token)
+                    output_callback(token)
                 interpreter:Interpreter = None
                 for interpreter in self.interpreters:
                     if interpreter.output_match(result):
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
-                        output, is_stop = await interpreter.output_parse(result)
+                        output, is_stop = interpreter.output_parse(result)
                         if interpreter.outptu_parse_done_recall is not None:
-                            await interpreter.outptu_parse_done_recall()
+                            interpreter.outptu_parse_done_recall()
                         if self.hide_output_parse:
                             is_matched, string_left = interpreter.output_match_end(result)
-                            await output_callback(string_left)
+                            output_callback(string_left)
                         result += '\n' + output.strip() + '\n'
                         if not self.hide_output_parse or is_stop:
-                            await output_callback('\n' + output.strip() + '\n')
+                            output_callback('\n' + output.strip() + '\n')
                         is_break = True
                         in_parse_content = False
                         break
@@ -207,8 +207,8 @@ class StackAgent(AbsAgent):
                     break
             while len(cache_tokens) > 0:
                 pop_token = cache_tokens.pop(0)
-                await output_callback(pop_token)
-            # await output_callback('\n')
+                output_callback(pop_token)
+            # output_callback('\n')
             # update current node and answer node
             answer_node.content = result
             self.memory.update_node(answer_node)
@@ -220,7 +220,7 @@ class StackAgent(AbsAgent):
         except Exception as e:
             # if fail, recover
             logging.exception(e)
-            await output_callback(str(e))
+            output_callback(str(e))
             self.memory.delete_node(answer_node)
             self.memory.set_current_node(node)
             return node, True

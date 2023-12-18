@@ -27,16 +27,16 @@ def test_file():
     assert r.status_code == 404
 
 # @pytest.mark.asyncio
-# async def test_load_application():
+# def test_load_application():
 #     from GeneralAgent import skills
 #     application_module = skills.get_application_module('hello')
 #     assert application_module is not None
 #     assert hasattr(application_module, 'main')
 #     result = ''
-#     async def _output(token):
+#     def _output(token):
 #         nonlocal result
 #         result += token
-#     await application_module.main(None, None, None, _output)
+#     application_module.main(None, None, None, _output)
 #     assert 'hello' in result
 
 

@@ -39,32 +39,32 @@ def test_parse_segment_llm_result():
     assert len(nodes) == 4
 
 @pytest.mark.asyncio
-async def test_segment_text():
+def test_segment_text():
     from GeneralAgent import skills
-    nodes = await skills.segment_text(content)
+    nodes = skills.segment_text(content)
     assert len(nodes) > 0
     assert 'Abstract' in ''.join(nodes.keys())
 
 @pytest.mark.asyncio
-async def test_summarize_text():
+def test_summarize_text():
     from GeneralAgent import skills
-    summary = await skills.summarize_text(content)
+    summary = skills.summarize_text(content)
     # print(summary)
     assert len(summary) < len(content)
 
 @pytest.mark.asyncio
-async def test_extract_info():
+def test_extract_info():
     from GeneralAgent import skills
     task = "今天天气怎么样?"
-    info = await skills.extract_info(background, task)
+    info = skills.extract_info(background, task)
     assert '[Nothing]' == info
 
     task = "论文有哪贡献?"
-    info = await skills.extract_info(background, task)
+    info = skills.extract_info(background, task)
     print(info)
 
     task = "论文有哪些限制?"
-    info = await skills.extract_info(background, task)
+    info = skills.extract_info(background, task)
     print(info)
 
 def test_parse_extract_info():

@@ -5,7 +5,7 @@ from GeneralAgent.interpreter import EmbeddingRetrieveInterperter
 
 
 @pytest.mark.asyncio
-async def test_read_interpreter():
+def test_read_interpreter():
     import os
     workspace = './data/read_interpreter/'
     content = """
@@ -17,12 +17,12 @@ async def test_read_interpreter():
         shutil.rmtree(workspace)
     
     interpreter = EmbeddingRetrieveInterperter(serialize_path=workspace)
-    await interpreter.input_parse(content)
+    interpreter.input_parse(content)
 
     messages = [
         {'role': 'system', 'content': 'what is the advantage of the Model?'}
     ]
-    prompt = await interpreter.prompt(messages)
+    prompt = interpreter.prompt(messages)
     # print(prompt)
     assert len(prompt) > 0
 

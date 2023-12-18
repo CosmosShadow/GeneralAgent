@@ -30,11 +30,11 @@ class AbsAgent(metaclass=abc.ABCMeta):
                 role_interpreter.system_prompt_template += '\n' + prompt
 
     @abc.abstractmethod
-    async def run(self, input=None, output_callback=default_output_callback, input_for_memory_node_id=-1):
+    def run(self, input=None, output_callback=default_output_callback, input_for_memory_node_id=-1):
         """
         input: str, user's new input, None means continue to run where it stopped
         input_for_memory_node_id: int, -1 means input is not from memory, None means input new, otherwise input is for memory node
-        output_callback: async function, output_callback(content: str) -> None
+        output_callback: function, output_callback(content: str) -> None
         """
         pass
 

@@ -180,10 +180,10 @@ The function in code will be used to create a chat bot, like slack, discord.
 
 # Function signature
 ```
-async def main(messages, input, output_callback):
+def main(messages, input, output_callback):
     # messages is a list of dict, like [{{"role": "user", "content": "hello"}}, {{"role": "system", "content": "hi"}}]
     # input is a string, user's input in agent application, or json string by save_data in UI in normal application.
-    # output_callback is a async function, output_callback(content: str) -> None. output_callback will send content to user. the content should be markdown format. file should be like [title](sandbox:file_path)
+    # output_callback is a function, output_callback(content: str) -> None. output_callback will send content to user. the content should be markdown format. file should be like [title](sandbox:file_path)
 ```
 
 # Python Version: {python_version}
@@ -200,7 +200,7 @@ async def main(messages, input, output_callback):
 
 # DEMO 1 : normal application, write user's input to a file and return
 ```python
-async def main(messages, input, output_callback):
+def main(messages, input, output_callback):
     from GeneralAgent import skills
     import json
     data = json.loads(input)['data']
@@ -208,12 +208,12 @@ async def main(messages, input, output_callback):
     file_path = skills.unique_name() + '.json
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(json.dumps(data))
-    await output_callback(f'file saved: [user_data.json](sandbox:{{file_path}})')
+    output_callback(f'file saved: [user_data.json](sandbox:{{file_path}})')
 ```
 
 # DEMO 2 : agent application, Agent with functions
 ```python
-async def main(messages, input, output_callback):
+def main(messages, input, output_callback):
     from GeneralAgent.agent import Agent
     role_prompt = \"\"\"
 You are a translation agent.
@@ -224,7 +224,7 @@ You complete user requirements by writing python code to call the predefined fun
     ]
     agent = Agent.with_functions(functions)
     agent.add_role_prompt(role_prompt)
-    await agent.run(input, output_callback=output_callback)
+    agent.run(input, output_callback=output_callback)
 ```python
 
 # There are two function types:

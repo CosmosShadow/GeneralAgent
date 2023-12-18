@@ -6,7 +6,7 @@ from GeneralAgent.agent import Agent
 from GeneralAgent.utils import default_get_input, set_logging_level
 
 
-async def _main(args):
+def _main(args):
     if args.auto_run:
         os.environ['AUTO_RUN'] = 'y'
     else:
@@ -25,7 +25,7 @@ async def _main(args):
     while True:
         input_content = default_get_input()
         print('[output]\n', end='', flush=True)
-        await agent.run(input_content)
+        agent.run(input_content)
 
 def main():
     parser = argparse.ArgumentParser(description='GeneralAgent CLI')

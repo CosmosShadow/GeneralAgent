@@ -21,15 +21,15 @@ class LinkMemoryNode:
         return str(self)
 
 
-async def summarize_and_segment(text, output_callback=None):
+def summarize_and_segment(text, output_callback=None):
     from GeneralAgent import skills
-    summary = await skills.summarize_text(text)
+    summary = skills.summarize_text(text)
     if output_callback is not None:
-        await output_callback(f'Summary: {summary}\n')
-    segments = await skills.segment_text(text)
+        output_callback(f'Summary: {summary}\n')
+    segments = skills.segment_text(text)
     if output_callback is not None:
         for key in segments:
-            await output_callback(f'<<{key}>>\n')
+            output_callback(f'<<{key}>>\n')
     return summary, segments
 
 
@@ -46,17 +46,17 @@ class LinkMemory():
     def is_empty(self):
         return len(self.concepts) == 0
 
-    async def add_memory(self, content, output_callback=None):
+    def add_memory(self, content, output_callback=None):
         from GeneralAgent import skills
-        # await self._oncurrent_summarize_content(content, output_callback)
-        await self._summarize_content(content, output_callback)
+        # self._oncurrent_summarize_content(content, output_callback)
+        self._summarize_content(content, output_callback)
         while skills.string_token_count(self.short_memory) > self.short_memory_limit:
             content = self.short_memory
             self.short_memory = ''
-            # await self._oncurrent_summarize_content(content, output_callback)
-            await self._summarize_content(content, output_callback)
+            # self._oncurrent_summarize_content(content, output_callback)
+            self._summarize_content(content, output_callback)
     
-    async def get_memory(self, messages=None, limit_token_count=3000):
+    def get_memory(self, messages=None, limit_token_count=3000):
         from GeneralAgent import skills
         if len(self.concepts) == 0:
             return ''
@@ -67,7 +67,7 @@ class LinkMemory():
             xx = self.short_memory.split('\n')
             background = '\n'.join([f'#{line} {xx[line]}' for line in range(len(xx))])
             task = '\n'.join([f'{x["role"]}: {x["content"]}' for x in messages])
-            info = await skills.extract_info(background, task)
+            info = skills.extract_info(background, task)
             line_numbers, keys = skills.parse_extract_info(info)
             result = []
             for line_number in line_numbers:
@@ -90,12 +90,12 @@ class LinkMemory():
         self.db.table('short_memory').truncate()
         self.db.table('short_memory').insert({'content': self.short_memory})
     
-    async def _oncurrent_summarize_content(self, input):
+    def _oncurrent_summarize_content(self, input):
         from GeneralAgent import skills
         inputs = skills.split_text(input, max_token=3000)
         print('splited count: ', len(inputs))
         coroutines = [summarize_and_segment(x) for x in inputs]
-        results = await asyncio.gather(*coroutines)
+        results = asyncio.gather(*coroutines)
         for summary, nodes in results:
             new_nodes = {}
             for key in nodes:
@@ -105,11 +105,11 @@ class LinkMemory():
         self.short_memory = self.short_memory.strip()
         self._save_short_memory()
 
-    async def _summarize_content(self, input, output_callback=None):
+    def _summarize_content(self, input, output_callback=None):
         from GeneralAgent import skills
         inputs = skills.split_text(input, max_token=3000)
         for text in inputs:
-            summary, nodes = await summarize_and_segment(text, output_callback)
+            summary, nodes = summarize_and_segment(text, output_callback)
             new_nodes = {}
             for key in nodes:
                 new_key = self._add_node(key, nodes[key])

@@ -9,7 +9,7 @@ def test_match():
 
 
 @pytest.mark.asyncio
-async def test_open_url():
+def test_open_url():
     import platform
     system = platform.system()
     if system != 'Darwin':
@@ -21,7 +21,7 @@ tell application "Safari"
     open location "https://www.google.com"
 end tell
 ```"""
-    output, is_stop = await interpreter.output_parse(content)
+    output, is_stop = interpreter.output_parse(content)
     assert is_stop is False
     assert output.strip() == 'run successfully'
 

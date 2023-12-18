@@ -16,6 +16,7 @@ import uuid, json
 from typing import Optional
 from datetime import datetime
 from dataclasses import dataclass
+from asgiref.sync import async_to_sync
 
 # Try to set DATA_DIR
 data_dir = os.environ.get('DATA_DIR', None)
@@ -174,7 +175,8 @@ async def worker():
             bot_id = message.bot_id
             msg_id = str(uuid.uuid4())
             result = ''
-            async def _output_callback(token):
+
+            def _output_callback(token):
                 nonlocal result
                 nonlocal msg_id
                 if token is not None:
@@ -183,16 +185,16 @@ async def worker():
                     response:Message = message.response_template(is_token=True)
                     response.msg = token
                     response.id = msg_id
-                    # await response_queue.put(response)
-                    await to_thread(response_queue.put, response)
+                    response_queue.put(response)
+                    # await to_thread(response_queue.put, response)
                 else:
                     if len(result.strip()) > 0:
                         response:Message = message.response_template()
                         response.msg = result.strip()
                         response.id = msg_id
-                        await save_message(response)
-                        await to_thread(response_queue.put, response)
-                        # await response_queue.put(response)
+                        save_message(response)
+                        # await to_thread(response_queue.put, response)
+                        response_queue.put(response)
                         result = ''
                         msg_id = str(uuid.uuid4())
                         logging.info('sended message')
@@ -201,15 +203,16 @@ async def worker():
                 file_path = skills.try_download_file(file_path)
                 response:Message = message.response_template()
                 response.file = file_path
-                await save_message(response)
-                await to_thread(response_queue.put, response)
+                save_message(response)
+                # await to_thread(response_queue.put, response)
+                response_queue.put(response)
                 logging.info('sended file')
 
             # async def _ui_callback(name, js_path, data={}):
             #     """
             #     Send UI to user, name: UI component name, js_path: js file address corresponding to UI component, data: data required by UI component
             #     """
-            async def send_ui(component_name:str, js_path:str, data={}):
+            def send_ui(component_name:str, js_path:str, data={}):
                 """
                 Send UI to user, component_name: UI component name, js_path: js file address corresponding to UI component, data: data required by UI component
                 """
@@ -219,8 +222,9 @@ async def worker():
                     'js': js_path,
                     'data': data
                 })
-                await save_message(response)
-                await to_thread(response_queue.put, response)
+                save_message(response)
+                # await to_thread(response_queue.put, response)
+                response_queue.put(response)
                 logging.debug(response)
             
             # os.chdir(self.local_dir)
@@ -249,23 +253,23 @@ async def worker():
                 if params_count == 3:
                     if file is not None:
                         message.msg = f'uploaded a file: {message.file}'
-                    await application_module.main(chat_messages, message.msg, _output_callback)
+                    application_module.main(chat_messages, message.msg, _output_callback)
                 elif params_count == 4:
                     print(message.file)
                     files = json.loads(message.file) if message.file != '' else []
-                    await application_module.main(chat_messages, message.msg, files, _output_callback)
+                    application_module.main(chat_messages, message.msg, files, _output_callback)
                 else:
-                    await application_module.main(chat_messages, message.msg, file, _output_callback, _file_callback, send_ui)
+                    application_module.main(chat_messages, message.msg, file, _output_callback, _file_callback, async_to_sync(send_ui))
                 if len(result.strip()) > 0:
                     response = message.response_template()
                     response.msg = result
                     response.id = msg_id
-                    await save_message(response)
+                    save_message(response)
                     await to_thread(response_queue.put, response)
             else:
                 response = message.response_template()
                 response.msg = 'application load error'
-                await save_message(response)
+                save_message(response)
                 # await response_queue.put(response)
                 await to_thread(response_queue.put, response)
         except Exception as e:
@@ -273,7 +277,7 @@ async def worker():
             if message is not None:
                 response = message.response_template()
                 response.msg = str(e)
-                await save_message(response)
+                save_message(response)
                 await to_thread(response_queue.put, response)
         finally:
             if message is not None:
@@ -292,7 +296,7 @@ async def shutdown_event():
     logging.info('shutdown')
     os._exit(0)
 
-async def save_message(message:Message):
+def save_message(message:Message):
     if message.chat_id == '':
         chat = Chat(
             bot_id=message.bot_id,
@@ -335,7 +339,7 @@ async def websocket_user_endpoint(websocket: WebSocket):
                 if data['type'] == 'message':
                     message = Message(**data['data'])
                     message.role = 'user'
-                    await save_message(message)
+                    save_message(message)
                     logging.info(message.to_text())
                     await websocket.send_text(message.to_text())
                     logging.info('Websocket sended message')

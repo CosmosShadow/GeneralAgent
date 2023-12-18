@@ -79,7 +79,7 @@ class SyncPythonInterpreter(Interpreter):
                 return data['globals']
         return {}
 
-    async def prompt(self, messages) -> str:
+    def prompt(self, messages) -> str:
         from GeneralAgent import skills
         funtions = '\n\n'.join([skills.get_function_signature(x) for x in self.function_tools])
         variables = {
@@ -108,19 +108,19 @@ class SyncPythonInterpreter(Interpreter):
             except Exception as e:
                 self.globals.__delitem__(key)
 
-    async def output_parse(self, string) -> (str, bool):
+    def output_parse(self, string) -> (str, bool):
         sys_out = ''
         pattern = re.compile(self.output_match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
         if confirm_to_run():
-            sys_out, stop = await self.run_code(match.group(1))
+            sys_out, stop = self.run_code(match.group(1))
             result = 'python runs result:\n' + sys_out.strip()
             return result, stop
         else:
             return '', False
 
-    async def run_code(self, code):
+    def run_code(self, code):
         stop = False
         code = self.add_print(code)
         code = self.import_code + '\n' + code
@@ -224,7 +224,7 @@ def _remove_unpickleable(namespace):
 
 __namespace = None
 
-async def __main():
+def __main():
     {variables}
     {code}
     global __namespace
@@ -238,7 +238,7 @@ async def __main():
 
 class AsyncPythonInterpreter(SyncPythonInterpreter):
     """
-    Sync Python Interpreter: run python code in the interpreter. Same namespace with the agent & Can run async code
+    Sync Python Interpreter: run python code in the interpreter. Same namespace with the agent & Can run code
     """
 
     python_prompt_template = """
@@ -265,7 +265,7 @@ d = fun3(c)
 ```
 """
 
-    async def run_code(self, code):
+    def run_code(self, code):
         stop = False
         code = self.add_print(code)
         code = code_wrap(code, self.globals)
@@ -281,7 +281,7 @@ d = fun3(c)
         success = False
         try:
             # exec(code, self.globals)
-            # run async python code
+            # run python code
             local_vars = self.globals
             # register functions
             for fun in self.function_tools:
@@ -289,7 +289,7 @@ d = fun3(c)
             # print(local_vars)
             exec(code, local_vars, local_vars)
             main_function = local_vars['__main']
-            await asyncio.create_task(main_function())
+            asyncio.create_task(main_function())
             local_vars = _remove_unpickleable(local_vars)
             local_vars = local_vars['__namespace']
             # remove functions
@@ -321,6 +321,6 @@ d = fun3(c)
 
 # class PythonInterpreter(AsyncPythonInterpreter):
 #     """
-#     Sync Python Interpreter: run python code in the interpreter. Same namespace with the agent & Can run async code
+#     Sync Python Interpreter: run python code in the interpreter. Same namespace with the agent & Can run code
 #     """
 #     pass

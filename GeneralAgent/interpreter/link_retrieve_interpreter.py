@@ -21,7 +21,7 @@ class LinkRetrieveInterperter(Interpreter):
         self.sparks_dict_name = sparks_dict_name
         self.link_memory = LinkMemory()
 
-    async def prompt(self, messages) -> str:
+    def prompt(self, messages) -> str:
         if self.link_memory.is_empty():
             return ''
         else:
@@ -31,23 +31,23 @@ In Python, You can access the values of <<key>> in all documents through the dic
 print({self.sparks_dict_name}['Hello world'])
 ```
 """
-            info = await self.link_memory.get_memory(messages)
+            info = self.link_memory.get_memory(messages)
             return 'Background Information: \n' + info + access_prompt
     
-    async def input_parse(self, string) -> (str, bool):
+    def input_parse(self, string) -> (str, bool):
         from GeneralAgent import skills
         pattern = re.compile(self.input_match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
         file_paths = match.group(1).strip().split('\n')
         result = ''
-        async def output_callback(token):
+        def output_callback(token):
             nonlocal result
             if token is not None:
                 result += token
         for file_path in file_paths:
             content = skills.read_file_content(file_path)
-            await self.link_memory.add_memory(content, output_callback=output_callback)
+            self.link_memory.add_memory(content, output_callback=output_callback)
         self._update_python_variables()
         return string + '\n' + result, True
     

@@ -17,7 +17,7 @@ class EmbeddingRetrieveInterperter(Interpreter):
         self.client = chromadb.PersistentClient(path=serialize_path)
         self.collection = self.client.get_or_create_collection(name="read", metadata={"hnsw:space": "cosine"})
 
-    async def prompt(self, messages) -> str:
+    def prompt(self, messages) -> str:
         from GeneralAgent import skills
         # when collection is empty, return empty string
         if self.collection.count() == 0:
@@ -49,7 +49,7 @@ class EmbeddingRetrieveInterperter(Interpreter):
             texts.append(x)
         return '\n'.join(texts)
     
-    async def input_parse(self, string) -> (str, bool):
+    def input_parse(self, string) -> (str, bool):
         from GeneralAgent import skills
         information = []
         pattern = re.compile(self.input_match_pattern, re.DOTALL)

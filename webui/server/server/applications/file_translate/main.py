@@ -1,4 +1,4 @@
-async def main(messages, input, output_callback):
+def main(messages, input, output_callback):
     from GeneralAgent import skills
     import json
 
@@ -15,4 +15,4 @@ async def main(messages, input, output_callback):
     output_file_path = skills.unique_name() + '.txt'
     skills.write_file_content(output_file_path, translated_content)
 
-    await output_callback(f'Translated file: [{output_file_path}](sandbox:{output_file_path})')
+    output_callback(f'Translated file: [{output_file_path}](sandbox:{output_file_path})')
