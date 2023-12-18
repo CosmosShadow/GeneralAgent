@@ -75,6 +75,8 @@ class NormalAgent(AbsAgent):
         @output_callback: async function, output_callback(content: str) -> None
         """
         self.is_running = True
+        if self.output_callback is not None:
+            output_callback = self.output_callback
 
         result = ''
         async def inner_output(token):
@@ -166,6 +168,7 @@ class NormalAgent(AbsAgent):
                 for interpreter in self.interpreters:
                     if interpreter.output_match(result):
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
+                        self.memory.append_message('assistant', result)
                         output, is_stop = await interpreter.output_parse(result)
                         if interpreter.outptu_parse_done_recall is not None:
                             await interpreter.outptu_parse_done_recall()
@@ -176,6 +179,8 @@ class NormalAgent(AbsAgent):
                             pop_token = cache_tokens.pop(0)
                             await output_callback(pop_token)
                         result += '\n' + output.strip() + '\n'
+                        self.memory.append_message('assistant', '\n' + output.strip() + '\n')
+                        result = ''
                         # logging.debug(result)
                         if not self.hide_output_parse or is_stop:
                             await output_callback('\n' + output.strip() + '\n')

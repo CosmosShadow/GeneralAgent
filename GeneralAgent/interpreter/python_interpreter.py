@@ -160,7 +160,7 @@ class SyncPythonInterpreter(Interpreter):
 
     def set_variable(self, name, value):
         self.globals[name] = value
-        self.save()
+        # self.save()
 
     @classmethod
     def add_print_old(cls, code_string):
