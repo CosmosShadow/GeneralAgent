@@ -16,7 +16,6 @@ import uuid, json
 from typing import Optional
 from datetime import datetime
 from dataclasses import dataclass
-from asgiref.sync import async_to_sync
 
 # Try to set DATA_DIR
 data_dir = os.environ.get('DATA_DIR', None)
@@ -247,19 +246,18 @@ async def worker():
                 os.makedirs(data_dir)
             os.chdir(data_dir)
             if application_module is not None:
-                file = None if message.file == '' else message.file
+                # file = None if message.file == '' else message.file
+                files = json.loads(message.file) if message.file != '' else []
                 # 获取application_module.main函数参数个数
                 params_count = application_module.main.__code__.co_argcount
                 if params_count == 3:
-                    if file is not None:
-                        message.msg = f'uploaded a file: {message.file}'
+                    if files is not None and len(files) > 0:
+                        message.msg = f'uploaded files: {message.file}'
                     application_module.main(chat_messages, message.msg, _output_callback)
                 elif params_count == 4:
-                    print(message.file)
-                    files = json.loads(message.file) if message.file != '' else []
                     application_module.main(chat_messages, message.msg, files, _output_callback)
                 else:
-                    application_module.main(chat_messages, message.msg, file, _output_callback, _file_callback, async_to_sync(send_ui))
+                    application_module.main(chat_messages, message.msg, files[0] if len(files) > 0 else None, _output_callback, _file_callback, send_ui)
                 if len(result.strip()) > 0:
                     response = message.response_template()
                     response.msg = result
