@@ -125,7 +125,7 @@ class SyncPythonInterpreter(Interpreter):
         stop = False
         code = self.add_print(code)
         code = self.import_code + '\n' + code
-        globals_backup = self.load()
+        # globals_backup = self.load()
         logging.debug(code)
         sys_stdout = ''
         output = io.StringIO()
@@ -140,15 +140,15 @@ class SyncPythonInterpreter(Interpreter):
         except Exception as e:
             import traceback
             sys_stdout += traceback.format_exc()
-            self.globals = globals_backup
+            # self.globals = globals_backup
             self.run_wrong_count += 1
             if self.run_wrong_count >= self.stop_wrong_count:
                 stop = True
         finally:
             sys_stdout += output.getvalue()
             sys.stdout = sys.__stdout__
-        if success:
-            self.save()
+        # if success:
+        #     self.save()
         sys_stdout = sys_stdout.strip()
         if sys_stdout == '':
             sys_stdout = 'Run successfully without error.'

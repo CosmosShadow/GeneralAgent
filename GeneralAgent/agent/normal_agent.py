@@ -136,6 +136,7 @@ class NormalAgent(AbsAgent):
             in_parse_content = False
             cache_tokens = []
             response = skills.llm_inference(messages, model_type=self.model_type, stream=True)
+            message_id = None
             for token in response:
                 if token is None: break
                 result += token
@@ -169,7 +170,7 @@ class NormalAgent(AbsAgent):
                 for interpreter in self.interpreters:
                     if interpreter.output_match(result):
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
-                        self.memory.append_message('assistant', result)
+                        message_id = self.memory.add_message('assistant', result)
                         output, is_stop = interpreter.output_parse(result)
                         if interpreter.outptu_parse_done_recall is not None:
                             interpreter.outptu_parse_done_recall()
@@ -180,7 +181,7 @@ class NormalAgent(AbsAgent):
                             pop_token = cache_tokens.pop(0)
                             output_callback(pop_token)
                         result += '\n' + output.strip() + '\n'
-                        self.memory.add_message('assistant', '\n' + output.strip() + '\n')
+                        self.memory.append_message('assistant', '\n' + output.strip() + '\n', message_id=message_id)
                         result = ''
                         # logging.debug(result)
                         if not self.hide_output_parse or is_stop:
@@ -196,7 +197,8 @@ class NormalAgent(AbsAgent):
                 output_callback(pop_token)
             # append messages
             # logging.debug(result)
-            self.memory.append_message('assistant', result)
+            if len(result) > 0:
+                self.memory.append_message('assistant', result, message_id=message_id)
             return is_stop
         except Exception as e:
             # if fail, recover
