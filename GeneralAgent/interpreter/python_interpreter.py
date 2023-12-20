@@ -143,6 +143,8 @@ class SyncPythonInterpreter(Interpreter):
         try:
             if self.agent is not None:
                 self.globals['agent'] = self.agent
+            for fun in self.function_tools:
+                self.globals[fun.__name__] = fun
             exec(code, self.globals)
             success = True
             self.run_wrong_count = 0
