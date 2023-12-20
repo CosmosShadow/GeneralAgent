@@ -51,6 +51,9 @@ class NormalMemory:
     def get_messages(self):
         return self.messages
     
+    def __str__(self):
+        return json.dumps(self.messages, indent=4)
+    
 
 def test_NormalMemory():
     serialize_path = './memory.json'

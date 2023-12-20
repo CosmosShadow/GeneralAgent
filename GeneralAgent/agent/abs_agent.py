@@ -17,6 +17,7 @@ class AbsAgent(metaclass=abc.ABCMeta):
     model_type = 'normal'
     hide_output_parse = False
     output_callback = None
+    python_run_result = None
 
     def add_role_prompt(self, prompt):
         """

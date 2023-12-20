@@ -122,6 +122,15 @@ class SyncPythonInterpreter(Interpreter):
             return '', False
 
     def run_code(self, code):
+        # x = agent.run('xxx')
+
+        assign_variable = False
+        run_error = False
+        if self.agent is not None:
+            self.agent.python_run_result = None
+            last_line = (code.strip().split('\n')[-1]).strip()
+            if last_line + ' = agent.run(' in str(self.agent.memory):
+                assign_variable = True
         stop = False
         code = self.add_print(code)
         code = self.import_code + '\n' + code
@@ -138,6 +147,7 @@ class SyncPythonInterpreter(Interpreter):
             success = True
             self.run_wrong_count = 0
         except Exception as e:
+            run_error = True
             import traceback
             sys_stdout += traceback.format_exc()
             # self.globals = globals_backup
@@ -152,6 +162,11 @@ class SyncPythonInterpreter(Interpreter):
         sys_stdout = sys_stdout.strip()
         if sys_stdout == '':
             sys_stdout = 'Run successfully without error.'
+        if assign_variable and not run_error:
+            sys_stdout = 'Run successfully without error. The result is saved in the variable ' + last_line
+            stop = True
+            if self.agent is not None:
+                self.agent.python_run_result = self.globals[last_line]
         return sys_stdout, stop
 
     def get_variable(self, name):

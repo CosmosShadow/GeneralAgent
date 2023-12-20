@@ -127,3 +127,6 @@ class LinkMemory():
         self.concepts[new_key] = LinkMemoryNode(key=new_key, content=value)
         self.db.upsert(self.concepts[key].__dict__, Query().key == new_key)
         return new_key
+    
+    def __str__(self):
+        '\n'.join([str(x) for x in self.concepts.values()])
