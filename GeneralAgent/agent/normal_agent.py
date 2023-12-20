@@ -1,6 +1,4 @@
 # Agent
-import os, re
-import asyncio
 import logging
 from GeneralAgent.utils import default_get_input, default_output_callback
 from GeneralAgent.memory import NormalMemory
@@ -101,7 +99,6 @@ class NormalAgent(AbsAgent):
                 self.is_running = False
                 inner_output(None)
                 return result
-            asyncio.sleep(0)
             if self.stop_event.is_set():
                 self.is_running = False
                 inner_output(None)

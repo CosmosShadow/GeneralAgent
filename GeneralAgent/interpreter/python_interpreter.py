@@ -122,8 +122,6 @@ class SyncPythonInterpreter(Interpreter):
             return '', False
 
     def run_code(self, code):
-        if self.agent is not None:
-            self.globals['agent'] = self.agent
         stop = False
         code = self.add_print(code)
         code = self.import_code + '\n' + code
@@ -134,6 +132,8 @@ class SyncPythonInterpreter(Interpreter):
         sys.stdout = output
         success = False
         try:
+            if self.agent is not None:
+                self.globals['agent'] = self.agent
             exec(code, self.globals)
             success = True
             self.run_wrong_count = 0
