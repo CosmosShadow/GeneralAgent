@@ -183,7 +183,7 @@ class NormalAgent(AbsAgent):
                             pop_token = cache_tokens.pop(0)
                             output_callback(pop_token)
                         result += '\n' + output.strip() + '\n'
-                        self.memory.append_message('assistant', '\n' + output.strip() + '\n', message_id=message_id)
+                        message_id = self.memory.append_message('assistant', '\n' + output.strip() + '\n', message_id=message_id)
                         result = ''
                         # logging.debug(result)
                         if not self.hide_output_parse or is_stop:
@@ -200,7 +200,7 @@ class NormalAgent(AbsAgent):
             # append messages
             # logging.debug(result)
             if len(result) > 0:
-                self.memory.append_message('assistant', result, message_id=message_id)
+                message_id = self.memory.append_message('assistant', result, message_id=message_id)
             return is_stop
         except Exception as e:
             # if fail, recover
