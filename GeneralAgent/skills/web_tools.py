@@ -21,28 +21,74 @@ def google_search(query: str) -> dict:
     organic = [{'title': item['title'], 'link': item['link'], 'snippet': item['snippet']} for item in result['organic']]
     return organic
 
-def scrape_web(url: str):
+
+def scrape_web(url) -> str:
     """
-    Scrape web page, return (title: str, text: str, image_urls: [str], hyperlinks: [str]) when success, otherwise return None.
+    scrape static and dynamic content from a web page, and return the text content with markdown links
+    @param url: url of the web page
+    @return: text content of the web page
     """
-    # TODO: use selenium
-    import re
-    import requests
+    from selenium import webdriver
+    from selenium.webdriver.chrome.service import Service
+    from webdriver_manager.chrome import ChromeDriverManager
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.chrome.options import Options
+    from selenium.webdriver.common.action_chains import ActionChains
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.common.by import By
     from bs4 import BeautifulSoup
-    from requests.compat import urljoin
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.content, "html.parser")
-        title = str(soup.title.string)
-        text = str(re.sub(r'<style.*?</style>', '', soup.get_text(), flags=re.DOTALL))
-        image_urls = [str(image['src']) for image in soup.find_all('img')]
-        hyperlinks = [(str(link.text), str(urljoin(url, link["href"]))) for link in soup.find_all("a", href=True) if urljoin(url, link["href"]).startswith('http')]
-        return (title, text, image_urls, hyperlinks)
-    except Exception as e:
-        import logging
-        logging.exception(e)
-    return None
+    import time
+    import re
+    from urllib.parse import urljoin
+
+    # Setup chrome options
+    chrome_options = Options()
+    chrome_options.add_argument("--headless") # Ensure GUI is off
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+
+    # Set path to chromedriver as per your configuration
+    webdriver_service = Service(ChromeDriverManager().install())
+
+    # Choose Chrome Browser
+    driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
+    driver.get(url)
+
+    # Wait for the dynamic content to load
+    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+
+    html = driver.page_source
+    driver.quit()
+
+    # Parse html content
+    soup = BeautifulSoup(html, "html.parser")
+    for span in soup.find_all("span"):
+        span.replace_with(span.text)
+    for a in soup.find_all("a"):
+        href = urljoin(url, a.get('href'))
+        a.replace_with(f"[{a.text}]({href})")
+    for br in soup.find_all("br"):
+        br.replace_with("\n")
+    text = soup.get_text(separator="\n")
+
+    # Replace multiple newlines and spaces around them with a single newline
+    text = re.sub('\s*\n\s*', '\n', text)
+
+    # Collapse whitespace
+    text = ' '.join(text.split())
+
+    return text
+
+def test_scrape_web():
+    """
+    This function tests the scrape_web function.
+    It asserts that the returned text contains the string 'replicate'.
+    """
+    url = "https://replicate.com/stability-ai/stable-video-diffusion/api?tab=python"
+    text = scrape_web(url)
+    assert 'replicate' in text
+    print(text)
 
 
 def wikipedia_search(query: str) -> str:
@@ -90,3 +136,6 @@ def wikipedia_search(query: str) -> str:
             if not obs:
                 obs = None
     return obs
+
+if __name__ == '__main__':
+    test_scrape_web()
