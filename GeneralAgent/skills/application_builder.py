@@ -13,12 +13,14 @@ def _set_code_dir(code_dir):
     CODE_DIR = code_dir
 
 
-def search_functions(task_description:str) -> str:
+def search_functions(function_description:str) -> str:
     """
-    print function signatures that may help to solve the task, and return the function signatures
+    search function by description and return the function signatures
+    @param function_description (str): the function description.
+    @return: The generated Python function signatures as a string.
     """
     from GeneralAgent import skills
-    functions = skills._search_functions(task_description)
+    functions = skills._search_functions(function_description)
     print(functions)
     return functions
     from jinja2 import Template

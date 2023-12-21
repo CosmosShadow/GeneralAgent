@@ -28,7 +28,8 @@ def try_download_file(file_path):
     from PIL import Image
     """Try to download file if it is a url, else return file_path"""
     if file_path.startswith("http://") or file_path.startswith("https://"):
-        save_path = skills.unique_name() + '.' + file_path.split('.')[-1]
+        remove_parameters = file_path.split('?')[0]
+        save_path = skills.unique_name() + '.' + remove_parameters.split('.')[-1]
         success = skills.download_file(file_path, save_path)
         if success:
             if save_path.endswith('.png') or save_path.endswith('.PNG'):
