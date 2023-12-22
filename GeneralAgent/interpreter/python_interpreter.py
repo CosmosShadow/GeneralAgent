@@ -8,7 +8,7 @@ from GeneralAgent import skills
 import asyncio
 
 default_import_code = """
-import os, sys, math
+import os, sys, math, time
 from GeneralAgent import skills
 """
 
@@ -93,21 +93,23 @@ class SyncPythonInterpreter(Interpreter):
     def save(self):
         if self.serialize_path is None:
             return
-        self._remove_unpickleable()
+        save_globals = self._remove_unpickleable()
         # save
         with open(self.serialize_path, 'wb') as f:
-            data = {'globals': self.globals}
+            data = {'globals': save_globals}
             f.write(pickle.dumps(data))
 
     def _remove_unpickleable(self):
-        if '__builtins__' in self.globals:
-            self.globals.__delitem__('__builtins__')
-        keys = list(self.globals.keys())
+        save_globals = self.globals.copy()
+        if '__builtins__' in save_globals:
+            save_globals.__delitem__('__builtins__')
+        keys = list(save_globals.keys())
         for key in keys:
             try:
-                pickle.dumps(self.globals[key])
+                pickle.dumps(save_globals[key])
             except Exception as e:
-                self.globals.__delitem__(key)
+                save_globals.__delitem__(key)
+        return save_globals
 
     def output_parse(self, string) -> (str, bool):
         sys_out = ''
@@ -206,141 +208,3 @@ class SyncPythonInterpreter(Interpreter):
                 last_line = f'print({last_line})'
                 lines[-1] = last_line
         return '\n'.join(lines)
-
-# def _remove_unpickleable(namespace):
-#     import pickle
-#     if '__builtins__' in namespace:
-#         namespace.__delitem__('__builtins__')
-#     keys = list(namespace.keys())
-#     for key in keys:
-#         try:
-#             pickle.dumps(namespace[key])
-#         except Exception as e:
-#             namespace.__delitem__(key)
-#     return namespace
-
-
-# def code_wrap(code, namespace):
-#     lines = code.split('\n')
-#     code = '\n    '.join(lines)
-#     variables = '\n    '.join([f'{name} = globals()[\'{name}\']' for name, value in namespace.items()])
-#     content = f"""
-# import asyncio
-
-# def _remove_unpickleable(namespace):
-#     import pickle
-#     if '__builtins__' in namespace:
-#         namespace.__delitem__('__builtins__')
-#     keys = list(namespace.keys())
-#     for key in keys:
-#         try:
-#             pickle.dumps(namespace[key])
-#         except Exception as e:
-#             namespace.__delitem__(key)
-#     for name in ['__name', '__value', '__namespace']:
-#         if name in namespace:
-#             namespace.__delitem__(name)
-#     return namespace
-
-# __namespace = None
-
-# def __main():
-#     {variables}
-#     {code}
-#     global __namespace
-#     __namespace = _remove_unpickleable(locals().copy())
-# """
-#     # print('----------<code>--------')
-#     # print(content)
-#     # print('----------</code>--------')
-#     return content
-
-
-# class AsyncPythonInterpreter(SyncPythonInterpreter):
-#     """
-#     Sync Python Interpreter: run python code in the interpreter. Same namespace with the agent & Can run code
-#     """
-
-#     python_prompt_template = """
-# # Run python
-# - format is : ```python\\nthe_code\\n```
-# - the code will be executed
-# - python version is {{python_version}}
-# - Pickleable objects can be shared between different codes and variables
-# - The output display should be limited in length and should be truncated when displaying characters whose length is unknown. for example: print(a[:100])
-# - Available libraries: {{python_libs}}
-# Complete the entire process in one code instead of writing multiple codes to run step by step. For example, the following code is allowed:
-# ```python
-# # step 1
-# a = fun1(xx)
-# # step 2
-# c = fun2(a)
-# # step 3
-# d = fun3(c)
-# ...
-# ```
-# - The following functions can be used in code (already implemented and imported for you):
-# ```
-# {{python_funcs}}
-# ```
-# """
-
-#     def run_code(self, code):
-#         stop = False
-#         code = self.add_print(code)
-#         code = code_wrap(code, self.globals)
-#         code = self.import_code + '\n' + code
-#         # print('hello')
-#         # print(code)
-#         # print(self.function_tools)
-#         globals_backup = self.load()
-#         logging.debug(code)
-#         sys_stdout = ''
-#         output = io.StringIO()
-#         sys.stdout = output
-#         success = False
-#         try:
-#             # exec(code, self.globals)
-#             # run python code
-#             local_vars = self.globals
-#             # register functions
-#             for fun in self.function_tools:
-#                 local_vars[fun.__name__] = fun
-#             # print(local_vars)
-#             exec(code, local_vars, local_vars)
-#             main_function = local_vars['__main']
-#             asyncio.create_task(main_function())
-#             local_vars = _remove_unpickleable(local_vars)
-#             local_vars = local_vars['__namespace']
-#             # remove functions
-#             for fun in self.function_tools:
-#                 if fun.__name__ in local_vars:
-#                     local_vars.__delitem__(fun.__name__)
-#             self.globals = local_vars
-
-#             success = True
-#             self.run_wrong_count = 0
-#         except Exception as e:
-#             import traceback
-#             sys_stdout += traceback.format_exc()
-#             self.globals = globals_backup
-#             logging.exception((e))
-#             self.run_wrong_count += 1
-#             if self.run_wrong_count >= self.stop_wrong_count:
-#                 stop = True
-#         finally:
-#             sys_stdout += output.getvalue()
-#             sys.stdout = sys.__stdout__
-#         if success:
-#             self.save()
-#         sys_stdout = sys_stdout.strip()
-#         if sys_stdout == '':
-#             sys_stdout = 'run successfully'
-#         return sys_stdout, stop
-    
-
-# class PythonInterpreter(AsyncPythonInterpreter):
-#     """
-#     Sync Python Interpreter: run python code in the interpreter. Same namespace with the agent & Can run code
-#     """
-#     pass

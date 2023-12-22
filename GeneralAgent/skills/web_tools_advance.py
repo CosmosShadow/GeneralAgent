@@ -1,7 +1,10 @@
 # advance web tools
 
 def web_open(url: str):
-    """open a web page in browser and wait the page load completely, return the selenium driver"""
+    """
+    open a web page in browser and wait the page load completely, return the Selenium 4 driver. 
+    use driver.find_element to find the element in the page.
+    """
     from selenium import webdriver
     from selenium.webdriver.chrome.service import Service
     from webdriver_manager.chrome import ChromeDriverManager
@@ -47,16 +50,18 @@ def web_open(url: str):
     # Additional wait if necessary
     time.sleep(5)
 
+    # html = web_get_html(driver)
+    # print(f'driver of web ({url}) is ready. the html content of driver is below:```\n{html}\n```')
+
     return driver
 
 
 def web_get_html(driver) -> str:
     """
-    return html content of the selenium driver
+    return html content of the Selenium 4 driver
     """
     from bs4 import BeautifulSoup, Comment
     html = driver.page_source
-    driver.quit()
 
     soup = BeautifulSoup(html, 'html.parser')
 
@@ -71,7 +76,11 @@ def web_get_html(driver) -> str:
     # Convert the soup back to a string
     cleaned_html = str(soup)
 
+    # print(cleaned_html)
+
     return cleaned_html
+
+
 
 
 
