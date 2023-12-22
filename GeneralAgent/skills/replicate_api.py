@@ -1,6 +1,6 @@
 # replicate api
 
-# def _replicate_image_generation(prompt):
+# def _replicate_create_image(prompt):
 #     """generate a image with prompt (in english), return a image url"""
 
 #     # import replicate
@@ -24,7 +24,7 @@
 #     return image_url
 
 
-# def image_generation(prompt) -> str:
+# def create_image(prompt) -> str:
 #     """
 #     Generate an image according to the prompt and return the image path. For example, when the prompt is "apple" you will get an image of an apple. Note: The prompt should describe objective things in detail, not abstract concepts. For example, if you want to draw a picture of Chengdu, the prompt should be "Picture of Chengdu, with giant pandas playing in the bamboo forest, people eating hot pot around, and a Jinsha Sunbird totem next to it" instead of "Draw a picture of Chengdu" "painting"
 #     @param prompt: The prompt should be detailed enough to describe the image. Tips can be in any type of language, but English is recommended.
@@ -32,7 +32,7 @@
 #     from GeneralAgent import skills
 #     if not skills.text_is_english(prompt):
 #         prompt = skills.translate_text(prompt, 'english')
-#     image_url = _replicate_image_generation(prompt)
+#     image_url = _replicate_create_image(prompt)
 #     image_path  = skills.try_download_file(image_url)
 #     print(f'image created at ![{image_path}]({image_path})')
 #     return image_path
@@ -72,4 +72,4 @@ def speech_to_text(audio_file_path):
 
 
 if __name__ == '__main__':
-    image_generation('a cat')
+    create_image('a cat')

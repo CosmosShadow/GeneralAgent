@@ -106,6 +106,7 @@ class Skills:
         """
         from .llm_inference import search_similar_texts
         signatures = self._all_function_signatures()
+        # print(signatures)
         results = search_similar_texts(task_description, signatures, top_k=5)
         if return_list:
             return results

@@ -23,12 +23,8 @@ def text_to_speech(text, voice='onyx'):
     return file_path
 
 
-def create_image(prompt):
-    """
-    Draw image given a prompt, returns the image path
-    @prompt: A text description of the desired image. The maximum length is 4000 characters.
-    @return: image path
-    """
+def create_image(prompt) -> str:
+    """draw image given a prompt, returns the image path. use skills.edit_image(image_path, prompt) -> str to edit the image"""
     import os
     from openai import OpenAI
     from GeneralAgent import skills
@@ -48,9 +44,31 @@ def create_image(prompt):
     return image_path
 
 
+def edit_image(image_path:str, prompt:str) -> str:
+    """Edit image given a prompt, returns the image path"""
+    import os
+    from openai import OpenAI
+    from GeneralAgent import skills
+    from pathlib import Path
+
+    client = OpenAI(base_url=os.environ['OPENAI_API_BASE'])
+    response = client.images.edit(
+        image = Path(image_path),
+        prompt = prompt,
+        n=1,
+    )
+    image_url = response.data[0].url
+    image_path = skills.try_download_file(image_url)
+    # print(f'image created at ![{image_path}]({image_path})')
+    return image_path
+
+
 if __name__ == '__main__':
     # file_path = text_to_speech('hello world')
     # print(file_path)
 
-    image_path  = create_image('a picture of a dog')
+    # image_path  = create_image('a picture of a dog')
+    # print(image_path)
+
+    image_path = edit_image('a.jpg', 'add a white horse')
     print(image_path)

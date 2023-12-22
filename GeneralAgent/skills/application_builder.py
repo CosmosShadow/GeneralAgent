@@ -102,7 +102,7 @@ def create_application_icon(application_description:str) -> None:
     import os
     from GeneralAgent import skills
     prompt = skills.ai_draw_prompt_gen("Create an application icon. The application's description is below: \n" + application_description)
-    image_url = skills.image_generation(prompt)
+    image_url = skills.create_image(prompt)
     file_path = skills.try_download_file(image_url)
     target_path = os.path.join(get_code_dir(), 'icon.jpg')
     os.system(f"mv {file_path} {target_path}")
@@ -112,7 +112,7 @@ def edit_application_code(task_description:str) -> None:
     """
     edit_application_code is an Agent. You just tell it what will be done and vailable functions, it will generate a python function to complete the task.
     Edit agent code by task_description. task description should be a string and include the detail of task, and what functions can be used. 
-    task_description example: "Create a image creation agent. Available functions:\n\nskills.image_generation(prompt) generate a image with prompt (in english), return a image url\n\nskills.translate_text(content, target_language)"
+    task_description example: "Create a image creation agent. Available functions:\n\nskills.create_image(prompt) generate a image with prompt (in english), return a image url\n\nskills.translate_text(content, target_language)"
     """
     import os
     code_path = os.path.join(get_code_dir(),  'main.py')
@@ -341,7 +341,7 @@ def main(chat_history, input, file_path, output_callback, file_callback, ui_call
     prompt = input
     if not skills.text_is_english(prompt):
         prompt = skills.translate_text(prompt, 'english')
-    image_url = skills.image_generation(prompt)
+    image_url = skills.create_image(prompt)
     file_callback(image_url)
 ```
 

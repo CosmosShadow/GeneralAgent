@@ -44,9 +44,11 @@ def scrape_web(url) -> str:
 
     # Setup chrome options
     chrome_options = Options()
-    chrome_options.add_argument("--headless") # Ensure GUI is off
+    chrome_options.add_argument("--headless")  # Ensure GUI is off
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
+    # Set a common user agent to mimic a real user
+    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36")
 
     # Set path to chromedriver as per your configuration
     webdriver_service = Service(ChromeDriverManager().install())
@@ -58,11 +60,29 @@ def scrape_web(url) -> str:
     # Wait for the dynamic content to load
     WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
 
+    # Scroll down the page to trigger potential Ajax requests
+    last_height = driver.execute_script("return document.body.scrollHeight")
+    while True:
+        # Scroll down to the bottom of the page
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        # Wait for new content to load
+        time.sleep(3)
+        # Calculate new scroll height and compare with last scroll height
+        new_height = driver.execute_script("return document.body.scrollHeight")
+        if new_height == last_height:
+            break
+        last_height = new_height
+
+    # Additional wait if necessary
+    time.sleep(5)
+
     html = driver.page_source
     driver.quit()
 
     # Parse html content
     soup = BeautifulSoup(html, "html.parser")
+    # print(soup.get_text())
+    # print(soup.prettify())
     for span in soup.find_all("span"):
         span.replace_with(span.text)
     for a in soup.find_all("a"):
@@ -138,4 +158,7 @@ def wikipedia_search(query: str) -> str:
     return obs
 
 if __name__ == '__main__':
-    test_scrape_web()
+    # test_scrape_web()
+    text = scrape_web('http://bond.sse.com.cn/bridge/information/index_detail.shtml?bound_id=38111')
+    print('-'*100)
+    print(text)
