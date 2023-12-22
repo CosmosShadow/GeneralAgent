@@ -100,6 +100,82 @@ def scrape_web(url) -> str:
 
     return text
 
+def scrape_web_html(url) -> str:
+    """
+    scrape static and dynamic content from a web page, and return the html content
+    """
+    from selenium import webdriver
+    from selenium.webdriver.chrome.service import Service
+    from webdriver_manager.chrome import ChromeDriverManager
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.chrome.options import Options
+    from selenium.webdriver.common.action_chains import ActionChains
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.common.by import By
+    from bs4 import BeautifulSoup, Comment
+    import time
+    import re
+    from urllib.parse import urljoin
+
+    # Setup chrome options
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")  # Ensure GUI is off
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    # Set a common user agent to mimic a real user
+    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36")
+
+    # Set path to chromedriver as per your configuration
+    webdriver_service = Service(ChromeDriverManager().install())
+
+    # Choose Chrome Browser
+    driver = webdriver.Chrome(service=webdriver_service, options=chrome_options)
+    driver.get(url)
+
+    # Wait for the dynamic content to load
+    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+
+    # Scroll down the page to trigger potential Ajax requests
+    last_height = driver.execute_script("return document.body.scrollHeight")
+    while True:
+        # Scroll down to the bottom of the page
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        # Wait for new content to load
+        time.sleep(3)
+        # Calculate new scroll height and compare with last scroll height
+        new_height = driver.execute_script("return document.body.scrollHeight")
+        if new_height == last_height:
+            break
+        last_height = new_height
+
+    # Additional wait if necessary
+    time.sleep(5)
+
+    html = driver.page_source
+    driver.quit()
+
+    soup = BeautifulSoup(html, 'html.parser')
+
+    # Remove script and style elements
+    for script_or_style in soup(['script', 'style']):
+        script_or_style.decompose()  # Remove the tag from the soup
+
+    # Remove comments
+    for comment in soup(text=lambda text: isinstance(text, Comment)):
+        comment.extract()
+
+    # Remove any remaining tags you don't want
+    # For example, if you want to remove all <div> tags with a certain class:
+    # for div in soup.find_all("div", {"class": "some-class"}):
+    #     div.decompose()
+
+    # Convert the soup back to a string
+    cleaned_html = str(soup)
+
+    return cleaned_html
+
+
 def test_scrape_web():
     """
     This function tests the scrape_web function.
@@ -157,8 +233,12 @@ def wikipedia_search(query: str) -> str:
                 obs = None
     return obs
 
+
 if __name__ == '__main__':
     # test_scrape_web()
-    text = scrape_web('http://bond.sse.com.cn/bridge/information/index_detail.shtml?bound_id=38111')
-    print('-'*100)
-    print(text)
+    # text = scrape_web('http://bond.sse.com.cn/bridge/information/index_detail.shtml?bound_id=38111')
+    # print('-'*100)
+    # print(text)
+
+    content = scrape_web_html('https://www.zhihu.com/signin?next=%2F')
+    print(content)
