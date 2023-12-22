@@ -67,8 +67,8 @@ if __name__ == '__main__':
     # file_path = text_to_speech('hello world')
     # print(file_path)
 
-    # image_path  = create_image('a picture of a dog')
-    # print(image_path)
-
-    image_path = edit_image('a.jpg', 'add a white horse')
+    image_path  = create_image('a picture of a dog')
     print(image_path)
+
+    # image_path = edit_image('a.jpg', 'add a white horse')
+    # print(image_path)

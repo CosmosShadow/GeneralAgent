@@ -141,13 +141,13 @@ def parse_extract_info(text):
     return numbers, titles
 
 
-def extract_title(text):
+def extract_title(text, language='chinese'):
     """
     extract title from text
     """
     if len(text) > 500:
         text = text[:500]
-    prompt = "Please distill the content between --------- into a concise title of the content, less than five words.\n---------\n" + text + "\n---------"
+    prompt = f"Please distill the content between --------- into a concise title in {language} of the content, less than five words. Return the title directly without including it in \".\n---------\n{text}\n---------"
     from GeneralAgent import skills
     messages = [
         {'role': 'system','content': 'You are a helpful assistant'},
