@@ -69,7 +69,7 @@ class NormalAgent(AbsAgent):
         """
         agent run: parse intput -> get llm messages -> run LLM and parse output
         @input: str, user's new input, None means continue to run where it stopped
-        @input_for_memory_node_id: int, -1 means input is not from memory, None means input new, otherwise input is for memory node
+        @input_for_memory_node_id: int, -1 means input is not from memory, None means input new, otherwise input is for memory node. the parameter only works for Stack Agent.
         @output_callback: function, output_callback(content: str) -> None
         """
         self.is_running = True
