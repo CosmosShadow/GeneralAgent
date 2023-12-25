@@ -12,6 +12,7 @@ A simple, general, customizable Agent framework
 
 * Self-Control
 * Stack Memory
+* Function Search and Call
 
 ## Architecture
 

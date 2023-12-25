@@ -23,24 +23,14 @@ def download_file(file_url, save_path):
 
 
 def try_download_file(file_path):
-    import os
     from GeneralAgent import skills
-    from PIL import Image
     """Try to download file if it is a url, else return file_path"""
     if file_path.startswith("http://") or file_path.startswith("https://"):
         remove_parameters = file_path.split('?')[0]
         save_path = skills.unique_name() + '.' + remove_parameters.split('.')[-1]
         success = skills.download_file(file_path, save_path)
         if success:
-            if save_path.endswith('.png') or save_path.endswith('.PNG'):
-                # 转成jpg
-                png_image = Image.open(save_path)
-                jpg_save_path = skills.unique_name() + '.jpg'
-                png_image.save(jpg_save_path, 'JPEG')
-                os.remove(save_path)
-                return jpg_save_path
-            else:
-                return save_path
+            return save_path
         else:
             return file_path
     else:
