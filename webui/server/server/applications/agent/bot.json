@@ -1,6 +1,0 @@
-{
-    "id": "agent",
-    "name": "Agent by GPT3.5",
-    "description": "Agent with all tools: Code Interpreter(Python, Shell, AppleScript)、AI tools(Draw、TTS、ASR and others)、Dynamic UI",
-    "upload_file": "yes"
-}

@@ -1,7 +1,0 @@
-{
-    "id": "asr",
-    "name": "ASR",
-    "description": "Automatic Speech Recognition",
-    "icon": "asr.png",
-    "upload_file": "yes"
-}

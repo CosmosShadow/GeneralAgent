@@ -1,7 +1,0 @@
-{
-    "id": "function_builder",
-    "name": "Function builder",
-    "description": "Build function by chat, and reuse it in Function Builder or Agent Builder",
-    "icon": "icon.jpg",
-    "upload_file": "yes"
-}

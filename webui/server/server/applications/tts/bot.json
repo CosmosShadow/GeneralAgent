@@ -1,7 +1,0 @@
-{
-    "id": "tts",
-    "name": "TTS",
-    "description": "Text To Speech",
-    "icon": "icon.png",
-    "upload_file": "yes"
-}

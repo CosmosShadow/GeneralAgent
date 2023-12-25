@@ -1,8 +1,8 @@
 {
     "id": "video_generation_agent",
     "type": "agent",
-    "name": "Video Generation Agent",
-    "description": "A video generation agent application that can generate videos according to user requirements.",
+    "name": "Video Generator",
+    "description": "Use replicate.com API to generate videos by chat. You should set API key in .env file.",
     "upload_file": "yes",
     "icon": "icon.jpg"
 }

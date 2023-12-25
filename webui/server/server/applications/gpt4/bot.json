@@ -1,6 +1,6 @@
 {
     "id": "gpt4",
-    "name": "Smart LLM",
-    "description": "GPT4 | GPT4-turbo | xxx",
+    "name": "GPT4",
+    "description": "Chat with GPT4",
     "icon": "gpt4.jpg"
 }
