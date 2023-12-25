@@ -121,19 +121,6 @@ export $(grep -v '^#' .env | sed 's/^export //g' | xargs)
 
 
 
-#### 命令行工具
-
-```shell
-GeneralAgent
-# 或者
-GeneralAgent --workspace ./test --new --auto_run
-# worksapce: 设置工作目录，默认为./general_agent
-# new: 如果工作目录已存在，则创建一个新的工作目录，如./general_agent_2023xxx
-# auto_run: 如果设置了auto_run，Agent将自动运行代码，默认为否
-```
-
-
-
 #### WebUI
 
 ```bash

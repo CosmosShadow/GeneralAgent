@@ -106,17 +106,6 @@ vim .env
 export $(grep -v '^#' .env | sed 's/^export //g' | xargs)
 ```
 
-#### Command line tool
-
-```shell
-GeneralAgent
-# or
-GeneralAgent --workspace ./test --new --auto_run
-# worksapce: Set workspace directory, default ./general_agent
-# new: if workspace exists, create a new workspace, like ./general_agent_2023xxx
-# auto_run: if auto_run, the agent will run the code automatically, default no
-```
-
 #### WebUI
 
 ```bash
