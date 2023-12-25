@@ -10,35 +10,14 @@ A simple, general, customizable Agent framework
 
 ## Features
 
-* Simple、Fast、Stable: **stable with GPT3.5**.
-* GeneralAgent support **serialization**, include **python state**.
-* Build-in interpreters: Python, AppleScript, Shell, File, Plan, Retrieve Embedding etc.
-* **Dynamic UI**: Agent can create dynamic ui to user who can use.
-* **Agent Builder**: Create agents using natural language and use them immediately, without coding.
-* [AthenaAgent](https://github.com/sigworld/AthenaAgent) is a TypeScript port of GeneralAgent.
-
-
+* Self-Control
+* Stack Memory
 
 ## Architecture
 
 **GeneralAgent**
 
 ![Architecture](./docs/images/Architecture_2023.11.15.png)
-
-**WebUI**
-
-<p align="center">
-<img src="./docs/images/webui_2023.11.15.png" alt="WebUI" width=600/>
-</p>
-
-
-## Demo
-
-**Version 0.0.11**
-
-![agent builder](./docs/images/2023_11_27_builder_agent.jpg)
-
-![agent created](./docs/images/2023_11_27_image_creator.jpg)
 
 
 ## Usage
@@ -70,7 +49,6 @@ docker run \
 ```
 
 
-
 ### Local installation and usage
 
 #### Installation
@@ -97,7 +75,6 @@ git clone https://github.com/CosmosShadow/GeneralAgent
 cd GeneralAgent
 # Preparation
 cd webui/web/ && npm install && cd ../../
-cd webui/server/server/ts_builder && npm install && cd ../../../../
 # Start the server
 cd webui/server/server/
 uvicorn app:app --host 0.0.0.0 --port 7777
