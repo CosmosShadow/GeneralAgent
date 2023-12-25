@@ -1,8 +1,5 @@
 <h1 align="center">GeneralAgent: From LLM to Agent</h1>
-<p align="center">
-<a href="README.md"><img src="https://img.shields.io/badge/document-English-blue.svg" alt="EN doc"></a>
-<img src="https://img.shields.io/static/v1?label=license&message=MIT&color=white&style=flat" alt="License"/>
-</p>
+
 <p align='center'>
 A simple, general, customizable Agent framework
 </p>
@@ -101,6 +98,11 @@ Please refer to the code for usage
 * pip library packaging process: [docs/develop/package.md](docs/develop/package.md)
 * Unit testing and release (pip & docker) process: [docs/develop/test_publish.md](docs/develop/test_publish.md)
 
+## License
+
+The intended purpose and licensing of GeneralAgent is solely for research use.
+
+The source code is licensed under Apache 2.0.
 
 ## Join us
 
