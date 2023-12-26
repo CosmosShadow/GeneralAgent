@@ -65,7 +65,7 @@ class NormalAgent(AbsAgent):
         return agent
 
     
-    def run(self, input=None, output_callback=default_output_callback, input_for_memory_node_id=-1):
+    def run(self, input=None, output_callback=default_output_callback, input_for_memory_node_id=-1, return_type=None):
         """
         agent run: parse intput -> get llm messages -> run LLM and parse output
         @input: str, user's new input, None means continue to run where it stopped
@@ -85,6 +85,8 @@ class NormalAgent(AbsAgent):
                 result += '\n'
             output_callback(token)
 
+        if return_type is not None:
+            input += '\n return type of ' + str(return_type) + '\n'
         input_stop = self._parse_input(input, inner_output)
         if input_stop:
             self.is_running = False

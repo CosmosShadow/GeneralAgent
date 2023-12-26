@@ -131,6 +131,8 @@ class PythonInterpreterV2(Interpreter):
             self.run_wrong_count = 0
             stop = self.agent.run_level != 1
             self.agent.python_run_result = result
+            if 'search_functions(' in code:
+                stop = False
             return str(result), stop
         except Exception as e:
             import traceback
