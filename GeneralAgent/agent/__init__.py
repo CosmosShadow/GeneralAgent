@@ -1,6 +1,6 @@
 # import 
 from .normal_agent import NormalAgent
-from .stack_agent import StackAgent
+# from .stack_agent import StackAgent
 
 class Agent(NormalAgent):
     pass

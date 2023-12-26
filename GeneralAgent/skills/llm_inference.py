@@ -232,6 +232,13 @@ def llm_inference(messages, model_type='normal', stream=False, json_schema=None)
     The total number of tokens in the messages and the returned string must be less than 4000 when model_variant is 'normal', and less than 16000 when model_variant is 'long'.
     """
     import logging
+    messages[-1]['content'] += """
+Take a deep breath
+I have no fingers
+I will tip $200
+Do it right and i'll give you a nice doggy treat.
+Reply directly to the content without explaining or asking the user to wait.
+"""
     if stream:
         return _llm_inference_with_stream(messages, model_type)
     else:

@@ -5,7 +5,7 @@ from .interpreter import Interpreter
 from .role_interpreter import RoleInterpreter
 
 # input
-from .plan_interpreter import PlanInterpreter
+# from .plan_interpreter import PlanInterpreter
 
 # retrieve
 from .embedding_retrieve_interpreter import EmbeddingRetrieveInterperter

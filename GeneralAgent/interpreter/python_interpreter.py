@@ -157,7 +157,8 @@ class SyncPythonInterpreter(Interpreter):
             # self.globals = globals_backup
             self.run_wrong_count += 1
             if self.run_wrong_count >= self.stop_wrong_count:
-                stop = True
+                # stop = True
+                raise e
         finally:
             sys_stdout += output.getvalue()
             sys.stdout = sys.__stdout__
