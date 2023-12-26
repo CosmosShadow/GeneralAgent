@@ -99,7 +99,8 @@ class NormalAgent(AbsAgent):
                 self.is_running = False
                 inner_output(None)
                 if self.python_run_result is not None:
-                    return self.python_run_result
+                    result = self.python_run_result
+                    self.python_run_result = None
                 return result
             if self.stop_event.is_set():
                 self.is_running = False

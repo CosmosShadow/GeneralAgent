@@ -248,16 +248,10 @@ async def worker():
             if application_module is not None:
                 # file = None if message.file == '' else message.file
                 files = json.loads(message.file) if message.file != '' else []
-                # 获取application_module.main函数参数个数
-                params_count = application_module.main.__code__.co_argcount
-                if params_count == 3:
-                    if files is not None and len(files) > 0:
-                        message.msg = f'uploaded files: {message.file}'
-                    application_module.main(chat_messages, message.msg, _output_callback)
-                elif params_count == 4:
-                    application_module.main(chat_messages, message.msg, files, _output_callback)
-                else:
-                    application_module.main(chat_messages, message.msg, files[0] if len(files) > 0 else None, _output_callback, _file_callback, send_ui)
+                cache_key = f'{bot_id}_{chat_id}'
+                cache = skills._get_cache(cache_key)
+                cache_todo = application_module.main(cache, chat_messages, message.msg, files, _output_callback)
+                skills._set_cache(cache_key, cache_todo)
                 if len(result.strip()) > 0:
                     response = message.response_template()
                     response.msg = result

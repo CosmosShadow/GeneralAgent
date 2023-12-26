@@ -1,8 +1,8 @@
 
-def main(chat_history, input, file_path, output_callback, file_callback, ui_callback):
+def main(cache, messages, input, files, output_callback):
     from GeneralAgent import skills
-    chat_history = skills.cut_messages(chat_history, 6000)
-    messages = [{"role": "system", "content": "You are a helpful assistant."}] + chat_history
+    messages = skills.cut_messages(messages, 6000)
+    messages = [{"role": "system", "content": "You are a helpful assistant."}] + messages
     response = skills.llm_inference(messages, model_type='smart', stream=True)
     for token in response:
         output_callback(token)

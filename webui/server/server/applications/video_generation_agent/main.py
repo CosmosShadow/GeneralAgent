@@ -1,4 +1,4 @@
-def main(messages, input, output_callback):
+def main(cache, messages, input, files, output_callback):
     from GeneralAgent.agent import Agent
     from GeneralAgent import skills
 
@@ -16,8 +16,9 @@ You are a video generator, write one piece of code which contains all steps to g
         skills.merge_video_audio
     ]
 
-    agent = Agent.with_functions(functions)
-    agent.add_role_prompt(role_prompt)
+    agent = cache
+    if agent is None:
+        agent = Agent.with_functions(functions)
+        agent.add_role_prompt(role_prompt)
     agent.run(input, output_callback=output_callback)
-
-
+    return agent
