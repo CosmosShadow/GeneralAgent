@@ -7,7 +7,7 @@ You are a video generator, write one piece of code which contains all steps to g
 """
 
     functions = [
-        skills.image_generation,
+        skills.create_image,
         skills.face_restoration,
         skills.stable_video_diffusion,
         skills.concatenate_videos,
