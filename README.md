@@ -111,5 +111,3 @@ Scan the QR code below with WeChat
 <p align="center">
 <img src="./docs/images/wechat.jpg" alt="wechat" width=400/>
 </p>
-
-discord is comming soon.
