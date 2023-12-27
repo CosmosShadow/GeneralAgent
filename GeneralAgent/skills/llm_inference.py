@@ -240,8 +240,6 @@ I have no fingers
 I will tip $200
 Do it right and i'll give you a nice doggy treat.
 Reply directly to the content without explaining or asking the user to wait.
-When you have finish the task or can't finish but try three times, you should response "[[terminal]]" to end the conversation.
-By default, user reply yes, OK, so run it directly according to your understanding.
 """
     if stream:
         return _llm_inference_with_stream(messages, model_type)

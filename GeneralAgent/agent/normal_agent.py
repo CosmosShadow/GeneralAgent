@@ -94,9 +94,16 @@ class NormalAgent(AbsAgent):
         inner_output(None)
         
         try_count = 0
+        continue_count = 0
         while True:
             messages = self._get_llm_messages()
             output_stop = self._llm_and_parse_output(messages, inner_output)
+            if not output_stop:
+                if return_type == str and self.run_level != 0:
+                    output_stop = True
+                continue_count += 1
+                if continue_count >= 2:
+                    output_stop = True
             if output_stop or self.stop_event.is_set():
                 inner_output(None)
                 self.is_running = False
@@ -163,7 +170,7 @@ class NormalAgent(AbsAgent):
                         if '[[terminal]]' in result:
                             is_stop = True
                         result = result.replace('[[terminal]]', '')
-                        message_id = self.memory.append_message('assistant', result)
+                        message_id = self.memory.add_message('assistant', result)
                         output, is_stop = interpreter.output_parse(result)
                         if '[[terminal]]' in output:
                             is_stop = True
@@ -185,7 +192,7 @@ class NormalAgent(AbsAgent):
                 if '[[terminal]]' in result:
                     is_stop = True
                     result = result.replace('[[terminal]]', '')
-                message_id = self.memory.append_message('assistant', result, message_id=message_id)
+                message_id = self.memory.add_message('assistant', result)
             return is_stop
         except Exception as e:
             logging.exception(e)
