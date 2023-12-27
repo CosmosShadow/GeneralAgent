@@ -24,15 +24,11 @@ class PythonInterpreterV2(Interpreter):
     agent = None
 
     python_prompt_template = """
-# Run python
-* format is : ```python\\nthe_code\\n```
-* the code will be executed
-* python version is {{python_version}}
-* only write synchronous code
-* The output display should be limited in length and should be truncated when displaying characters whose length is unknown. for example: print(a[:100])
-* * Pickleable objects can be shared between different codes and variables
-* Available libraries: {{python_libs}}
-* The following functions can be used in code (already implemented and imported for you):
+Python Run:
+- The code will be executed automatically
+- Pickleable objects can be shared between different codes and variables
+- Available libraries: {{python_libs}}
+- The following functions can be used in code (already implemented and imported for you):
 ```
 {{python_funcs}}
 ```

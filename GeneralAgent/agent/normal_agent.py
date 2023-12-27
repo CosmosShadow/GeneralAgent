@@ -65,7 +65,7 @@ class NormalAgent(AbsAgent):
         return agent
 
     
-    def run(self, input=None, output_callback=default_output_callback, input_for_memory_node_id=-1, return_type=None):
+    def run(self, input=None, output_callback=default_output_callback, input_for_memory_node_id=-1, return_type=str):
         """
         agent run: parse intput -> get llm messages -> run LLM and parse output
         @input: str, user's new input, None means continue to run where it stopped
@@ -85,8 +85,7 @@ class NormalAgent(AbsAgent):
                 result += '\n'
             output_callback(token)
 
-        if return_type is not None:
-            input += '\n return type of ' + str(return_type) + '\n'
+        input += '\n return type should be ' + str(return_type) + '\n'
         input_stop = self._parse_input(input, inner_output)
         if input_stop:
             self.is_running = False
@@ -94,19 +93,22 @@ class NormalAgent(AbsAgent):
 
         inner_output(None)
         
+        try_count = 0
         while True:
             messages = self._get_llm_messages()
             output_stop = self._llm_and_parse_output(messages, inner_output)
-            if output_stop:
-                self.is_running = False
+            if output_stop or self.stop_event.is_set():
                 inner_output(None)
+                self.is_running = False
                 if self.python_run_result is not None:
                     result = self.python_run_result
                     self.python_run_result = None
-                return result
-            if self.stop_event.is_set():
-                self.is_running = False
-                inner_output(None)
+                    return result
+                if type(result) != return_type and try_count < 1:
+                    try_count += 1
+                    input_stop = self._parse_input('return type shold be ' + str(return_type), inner_output)
+                    result = ''
+                    continue
                 return result
 
     def _parse_input(self, input, output_callback):
@@ -136,41 +138,14 @@ class NormalAgent(AbsAgent):
         from GeneralAgent import skills
         try:
             result = ''
-            is_stop = True
+            is_stop = False
             is_break = False
-            in_parse_content = False
-            cache_tokens = []
             response = skills.llm_inference(messages, model_type=self.model_type, stream=True)
             message_id = None
             for token in response:
                 if token is None: break
                 result += token
-                # logging.debug(result)
-                # print(token)
-                if self.hide_output_parse:
-                    if not in_parse_content:
-                        interpreter:Interpreter = None
-                        for interpreter in self.interpreters:
-                            is_start_matched, string_matched = interpreter.output_match_start(result)
-                            if is_start_matched:
-                                in_parse_content = True
-                                # clear cache
-                                cache_tokens.append(token)
-                                left_count = len(string_matched)
-                                while left_count > 0:
-                                    left_count -= len(cache_tokens[-1])
-                                    cache_tokens.remove(cache_tokens[-1])
-                                while len(cache_tokens) > 0:
-                                    pop_token = cache_tokens.pop(0)
-                                    output_callback(pop_token)
-                        if not in_parse_content:
-                            # cache token
-                            cache_tokens.append(token)
-                            if len(cache_tokens) > 5:
-                                pop_token = cache_tokens.pop(0)
-                                output_callback(pop_token)
-                else:
-                    output_callback(token)
+                output_callback(token)
                 interpreter:Interpreter = None
                 for interpreter in self.interpreters:
                     if interpreter.output_match(result):
@@ -179,34 +154,25 @@ class NormalAgent(AbsAgent):
                         output, is_stop = interpreter.output_parse(result)
                         if interpreter.outptu_parse_done_recall is not None:
                             interpreter.outptu_parse_done_recall()
-                        if self.hide_output_parse:
-                            is_matched, string_left = interpreter.output_match_end(result)
-                            output_callback(string_left)
-                        while len(cache_tokens) > 0:
-                            pop_token = cache_tokens.pop(0)
-                            output_callback(pop_token)
-                        result += '\n' + output.strip() + '\n'
-                        message_id = self.memory.append_message('assistant', '\n' + output.strip() + '\n', message_id=message_id)
+                        if '[[terminal]]' in output or '[[terminal]]' in result:
+                            is_stop = True
+                        if self.python_run_result is not None:
+                            output = output.strip()[:500]
+                        message_id = self.memory.append_message('assistant', '\n' + output + '\n', message_id=message_id)
                         result = ''
-                        # logging.debug(result)
                         if not self.hide_output_parse or is_stop:
                             output_callback(None)
-                            output_callback('\n' + output.strip() + '\n')
+                            output_callback('\n' + output + '\n')
                         is_break = True
-                        in_parse_content = False
                         break
                 if is_break:
                     break
-            while len(cache_tokens) > 0:
-                pop_token = cache_tokens.pop(0)
-                output_callback(pop_token)
-            # append messages
-            # logging.debug(result)
             if len(result) > 0:
+                if '[[terminal]]' in result:
+                    is_stop = True
                 message_id = self.memory.append_message('assistant', result, message_id=message_id)
             return is_stop
         except Exception as e:
-            # if fail, recover
             logging.exception(e)
             output_callback(str(e))
             return True

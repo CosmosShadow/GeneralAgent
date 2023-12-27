@@ -36,6 +36,8 @@ class Interpreter(metaclass=abc.ABCMeta):
             return False
         match = re.compile(self.output_match_pattern, re.DOTALL).search(string)
         if match is not None:
+            # 提取匹配后剩余的字符串
+            string_left = string[match.end():]
             return True
         else:
             return False

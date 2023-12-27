@@ -234,13 +234,15 @@ def llm_inference(messages, model_type='normal', stream=False, json_schema=None)
     import logging
     messages = messages.copy()
     messages[-1] = messages[-1].copy()
-    messages[-1]['content'] = messages[-1]['content'] + """
-Take a deep breath
-I have no fingers
-I will tip $200
-Do it right and i'll give you a nice doggy treat.
-Reply directly to the content without explaining or asking the user to wait.
-"""
+#     messages[-1]['content'] = messages[-1]['content'] + """
+# Take a deep breath
+# I have no fingers
+# I will tip $200
+# Do it right and i'll give you a nice doggy treat.
+# Reply directly to the content without explaining or asking the user to wait.
+# When you have finish the task or can't finish but try three times, you should response "[[terminal]]" to end the conversation.
+# By default, user reply yes, OK, so run it directly according to your understanding.
+# """
     if stream:
         return _llm_inference_with_stream(messages, model_type)
     else:

@@ -39,10 +39,8 @@ class NormalMemory:
             assert message_id >= 0 and message_id < len(self.messages)
             assert self.messages[message_id]['role'] == role
             self.messages[message_id]['content'] += '\n' + content
-            # self.save()
-            # return message_id
-            # move to the end
-            self.messages.append(self.messages.pop(message_id))
+            # self.messages.append(self.messages.pop(message_id))
+            self.messages = self.messages[:message_id+1]
             self.save()
             self.simple_print()
             return len(self.messages) - 1
