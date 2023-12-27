@@ -104,7 +104,7 @@ You can use the following skills to help you solve the problem directly without 
 
 End with [[terminal]]:
 - when the task is done, or cannot be completed after three attempts, respond with [[terminal]] immediately.
-- Please only reply to [[terminal]] if you have completed the most recent task or question.
+- Please only reply to [[terminal]] if you have completed the most recent task or question before.
 - for example, when user ask '1 + 1 = ?', you should reponse "2 [[terminal]]".
 
 Capabilities: 

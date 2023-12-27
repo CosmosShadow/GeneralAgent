@@ -103,7 +103,17 @@ class NormalAgent(AbsAgent):
                 if self.python_run_result is not None:
                     result = self.python_run_result
                     self.python_run_result = None
-                    return result
+                # logging.debug(result)
+                if type(result) == str:
+                    result = result.replace('[[terminal]]', '')
+                    result = result.strip()
+                # logging.debug(result)
+                try:
+                    result = return_type(result)
+                except Exception as e:
+                    # logging.exception(e)
+                    pass
+                logging.debug(result)
                 if type(result) != return_type and try_count < 1:
                     try_count += 1
                     input_stop = self._parse_input('return type shold be ' + str(return_type), inner_output)
@@ -150,12 +160,16 @@ class NormalAgent(AbsAgent):
                 for interpreter in self.interpreters:
                     if interpreter.output_match(result):
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
+                        if '[[terminal]]' in result:
+                            is_stop = True
+                        result = result.replace('[[terminal]]', '')
                         message_id = self.memory.append_message('assistant', result)
                         output, is_stop = interpreter.output_parse(result)
+                        if '[[terminal]]' in output:
+                            is_stop = True
+                            output = output.replace('[[terminal]]', '')
                         if interpreter.outptu_parse_done_recall is not None:
                             interpreter.outptu_parse_done_recall()
-                        if '[[terminal]]' in output or '[[terminal]]' in result:
-                            is_stop = True
                         if self.python_run_result is not None:
                             output = output.strip()[:500]
                         message_id = self.memory.append_message('assistant', '\n' + output + '\n', message_id=message_id)
@@ -170,6 +184,7 @@ class NormalAgent(AbsAgent):
             if len(result) > 0:
                 if '[[terminal]]' in result:
                     is_stop = True
+                    result = result.replace('[[terminal]]', '')
                 message_id = self.memory.append_message('assistant', result, message_id=message_id)
             return is_stop
         except Exception as e:
