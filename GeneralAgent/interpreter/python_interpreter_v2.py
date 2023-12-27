@@ -113,7 +113,7 @@ class PythonInterpreterV2(Interpreter):
         assert match is not None
         if confirm_to_run():
             result, stop = self.run_code(match.group(1))
-            result = '\nThe execution of the python code is completed, and the running situation is as follows:\n' + result + '\n'
+            result = '\nThe execution of the python code is completed, and the result is as follows:\n' + result + '\n'
             return result, stop
         else:
             return '', False
@@ -135,6 +135,7 @@ class PythonInterpreterV2(Interpreter):
                 stop = False
             return str(result), stop
         except Exception as e:
+            logging.exception(e)
             import traceback
             error = traceback.format_exc()
             self.run_wrong_count += 1

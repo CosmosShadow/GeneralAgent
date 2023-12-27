@@ -175,7 +175,7 @@ class NormalAgent(AbsAgent):
                 for interpreter in self.interpreters:
                     if interpreter.output_match(result):
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
-                        message_id = self.memory.add_message('assistant', result)
+                        message_id = self.memory.append_message('assistant', result)
                         output, is_stop = interpreter.output_parse(result)
                         if interpreter.outptu_parse_done_recall is not None:
                             interpreter.outptu_parse_done_recall()
