@@ -18,8 +18,16 @@ def google_search(query: str) -> str:
     response = requests.request("POST", url, headers=headers, data=payload)
     result = json.loads(response.text)
     # 提取organic的title、link、snippet
-    organic = json.dumps([{'title': item['title'], 'link': item['link'], 'snippet': item['snippet']} for item in result['organic']])
-    return organic
+    result = json.dumps([{'title': item['title'], 'link': item['link'], 'snippet': item['snippet']} for item in result['organic']])
+    print(result)
+    from GeneralAgent import skills
+    messages = [
+        {'role': 'system', 'content': f'background: {result[:30000]}'},
+        {'role': 'user', 'content': f'{query}'},
+    ]
+    result = skills.llm_inference(messages)
+    return result
+    
 
 
 def scrape_web(url, keep_url=False) -> str:
@@ -163,10 +171,5 @@ def wikipedia_search(query: str) -> str:
 
 
 if __name__ == '__main__':
-    # test_scrape_web()
-    # text = scrape_web('http://bond.sse.com.cn/bridge/information/index_detail.shtml?bound_id=38111')
-    # print('-'*100)
-    # print(text)
-
-    content = scrape_web_html('https://www.zhihu.com/signin?next=%2F')
-    print(content)
+    result = google_search('成都 人口')
+    print(result)
