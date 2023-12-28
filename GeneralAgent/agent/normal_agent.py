@@ -1,7 +1,7 @@
 # Agent
 import logging
 from GeneralAgent.utils import default_get_input, default_output_callback
-from GeneralAgent.memory import NormalMemory
+from GeneralAgent.memory import NormalMemory, StackMemory
 from GeneralAgent.interpreter import Interpreter
 from GeneralAgent.interpreter import EmbeddingRetrieveInterperter, LinkRetrieveInterperter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, FileInterpreter
@@ -12,7 +12,8 @@ class NormalAgent(AbsAgent):
 
     def __init__(self, workspace='./'):
         super().__init__(workspace)
-        self.memory = NormalMemory(serialize_path=f'{workspace}/normal_memory.json')
+        # self.memory = NormalMemory(serialize_path=f'{workspace}/normal_memory.json')
+        self.memory = StackMemory(serialize_path=f'{workspace}/normal_memory.json')
 
     @classmethod
     def empty(cls, workspace='./'):
@@ -171,6 +172,7 @@ class NormalAgent(AbsAgent):
                             is_stop = True
                         result = result.replace('[[terminal]]', '')
                         message_id = self.memory.add_message('assistant', result)
+                        self.memory.push_stack()
                         output, is_stop = interpreter.output_parse(result)
                         if '[[terminal]]' in output:
                             is_stop = True
@@ -181,6 +183,7 @@ class NormalAgent(AbsAgent):
                             output = output.strip()
                             if len(output) > 500:
                                 output = output[:500] + '...'
+                        self.memory.pop_stack()
                         message_id = self.memory.append_message('assistant', '\n' + output + '\n', message_id=message_id)
                         result = ''
                         if not self.hide_output_parse or is_stop:

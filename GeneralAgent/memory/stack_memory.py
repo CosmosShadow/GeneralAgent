@@ -7,31 +7,20 @@ from tinydb import TinyDB, Query
 @dataclass
 class StackMemoryNode:
     role: str
-    action: str
-    state: str = 'ready'
     content: str = None
-    prefix: str = None
     node_id: int = None
     parent: int = None
     childrens: List[int] = None
 
     def __post_init__(self):
-        assert self.role in ['user', 'system', 'root'], self.role
-        assert self.action in ['input', 'answer', 'plan'], self.action
-        assert self.state in ['ready', 'success', 'fail'], self.state
+        assert self.role in ['user', 'system', 'root', 'assistant'], self.role
         self.childrens = self.childrens if self.childrens else []
 
     def __str__(self):
-        return f'<{self.role}><{self.action}><{self.state}>: {self.content}'
+        return f'<{self.role}>: {self.content}'
     
     def __repr__(self):
         return str(self)
-
-    def success_work(self):
-        self.state = 'success'
-
-    def fail_work(self):
-        self.state = 'fail'
 
     def is_root(self):
         return self.role == 'root'
@@ -44,7 +33,7 @@ class StackMemoryNode:
     
     @classmethod
     def new_root(cls):
-        return cls(node_id=0, role='root', action='input', state='success', content='root', parent=None, childrens=[])
+        return cls(node_id=0, role='root', content='root', parent=None, childrens=[])
 
 
 class StackMemory:
@@ -61,11 +50,12 @@ class StackMemory:
         current_nodes = self.db.table('current_node').all()
         if len(current_nodes) > 0:
             node_id = current_nodes[0]['id']
-            # print(node_id)
-            # print(self)
             self.current_node = self.get_node(node_id)
         else:
-            self.current_node = None
+            self.current_node = self.get_node(0)
+        self.next_position = 'after' # 'after' or 'in'
+        if self.current_node.is_root():
+            self.next_position = 'in'
 
     def set_current_node(self, current_node):
         self.current_node = current_node
@@ -79,11 +69,6 @@ class StackMemory:
     def node_count(self):
         # ignore root node
         return len(self.spark_nodes.keys()) - 1
-        
-    def is_all_children_success(self, node):
-        # check if all childrens of node are success
-        childrens = [self.get_node(node_id) for node_id in node.childrens]
-        return all([children.state == 'success' for children in childrens])
 
     def add_node(self, node):
         # put in root node
@@ -168,18 +153,11 @@ class StackMemory:
         brothers = [self.get_node(node_id) for node_id in parent.childrens]
         left_brothers = [('brother', x) for x in brothers[:brothers.index(node)]]
         ancestors = self.get_related_nodes_for_node(parent) if not parent.is_root() else []
-        return ancestors + left_brothers + [('direct', node)]
+        return ancestors + left_brothers[-1:] + [('direct', node)]
     
     def get_related_messages_for_node(self, node: StackMemoryNode):
-        def _get_message(node, position='direct'):
-            content = node.content if node.prefix is None else node.prefix + ' ' + node.content
-            if position == 'brother' and node.action == 'plan' and len(node.childrens) > 0:
-                content = node.content + ' [detail ...]'
-            return {'role': node.role, 'content': content}
         nodes_with_position = self.get_related_nodes_for_node(node)
-        messages = [_get_message(node, position) for position, node in nodes_with_position]
-        # if node.action == 'plan':
-        #     messages[-1]['content'] = 'Improve the details of this topic:: ' + messages[-1]['content']
+        messages = [{'role': node.role, 'content': node.content} for position, node in nodes_with_position]
         return messages
     
     def get_all_description_of_node(self, node, intend_char='    ', depth=0):
@@ -196,28 +174,43 @@ class StackMemory:
         lines = self.get_all_description_of_node(self.get_node(0), depth=-1)
         return '\n'.join(lines)
     
-    def success_node(self, node):
-        node.success_work()
+    def get_messages(self):
+        return self.get_related_messages_for_node(self.current_node)
+
+    def push_stack(self):
+        self.next_position = 'in'
+        return self.current_node.node_id
+
+    def add_message(self, role, message):
+        new_node = StackMemoryNode(role=role, content=message)
+        if self.next_position == 'after':
+            self.add_node_after(self.current_node, new_node)
+        else:
+            self.add_node_in(self.current_node, new_node)
+        self.next_position = 'after'
+        self.set_current_node(new_node)
+        return new_node.node_id
+    
+    def append_message(self, role, message, message_id=None):
+        if message_id is None:
+            message_id = self.current_node.node_id
+        node_id = message_id
+        self.pop_stack_to(node_id)
+        node = self.get_node(node_id)
+        node.content += '\n' + message
         self.update_node(node)
+        self.set_current_node(node)
+        return node.node_id
+
+    def pop_stack(self):
+        if self.next_position == 'in':
+            self.next_position = 'after'
+        else:
+            self.set_current_node(self.get_node_parent(self.current_node))
+            self.next_position = 'after'
+            return self.current_node.node_id
     
-    def _get_todo_node(self, node=None):
-        # get the first ready node in the tree of node
-        if node is None:
-            node = self.get_node(0)
-        for node_id in node.childrens:
-            child = self._get_todo_node(self.get_node(node_id))
-            if child is not None:
-                return child
-        if node.is_root():
-            return None
-        if node.state in ['ready']:
-            return node
-        return None
-    
-    def get_todo_node(self):
-        todo_node = self._get_todo_node()
-        # if all childrens of todo_node are success, success todo_node
-        if todo_node is not None and len(todo_node.childrens) > 0 and self.is_all_children_success(todo_node):
-            self.success_node(todo_node)
-            return self.get_todo_node()
-        return todo_node
+    def pop_stack_to(self, node_id):
+        self.set_current_node(self.get_node(node_id))
+        self.next_position = 'after'
+        return self.current_node.node_id

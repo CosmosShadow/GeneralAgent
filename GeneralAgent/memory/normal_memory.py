@@ -14,6 +14,12 @@ class NormalMemory:
         with open(self.serialize_path, 'w', encoding='utf-8') as f:
             json.dump(self.messages, f)
 
+    def push_stack(self):
+        pass
+
+    def pop_stack(self):
+        pass
+
     def add_message(self, role, content):
         """
         add a new message
