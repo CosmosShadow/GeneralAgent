@@ -150,7 +150,8 @@ def try_create_chat_name(message:Message, chat_messages):
         if len(content) < 10:
             title = content
         else:
-            title = skills.extract_title(content)
+            language = os.environ.get('LLM_RESPONSE_LANGUAGE', 'english')
+            title = skills.extract_title(content, language=language)
         chat.name = title
         db.table('chats').update({'name': title}, Query().id == message.chat_id)
 

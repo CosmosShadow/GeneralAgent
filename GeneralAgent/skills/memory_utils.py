@@ -141,7 +141,7 @@ def parse_extract_info(text):
     return numbers, titles
 
 
-def extract_title(text, language='chinese'):
+def extract_title(text, language='english'):
     """
     extract title from text
     """
