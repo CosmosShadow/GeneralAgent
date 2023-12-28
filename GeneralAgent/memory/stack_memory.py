@@ -153,7 +153,7 @@ class StackMemory:
         brothers = [self.get_node(node_id) for node_id in parent.childrens]
         left_brothers = [('brother', x) for x in brothers[:brothers.index(node)]]
         ancestors = self.get_related_nodes_for_node(parent) if not parent.is_root() else []
-        return ancestors + left_brothers[-1:] + [('direct', node)]
+        return ancestors + left_brothers + [('direct', node)]
     
     def get_related_messages_for_node(self, node: StackMemoryNode):
         nodes_with_position = self.get_related_nodes_for_node(node)

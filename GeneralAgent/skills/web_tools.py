@@ -1,6 +1,6 @@
 def google_search(query: str) -> str:
     """
-    google search with query, return a json string about the query.
+    google search with query, return a result in string
     """
     import os
     import json

@@ -112,7 +112,7 @@ You should use the following skills (start with #) to solve the problem directly
 - In python, you are an object called agent. You can control and arrange your own behavior in the format of `result = agent.run('some command', return_type=bool|str|dict|...)`.
 - Ensure the 'command' string in `agent.run` does not exceed 5000 characters.
 - The agent can perform tasks ranging from simple commands to complex text-based operations without additional context, as it possesses memory function.
-- Don't just pass the whole task to agent.run. Instead, decompose or streamline tasks to complete extremely complex things.
+- Only use agent.run to finish part of the task, rather than the entire task.
 - When a method can't finish the task, you should try another way to complete the task.
 - If you can directly meet user needs, you should directly return the result, rather than call agent.run('command', return_type=...). For Example: `indroduce Chengdu`, return the result like this: `Chengdu is a city of xxxx`
 - DEMO: To introduce cities and save to a file:
@@ -162,7 +162,7 @@ Be consistent wherever you use numbers and units. And in agent.run, it is necess
         python_interpreter = PythonInterpreterV2(serialize_path=f'{workspace}/code.bin')
         python_interpreter.function_tools = [skills.search_functions, skills.scrape_web, skills.google_search]
         python_interpreter.agent = agent
-        agent.interpreters = [role_interpreter, python_interpreter, file_interpreter]
+        agent.interpreters = [role_interpreter, python_interpreter]
     agent.run(input, output_callback)
     agent.interpreters[1].save()
     # skills._set_cache(key, agent)

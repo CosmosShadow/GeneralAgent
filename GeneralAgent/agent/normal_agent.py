@@ -86,6 +86,8 @@ class NormalAgent(AbsAgent):
                 result += '\n'
             output_callback(token)
 
+        if self.run_level != 0:
+            input += '\nPlease don\'t just pass the whole task to agent.run, try to finish part of the task by yourself.\n'
         input += '\n return type should be ' + str(return_type) + '\n'
         input_stop = self._parse_input(input, inner_output)
         if input_stop:
