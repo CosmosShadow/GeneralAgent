@@ -178,7 +178,9 @@ class NormalAgent(AbsAgent):
                         if interpreter.outptu_parse_done_recall is not None:
                             interpreter.outptu_parse_done_recall()
                         if self.python_run_result is not None:
-                            output = output.strip()[:500]
+                            output = output.strip()
+                            if len(output) > 500:
+                                output = output[:500] + '...'
                         message_id = self.memory.append_message('assistant', '\n' + output + '\n', message_id=message_id)
                         result = ''
                         if not self.hide_output_parse or is_stop:
