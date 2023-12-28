@@ -457,7 +457,7 @@ You are a python expert, write a function to complete user's task
 
 # You can use skills lib(from GeneralAgent import skills), the function in the lib are:
 
-def skills.simple_llm_inference(messages, json_schema):
+def skills.llm_inference_to_json(messages, json_schema):
      Run LLM (large language model) inference on the provided messages, The total number of tokens in the messages and the returned string must be less than 8000.
      @param messages: Input messages for the model, like [{{'role': 'system', 'content': 'You are a helpful assistant'}}, {{'role': 'user', 'content': 'translate blow to english:\nxxxx'}}]
      @param json_schema: the json schema of return dictionary, like {{"type": "object", "properties": {{"name": {{"type": "string"}}, "age": {{"type": "integer" }} }} }}
@@ -520,7 +520,7 @@ Just reponse the python code, no any explain, no start with ```python, no end wi
 #      xxx
 #      \"\"\"
 #      from GeneralAgent import skills
-#      # skills.simple_llm_inference
+#      # skills.llm_inference_to_json
 # ```
 
 # # Task
@@ -531,9 +531,9 @@ Just reponse the python code, no any explain, no start with ```python, no end wi
 
 # - All imports should be placed inside the function.
 # - While creating your function, consider the all edge cases.
-# - Do not use any other libraries except simple_llm_inference and installed libraries.
-# - The simple_llm_inference function requires that the input messages are less than 8000, and the output length is less than 8000. - 
-# - When the task cannot be completed through one simple_llm_inference, you should consider task disassembly.
+# - Do not use any other libraries except llm_inference_to_json and installed libraries.
+# - The llm_inference_to_json function requires that the input messages are less than 8000, and the output length is less than 8000. - 
+# - When the task cannot be completed through one llm_inference_to_json, you should consider task disassembly.
 # """
 #     prompt = Template(prompt_template).render({'task': task_description})
 #     if default_code is not None:

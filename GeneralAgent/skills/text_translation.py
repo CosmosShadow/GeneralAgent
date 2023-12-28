@@ -61,7 +61,7 @@ def _translate_text(text, target_language):
         }
 
         # Running the LLM inference
-        result = skills.simple_llm_inference(messages, json_schema)
+        result = skills.llm_inference_to_json(messages, json_schema)
 
         # Adding the translated chunk to the final translated text
         translated_text += result["translated_text"]

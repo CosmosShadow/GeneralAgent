@@ -72,7 +72,7 @@ Please note, each title should not exceed 10 words. Titles exceeding this limit 
     model_type='normal'
     if skills.messages_token_count(messages) > 3500:
         model_type = 'long'
-    result = skills.async_llm_inference(messages, model_type)
+    result = skills.llm_inference(messages, model_type)
     # print(result)
     nodes = _parse_segment_llm_result(result)
     for key in nodes:
@@ -89,7 +89,7 @@ def summarize_text(text):
         {'role': 'system','content': 'You are a helpful assistant'},
         {'role': 'user','content': f'{prompt}.\n---------\n{text}\n---------'}
         ]
-    result = skills.async_llm_inference(messages)
+    result = skills.llm_inference(messages)
     return result
 
 def extract_info(background, task):
@@ -129,7 +129,7 @@ Note: <<titles>> and line numbers provide up to 5 items each, so please select t
         {'role': 'system','content': 'You are a helpful assistant'},
         {'role': 'user','content': prompt}
         ]
-    result = skills.async_llm_inference(messages)
+    result = skills.llm_inference(messages)
     return result
 
 

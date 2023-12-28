@@ -48,12 +48,10 @@ class LinkMemory():
 
     def add_memory(self, content, output_callback=None):
         from GeneralAgent import skills
-        # self._oncurrent_summarize_content(content, output_callback)
         self._summarize_content(content, output_callback)
         while skills.string_token_count(self.short_memory) > self.short_memory_limit:
             content = self.short_memory
             self.short_memory = ''
-            # self._oncurrent_summarize_content(content, output_callback)
             self._summarize_content(content, output_callback)
     
     def get_memory(self, messages=None, limit_token_count=3000):
@@ -63,6 +61,7 @@ class LinkMemory():
         if messages is None:
             return self.short_memory
         else:
+            # TODO: recursive search
             messages = skills.cut_messages(messages, 10*1000)
             xx = self.short_memory.split('\n')
             background = '\n'.join([f'#{line} {xx[line]}' for line in range(len(xx))])
@@ -89,21 +88,6 @@ class LinkMemory():
     def _save_short_memory(self):
         self.db.table('short_memory').truncate()
         self.db.table('short_memory').insert({'content': self.short_memory})
-    
-    def _oncurrent_summarize_content(self, input):
-        from GeneralAgent import skills
-        inputs = skills.split_text(input, max_token=3000)
-        print('splited count: ', len(inputs))
-        coroutines = [summarize_and_segment(x) for x in inputs]
-        results = asyncio.gather(*coroutines)
-        for summary, nodes in results:
-            new_nodes = {}
-            for key in nodes:
-                new_key = self._add_node(key, nodes[key])
-                new_nodes[new_key] = nodes[key]
-            self.short_memory += '\n' + summary + ' Detail in ' + ', '.join([f'<<{key}>>' for key in new_nodes])
-        self.short_memory = self.short_memory.strip()
-        self._save_short_memory()
 
     def _summarize_content(self, input, output_callback=None):
         from GeneralAgent import skills

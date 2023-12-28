@@ -276,9 +276,9 @@ def test_llm_inference():
                     assert 'test' in result
 
 
-def simple_llm_inference(messages, json_schema=None):
+def llm_inference_to_json(messages, json_schema):
     """
-    Run LLM (large language model) inference on the provided messages
+    Run LLM (large language model) inference on the provided messages and parse the result according to the provided JSON schema.
     
     Parameters:
     messages: Input messages for the model, like [{'role': 'system', 'content': 'You are a helpful assistant'}, {'role': 'user', 'content': 'What is your name?'}]
@@ -293,34 +293,6 @@ def simple_llm_inference(messages, json_schema=None):
     """
     from GeneralAgent import skills
     return skills.llm_inference(messages, json_schema=json_schema)
-
-
-# @retry(stop=stop_after_attempt(3), wait=wait_fixed(3))
-def async_llm_inference(messages, model_type='normal'):
-    from litellm import acompletion
-    import logging
-    global global_cache
-    logging.debug(messages)
-    key = _md5(messages)
-    result = global_cache.get_llm_cache(key)
-    if result is not None:
-        return result
-    model = _get_llm_model(messages, model_type)
-    temperature = _get_temperature()
-    try_count = 3
-    while try_count > 0:
-        try:
-            response = acompletion(model=model, messages=messages, temperature=temperature)
-            result = response['choices'][0]['message']['content']
-            global_cache.set_llm_cache(key, result)
-            return result
-        except Exception as e:
-            try_count -= 1
-            import asyncio
-            asyncio.sleep(3)
-        if try_count == 0:
-            raise ValueError('LLM(Large Languate Model) error, Please check your key or base_url, or network')
-    return ''
 
 
 # @retry(stop=stop_after_attempt(3), wait=wait_fixed(3))
