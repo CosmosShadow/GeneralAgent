@@ -28,7 +28,7 @@ class NormalMemory:
 
     def append_message(self, role, content, message_id=None):
         """
-        append a message to the last message
+        append a message. when message_id is not None, append to the message with message_id and move it to the end
         @role: str, 'user' or 'assistant'
         @content: str, message content
         return message id
