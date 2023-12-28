@@ -141,14 +141,9 @@ According to the background, the proposed issuance amount is greater than 2000 d
 bigger_than = True
 bigger_than
 ```
-- DEMO 3: extract amount in dollar from web page content, return type should be <class 'int'>
-user task: 'background:\n {content}. \n What is the amount  in dollar to be issued? return the type of <class int>.
-reposne:
-According to the background, the amount to be issued is 2000 dollar.
-```python
-number = 2000
-number
-```
+
+# Pay attention to numbers and units
+Be consistent wherever you use numbers and units. And in agent.run, it is necessary to explain the numbers and units clearly.
 
 """
 
