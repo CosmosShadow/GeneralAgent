@@ -19,7 +19,7 @@ def google_search(query: str) -> str:
     result = json.loads(response.text)
     # 提取organic的title、link、snippet
     result = json.dumps([{'title': item['title'], 'link': item['link'], 'snippet': item['snippet']} for item in result['organic']])
-    print(result)
+    # print(result)
     from GeneralAgent import skills
     messages = [
         {'role': 'system', 'content': f'background: {result[:30000]}'},
