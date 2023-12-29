@@ -25,12 +25,6 @@ class StackMemoryNode:
     def is_root(self):
         return self.role == 'root'
     
-    def get_level(self):
-        if self.is_root():
-            return 0
-        else:
-            return self.get_parent().get_level() + 1
-    
     @classmethod
     def new_root(cls):
         return cls(node_id=0, role='root', content='root', parent=None, childrens=[])
@@ -146,12 +140,20 @@ class StackMemory:
     
     def update_node(self, node):
         self.db.update(node.__dict__, Query().node_id == node.node_id)
+
+    def get_level(self, node):
+        if node.is_root():
+            return 0
+        else:
+            return self.get_level(self.get_node_parent(node)) + 1
     
     def get_related_nodes_for_node(self, node):
         # ancestors + left_brothers + self
         parent = self.get_node_parent(node)
         brothers = [self.get_node(node_id) for node_id in parent.childrens]
         left_brothers = [('brother', x) for x in brothers[:brothers.index(node)]]
+        if self.get_level(parent) != 0:
+            left_brothers = left_brothers[-4:]
         ancestors = self.get_related_nodes_for_node(parent) if not parent.is_root() else []
         return ancestors + left_brothers + [('direct', node)]
     

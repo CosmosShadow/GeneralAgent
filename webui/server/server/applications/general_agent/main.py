@@ -115,6 +115,7 @@ You should use the following skills (start with #) to solve the problem directly
 - Only use agent.run to finish part of the task, rather than the entire task.
 - When a method can't finish the task, you should try another way to complete the task.
 - If you can directly meet user needs, you should directly return the result, rather than call agent.run('command', return_type=...). For Example: `indroduce Chengdu`, return the result like this: `Chengdu is a city of xxxx`
+- By multi self-call, you can complete extremely complex tasks, such as writing long novel, long code, etc.
 - DEMO: To introduce cities and save to a file:
 ```python
 contents = [agent.run('Introduce Chengdu', return_type=str),
@@ -160,7 +161,7 @@ Be consistent wherever you use numbers and units. And in agent.run, it is necess
         file_interpreter = FileInterpreter()
         # python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
         python_interpreter = PythonInterpreterV2(serialize_path=f'{workspace}/code.bin')
-        python_interpreter.function_tools = [skills.search_functions, skills.scrape_web, skills.google_search]
+        python_interpreter.function_tools = [skills.search_functions, skills.scrape_web, skills.google_search, skills.create_image]
         python_interpreter.agent = agent
         agent.interpreters = [role_interpreter, python_interpreter]
     agent.run(input, output_callback)
