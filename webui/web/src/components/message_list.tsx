@@ -22,6 +22,8 @@ const MessageList: React.FC<Props> = (props) => {
     const applicatoin_icon_url = get_application_icon_src(bot)
     const [show_messages, setShowMessages] = React.useState<Message[]>([])
     const messagesDivRef = useRef<any>(null);
+    // 当检测到页面没有在底部时，不进行自动滚动
+    const [auto_scroll, setAutoScroll] = React.useState<boolean>(true)
     
     const add_count = 30
 
@@ -31,7 +33,7 @@ const MessageList: React.FC<Props> = (props) => {
             // messagesDivRef.current.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'nearest'});
             setTimeout(() => {
                 // 滚动到底部
-                if (messagesDivRef.current) {
+                if (messagesDivRef.current && auto_scroll) {
                     messagesDivRef.current.scrollTop = messagesDivRef.current.scrollHeight;
                 }
             }, 10)
@@ -39,7 +41,7 @@ const MessageList: React.FC<Props> = (props) => {
     }, [messages])
 
     React.useEffect(() => {
-        if (messagesDivRef.current) {
+        if (messagesDivRef.current && auto_scroll) {
             messagesDivRef.current.scrollTop = messagesDivRef.current.scrollHeight;
         }
     }, [tmp_message])
@@ -64,6 +66,12 @@ const MessageList: React.FC<Props> = (props) => {
                 const toTop = messagesDivRef.current.scrollHeight - currentHeight;
                 messagesDivRef.current.scrollTop = toTop;
             }, 100)
+        }
+        // 如果滚动到底部，自动滚动
+        if (scrollTop + 1 >= currentHeight - e.currentTarget.clientHeight) {
+            setAutoScroll(true)
+        } else {
+            setAutoScroll(false)
         }
       };
 

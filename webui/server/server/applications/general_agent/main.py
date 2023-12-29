@@ -118,8 +118,10 @@ You should use the following skills (start with #) to solve the problem directly
 - By multi self-call, you can complete extremely complex tasks, such as writing long novel, long code, etc.
 - DEMO: To introduce cities and save to a file:
 ```python
-contents = [agent.run('Introduce Chengdu', return_type=str),
-            agent.run('Introduce Beijing', return_type=str)]
+cities = ['Chengdu', 'Beijing']
+contents = []
+for city in cities:
+    contents.append(agent.run(f'Introduce {city}', return_type=str))
 with open('a.txt', 'w') as f:
     f.writelines(contents)
 ```

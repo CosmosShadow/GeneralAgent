@@ -24,7 +24,7 @@ def text_to_speech(text, voice='onyx'):
 
 
 def create_image(prompt) -> str:
-    """draw image given a prompt, returns the image path. use skills.edit_image(image_path, prompt) -> str to edit the image"""
+    """draw image given a prompt, returns the image path. Note: limit to generate violent, adult, or hateful content"""
     import os
     from openai import OpenAI
     from GeneralAgent import skills
