@@ -115,7 +115,6 @@ class NormalAgent(AbsAgent):
                     self.python_run_result = None
                 # logging.debug(result)
                 if type(result) == str:
-                    result = result.replace('[[terminal]]', '')
                     result = result.strip()
                 # logging.debug(result)
                 try:
@@ -170,15 +169,9 @@ class NormalAgent(AbsAgent):
                 for interpreter in self.interpreters:
                     if interpreter.output_match(result):
                         logging.info('interpreter: ' + interpreter.__class__.__name__)
-                        if '[[terminal]]' in result:
-                            is_stop = True
-                        result = result.replace('[[terminal]]', '')
                         message_id = self.memory.add_message('assistant', result)
                         self.memory.push_stack()
                         output, is_stop = interpreter.output_parse(result)
-                        if '[[terminal]]' in output:
-                            is_stop = True
-                            output = output.replace('[[terminal]]', '')
                         if interpreter.outptu_parse_done_recall is not None:
                             interpreter.outptu_parse_done_recall()
                         if self.python_run_result is not None:
@@ -196,9 +189,6 @@ class NormalAgent(AbsAgent):
                 if is_break:
                     break
             if len(result) > 0:
-                if '[[terminal]]' in result:
-                    is_stop = True
-                    result = result.replace('[[terminal]]', '')
                 message_id = self.memory.add_message('assistant', result)
             return is_stop
         except Exception as e:

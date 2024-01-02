@@ -10,7 +10,9 @@ import os, sys, math, time
 from GeneralAgent import skills
 """
 
+from GeneralAgent import skills
 default_libs = ''
+# default_libs = skills.get_current_env_python_libs()
 
 # from GeneralAgent.tools import Tools
 
@@ -25,12 +27,8 @@ class PythonInterpreterV2(Interpreter):
 
     python_prompt_template = """
 # Run python
-* format is : ```python\\nthe_code\\n```
-* the code will be executed
-* python version is {{python_version}}
-* only write synchronous code
-* The output display should be limited in length and should be truncated when displaying characters whose length is unknown. for example: print(a[:100])
-* * Pickleable objects can be shared between different codes and variables
+* the code will be executed automatically when the code block is closed
+* all global variables, functions will be saved, and can be used in the next run
 * Available libraries: {{python_libs}}
 * The following functions can be used in code (already implemented and imported for you):
 ```
@@ -45,7 +43,7 @@ class PythonInterpreterV2(Interpreter):
                  libs: str=default_libs, 
                  import_code:str=None,
                  prompt_append='',
-                 stop_wrong_count = 2
+                 stop_wrong_count = 3
                  ):
         """
         Args:

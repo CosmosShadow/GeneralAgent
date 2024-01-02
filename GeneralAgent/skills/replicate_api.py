@@ -25,16 +25,13 @@
 
 
 # def create_image(prompt) -> str:
-#     """
-#     Generate an image according to the prompt and return the image path. For example, when the prompt is "apple" you will get an image of an apple. Note: The prompt should describe objective things in detail, not abstract concepts. For example, if you want to draw a picture of Chengdu, the prompt should be "Picture of Chengdu, with giant pandas playing in the bamboo forest, people eating hot pot around, and a Jinsha Sunbird totem next to it" instead of "Draw a picture of Chengdu" "painting"
-#     @param prompt: The prompt should be detailed enough to describe the image. Tips can be in any type of language, but English is recommended.
-#     """
+#     """draw image given a prompt, returns the image path. Note: limit to generate violent, adult, or hateful content"""
 #     from GeneralAgent import skills
 #     if not skills.text_is_english(prompt):
 #         prompt = skills.translate_text(prompt, 'english')
 #     image_url = _replicate_create_image(prompt)
 #     image_path  = skills.try_download_file(image_url)
-#     print(f'image created at ![{image_path}]({image_path})')
+#     # print(f'image created at ![{image_path}]({image_path})')
 #     return image_path
 
 def face_restoration(image_path):
