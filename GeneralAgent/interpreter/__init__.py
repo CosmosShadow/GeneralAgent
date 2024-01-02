@@ -14,10 +14,7 @@ from .link_retrieve_interpreter import LinkRetrieveInterperter
 # output
 from .applescript_interpreter import AppleScriptInterpreter
 from .file_interpreter import FileInterpreter
-from .python_interpreter import SyncPythonInterpreter
-from .python_interpreter_v2 import PythonInterpreterV2
+from .python_interpreter import PythonInterpreter
 # from .python_interpreter import AsyncPythonInterpreter
 from .shell_interpreter import ShellInterpreter
 from .ui_interpreter import UIInterpreter
-class PythonInterpreter(SyncPythonInterpreter):
-    pass

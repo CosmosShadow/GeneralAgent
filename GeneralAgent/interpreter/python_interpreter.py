@@ -1,24 +1,22 @@
-import re, io, os, sys
+import re, os
 import pickle
 import logging
 from jinja2 import Template
 from .interpreter import Interpreter
 from GeneralAgent.utils import confirm_to_run
-from GeneralAgent import skills
-import asyncio
 
 default_import_code = """
 import os, sys, math, time
 from GeneralAgent import skills
 """
 
-# default_libs = ' '.join(["requests", "tinydb", "openai", "jinja2", "numpy", "bs4", "playwright", "retrying", "pymupdf", "python-pptx", "python-docx", "yfinance"])
-# default_libs = skills.get_current_env_python_libs()
+from GeneralAgent import skills
 default_libs = ''
+# default_libs = skills.get_current_env_python_libs()
 
 # from GeneralAgent.tools import Tools
 
-class SyncPythonInterpreter(Interpreter):
+class PythonInterpreter(Interpreter):
     """
     Sync Python Interpreter: run python code in the interpreter. Not same namespace with the agent & Can Only run synchronous code
     """
@@ -29,12 +27,8 @@ class SyncPythonInterpreter(Interpreter):
 
     python_prompt_template = """
 # Run python
-* format is : ```python\\nthe_code\\n```
-* the code will be executed
-* python version is {{python_version}}
-* only write synchronous code
-* The output display should be limited in length and should be truncated when displaying characters whose length is unknown. for example: print(a[:100])
-* * Pickleable objects can be shared between different codes and variables
+* the code will be executed automatically when the code block is closed
+* all global variables, functions will be saved, and can be used in the next run
 * Available libraries: {{python_libs}}
 * The following functions can be used in code (already implemented and imported for you):
 ```
@@ -49,7 +43,7 @@ class SyncPythonInterpreter(Interpreter):
                  libs: str=default_libs, 
                  import_code:str=None,
                  prompt_append='',
-                 stop_wrong_count = 2
+                 stop_wrong_count = 3
                  ):
         """
         Args:
@@ -112,67 +106,42 @@ class SyncPythonInterpreter(Interpreter):
         return save_globals
 
     def output_parse(self, string) -> (str, bool):
-        sys_out = ''
         pattern = re.compile(self.output_match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
         if confirm_to_run():
-            sys_out, stop = self.run_code(match.group(1))
-            result = '\nThe execution of the python code is completed, and the running situation is as follows:\n' + sys_out.strip() + '\n'
+            result, stop = self.run_code(match.group(1))
+            result = '\nThe execution of the python code is completed, and the result is as follows:\n' + result + '\n'
             return result, stop
         else:
             return '', False
 
     def run_code(self, code):
-        # x = agent.run('xxx')
-
-        assign_variable = False
-        run_error = False
-        if self.agent is not None:
-            self.agent.python_run_result = None
-            last_line = (code.strip().split('\n')[-1]).strip()
-            if last_line + ' = agent.run(' in str(self.agent.memory):
-                assign_variable = True
-        stop = False
-        code = self.add_print(code)
         code = self.import_code + '\n' + code
-        # globals_backup = self.load()
         logging.debug(code)
-        sys_stdout = ''
-        output = io.StringIO()
-        sys.stdout = output
-        success = False
         try:
+            self.agent.run_level += 1
             if self.agent is not None:
                 self.globals['agent'] = self.agent
             for fun in self.function_tools:
                 self.globals[fun.__name__] = fun
-            exec(code, self.globals)
-            success = True
+            result = exec_and_get_last_expression(self.globals, code)
             self.run_wrong_count = 0
+            stop = self.agent.run_level != 1
+            self.agent.python_run_result = result
+            if 'search_functions(' in code:
+                stop = False
+            return str(result), stop
         except Exception as e:
-            run_error = True
+            logging.exception(e)
             import traceback
-            sys_stdout += traceback.format_exc()
-            # self.globals = globals_backup
+            error = traceback.format_exc()
             self.run_wrong_count += 1
             if self.run_wrong_count >= self.stop_wrong_count:
-                # stop = True
                 raise e
+            return error, False
         finally:
-            sys_stdout += output.getvalue()
-            sys.stdout = sys.__stdout__
-        # if success:
-        #     self.save()
-        sys_stdout = sys_stdout.strip()
-        if sys_stdout == '':
-            sys_stdout = 'Run successfully without error.'
-        if assign_variable and not run_error:
-            sys_stdout = 'Run successfully without error. The result is saved in the variable ' + last_line
-            stop = True
-            if self.agent is not None:
-                self.agent.python_run_result = self.globals[last_line]
-        return sys_stdout, stop
+            self.agent.run_level -= 1
 
     def get_variable(self, name):
         if name in self.globals:
@@ -183,29 +152,31 @@ class SyncPythonInterpreter(Interpreter):
 
     def set_variable(self, name, value):
         self.globals[name] = value
-        # self.save()
 
-    @classmethod
-    def add_print_old(cls, code_string):
-        pattern = r'^(\s*)(\w+)(\s*)$'
-        lines = code_string.split('\n')
-        for i, line in enumerate(lines):
-            keywords = ['False' 'None', 'True', 'and', 'as', 'assert', 'async', 'await', 'break', 'class', 'continue', 'def', 'del', 'elif', 'else', 'except', 'finally', 'for', 'from', 'global', 'if', 'import', 'in', 'is', 'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'return', 'try', 'while', 'with', 'yield']
-            if line.strip() in keywords:
-                continue
-            match = re.match(pattern, line)
-            if match:
-                lines[i] = f'{match.group(1)}print({match.group(2)}){match.group(3)}'
-        return '\n'.join(lines)
-    
-    @classmethod
-    def add_print(cls, code_string):
-        from GeneralAgent import skills
-        code = code_string.strip()
-        lines = code.split('\n')
-        if len(lines) > 0:
-            last_line = lines[-1]
-            if skills.python_line_is_variable_expression(last_line):
-                last_line = f'print({last_line})'
-                lines[-1] = last_line
-        return '\n'.join(lines)
+
+def exec_and_get_last_expression(globals_vars, code):
+    # Compile the code into a code object, separating the last line if it's an expression
+    code_lines = code.strip().split('\n')
+    last_line = code_lines[-1]
+    try:
+        # Try to compile the last line as an expression
+        last_expr = compile(last_line, '<string>', 'eval')
+        # If successful, compile the rest of the code as exec
+        main_code = compile('\n'.join(code_lines[:-1]), '<string>', 'exec')
+        is_last_line_expression = True
+    except SyntaxError:
+        # If the last line is not an expression, compile the whole code as exec
+        main_code = compile('\n'.join(code_lines), '<string>', 'exec')
+        is_last_line_expression = False
+
+    # Create a dictionary to serve as the local namespace
+    # Execute the main body of the code
+    exec(main_code, globals_vars)
+
+    # If the last line was an expression, evaluate it and return the result
+    if is_last_line_expression:
+        last_expression_result = eval(last_expr, globals_vars)
+        return last_expression_result
+    else:
+        # If the last line was not an expression, return None
+        return None
