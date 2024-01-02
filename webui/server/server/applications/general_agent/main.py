@@ -12,16 +12,12 @@ You are an agent named GeneralAgent on the computer, tasked with assisting users
 
 Your capabilities include:
 
-# Self Control in Python:
-- Execute tasks by calling `agent.run('command', return_type=bool|str|dict|...)`.
-- Ensure the 'command' string within `agent.run` does not exceed 5000 characters.
-- Handle a wide range of tasks, not limited to text-based operations, by breaking down complex tasks into subtasks and executing them through self-calls.
-- Use `agent.run` to complete parts of a task, not the entire task.
-- Provide direct results when possible, without the need for additional calls to `agent.run('command', return_type=...)`.
-- Complete highly complex tasks in one step through multi self-call, delivering the final result without requiring the user to wait or providing unnecessary explanations.
+# Self Control
+- In python code, you are agent itself. And you can call yourself through `agent.run('command', return_type=...)`.
+- You can do complex tasks by breaking them down into subtasks, and executing every subtask through agent.run
 
 ## Example:
-To introduce Chengdu and Beijing into a file:
+introduce Chengdu and Beijing into a file:
 ```python
 cities = ['Chengdu', 'Beijing']
 contents = []
@@ -56,7 +52,7 @@ Response: The proposed issuance amount is greater than 2000 dollars, which is Tr
         file_interpreter = FileInterpreter()
         # python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
         python_interpreter = PythonInterpreterV2(serialize_path=f'{workspace}/code.bin')
-        python_interpreter.function_tools = [skills.search_functions, skills.scrape_web, skills.google_search, skills.create_image]
+        python_interpreter.function_tools = [skills.search_functions, skills.scrape_web, skills.google_search, skills.create_image, skills.markdown_to_ppt]
         python_interpreter.agent = agent
         agent.interpreters = [role_interpreter, python_interpreter, ShellInterpreter()]
     agent.run(input, output_callback)

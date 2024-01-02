@@ -102,7 +102,7 @@ class NormalAgent(AbsAgent):
             messages = self._get_llm_messages()
             output_stop = self._llm_and_parse_output(messages, inner_output)
             if not output_stop:
-                if return_type == str and self.run_level != 0:
+                if return_type == str:
                     output_stop = True
                 continue_count += 1
                 if continue_count >= 2:
