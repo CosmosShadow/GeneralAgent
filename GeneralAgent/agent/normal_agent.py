@@ -97,32 +97,24 @@ class NormalAgent(AbsAgent):
         inner_output(None)
         
         try_count = 0
-        continue_count = 0
         while True:
             messages = self._get_llm_messages()
             output_stop = self._llm_and_parse_output(messages, inner_output)
-            if not output_stop:
-                if return_type == str:
-                    output_stop = True
-                continue_count += 1
-                if continue_count >= 2:
-                    output_stop = True
             if output_stop or self.stop_event.is_set():
                 inner_output(None)
                 self.is_running = False
+                # get python result
                 if self.python_run_result is not None:
                     result = self.python_run_result
                     self.python_run_result = None
-                # logging.debug(result)
+                # try to transform result to return_type
                 if type(result) == str:
                     result = result.strip()
-                # logging.debug(result)
                 try:
                     result = return_type(result)
                 except Exception as e:
-                    # logging.exception(e)
                     pass
-                logging.debug(result)
+                # check return type and try again
                 if type(result) != return_type and try_count < 1:
                     try_count += 1
                     input_stop = self._parse_input('return type shold be ' + str(return_type), inner_output)
@@ -157,7 +149,7 @@ class NormalAgent(AbsAgent):
         from GeneralAgent import skills
         try:
             result = ''
-            is_stop = False
+            is_stop = True
             is_break = False
             response = skills.llm_inference(messages, model_type=self.model_type, stream=True)
             message_id = None
