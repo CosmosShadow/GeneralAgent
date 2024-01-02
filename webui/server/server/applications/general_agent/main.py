@@ -3,7 +3,7 @@
 
 def main(cache, messages, input, files, output_callback):
     from GeneralAgent.agent import Agent
-    from GeneralAgent.interpreter import RoleInterpreter, FileInterpreter, PythonInterpreterV2, ShellInterpreter
+    from GeneralAgent.interpreter import RoleInterpreter, FileInterpreter, PythonInterpreter, ShellInterpreter
 
     role_prompt = """
 Current Time: 2023-01-01 00:00:00
@@ -56,7 +56,7 @@ Response: The proposed issuance amount is greater than 2000 dollars, which is Tr
         role_interpreter = RoleInterpreter(role_prompt)
         file_interpreter = FileInterpreter()
         # python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
-        python_interpreter = PythonInterpreterV2(serialize_path=f'{workspace}/code.bin')
+        python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
         python_interpreter.function_tools = [skills.search_functions, skills.scrape_web, skills.google_search, skills.create_image, skills.markdown_to_ppt]
         python_interpreter.agent = agent
         agent.interpreters = [role_interpreter, python_interpreter, ShellInterpreter()]
