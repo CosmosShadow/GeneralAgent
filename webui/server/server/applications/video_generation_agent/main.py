@@ -8,7 +8,7 @@ You are a video generator, write one piece of code which contains all steps to g
 
     functions = [
         skills.create_image,
-        skills.face_restoration,
+        # skills.face_restoration,
         skills.stable_video_diffusion,
         skills.concatenate_videos,
         skills.text_to_speech,
@@ -19,6 +19,7 @@ You are a video generator, write one piece of code which contains all steps to g
     agent = cache
     if agent is None:
         agent = Agent.with_functions(functions)
+        agent.output_callback = output_callback
         agent.add_role_prompt(role_prompt)
-    agent.run(input, output_callback=output_callback)
+    agent.run(input)
     return agent
