@@ -296,6 +296,8 @@ def save_message(message:Message):
         )
         db.table('chats').insert(chat.__dict__)
         message.chat_id = chat.id
+    # OpenAI Model like to save data in /mnt/data, but we need to save it in ./
+    message.msg = message.msg.replace('/mnt/data/', './')
     db.table('messages').insert(message.__dict__)
 
 
@@ -422,6 +424,10 @@ async def user_messages(data:MessagesInput):
     chat_id = data.chat_id
     db.table('mesasges').clear_cache()
     messages = db.table('messages').search((Query().bot_id == bot_id) & (Query().chat_id == chat_id))
+    # print(messages)
+    for message in messages:
+        message['msg'] = message['msg'].replace('/mnt/data/', './')
+    # print(messages)
     return messages
 
 @app.get("/system/file/{path:path}")
