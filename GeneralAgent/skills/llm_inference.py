@@ -234,12 +234,12 @@ def llm_inference(messages, model_type='normal', stream=False, json_schema=None)
     import logging
     messages = messages.copy()
     messages[-1] = messages[-1].copy()
-    messages[-1]['content'] = messages[-1]['content'] + """
-Take a deep breath
-I have no fingers
-I will tip $200
-Do it right and i'll give you a nice doggy treat.
-"""
+#     messages[-1]['content'] = messages[-1]['content'] + """
+# Take a deep breath
+# I have no fingers
+# I will tip $200
+# Do it right and i'll give you a nice doggy treat.
+# """
     if stream:
         return _llm_inference_with_stream(messages, model_type)
     else:

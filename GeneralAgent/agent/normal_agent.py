@@ -66,7 +66,7 @@ class NormalAgent(AbsAgent):
         return agent
 
     
-    def run(self, input=None, return_type=str):
+    def run(self, input, return_type=str):
         """
         agent run: parse intput -> get llm messages -> run LLM and parse output
         @input: str, user's new input, None means continue to run where it stopped
@@ -81,7 +81,10 @@ class NormalAgent(AbsAgent):
                 result += token
             else:
                 result += '\n'
-            self.output_callback(token)
+            if self.output_callback is None:
+                default_output_callback(token)
+            else:
+                self.output_callback(token)
 
         inner_output(' ')
 

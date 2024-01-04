@@ -10,15 +10,18 @@ class AbsAgent(metaclass=abc.ABCMeta):
     @memory: Memory
     @interpreters: list, interpreters
     @model_type: str, 'normal' or 'smart' or 'long'. For OpenAI api, normal=gpt3.5, smart=gpt4, long=gpt3.5-16k
-    @hide_output_parse: bool, hide the llm's output that output interpreters will parse, default True
+    @output_callback: function, output_callback(content: str) -> None
+    @python_run_result: str, python run result
+    @run_level: int, python run level, use for check stack overflow level
+    @hide_output_parse: bool, hide output parse
     """
     memory = None
     interpreters = []
-    model_type = 'normal'
-    hide_output_parse = False
+    model_type = 'smart'
     output_callback = None
     python_run_result = None
     run_level = 0
+    hide_output_parse = False
 
     def add_role_prompt(self, prompt):
         """
@@ -32,13 +35,12 @@ class AbsAgent(metaclass=abc.ABCMeta):
                 role_interpreter.system_prompt_template += '\n' + prompt
 
     @abc.abstractmethod
-    def run(self, input=None, output_callback=default_output_callback, input_for_memory_node_id=-1):
+    def run(self, input, return_type=str):
         """
-        input: str, user's new input, None means continue to run where it stopped
-        input_for_memory_node_id: int, -1 means input is not from memory, None means input new, otherwise input is for memory node
-        output_callback: function, output_callback(content: str) -> None
+        agent run: parse intput -> get llm messages -> run LLM and parse output
+        @input: str, user's new input, None means continue to run where it stopped
+        @return_type: type, return type, default str
         """
-        pass
 
     def stop(self):
         """
