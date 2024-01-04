@@ -3,30 +3,22 @@ from GeneralAgent.interpreter import PythonInterpreter
 
 
 def test_python_interpreter():
-    # test add print
-    code = """
-x = a + b
-x"""
-    code = PythonInterpreter.add_print(code)
-    print(code)
-    assert code.strip() == """
-x = a + b
-print(x)""".strip()
     # test run
     serialize_path = './data/test_interpreter.bin'
     if os.path.exists(serialize_path): os.remove(serialize_path)
 
-    interpreter = PythonInterpreter(serialize_path)
-    sys_stdout, is_stop = interpreter.output_parse('```python\nprint("hello world")\n```')
-    assert 'hello world' in sys_stdout.strip()
+    interpreter = PythonInterpreter(serialize_path=serialize_path)
+    result, is_stop = interpreter.output_parse('```python\n"hello world"\n```')
+    print(result)
+    assert 'hello world' in result.strip()
     assert is_stop is False
 
     interpreter.set_variable('a', 10)
-    sys_stdout, is_stop = interpreter.output_parse('```python\na += 1\n```')
+    result, is_stop = interpreter.output_parse('```python\na += 1\n```')
     a = interpreter.get_variable('a')
     assert a == 11
 
-    sys_stdout, is_stop = interpreter.output_parse('```python\na += 1\n```')
+    result, is_stop = interpreter.output_parse('```python\na += 1\n```')
     a = interpreter.get_variable('a')
     assert a == 12
 
@@ -34,7 +26,7 @@ print(x)""".strip()
 def test_stack_code():
     serialize_path = './data/test_interpreter.bin'
     if os.path.exists(serialize_path): os.remove(serialize_path)
-    interpreter = PythonInterpreter(serialize_path)
+    interpreter = PythonInterpreter(serialize_path=serialize_path)
     code = """
 ```python
 a = 10
@@ -44,8 +36,8 @@ print(a)
 ```
 """
     interpreter.set_variable('interpreter', interpreter)
-    sys_stdout, is_stop = interpreter.output_parse(code)
-    print(sys_stdout)
+    result, is_stop = interpreter.output_parse(code)
+    print(result)
 
 # output:
 # 11
@@ -54,4 +46,5 @@ print(a)
 
 
 if __name__ == '__main__':
+    test_python_interpreter()
     test_stack_code()

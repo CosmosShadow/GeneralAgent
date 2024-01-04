@@ -130,6 +130,7 @@ class PythonInterpreter(Interpreter):
                 self.globals[fun.__name__] = fun
             result = exec_and_get_last_expression(self.globals, code)
             self.run_wrong_count = 0
+            stop = False
             if self.agent is not None:
                 stop = self.agent.run_level != 1
                 self.agent.python_run_result = result
