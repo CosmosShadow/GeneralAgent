@@ -170,8 +170,8 @@ class NormalAgent(AbsAgent):
                             interpreter.outptu_parse_done_recall()
                         if self.python_run_result is not None:
                             output = output.strip()
-                            if len(output) > 500:
-                                output = output[:500] + '...'
+                            if len(output) > 5000:
+                                output = output[:5000] + '...'
                         self.memory.pop_stack()
                         message_id = self.memory.append_message('assistant', '\n' + output + '\n', message_id=message_id)
                         result = ''

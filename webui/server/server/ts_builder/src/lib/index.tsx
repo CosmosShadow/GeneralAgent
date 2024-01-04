@@ -1,50 +1,37 @@
 const React = (window as any).React;
 const antd = (window as any).antd;
 
-const [Form, Input, Button] = [antd.Form, antd.Input, antd.Button];
+interface Props {
+  save_data: (user_data:any)=>void,
+  FileUploadConponent: (props: {onUploadSuccess: (file_path: string) => void, title?: string}) => React.ReactElement
+}
 
-const LibTest = ({save_data}: {save_data: (data:any)=>void}) => {
-  const onFinish = (values: any) => {
-    save_data(values);
-    antd.Modal.success({
-      title: 'Success',
-      content: 'Data saved successfully',
-    });
+const Lib64d4 = (props: Props) => {
+  const [filePath, setFilePath] = React.useState('');
+
+  const handleUploadSuccess = (file_path: string) => {
+    setFilePath(file_path);
+  };
+
+  const handleCommit = () => {
+    const all_data_should_save = {
+      filePath
+    };
+    props.save_data(all_data_should_save);
   };
 
   return (
-    <Form onFinish={onFinish}>
-      <Form.Item
-        label="Name"
-        name="name"
-        rules={[{ required: true, message: 'Please input your name!' }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        label="Address"
-        name="address"
-        rules={[{ required: true, message: 'Please input your address!' }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
-        label="Phone Number"
-        name="phone"
-        rules={[{ required: true, message: 'Please input your phone number!' }]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
-          Submit
-        </Button>
-      </Form.Item>
-    </Form>
+    <>
+      <props.FileUploadConponent onUploadSuccess={handleUploadSuccess} title='' />
+      <div>{filePath}</div>
+      <antd.Select defaultValue="Chinese">
+        <antd.Select.Option value="Chinese">Chinese</antd.Select.Option>
+        <antd.Select.Option value="Japanese">Japanese</antd.Select.Option>
+        <antd.Select.Option value="English">English</antd.Select.Option>
+      </antd.Select>
+      <antd.Button type="primary" onClick={handleCommit}>Commit</antd.Button>
+    </>
   );
-}
+};
 
-export default LibTest;
+export default Lib64d4;

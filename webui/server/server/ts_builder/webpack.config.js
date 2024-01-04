@@ -30,7 +30,7 @@ module.exports = {
   output: {
     filename: 'index.js',
     path: path.resolve(__dirname, 'build'),
-    library: "LibTest",
+    library: "Lib64d4",
     libraryTarget: 'umd',
     clean: true
   },

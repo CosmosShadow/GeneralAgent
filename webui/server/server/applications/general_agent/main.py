@@ -1,4 +1,13 @@
 def main(cache, messages, input, files, output_callback):
+    """
+    You are an agent named GeneralAgent on the computer, tasked with assisting users in resolving their issues.
+    @param cache: cache object
+    @param messages: chat messages, list of dict, like [{'role': 'system', 'content': 'You are a helpful assistant.'}, {'role': 'user', 'content': '1 + 1 = ?'}]
+    @param input: user input, str
+    @param files: user upload files, list of file path, like ['a.txt', 'b.txt']
+    @param output_callback: output callback function, like output_callback('2'). you can pass None to output_callback to start a new chat session.
+    """
+    
     from GeneralAgent.agent import Agent
     from GeneralAgent.interpreter import RoleInterpreter, FileInterpreter, PythonInterpreter, ShellInterpreter
 

@@ -180,10 +180,13 @@ The function in code will be used to create a chat bot, like slack, discord.
 
 # Function signature
 ```
-def main(messages, input, output_callback):
-    # messages is a list of dict, like [{{"role": "user", "content": "hello"}}, {{"role": "system", "content": "hi"}}]
-    # input is a string, user's input in agent application, or json string by save_data in UI in normal application.
-    # output_callback is a function, output_callback(content: str) -> None. output_callback will send content to user. the content should be markdown format. file should be like [title](sandbox:file_path)
+def main(cache, messages, input, files, output_callback):
+    chat bot entry function, return the chat bot object, you can use it to store any data, and use it in next run
+    @param cache: the return value of last run, you can use it to store any data, and use it in next run
+    @param messages: chat messages, list of dict, like [{{'role': 'system', 'content': 'You are a helpful assistant.'}}, {{'role': 'user', 'content': '1 + 1 = ?'}}]
+    @param input: user input, str
+    @param files: user upload files, list of file path, like ['a.txt', 'b.txt']
+    @param output_callback: output callback function, like output_callback('2'). you can pass None to output_callback to start a new chat session.
 ```
 
 # Python Version: {python_version}
@@ -200,7 +203,7 @@ def main(messages, input, output_callback):
 
 # DEMO 1 : normal application, write user's input to a file and return
 ```python
-def main(messages, input, output_callback):
+def main(cache, messages, input, files, output_callback):
     from GeneralAgent import skills
     import json
     data = json.loads(input)['data']
@@ -213,7 +216,7 @@ def main(messages, input, output_callback):
 
 # DEMO 2 : agent application, Agent with functions
 ```python
-def main(messages, input, output_callback):
+def main(cache, messages, input, files, output_callback):
     from GeneralAgent.agent import Agent
     role_prompt = \"\"\"
 You are a translation agent.
@@ -222,9 +225,13 @@ You complete user requirements by writing python code to call the predefined fun
     functions = [
         skills.translate_text
     ]
-    agent = Agent.with_functions(functions)
-    agent.add_role_prompt(role_prompt)
-    agent.run(input, output_callback=output_callback)
+    agent = cache
+    if agent is None:
+        agent = Agent.with_functions(functions)
+        agent.add_role_prompt(role_prompt)
+        agent.output_callback = output_callback
+    agent.run(input)
+    return agent
 ```python
 
 # There are two function types:

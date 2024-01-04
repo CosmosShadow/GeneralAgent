@@ -1,0 +1,7 @@
+{
+    "id": "application_builder_2",
+    "name": "Agent Builder",
+    "description": "Build Application or Agent only by chat. After install, you can find and use it in Agent Store.",
+    "icon": "icon.png",
+    "upload_file": "yes"
+}
