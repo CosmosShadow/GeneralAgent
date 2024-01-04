@@ -26,7 +26,7 @@ const antd = (window as any).antd;
 ```
 No other import methods are allowed.
 
-# DEMO
+# Code Template
 
 ```tsx
 const React = (window as any).React;
@@ -53,6 +53,55 @@ const LibTemplate = (props: Props) => {
 export default LibTemplate;
 ```
 
+# DEMO 1: Upload a text file, and to translate the text file to another language, default is Chinese, options are Chinese, Japanese, English.
+```tsx
+const React = (window as any).React;
+const antd = (window as any).antd;
+
+interface Props {
+  save_data: (user_data: any) => void,
+  FileUploadConponent: (props: { onUploadSuccess: (file_path: string) => void, title?: string }) => React.ReactElement
+}
+
+const LibTemplate = (props: Props) => {
+  const [filePath, setFilePath] = React.useState("");
+  const [targetLanguage, setTargetLanguage] = React.useState("Chinese");
+
+  const handleUploadSuccess = (file_path: string) => {
+    setFilePath(file_path);
+  };
+
+  const handleCommit = () => {
+    const all_data_should_save = {
+      filePath,
+      targetLanguage
+    };
+    props.save_data(all_data_should_save);
+  };
+
+  const handleLanguageChange = (value: string) => {
+    setTargetLanguage(value);
+  };
+
+  return (
+    <>
+      <props.FileUploadConponent onUploadSuccess={handleUploadSuccess} title="Upload File" />
+      {filePath && <div>File uploaded: {filePath}</div>}
+      <antd.Select defaultValue="Chinese" onChange={handleLanguageChange}>
+        <antd.Select.Option value="Chinese">Chinese</antd.Select.Option>
+        <antd.Select.Option value="Japanese">Japanese</antd.Select.Option>
+        <antd.Select.Option value="English">English</antd.Select.Option>
+      </antd.Select>
+      <antd.Button type="primary" onClick={handleCommit}>
+        Submit
+      </antd.Button>
+    </>
+  );
+};
+
+export default LibTemplate;
+```
+
 Please reponse the component code which finish the task without any explaination.
 """
 
@@ -67,7 +116,7 @@ Please reponse the component code which finish the task without any explaination
     return result
 
 
-def create_application_ui(task: str, component_name: str = None) -> (str, str):
+def create_application_ui(task: str, component_name: str = None) -> (str, str, str):
     """
     Convert a given task description into UI components. 
     In the code, user_data will be processed into a string through save_data using JSON.stringify({'data': user_data}) and sent to the backend
@@ -184,8 +233,8 @@ def main(cache, messages, input, files, output_callback):
     chat bot entry function, return the chat bot object, you can use it to store any data, and use it in next run
     @param cache: the return value of last run, you can use it to store any data, and use it in next run
     @param messages: chat messages, list of dict, like [{{'role': 'system', 'content': 'You are a helpful assistant.'}}, {{'role': 'user', 'content': '1 + 1 = ?'}}]
-    @param input: user input, str
-    @param files: user upload files, list of file path, like ['a.txt', 'b.txt']
+    @param input: user chat input for agent application. Or json string for normal application, include user's input and upload files, like '{{"data": {{"input": "1 + 1 = ?", "files": ["a.txt", "b.txt"]}}}}'
+    @param files: user upload files, list of file path, like ['a.txt', 'b.txt']. the parameter is only for agent application, you can ignore it when building a normal application
     @param output_callback: output callback function, like output_callback('2'). you can pass None to output_callback to start a new chat session.
 ```
 
