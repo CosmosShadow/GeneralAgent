@@ -73,6 +73,7 @@ git clone https://github.com/CosmosShadow/GeneralAgent
 cd GeneralAgent
 # Preparation
 cd webui/web/ && npm install && cd ../../
+cd webui/server/server/ts_builder && npm install && cd ../../../../
 # Start the server
 cd webui/server/server/
 uvicorn app:app --host 0.0.0.0 --port 7777

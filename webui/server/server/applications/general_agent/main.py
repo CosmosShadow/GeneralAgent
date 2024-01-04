@@ -63,7 +63,6 @@ Be consistent wherever you use numbers and units. And in agent.run, it is necess
 
     from GeneralAgent import skills
     
-    # key = 'general_agent'
     agent = cache
     if agent is None:
         workspace = './'
@@ -72,12 +71,11 @@ Be consistent wherever you use numbers and units. And in agent.run, it is necess
         agent.model_type = 'smart'
         role_interpreter = RoleInterpreter(role_prompt)
         file_interpreter = FileInterpreter()
-        # python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
+        shell_interperter = ShellInterpreter()
         python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
         python_interpreter.function_tools = [skills.search_functions, skills.scrape_web, skills.google_search, skills.create_image, skills.markdown_to_ppt]
         python_interpreter.agent = agent
-        agent.interpreters = [role_interpreter, python_interpreter, ShellInterpreter()]
-    agent.run(input, output_callback)
+        agent.interpreters = [role_interpreter, python_interpreter, shell_interperter]
+    agent.run(input)
     agent.interpreters[1].save()
-    # skills._set_cache(key, agent)
     return agent

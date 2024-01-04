@@ -39,6 +39,7 @@ class PythonInterpreter(Interpreter):
     function_tools = []
 
     def __init__(self, 
+                 agent = None,
                  serialize_path:str=None, 
                  libs: str=default_libs, 
                  import_code:str=None,
@@ -55,6 +56,7 @@ class PythonInterpreter(Interpreter):
         """
         from GeneralAgent import skills
         self.globals = {}  # global variables shared by all code
+        self.agent = agent
         self.python_libs = libs
         self.import_code = import_code or default_import_code
         self.serialize_path = serialize_path
@@ -120,15 +122,17 @@ class PythonInterpreter(Interpreter):
         code = self.import_code + '\n' + code
         logging.debug(code)
         try:
-            self.agent.run_level += 1
             if self.agent is not None:
-                self.globals['agent'] = self.agent
+                self.agent.run_level += 1
+                if self.agent is not None:
+                    self.globals['agent'] = self.agent
             for fun in self.function_tools:
                 self.globals[fun.__name__] = fun
             result = exec_and_get_last_expression(self.globals, code)
             self.run_wrong_count = 0
-            stop = self.agent.run_level != 1
-            self.agent.python_run_result = result
+            if self.agent is not None:
+                stop = self.agent.run_level != 1
+                self.agent.python_run_result = result
             if 'search_functions(' in code:
                 stop = False
             return str(result), stop
@@ -141,7 +145,8 @@ class PythonInterpreter(Interpreter):
                 raise e
             return error, False
         finally:
-            self.agent.run_level -= 1
+            if self.agent is not None:
+                self.agent.run_level -= 1
 
     def get_variable(self, name):
         if name in self.globals:

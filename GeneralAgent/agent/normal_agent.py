@@ -35,7 +35,7 @@ class NormalAgent(AbsAgent):
         # memory
         # interpreters
         role_interpreter = RoleInterpreter()
-        python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
+        python_interpreter = PythonInterpreter(agent, serialize_path=f'{workspace}/code.bin')
         if retrieve_type == 'embedding':
             retrieve_interperter = EmbeddingRetrieveInterperter(serialize_path=f'{workspace}/read_interperter/')
         else:
@@ -57,7 +57,7 @@ class NormalAgent(AbsAgent):
         """
         agent = cls(workspace)
         role_interpreter = RoleInterpreter()
-        python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
+        python_interpreter = PythonInterpreter(agent, serialize_path=f'{workspace}/code.bin')
         python_interpreter.function_tools = functions
         agent.interpreters = [role_interpreter, python_interpreter, ShellInterpreter()]
         agent.model_type = model_type
@@ -66,16 +66,13 @@ class NormalAgent(AbsAgent):
         return agent
 
     
-    def run(self, input=None, output_callback=default_output_callback, input_for_memory_node_id=-1, return_type=str):
+    def run(self, input=None, return_type=str):
         """
         agent run: parse intput -> get llm messages -> run LLM and parse output
         @input: str, user's new input, None means continue to run where it stopped
-        @input_for_memory_node_id: int, -1 means input is not from memory, None means input new, otherwise input is for memory node. the parameter only works for Stack Agent.
-        @output_callback: function, output_callback(content: str) -> None
+        @return_type: type, return type, default str
         """
         self.is_running = True
-        if self.output_callback is not None:
-            output_callback = self.output_callback
 
         result = ''
         def inner_output(token):
@@ -84,7 +81,7 @@ class NormalAgent(AbsAgent):
                 result += token
             else:
                 result += '\n'
-            output_callback(token)
+            self.output_callback(token)
 
         inner_output(' ')
 

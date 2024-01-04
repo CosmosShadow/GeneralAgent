@@ -1,6 +1,7 @@
 import os
 import shutil
 from GeneralAgent.agent import Agent
+from GeneralAgent.utils import default_output_callback
 
 
 workspace = './data/test_workspace'
@@ -17,17 +18,12 @@ def get_output_callback():
 
 
 def test_math():
-    global result
-    result = ''
     if os.path.exists(workspace): shutil.rmtree(workspace)
     agent = Agent.default(workspace=workspace)
-    agent.run('calculate 0.99 ** 1000', output_callback=get_output_callback())
-    count = 3
-    while count > 0:
-        if '3171' in result:
-            break
-        count -= 1
-        agent.run('OK', output_callback=get_output_callback())
+    agent.output_callback = default_output_callback
+    result = agent.run('calculate 0.99 ** 1000')
+    # print(result)
+    # 4.317124741065786e-05
     assert '3171' in result
 
 def test_write_file():
@@ -104,6 +100,6 @@ def test_functions():
 
 if __name__ == '__main__':
     test_math()
-    test_write_file()
-    test_read_file()
-    test_functions()
+    # test_write_file()
+    # test_read_file()
+    # test_functions()

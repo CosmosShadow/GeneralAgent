@@ -239,7 +239,6 @@ Take a deep breath
 I have no fingers
 I will tip $200
 Do it right and i'll give you a nice doggy treat.
-Reply directly to the content without explaining or asking the user to wait.
 """
     if stream:
         return _llm_inference_with_stream(messages, model_type)
