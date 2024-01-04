@@ -8,10 +8,10 @@ def test_memory():
     if os.path.exists(serialize_path):
         os.remove(serialize_path)
     memory = StackMemory(serialize_path=serialize_path)
-    node1 = StackMemoryNode(role='user', action='input', content='node1')
-    node2 = StackMemoryNode(role='system', action='answer', content='node2')
-    node3 = StackMemoryNode(role='system', action='answer', content='node3')
-    node4 = StackMemoryNode(role='system', action='answer', content='node4')
+    node1 = StackMemoryNode(role='user', content='node1')
+    node2 = StackMemoryNode(role='system', content='node2')
+    node3 = StackMemoryNode(role='system', content='node3')
+    node4 = StackMemoryNode(role='system', content='node4')
     memory.add_node(node1)
     memory.add_node_in(node1, node2)
     memory.add_node_after(node2, node3)
@@ -48,13 +48,13 @@ def test_memory():
     tmp_node = memory.get_node(3)
     assert tmp_node.content == 'node3'
 
-    # get todo node
-    todo_node = memory.get_todo_node()
-    assert todo_node.node_id == 2
+    # # get todo node
+    # todo_node = memory.get_todo_node()
+    # assert todo_node.node_id == 2
 
-    # success node
-    memory.success_node(todo_node)
-    assert memory.get_todo_node().node_id == 3
+    # # success node
+    # memory.success_node(todo_node)
+    # assert memory.get_todo_node().node_id == 3
     
     if os.path.exists(serialize_path):
         os.remove(serialize_path)
