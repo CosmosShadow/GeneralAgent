@@ -8,15 +8,7 @@ def _llm_write_ui_lib(lib_name:str, task:str) -> str:
     from GeneralAgent import skills
     prompt_template = """
 You are a React and Typescript expert.
-
-# Task
-Create a React function component named LibTemplate in tsx language. 
-The component should have the following functionality:
-{{task}}
-Note: 
-1. The component only save data to backend, no need to display data, or result of task.
-2. When uploaded file, should show the file path
-3. No need to ask user set result file name, backend server will use a unique name to save the file.
+You are going to create a UI library for a given task description.
 
 # Import
 Use the following import syntax:
@@ -53,7 +45,9 @@ const LibTemplate = (props: Props) => {
 export default LibTemplate;
 ```
 
-# DEMO 1: Upload a text file, and to translate the text file to another language, default is Chinese, options are Chinese, Japanese, English.
+# DEMO
+Task: Upload a text file, and to translate the text file to another language, default is Chinese, options are Chinese, Japanese, English.
+Reponse:
 ```tsx
 const React = (window as any).React;
 const antd = (window as any).antd;
@@ -101,6 +95,16 @@ const LibTemplate = (props: Props) => {
 
 export default LibTemplate;
 ```
+
+# CONSTRAINTS:
+- Create a React function component named LibTemplate in tsx language. 
+- The component only save data to backend, no need to display data, or result of task.
+- When uploaded file, should show the file path
+- No need to ask user set result file name, backend server will use a unique name to save the file.
+
+# Task
+
+{{task}}
 
 Please reponse the component code which finish the task without any explaination.
 """
