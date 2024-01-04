@@ -1,4 +1,4 @@
-import re, os
+import re, io, os, sys
 import pickle
 import logging
 from jinja2 import Template
@@ -121,6 +121,10 @@ class PythonInterpreter(Interpreter):
     def run_code(self, code):
         code = self.import_code + '\n' + code
         logging.debug(code)
+
+        output = io.StringIO()
+        sys.stdout = output
+
         try:
             if self.agent is not None:
                 self.agent.run_level += 1
@@ -136,6 +140,9 @@ class PythonInterpreter(Interpreter):
                 self.agent.python_run_result = result
             if 'search_functions(' in code:
                 stop = False
+            # If result is None, return the terminal output
+            if result is None:
+                result = output.getvalue()
             return str(result), stop
         except Exception as e:
             logging.exception(e)
@@ -146,6 +153,7 @@ class PythonInterpreter(Interpreter):
                 raise e
             return error, False
         finally:
+            sys.stdout = sys.__stdout__
             if self.agent is not None:
                 self.agent.run_level -= 1
 
