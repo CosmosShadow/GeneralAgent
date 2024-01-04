@@ -1,11 +1,6 @@
 import os
-import pytest
 import shutil
-import asyncio
-from GeneralAgent.agent import NormalAgent
-from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter
-from GeneralAgent.utils import set_logging_level
-set_logging_level()
+from GeneralAgent.agent import Agent
 
 
 workspace = './data/test_workspace'
@@ -21,12 +16,11 @@ def get_output_callback():
     return _output_callback
 
 
-@pytest.mark.asyncio
 def test_math():
     global result
     result = ''
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    agent = NormalAgent.default(workspace=workspace)
+    agent = Agent.default(workspace=workspace)
     agent.run('calculate 0.99 ** 1000', output_callback=get_output_callback())
     count = 3
     while count > 0:
@@ -36,7 +30,6 @@ def test_math():
         agent.run('OK', output_callback=get_output_callback())
     assert '3171' in result
 
-@pytest.mark.asyncio
 def test_write_file():
     global result
     result = ''
@@ -44,7 +37,7 @@ def test_write_file():
     if os.path.exists(target_path):
         os.remove(target_path)
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    agent = NormalAgent.default(workspace=workspace)
+    agent = Agent.default(workspace=workspace)
     agent.model_type = 'smart'
     agent.run('Write the description of Chengdu to the file ./data/a.txt. You shoud provide the description', output_callback=get_output_callback())
     for index in range(2):
@@ -61,7 +54,6 @@ def test_write_file():
     if os.path.exists(target_path):
         os.remove(target_path)
 
-@pytest.mark.asyncio
 def test_read_file():
     global result
     result = ''
@@ -72,7 +64,7 @@ def test_read_file():
     with open(target_path, 'w') as f:
         f.write(content)
     if os.path.exists(workspace): shutil.rmtree(workspace)
-    agent = NormalAgent.default(workspace=workspace)
+    agent = Agent.default(workspace=workspace)
     memory_node_id = agent.run('what is in ./data/b.txt', output_callback=get_output_callback())
     for _ in range(2):
         if 'Mount Qingcheng' in result:
@@ -83,25 +75,6 @@ def test_read_file():
     if os.path.exists(target_path):
         os.remove(target_path)
 
-# @pytest.mark.asyncio
-# def test_functions():
-#     global result
-#     result = ''
-#     if os.path.exists(workspace): shutil.rmtree(workspace)
-#     os.mkdir(workspace)
-#     serialize_path = f'{workspace}/code.bin'
-#     python_interpreter = PythonInterpreter(serialize_path=serialize_path)
-#     from GeneralAgent import skills
-#     python_interpreter.function_tools = [skills.scrape_web]
-#     agent = NormalAgent(workspace=workspace)
-#     agent.interpreters=[RoleInterpreter(), python_interpreter]
-#     agent.run("what's the tiltle of web page https://www.baidu.com ?", output_callback=get_output_callback())
-#     for _ in range(2):
-#         agent.run('OK', output_callback=get_output_callback())
-#     assert '百度' in result
-#     assert os.path.exists(serialize_path)
-#     shutil.rmtree(workspace)
-
 
 def get_weather(city:str):
     """
@@ -111,13 +84,12 @@ def get_weather(city:str):
     print(state)
     return state
 
-@pytest.mark.asyncio
 def test_functions():
     global result
     result = ''
     if os.path.exists(workspace): shutil.rmtree(workspace)
     os.mkdir(workspace)
-    agent = NormalAgent.with_functions([get_weather], workspace=workspace)
+    agent = Agent.with_functions([get_weather], workspace=workspace)
     agent.hide_output_parse = False
     agent.run("what's the weather of Chengdu ?", output_callback=get_output_callback())
     for _ in range(2):
@@ -131,7 +103,7 @@ def test_functions():
 
 
 if __name__ == '__main__':
-    # asyncio.run(test_math())
-    # asyncio.run(test_write_file())
-    # asyncio.run(test_read_file())
-    asyncio.run(test_functions())
+    test_math()
+    test_write_file()
+    test_read_file()
+    test_functions()
