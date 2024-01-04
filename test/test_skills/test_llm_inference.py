@@ -54,7 +54,7 @@ def test_llm_inference_break():
     assert len(result) > 10
 
 if __name__ == '__main__':
-    # test_llm_inference_break()
-    # test_llm_inference()
-    # test_embedding_single()
+    test_llm_inference_break()
+    test_llm_inference()
+    test_embedding_single()
     test_embedding_batch()

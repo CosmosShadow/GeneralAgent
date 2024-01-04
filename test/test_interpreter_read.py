@@ -4,7 +4,7 @@ import asyncio
 from GeneralAgent.interpreter import EmbeddingRetrieveInterperter
 
 
-@pytest.mark.asyncio
+
 def test_read_interpreter():
     import os
     workspace = './data/read_interpreter/'

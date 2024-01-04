@@ -1,8 +1,7 @@
 def test_google_search():
     from GeneralAgent import skills
-    result = skills.google_search('apple inc')
-    import json
-    assert 'apple' in json.dumps(result)
+    result = skills.google_search('apple inc founding time')
+    assert '1976' in result
 
 # def test_wikipedia_search():
 #     from GeneralAgent import skills
@@ -14,11 +13,9 @@ def test_scrape_web():
     from GeneralAgent import skills
     url = 'https://www.baidu.com'
     result = skills.scrape_web(url)
-    title = result[0]
-    assert '百度' in title
+    assert '百度' in result
 
 
 if __name__ == '__main__':
-    # test_search_functions()
-    # test_edit_llm_function()
-    pass
+    test_google_search()
+    test_scrape_web()

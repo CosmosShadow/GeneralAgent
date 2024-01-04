@@ -8,7 +8,7 @@ def test_match():
     assert interpreter.output_match(content)
 
 
-@pytest.mark.asyncio
+
 def test_open_url():
     import platform
     system = platform.system()

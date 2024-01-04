@@ -8,7 +8,7 @@ from GeneralAgent.utils import set_logging_level
 set_logging_level()
 
 
-@pytest.mark.asyncio
+
 def test_read_paper():
     serialize_path = './summary_memory.json'
     if os.path.exists(serialize_path):
