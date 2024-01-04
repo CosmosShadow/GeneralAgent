@@ -1,6 +1,3 @@
-
-
-
 def main(cache, messages, input, files, output_callback):
     from GeneralAgent.agent import Agent
     from GeneralAgent.interpreter import RoleInterpreter, FileInterpreter, PythonInterpreter, ShellInterpreter
