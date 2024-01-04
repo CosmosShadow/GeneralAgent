@@ -51,8 +51,8 @@ def test_edit_llm_function():
 #     skills.install_application(application_id, application_name, description, upload_file='yes')
 
 if __name__ == '__main__':
-    test_edit_normal_function()
+    # test_edit_normal_function()
     # test_application_code_generation()
     # test_install_application()
-    # test_edit_llm_function()
+    test_edit_llm_function()
     # test_search_functions()

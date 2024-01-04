@@ -64,7 +64,7 @@ def get_data_dir():
     data_dir = os.environ.get('DATA_DIR', None)
     if data_dir is None:
         data_dir = os.path.join(os.path.dirname(__file__), '../data/')
-        logging.warning('enviroment DATA_DIR (user data directory) is not set, use default: %s', data_dir)
+        # logging.warning('enviroment DATA_DIR (user data directory) is not set, use default: %s', data_dir)
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
     return data_dir
