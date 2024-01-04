@@ -1,0 +1,36 @@
+# dependencies
+/node_modules
+
+# testing
+/tests
+/coverage
+
+# docs
+/docs
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+/.github
+/demo
+.esdoc.json
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Development folders and files
+public
+src
+scripts
+config
+.travis.yml
+CHANGELOG.md
+README.md
+.eslintignore
+.eslintrc.json
+webpack.config.js
+babel.config.js
