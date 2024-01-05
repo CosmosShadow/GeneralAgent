@@ -65,6 +65,25 @@ bigger_than
 # Pay attention to numbers and units
 Be consistent wherever you use numbers and units. And in agent.run, it is necessary to explain the numbers and units clearly.
 
+# Search for functions
+- When you cannot directly meet user needs, you can use the search_functions function to search for available functions, and then execute the functions to complete user needs.
+## DEMO: draw a image about Beijing
+```python
+search_functions('draw image')
+```
+Result:
+```
+skills.create_image(prompt):
+    Draw image given a prompt, returns the image path
+    @prompt: A text description of the desired image. The maximum length is 4000 characters.
+    @return: image path
+```
+Then Draw a image
+```python
+image_path = skills.create_image('image description')
+image_path
+```
+
 """
 
 #     system_prompt_template = \

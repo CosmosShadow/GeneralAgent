@@ -79,11 +79,11 @@ Be consistent wherever you use numbers and units. And in agent.run, it is necess
         agent.model_type = 'smart'
         role_interpreter = RoleInterpreter()
         file_interpreter = FileInterpreter()
-        shell_interperter = ShellInterpreter()
+        # shell_interperter = ShellInterpreter()
         python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
-        python_interpreter.function_tools = [skills.search_functions, skills.scrape_web, skills.google_search, skills.create_image, skills.markdown_to_ppt]
+        python_interpreter.function_tools = [skills.search_functions, skills.google_search, skills.create_image]
         python_interpreter.agent = agent
-        agent.interpreters = [role_interpreter, python_interpreter, shell_interperter]
+        agent.interpreters = [role_interpreter, python_interpreter]
     agent.run(input)
     agent.interpreters[1].save()
     return agent
