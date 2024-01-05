@@ -77,7 +77,7 @@ Be consistent wherever you use numbers and units. And in agent.run, it is necess
         agent = Agent(workspace)
         agent.output_callback = output_callback
         agent.model_type = 'smart'
-        role_interpreter = RoleInterpreter(role_prompt)
+        role_interpreter = RoleInterpreter()
         file_interpreter = FileInterpreter()
         shell_interperter = ShellInterpreter()
         python_interpreter = PythonInterpreter(serialize_path=f'{workspace}/code.bin')
