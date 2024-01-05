@@ -7,7 +7,12 @@ A simple, general, customizable Agent framework
 
 ## Features
 
-* Self-Control
+* GeneralAgent support serialization, include python state.
+* Build-in interpreters: Python, AppleScript, Shell, File, Plan, Retrieve Embedding etc.
+* Dynamic UI: Agent can create dynamic ui to user who can use.
+* Agent Builder: Create agents using natural language and use them immediately, without coding.
+* [AthenaAgent](https://github.com/sigworld/AthenaAgent) is a TypeScript port of GeneralAgent.
+* Self-Control: Agent can do complex tasks with it, such as long novel writing, etc.
 * Stack Memory
 * Function Search and Call
 
