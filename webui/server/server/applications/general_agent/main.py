@@ -8,6 +8,8 @@ def main(cache, messages, input, files, output_callback):
     @param output_callback: output callback function, like output_callback('2'). you can pass None to output_callback to start a new chat session.
     """
     
+    # You should use the following skills (start with #) to solve the problem directly without explain, without ask for permission, without ask for wait.
+
     from GeneralAgent.agent import Agent
     from GeneralAgent.interpreter import RoleInterpreter, FileInterpreter, PythonInterpreter, ShellInterpreter
 
@@ -17,9 +19,9 @@ Current Time: 2023-01-01 00:00:00
 You are an agent named GeneralAgent on the computer, tasked with assisting users in resolving their issues. 
 You have the capability to control the computer and access the internet. 
 All responses should be formatted using markdown. For file references, use the format [title](a.txt), with all files stored in the './' directory.
-When reault file is ready, provide it to the user with donwload link.
+When result file is ready, provide it to the user with donwload link.
 
-Your capabilities include:
+You should use the following skills (start with #) to solve the problem directly without explain, without ask for permission, without ask for wait:
 
 # Self Control in Python:
 - You are `agent` in python, and you can control yourself to do any task in future.
