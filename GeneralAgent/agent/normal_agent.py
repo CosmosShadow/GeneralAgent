@@ -15,6 +15,11 @@ class NormalAgent(AbsAgent):
         # self.memory = NormalMemory(serialize_path=f'{workspace}/normal_memory.json')
         self.memory = StackMemory(serialize_path=f'{workspace}/normal_memory.json')
 
+    # def save(self):
+    #     for interpreter in self.interpreters:
+    #         if interpreter.__class__.__name__ == 'PythonInterpreter':
+    #             interpreter.save()
+
     @classmethod
     def empty(cls, workspace='./'):
         """
@@ -47,32 +52,39 @@ class NormalAgent(AbsAgent):
         return agent
 
     @classmethod
-    def with_functions(cls, functions, role_prompt=None, workspace = './', model_type='smart'):
+    def with_functions(cls, functions, role_prompt=None, workspace = './', model_type='smart', variables=None):
         """
-        functions: list, [function1, function2, ...]
+        agent with functions
+        @functions: list, [function1, function2, ...]
         @role_prompt: str, role prompt
         @workspace: str, workspace path
-        @import_code: str, import code
-        @libs: str, libs
+        @model_type: str, 'smart', 'normal', or 'long'
+        @variables: dict, embed variables to python interpreter, like {'a': a, 'variable_name': variable_value}, then Agent can use the variables in python interpreter like `variable_name`
         """
         agent = cls(workspace)
         role_interpreter = RoleInterpreter()
         python_interpreter = PythonInterpreter(agent, serialize_path=f'{workspace}/code.bin')
         python_interpreter.function_tools = functions
-        agent.interpreters = [role_interpreter, python_interpreter, ShellInterpreter()]
+        agent.interpreters = [role_interpreter, python_interpreter]
         agent.model_type = model_type
         if role_prompt is not None:
             agent.add_role_prompt(role_prompt)
+        if variables is not None:
+            for key, value in variables.items():
+                python_interpreter.set_variable(key, value)
         return agent
 
-    
-    def run(self, input, return_type=str):
+
+    def run(self, input, return_type=str, output_callback=None):
         """
         agent run: parse intput -> get llm messages -> run LLM and parse output
         @input: str, user's new input, None means continue to run where it stopped
         @return_type: type, return type, default str
         """
         self.is_running = True
+
+        if output_callback is not None:
+            self.output_callback = output_callback
 
         result = ''
         def inner_output(token):

@@ -48,6 +48,8 @@ class AbsAgent(metaclass=abc.ABCMeta):
         """
         self.stop_event.set()
 
+    # def save(self):
+    #     pass
 
     def __init__(self, workspace='./'):
         """

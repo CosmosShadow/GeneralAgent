@@ -56,7 +56,12 @@ print(os.getcwd())
     assert get_python_code(content) == 'import os\nprint(os.getcwd())'
 
 
-def load_functions_with_path(python_code_path):
+def load_functions_with_path(python_code_path) -> (list, str):
+    """
+    Load functions from python file
+    @param python_code_path: the path of python file
+    @return: a list of functions and error message (if any, else None)
+    """
     try:
         import importlib.util
         import inspect
@@ -83,6 +88,27 @@ def load_functions_with_path(python_code_path):
         logging.exception(e)
         return [], str(e)
     
+
+def load_functions_with_directory(python_code_dir) -> list:
+    """
+    Load functions from python directory (recursively)
+    @param python_code_dir: the path of python directory
+    @return: a list of functions
+    """
+    import os
+    total_funs = []
+    for file in os.listdir(python_code_dir):
+        # if file is directory
+        if os.path.isdir(os.path.join(python_code_dir, file)):
+            total_funs += load_functions_with_directory(os.path.join(python_code_dir, file))
+        else:
+            # if file is file
+            if file.endswith('.py') and (not file.startswith('__init__') and not file.startswith('_') and not file == 'main.py'):
+                funcs, error = load_functions_with_path(os.path.join(python_code_dir, file))
+                total_funs += funcs
+    return total_funs
+    
+
 def get_function_signature(func, module:str=None):
     """Returns a description string of function"""
     import inspect

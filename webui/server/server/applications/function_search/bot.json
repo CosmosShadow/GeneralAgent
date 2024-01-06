@@ -1,0 +1,8 @@
+{
+    "id": "function_search",
+    "name": "Function Searcher",
+    "description": "Agent search available functions to solve the problem",
+    "type": "agent",
+    "icon": "icon.png",
+    "upload_file": "yes"
+}

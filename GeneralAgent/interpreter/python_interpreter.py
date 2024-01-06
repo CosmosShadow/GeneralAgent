@@ -143,6 +143,7 @@ class PythonInterpreter(Interpreter):
             # If result is None, return the terminal output
             if result is None:
                 result = output.getvalue()
+            self.save()
             return str(result), stop
         except Exception as e:
             logging.exception(e)
