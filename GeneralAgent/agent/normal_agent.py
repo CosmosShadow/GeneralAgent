@@ -75,16 +75,17 @@ class NormalAgent(AbsAgent):
         return agent
 
 
-    def run(self, input, return_type=str, output_callback=None):
+    def run(self, input, return_type=str, stream_callback=None):
         """
         agent run: parse intput -> get llm messages -> run LLM and parse output
         @input: str, user's new input, None means continue to run where it stopped
         @return_type: type, return type, default str
+        @stream_callback: stream callback function, use for stream output
         """
         self.is_running = True
 
-        if output_callback is not None:
-            self.output_callback = output_callback
+        if stream_callback is not None:
+            self.output_callback = stream_callback
 
         result = ''
         def inner_output(token):

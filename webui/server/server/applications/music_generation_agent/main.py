@@ -6,4 +6,4 @@ def main(cache, messages, input, files, output_callback):
         skills.generate_music
     ]
     agent = Agent.with_functions(functions, role_prompt)
-    agent.run(input, output_callback=output_callback)
+    agent.run(input, stream_callback=output_callback)

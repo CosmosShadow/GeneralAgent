@@ -33,4 +33,4 @@ image_path
     
     agent = Agent.with_functions([tools._search_function], workspace='./', variables={'tools': tools})
     agent.add_role_prompt(role_prompt_append)
-    agent.run(input, output_callback=output_callback)
+    agent.run(input, stream_callback=output_callback)

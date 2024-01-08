@@ -88,14 +88,15 @@ npm run start
 
 **Basic Use**
 
+A Music Generation Agent
+
 ```python
-from GeneralAgent.utils import default_output_callback
 from GeneralAgent.agent import Agent
 from GeneralAgent import skills
 role_prompt = """You are a music creator."""
 functions = [skills.generate_music]
 agent = Agent.with_functions(functions, role_prompt)
-result = agent.run("", output_callback=default_output_callback)
+result = agent.run("Soft piano sound")
 print(result)
 
 # The execution of the python code is completed, and the result is as follows:

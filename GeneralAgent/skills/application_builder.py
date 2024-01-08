@@ -410,7 +410,7 @@ You complete user requirements by writing python code to call the predefined fun
         skills.translate_text
     ]
     agent = Agent.with_functions(functions, role_prompt)
-    agent.run(input, output_callback=output_callback)
+    agent.run(input, stream_callback=output_callback)
 ```python
 
 # There are two function types:

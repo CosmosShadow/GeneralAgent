@@ -90,5 +90,5 @@ image_path
     if agent is None:
         functions = [skills.search_functions, skills.google_search, skills.create_image]
         agent = Agent.with_functions(functions, role_prompt, workspace='./')
-    agent.run(input, output_callback=output_callback)
+    agent.run(input, stream_callback=output_callback)
     return agent
