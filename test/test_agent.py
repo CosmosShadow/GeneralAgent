@@ -3,19 +3,7 @@ import shutil
 from GeneralAgent.agent import Agent
 from GeneralAgent.utils import default_output_callback
 
-
 workspace = './data/test_workspace'
-
-result = ''
-
-def get_output_callback():
-    def _output_callback(token):
-        if token is not None:
-            global result
-            result += token
-            print(token, end='', flush=True)
-    return _output_callback
-
 
 def test_math():
     if os.path.exists(workspace): shutil.rmtree(workspace)

@@ -27,12 +27,17 @@ class PythonInterpreter(Interpreter):
 
     python_prompt_template = """
 # Run python
-* the code will be executed automatically when the code block is closed
-* all global variables, functions will be saved, and can be used in the next run
-* Available libraries: {{python_libs}}
-* The following functions can be used in code (already implemented and imported for you):
+- the code will be executed automatically when the code block is closed
+- all global variables, functions will be saved, and can be used in the next run
+- Available libraries: {{python_libs}}
+- The following functions can be used in code (already implemented and imported for you):
 ```
 {{python_funcs}}
+```
+- Example:
+```python
+result = 1 + 1
+result
 ```
 """
 
