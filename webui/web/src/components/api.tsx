@@ -128,7 +128,7 @@ export const get_application_icon_src = (bot: Bot|null) => {
   }
 
   if (bot && bot.icon_url) {
-    let icon_url = `${HTTP_HOST}/system/file/${bot.icon_url}`
+    let icon_url = `${HTTP_HOST}/system/file/?path=${bot.icon_url}`
     return icon_url
   } else {
     return default_application_avator
@@ -136,7 +136,7 @@ export const get_application_icon_src = (bot: Bot|null) => {
 }
 
 export const get_system_file = (file_path:string) => {
-  return `${HTTP_HOST}/system/file/${file_path}`
+  return `${HTTP_HOST}/system/file/?path=${file_path}`
 }
 
 export const get_public_image_src = (image_url: string) => {

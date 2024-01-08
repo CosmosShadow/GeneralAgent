@@ -430,13 +430,21 @@ async def user_messages(data:MessagesInput):
     # print(messages)
     return messages
 
-@app.get("/system/file/{path:path}")
+# @app.get("/system/file/{path:path}")
+# async def get_file(path: str):
+#     print(path)
+#     if os.path.exists(path):
+#         return FileResponse(path)
+#     else:
+#         raise HTTPException(status_code=404, detail="File not found")
+
+@app.get("/system/file/")
 async def get_file(path: str):
-    if os.path.exists(path):
-        return FileResponse(path)
+    decoded_path = os.path.normpath(path)  # 标准化路径，防止安全问题
+    if os.path.exists(decoded_path):
+        return FileResponse(decoded_path)
     else:
         raise HTTPException(status_code=404, detail="File not found")
-
 
 @app.get("/file/download/{bot_id}/{chat_id}/{file_name:path}")
 async def download_file(bot_id: str, chat_id: str, file_name: str = Path(..., convert_underscores=False)):
