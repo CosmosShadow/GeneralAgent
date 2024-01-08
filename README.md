@@ -9,12 +9,10 @@ A simple, general, customizable Agent framework
 
 * GeneralAgent support serialization, include python state.
 * Build-in interpreters: Python, AppleScript, Shell, File, Plan, Retrieve Embedding etc.
-* Dynamic UI: Agent can create dynamic ui to user who can use.
 * Agent Builder: Create agents using natural language and use them immediately, without coding.
+* Self-Control & Stack Memory: GeneralAgent can control itself and has a stack memory.
+* Function Search and Use: search from thousands of functions and use them.
 * [AthenaAgent](https://github.com/sigworld/AthenaAgent) is a TypeScript port of GeneralAgent.
-* Self-Control: Agent can do complex tasks with it, such as long novel writing, etc.
-* Stack Memory
-* Function Search and Call
 
 ## Architecture
 
@@ -25,18 +23,22 @@ A simple, general, customizable Agent framework
 
 ## Usage
 
+### Set Enviroment
+
+```bash
+wget https://github.com/CosmosShadow/GeneralAgent/blob/main/.env.example
+cp .env.example .env
+vim .env
+# Then configure environment variables in the .env file.
+# OPENAI_API_KEY is necessary.
+# SERPER_API_KEY is necessary for google search.
+```
+
 ### docker
 
 ```bash
 # pull docker
 docker pull cosmosshadow/general-agent
-
-# make .env
-# download .env.example and copy to .env, then configure environment variables in the .env file, such as OPENAI_API_KEY, etc.
-wget https://github.com/CosmosShadow/GeneralAgent/blob/main/.env.example
-cp .env.example .env
-vim .env
-# Configure environment variables in the .env file, such as OPENAI_API_KEY, etc.
 
 # run
 docker run \
@@ -60,43 +62,57 @@ docker run \
 pip install GeneralAgent
 ```
 
-#### Set environment variables
-
-```bash
-# download .env.example and copy to .env, then configure environment variables in the .env file, such as OPENAI_API_KEY, etc.
-wget https://github.com/CosmosShadow/GeneralAgent/blob/main/.env.example
-cp .env.example .env
-vim .env
-
-export $(grep -v '^#' .env | sed 's/^export //g' | xargs)
-```
-
 #### WebUI
 
 ```bash
+# export Enviroment Variable in .env
+export $(grep -v '^#' .env | sed 's/^export //g' | xargs)
+
 git clone https://github.com/CosmosShadow/GeneralAgent
 cd GeneralAgent
-# Preparation
+
+# Web npm install
 cd webui/web/ && npm install && cd ../../
 cd webui/server/server/ts_builder && npm install && cd ../../../../
-# Start the server
+
+# Start Server
 cd webui/server/server/
 uvicorn app:app --host 0.0.0.0 --port 7777
-# Start the web service
+
+# Start Web
 cd webui/web
 npm run start
 ```
 
-
-
 #### Python usage
 
-Please refer to the code for usage
+**Basic Use**
 
-* [examples](examples)
-* [webui/server/server/applications](webui/server/server/applications)
+```python
+from GeneralAgent.utils import default_output_callback
+from GeneralAgent.agent import Agent
+from GeneralAgent import skills
+role_prompt = """You are a music creator."""
+functions = [skills.generate_music]
+agent = Agent.with_functions(functions, role_prompt)
+result = agent.run("", output_callback=default_output_callback)
+print(result)
 
+# The execution of the python code is completed, and the result is as follows:
+# ff4bc8c264cf.wav
+# The music has been generated. You can download the audio file from the following link:
+# [Download the music](./ff4bc8c264cf.wav)
 
+```
+
+**More Examples**
+
+* Agent Builder: [webui/server/server/applications/agent_builder](webui/server/server/applications/agent_builder)
+* File Translate (created by Agent Builder): [webui/server/server/applications/file_translate](webui/server/server/applications/file_translate)
+* Image Creator (created by Agent Builder): [webui/server/server/applications/image_creator](webui/server/server/applications/image_creator)
+* Music Generation Agent (created by Agent Builder): [webui/server/server/applications/music_generation_agent](webui/server/server/applications/music_generation_agent)
+* General Agent: [webui/server/server/applications/general_agent](webui/server/server/applications/general_agent)
+* Function Search: [webui/server/server/applications/function_search](webui/server/server/applications/function_search)
 
 ## Development
 
