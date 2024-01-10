@@ -15,14 +15,14 @@ def test_bot_list():
 
 def test_file():
     path = os.path.join(os.path.dirname(__file__), '../server/applications/hello/hello.jpg')
-    url = HPPT_HOST + '/system/file/' + path
+    url = HPPT_HOST + '/system/file/?path=' + path
     # 获取图片
     r = requests.get(url)
     assert r.status_code == 200
     assert r.headers['Content-Type'] == 'image/jpeg'
     # 获取不存在的图片
     path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../applications/hello/hello1.jpg'))
-    url = HPPT_HOST + '/system/file/' + path
+    url = HPPT_HOST + '/system/file/?path=' + path
     r = requests.get(url)
     assert r.status_code == 404
 

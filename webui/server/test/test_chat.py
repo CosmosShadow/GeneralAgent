@@ -42,20 +42,21 @@ class Message():
         }
         return json.dumps(data)
 
+
 @pytest.mark.asyncio
-def test_user_chat():
+async def test_user_chat():
     bot_id = 'hello'
     clear_bot(bot_id)
     ws_url = WS_HOST + "/ws/user/"
-    with websockets.connect(ws_url) as ws:
+    async with websockets.connect(ws_url) as ws:
         # 发送消息
         msg = '1 + 1 = ?'
         message = Message(bot_id=bot_id, msg=msg)
-        ws.send(message.to_text())
+        await ws.send(message.to_text())
         logging.debug('send message success')
         # 接收消息，
         # 第一条: 发送成功的消息
-        res = ws.recv()
+        res = await ws.recv()
         message: Message = Message(**json.loads(res)['data'])
         logging.debug(message)
         logging.debug(message)
@@ -65,7 +66,7 @@ def test_user_chat():
         result = ''
         msg_id = None
         while True:
-            res = ws.recv()
+            res = await ws.recv()
             obj = json.loads(res)
             if obj['type'] == 'message':
                 message = Message(**obj['data'])
