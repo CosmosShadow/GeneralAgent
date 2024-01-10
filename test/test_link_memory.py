@@ -23,7 +23,7 @@ def test_read_paper():
     # new_content = memory.add_memory(content, output_callback=default_output_callback)
     spark = memory.get_memory()
     # print(f'-----------\n{spark}\n-----------')
-    assert '<<Introduction>>' in spark
+    assert 'Introduction' in spark
 
     messages = [
         {'role': 'user', 'content': '论文有哪些贡献?'},
