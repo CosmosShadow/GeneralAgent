@@ -14,11 +14,12 @@ A simple, general, customizable Agent framework
 * Function Search and Use: search from thousands of functions and use them.
 * [AthenaAgent](https://github.com/sigworld/AthenaAgent) is a TypeScript port of GeneralAgent.
 
-## Architecture
 
-**GeneralAgent**
 
-![Architecture](./docs/images/Architecture_2023.11.15.png)
+## DEMO
+
+![DEMO](./docs/images/general_agent_2024.01.16.png)
+
 
 
 ## Usage

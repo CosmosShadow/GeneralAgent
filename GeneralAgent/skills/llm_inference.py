@@ -166,7 +166,7 @@ def _md5(obj):
 def _get_llm_model(messages, model_type):
     import os
     from GeneralAgent import skills
-    assert model_type in ['normal', 'smart', 'long']
+    assert model_type in ['normal', 'smart', 'long', 'vision']
     if model_type == 'normal' and skills.messages_token_count(messages) > 3000:
         model_type = 'long'
     api_type = os.environ.get('LLM_SOURCE', 'OPENAI')
