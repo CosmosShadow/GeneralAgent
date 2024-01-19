@@ -2,9 +2,10 @@
 
 # pip
 poetry build -f sdist
-poetry publish -u lichen -p $PYPI_PASSWORD
+# 配置token: poetry config pypi-token.pypi pypi-token-xxxx
+poetry publish
 
 # docker
 cd webui/web && npm run build && cd ../../
-docker buildx build --platform linux/amd64,linux/arm64 -f ./docker/Dockerfile -t cosmosshadow/general-agent:0.1.0 . --push
+docker buildx build --platform linux/amd64,linux/arm64 -f ./docker/Dockerfile -t cosmosshadow/general-agent:0.2.0 . --push
 docker buildx build --platform linux/amd64,linux/arm64 -f ./docker/Dockerfile -t cosmosshadow/general-agent:latest . --push
