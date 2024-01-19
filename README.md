@@ -4,13 +4,12 @@
 A simple, general, customizable Agent framework
 </p>
 
-
 ## Features
 
 * GeneralAgent support serialization, include python state.
 * Build-in interpreters: Python, AppleScript, Shell, File, Plan, Retrieve Embedding etc.
 * Agent Builder: Create agents using natural language and use them immediately, without coding.
-* Self-Control & Stack Memory: GeneralAgent can control itself and has a stack memory.
+* Self-Control & Stack Memory: GeneralAgent can control itself and has a stack memory. More detail in [paper](./docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf)
 * Function Search and Use: search from thousands of functions and use them.
 * [AthenaAgent](https://github.com/sigworld/AthenaAgent) is a TypeScript port of GeneralAgent.
 
@@ -127,6 +126,14 @@ print(result)
 The intended purpose and licensing of GeneralAgent is solely for research use.
 
 The source code is licensed under Apache 2.0.
+
+
+
+## Paper
+
+[General Agent: Self-Call and Stack Memory](./docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf)
+
+
 
 ## Join us
 
