@@ -32,10 +32,10 @@ def _load_bot_metadata(bot_dir):
     if os.path.exists(bot_json_path):
         with open(bot_json_path, 'r', encoding='utf-8') as f:
             bot_json = json.load(f)
-            if 'icon' in bot_json:
-                bot_json['icon_url'] = os.path.join(bot_dir, bot_json['icon'])
-            if 'js_path' in bot_json:
-                bot_json['js_path'] = os.path.join(bot_dir, bot_json['js_path'])
+            # if 'icon' in bot_json:
+            #     bot_json['icon_url'] = os.path.join(bot_dir, bot_json['icon'])
+            # if 'js_path' in bot_json:
+            #     bot_json['js_path'] = os.path.join(bot_dir, bot_json['js_path'])
             bot_json['nickname'] = bot_json['name']
             return bot_json
     return None

@@ -1,8 +1,18 @@
 <h1 align="center">GeneralAgent: From LLM to Agent</h1>
 
 <p align='center'>
-A simple, general, customizable Agent framework
+GeneralAgent can control itself and use stack memory, to finish complex tasks automatically.
 </p>
+
+**Self-Call**
+
+![DEMO](./docs/images/self_call.png)
+
+**Stack Memory**
+
+![DEMO](./docs/images/stack_memory.png)
+
+
 
 ## Features
 
