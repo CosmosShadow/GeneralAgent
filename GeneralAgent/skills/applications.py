@@ -68,6 +68,19 @@ def get_application_module(bot_id):
         code_path = os.path.join(remote_dir, f"{bot_id}/main.py")
     return _load_application(code_path)
 
+def get_application_dir(bot_id):
+    """
+    get application dir by bot id
+    """
+    import os
+    from GeneralAgent.utils import get_applications_dir
+    local_dir = _get_local_applications_dir()
+    remote_dir = get_applications_dir()
+    code_dir = os.path.join(local_dir, f"{bot_id}")
+    if not os.path.exists(code_dir):
+        code_dir = os.path.join(remote_dir, f"{bot_id}")
+    return code_dir
+
 
 def _load_application(code_path):
     """
