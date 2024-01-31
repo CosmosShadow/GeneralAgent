@@ -4,6 +4,7 @@ import logging
 from jinja2 import Template
 from .interpreter import Interpreter
 from GeneralAgent.utils import confirm_to_run
+from functools import partial
 
 default_import_code = """
 import os, sys, math, time
@@ -136,7 +137,12 @@ result
                 if self.agent is not None:
                     self.globals['agent'] = self.agent
             for fun in self.function_tools:
-                self.globals[fun.__name__] = fun
+                # partial function default is remote function
+                if isinstance(fun, partial):
+                    name = fun.args[0]
+                else:
+                    name = fun.__name
+                self.globals[name] = fun
             result = exec_and_get_last_expression(self.globals, code)
             self.run_wrong_count = 0
             stop = False
