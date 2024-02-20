@@ -84,6 +84,9 @@ def get_applications_data_dir():
     return applications_dir
 
 def get_functions_dir():
+    FUNCTION_DIR = os.environ.get('FUNCTION_DIR', None)
+    if FUNCTION_DIR is not None and os.path.exists(FUNCTION_DIR):
+        return FUNCTION_DIR
     data_dir = get_data_dir()
     functions_dir = os.path.join(data_dir, 'functions')
     if not os.path.exists(functions_dir):
