@@ -18,7 +18,10 @@ class Skills:
     def _skill_consume(self, method_name, amount, money_type='dollar'):
         assert money_type in ['dollar', 'rmb']
         if self.skill_consume is not None:
-            self.skill_consume(method_name, amount, money_type)
+            try:
+                self.skill_consume(method_name, amount, money_type)
+            except Exception as e:
+                logging.exception(e)
         else:
             logging.warn('Skill consume function not found')
     
