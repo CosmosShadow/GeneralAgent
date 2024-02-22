@@ -1,5 +1,6 @@
 # 单列
 import os
+import logging
 
 class Skills:
     __instance = None
@@ -13,6 +14,13 @@ class Skills:
         if not Skills.__instance:
             Skills.__instance = Skills(*args, **kwargs)
         return Skills.__instance
+    
+    def _skill_consume(self, method_name, amount, money_type='dollar'):
+        assert money_type in ['dollar', 'rmb']
+        if self.skill_consume is not None:
+            self.skill_consume(method_name, amount, money_type)
+        else:
+            logging.warn('Skill consume function not found')
     
     def __setattr__(self, name, value):
         if name.startswith('_'):
