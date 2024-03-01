@@ -21,7 +21,6 @@ class Skills:
             self._local_skill_consume(method_name, amount, money_type)
         except Exception as e:
             logging.exception(e)
-        else:
             logging.warn('Skill consume function not found')
     
     def __setattr__(self, name, value):
