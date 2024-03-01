@@ -111,17 +111,22 @@ def load_functions_with_directory(python_code_dir) -> list:
 
 def get_function_signature(func, module:str=None):
     """Returns a description string of function"""
-    import inspect
-    sig = inspect.signature(func)
-    sig_str = str(sig)
-    desc = f"{func.__name__}{sig_str}"
-    if func.__doc__:
-        desc += ': ' + func.__doc__.strip()
-    if module is not None:
-        desc = f'{module}.{desc}'
-    if inspect.iscoroutinefunction(func):
-        desc = "" + desc
-    return desc
+    try:
+        import inspect
+        sig = inspect.signature(func)
+        sig_str = str(sig)
+        desc = f"{func.__name__}{sig_str}"
+        if func.__doc__:
+            desc += ': ' + func.__doc__.strip()
+        if module is not None:
+            desc = f'{module}.{desc}'
+        if inspect.iscoroutinefunction(func):
+            desc = "" + desc
+        return desc
+    except Exception as e:
+        import logging
+        logging.exception(e)
+        return ''
 
 
 def python_line_is_variable_expression(line):
