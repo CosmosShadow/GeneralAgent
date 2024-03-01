@@ -77,7 +77,7 @@ class Skills:
         """
         Search functions that may help to solve the task.
         """
-        print('-'*100)
+        # print('-'*100)
         from .llm_inference import search_similar_texts
         signatures = self._all_function_signatures()
         # print(signatures)
