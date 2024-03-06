@@ -190,7 +190,8 @@ class NormalAgent(AbsAgent):
                         result = ''
                         if not self.hide_output_parse or is_stop:
                             output_callback(None)
-                            output_callback('\n' + output + '\n')
+                            output_callback('```output\n' + output + '\n```\n')
+                            output_callback(None)
                         is_break = True
                         break
                 if is_break:
