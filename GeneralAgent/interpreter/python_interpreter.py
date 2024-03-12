@@ -141,7 +141,7 @@ result
                 if isinstance(fun, partial):
                     name = fun.args[0]
                 else:
-                    name = fun.__name
+                    name = fun.__name__
                 self.globals[name] = fun
             result = exec_and_get_last_expression(self.globals, code)
             self.run_wrong_count = 0
