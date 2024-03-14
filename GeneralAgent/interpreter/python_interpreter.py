@@ -29,7 +29,7 @@ class PythonInterpreter(Interpreter):
     python_prompt_template = """
 # Run python
 - the code will be executed automatically when the code block is closed
-- all global variables, functions will be saved, and can be used in the next run
+All variables and functions that can be serialized can be used later. But try to re-import the libraries you need to use every time you code.
 - Available libraries: {{python_libs}}
 - The following functions can be used in code (already implemented and imported for you):
 ```

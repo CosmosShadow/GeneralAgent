@@ -43,8 +43,19 @@ print(a)
 # 11
 # python runs result:
 # run successfully
+    
+def test_run_code():
+    code = """
+def test():
+    return "hello world"
+test()
+"""
+    interpreter = PythonInterpreter()
+    result, is_stop = interpreter.run_code(code)
+    print(result)
 
 
 if __name__ == '__main__':
-    test_python_interpreter()
-    test_stack_code()
+    # test_python_interpreter()
+    # test_stack_code()
+    test_run_code()
