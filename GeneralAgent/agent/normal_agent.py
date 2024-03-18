@@ -52,17 +52,21 @@ class NormalAgent(AbsAgent):
         return agent
 
     @classmethod
-    def with_functions(cls, functions, role_prompt=None, workspace = './', model_type='smart', variables=None):
+    def with_functions(cls, functions, system_prompt=None, role_prompt=None, workspace = './', model_type='smart', variables=None):
         """
         agent with functions
         @functions: list, [function1, function2, ...]
+        @system_prompt: str, system prompt
         @role_prompt: str, role prompt
         @workspace: str, workspace path
         @model_type: str, 'smart', 'normal', or 'long'
         @variables: dict, embed variables to python interpreter, like {'a': a, 'variable_name': variable_value}, then Agent can use the variables in python interpreter like `variable_name`
         """
         agent = cls(workspace)
-        role_interpreter = RoleInterpreter()
+        if system_prompt is not None:
+            role_interpreter = RoleInterpreter()
+        else:
+            role_interpreter = RoleInterpreter(system_prompt)
         python_interpreter = PythonInterpreter(agent, serialize_path=f'{workspace}/code.bin')
         python_interpreter.function_tools = functions
         agent.interpreters = [role_interpreter, python_interpreter]
