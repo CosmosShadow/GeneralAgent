@@ -11,6 +11,8 @@ from .role_interpreter import RoleInterpreter
 from .embedding_retrieve_interpreter import EmbeddingRetrieveInterperter
 from .link_retrieve_interpreter import LinkRetrieveInterperter
 
+from .knowlege_interpreter import KnowledgeInterperter
+
 # output
 from .applescript_interpreter import AppleScriptInterpreter
 from .file_interpreter import FileInterpreter

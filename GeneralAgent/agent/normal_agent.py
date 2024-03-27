@@ -3,7 +3,7 @@ import logging
 from GeneralAgent.utils import default_get_input, default_output_callback
 from GeneralAgent.memory import NormalMemory, StackMemory
 from GeneralAgent.interpreter import Interpreter
-from GeneralAgent.interpreter import EmbeddingRetrieveInterperter, LinkRetrieveInterperter
+from GeneralAgent.interpreter import EmbeddingRetrieveInterperter, LinkRetrieveInterperter, KnowledgeInterperter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, FileInterpreter
 from .abs_agent import AbsAgent
 
@@ -52,24 +52,38 @@ class NormalAgent(AbsAgent):
         return agent
 
     @classmethod
-    def with_functions(cls, functions, system_prompt=None, role_prompt=None, workspace = './', model_type='smart', variables=None):
+    def with_functions(
+        cls,
+        functions,
+        system_prompt=None,
+        role_prompt=None,
+        self_control=False,
+        search_functions=False,
+        workspace = './',
+        model_type='smart',
+        variables=None,
+        knowledge_query_function=None,
+        ):
         """
         agent with functions
         @functions: list, [function1, function2, ...]
-        @system_prompt: str, system prompt
-        @role_prompt: str, role prompt
+        @system_prompt: str, system prompt，完全替换默认的system_prompt，且这时候 self_control & search_functions无效
+        @role_prompt: str, role prompt，在system_prompt的后面添加的prompt
+        @self_control: bool, 是否开启自控
+        @search_functions: bool, 是否开启搜索函数
         @workspace: str, workspace path
         @model_type: str, 'smart', 'normal', or 'long'
         @variables: dict, embed variables to python interpreter, like {'a': a, 'variable_name': variable_value}, then Agent can use the variables in python interpreter like `variable_name`
         """
         agent = cls(workspace)
-        if system_prompt is not None:
-            role_interpreter = RoleInterpreter()
-        else:
-            role_interpreter = RoleInterpreter(system_prompt)
+        role_interpreter = RoleInterpreter(system_prompt=system_prompt, self_control=self_control, search_functions=search_functions)
         python_interpreter = PythonInterpreter(agent, serialize_path=f'{workspace}/code.bin')
         python_interpreter.function_tools = functions
-        agent.interpreters = [role_interpreter, python_interpreter]
+        interpreter_list = [role_interpreter, python_interpreter]
+        if knowledge_query_function is not None:
+            knowledge_interpreter = KnowledgeInterperter(knowledge_query_function)
+            interpreter_list.append(knowledge_interpreter)
+        agent.interpreters = interpreter_list
         agent.model_type = model_type
         if role_prompt is not None:
             agent.add_role_prompt(role_prompt)
