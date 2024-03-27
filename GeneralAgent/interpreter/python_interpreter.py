@@ -29,7 +29,7 @@ class PythonInterpreter(Interpreter):
     python_prompt_template = """
 # Run python
 - the code will be executed automatically when the code block is closed
-All variables and functions that can be serialized can be used later. But try to re-import the libraries you need to use every time you code.
+- Every time you output code, you need to reimport the required library. Each execution only shares variables and functions, without including libraries.
 - Available libraries: {{python_libs}}
 - The following functions can be used in code (already implemented and imported for you):
 ```
