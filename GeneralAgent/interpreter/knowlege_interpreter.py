@@ -15,7 +15,7 @@ class KnowledgeInterperter(Interpreter):
         if len(messages) == 0:
             return ''
         else:
-            input = messages[-1]
+            input = messages[-1]['content']
             results = self.query_function(input)
             while len(''.join(results)) > 14 * 1000:
                 results.pop()
