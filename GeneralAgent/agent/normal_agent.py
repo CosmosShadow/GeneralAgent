@@ -63,6 +63,7 @@ class NormalAgent(AbsAgent):
         model_type='smart',
         variables=None,
         knowledge_query_function=None,
+        continue_run=True,
         ):
         """
         agent with functions
@@ -74,6 +75,8 @@ class NormalAgent(AbsAgent):
         @workspace: str, workspace path
         @model_type: str, 'smart', 'normal', or 'long'
         @variables: dict, embed variables to python interpreter, like {'a': a, 'variable_name': variable_value}, then Agent can use the variables in python interpreter like `variable_name`
+        @knowledge_query_function: function, knowledge query function
+        @continue_run: bool, 是否自动继续执行。Agent在任务没有完成时，是否自动执行。默认为True
         """
         agent = cls(workspace)
         role_interpreter = RoleInterpreter(system_prompt=system_prompt, self_control=self_control, search_functions=search_functions)
@@ -90,20 +93,35 @@ class NormalAgent(AbsAgent):
         if variables is not None:
             for key, value in variables.items():
                 python_interpreter.set_variable(key, value)
+        agent.continue_run = continue_run
         return agent
 
-
     def run(self, input, return_type=str, stream_callback=None):
+        import os
+        from GeneralAgent import skills
+        if stream_callback is not None:
+            self.output_callback = stream_callback
+        result = self._run(input, return_type)
+        if self.continue_run and self.run_level == 0:
+            # 判断是否继续执行
+            messages = self.memory.get_messages()
+            messages = skills.cut_messages(messages, 2*1000)
+            messages += [{'role': 'system', 'content': '当前任务是否完成? response "yes" or "no". 如果你尝试了两次，但是没有结果，一样表示完成，输出"yes"。不要解释，请只回复, yes或者no'}]
+            response = skills.llm_inference(messages, model_type='normal', stream=False)
+            if os.environ.get('RUN_MODE', None) == 'dev':
+                self.output_callback('任务是否完成？' + response)
+            if 'no' in response.lower():
+                return self.run('', return_type)
+        else:
+            return result
+
+    def _run(self, input, return_type=str):
         """
         agent run: parse intput -> get llm messages -> run LLM and parse output
         @input: str, user's new input, None means continue to run where it stopped
         @return_type: type, return type, default str
-        @stream_callback: stream callback function, use for stream output
         """
         self.is_running = True
-
-        if stream_callback is not None:
-            self.output_callback = stream_callback
 
         result = ''
         def inner_output(token):
@@ -203,8 +221,8 @@ class NormalAgent(AbsAgent):
                             interpreter.outptu_parse_done_recall()
                         if self.python_run_result is not None:
                             output = output.strip()
-                            if len(output) > 5000:
-                                output = output[:5000] + '...'
+                            if len(output) > 50000:
+                                output = output[:50000] + '...'
                         self.memory.pop_stack()
                         message_id = self.memory.append_message('assistant', '\n' + output + '\n', message_id=message_id)
                         result = ''

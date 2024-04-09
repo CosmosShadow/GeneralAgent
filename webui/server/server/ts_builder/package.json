@@ -78,11 +78,11 @@
     ]
   },
   "dependencies": {
-    "antd": "5.5.2",
+    "antd": "5.11.0",
     "react": "^18.2.0"
   },
   "peerDependencies": {
-    "antd": "5.5.2",
+    "antd": "5.11.0",
     "react": "^18.2.0"
   }
 }

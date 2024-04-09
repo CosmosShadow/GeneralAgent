@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "GeneralAgent"
-version = "0.2.21"
+version = "0.2.23"
 description = "General Agent: From LLM to Agent"
 authors = ["Chen Li <lichenarthurdata@gmail.com>"]
 license = "Apache 2.0"

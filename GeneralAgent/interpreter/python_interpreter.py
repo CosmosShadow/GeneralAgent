@@ -28,6 +28,7 @@ class PythonInterpreter(Interpreter):
 
     python_prompt_template = """
 # Run python
+- skills has been imported by "from GeneralAgent import skills"
 - the code will be executed automatically when the code block is closed
 - Every time you output code, you need to reimport the required library. Each execution only shares variables and functions, without including libraries.
 - Available libraries: {{python_libs}}

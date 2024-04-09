@@ -24,6 +24,7 @@ class AbsAgent(metaclass=abc.ABCMeta):
     hide_output_parse = False
     # chat messages limit, default None means no limit
     chat_messages_limit = None
+    continue_run = True
 
     def add_role_prompt(self, prompt):
         """
