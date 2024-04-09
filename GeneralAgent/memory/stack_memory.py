@@ -56,6 +56,7 @@ class StackMemory:
         # save current node
         self.db.table('current_node').truncate()
         self.db.table('current_node').insert({'id': current_node.node_id})
+        # 同步数据库
 
     def new_node_id(self):
         return max(self.spark_nodes.keys()) + 1

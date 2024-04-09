@@ -108,10 +108,12 @@ class NormalAgent(AbsAgent):
             messages = skills.cut_messages(messages, 2*1000)
             messages += [{'role': 'system', 'content': '当前任务是否完成? response "yes" or "no". 如果你尝试了两次，但是没有结果，一样表示完成，输出"yes"。不要解释，请只回复, yes或者no'}]
             response = skills.llm_inference(messages, model_type='normal', stream=False)
-            # if os.environ.get('RUN_MODE', None) == 'dev':
-            #     self.output_callback('任务是否完成？' + response)
+            if os.environ.get('RUN_MODE', None) == 'dev':
+                self.output_callback('任务是否完成？' + response)
             if 'no' in response.lower():
-                return self.run('', return_type)
+                return self.run('ok', return_type)
+            else:
+                return result
         else:
             return result
 
