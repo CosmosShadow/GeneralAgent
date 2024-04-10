@@ -106,11 +106,12 @@ class NormalAgent(AbsAgent):
             # 判断是否继续执行
             messages = self.memory.get_messages()
             messages = skills.cut_messages(messages, 2*1000)
-            messages += [{'role': 'system', 'content': '当前任务是否完成? response "yes" or "no". 如果你尝试了两次，但是没有结果，一样表示完成，输出"yes"。不要解释，请只回复, yes或者no'}]
+            the_prompt = "你是否继续输出？yes表示继续输出，no表示我回复。请回复yes或no，不用解释。"
+            messages += [{'role': 'system', 'content': the_prompt}]
             response = skills.llm_inference(messages, model_type='normal', stream=False)
             if os.environ.get('RUN_MODE', None) == 'dev':
-                self.output_callback('任务是否完成？' + response)
-            if 'no' in response.lower():
+                self.output_callback('继续执行: ' + response)
+            if 'yes' in response.lower():
                 return self.run('ok', return_type)
             else:
                 return result
