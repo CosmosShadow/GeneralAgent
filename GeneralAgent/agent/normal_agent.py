@@ -57,7 +57,7 @@ class NormalAgent(AbsAgent):
         functions,
         system_prompt=None,
         role_prompt=None,
-        self_control=False,
+        self_control=True,
         search_functions=False,
         workspace = './',
         model_type='smart',

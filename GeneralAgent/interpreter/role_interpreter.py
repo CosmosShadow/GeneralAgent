@@ -126,7 +126,7 @@ image_path
 ```
 """
 
-    def __init__(self, system_prompt=None, self_control=False, search_functions=False) -> None:
+    def __init__(self, system_prompt=None, self_control=True, search_functions=False) -> None:
         self.os_version = get_os_version()
         self.system_prompt = system_prompt
         self.slef_control = self_control
