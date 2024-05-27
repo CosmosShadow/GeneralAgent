@@ -109,8 +109,8 @@ class NormalAgent(AbsAgent):
             the_prompt = "你是否继续输出？yes表示继续输出，no表示我回复。请回复yes或no，不用解释。"
             messages += [{'role': 'system', 'content': the_prompt}]
             response = skills.llm_inference(messages, model_type='normal', stream=False)
-            if os.environ.get('RUN_MODE', None) == 'dev':
-                self.output_callback('继续执行: ' + response)
+            # if os.environ.get('RUN_MODE', None) == 'dev':
+            #     self.output_callback('继续执行: ' + response)
             if 'yes' in response.lower():
                 return self.run('ok', return_type)
             else:
