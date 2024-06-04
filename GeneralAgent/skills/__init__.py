@@ -90,17 +90,11 @@ class Skills:
             return results
         else:
             return '\n'.join(results)
-    
+
     def _all_function_signatures(self):
         from .python_envs import get_function_signature
         locals = [get_function_signature(fun, 'skills') for fun in self._local_funs.values() if not fun.__name__.startswith('test_')]
         remotes = [get_function_signature(fun, 'skills') for fun in self._remote_funs.values() if not fun.__name__.startswith('test_')]
         return locals + remotes
-    
-    def _set_cache(self, key, value):
-        self._global_cache_dict[key] = value
-
-    def _get_cache(self, key):
-        return self._global_cache_dict.get(key, None)
 
 skills = Skills._instance()
