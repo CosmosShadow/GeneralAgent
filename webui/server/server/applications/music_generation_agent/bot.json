@@ -1,8 +1,0 @@
-{
-    "id": "music_generation_agent",
-    "type": "agent",
-    "name": "Music Generator",
-    "description": "This agent can generate music based on user's description.",
-    "upload_file": "yes",
-    "icon": "icon.jpg"
-}

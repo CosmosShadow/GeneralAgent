@@ -1,8 +1,0 @@
-{
-    "id": "general_agent",
-    "name": "General Agent",
-    "description": "Do anything for you.",
-    "type": "agent",
-    "icon": "icon.png",
-    "upload_file": "yes"
-}

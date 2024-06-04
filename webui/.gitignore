@@ -1,8 +1,0 @@
-*.pyc
-server/server/general_agent_db.json
-server/server/.env
-server/server/data/*
-server/server/files/*
-server/server/llm_cache.json
-server/test/ui/*
-server/test/llm_cache.json

@@ -1,8 +1,0 @@
-{
-    "id": "image_creator",
-    "type": "agent",
-    "name": "Image Creator",
-    "description": "This agent can generate images based on user's description.",
-    "upload_file": "yes",
-    "icon": "icon.jpg"
-}
