@@ -76,7 +76,7 @@ class NormalAgent(AbsAgent):
         @model_type: str, 'smart', 'normal', or 'long'
         @variables: dict, embed variables to python interpreter, like {'a': a, 'variable_name': variable_value}, then Agent can use the variables in python interpreter like `variable_name`
         @knowledge_query_function: function, knowledge query function
-        @continue_run: bool, 是否自动继续执行。Agent在任务没有完成时，是否自动执行。默认为True
+        @continue_run: bool, 是否自动继续执行。Agent在任务没有完成时，是否自动执行。默认为False
         """
         agent = cls(workspace)
         role_interpreter = RoleInterpreter(system_prompt=system_prompt, self_control=self_control, search_functions=search_functions)
@@ -106,9 +106,9 @@ class NormalAgent(AbsAgent):
             # 判断是否继续执行
             messages = self.memory.get_messages()
             messages = skills.cut_messages(messages, 2*1000)
-            the_prompt = "你是否继续输出？yes表示继续输出，no表示我回复。请回复yes或no，不用解释。"
+            the_prompt = "对于当前状态，无需用户输入或者确认，需要继续执行任务，请回复yes，其他情况回复no"
             messages += [{'role': 'system', 'content': the_prompt}]
-            response = skills.llm_inference(messages, model_type='normal', stream=False)
+            response = skills.llm_inference(messages, model_type='smart', stream=False)
             # if os.environ.get('RUN_MODE', None) == 'dev':
             #     self.output_callback('继续执行: ' + response)
             if 'yes' in response.lower():
