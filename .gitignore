@@ -39,3 +39,6 @@ test/code/*
 test/data/read_interpreter/*
 webui/server/server/ts_builder/src/lib/index.tsx
 GeneralAgent/skills/a.jpg
+samples/code.bin
+samples/normal_memory.json
+samples/novel.md
