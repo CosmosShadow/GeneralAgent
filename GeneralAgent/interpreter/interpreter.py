@@ -8,12 +8,12 @@ class Interpreter(metaclass=abc.ABCMeta):
     input_match_pattern is the pattern to match the LLM input string. for example ```tsx\n(.*?)\n```
     output_match_pattern is the pattern to match the LLM ouput string. for example ```tsx\n(.*?)\n```
     output_match_start_pattern is the pattern to match the start of the LLM output string. for example: ```tsx\n
-    outptu_parse_done_recall is the callback function to recall when the output_parse is done
+    output_parse_done_recall is the callback function to recall when the output_parse is done
     """
     input_match_pattern = None
     output_match_pattern = None
     output_match_start_pattern = None
-    outptu_parse_done_recall = None
+    output_parse_done_recall = None
 
     def prompt(self, messages) -> str:
         """

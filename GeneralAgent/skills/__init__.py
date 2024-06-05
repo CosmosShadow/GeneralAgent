@@ -2,6 +2,12 @@
 import os
 import logging
 
+def default_output_callback(token):
+    if token is not None:
+        print(token, end='', flush=True)
+    else:
+        print('\n[output end]\n', end='', flush=True)
+
 class Skills:
     __instance = None
 
@@ -62,7 +68,8 @@ class Skills:
         self._load_local_funs()
         self._load_remote_funs()
         self._local_funs['input'] = input
-        self._local_funs['print'] = print
+        self._local_funs['print'] = default_output_callback
+        self._local_funs['output'] = default_output_callback
 
     def _load_local_funs(self):
         from GeneralAgent.skills.python_envs import load_functions_with_directory

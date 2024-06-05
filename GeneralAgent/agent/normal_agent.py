@@ -1,6 +1,6 @@
 # Agent
+import os
 import logging
-from GeneralAgent.utils import default_get_input, default_output_callback
 from GeneralAgent.memory import NormalMemory, StackMemory
 from GeneralAgent.interpreter import Interpreter
 from GeneralAgent.interpreter import EmbeddingRetrieveInterperter, LinkRetrieveInterperter, KnowledgeInterperter
@@ -10,15 +10,12 @@ from .abs_agent import AbsAgent
 
 class NormalAgent(AbsAgent):
 
-    def __init__(self, workspace='./'):
+    def __init__(self, workspace='./', new=False):
         super().__init__(workspace)
         # self.memory = NormalMemory(serialize_path=f'{workspace}/normal_memory.json')
+        if new and os.path.exists(f'{workspace}/normal_memory.json'):
+            os.remove(f'{workspace}/normal_memory.json')
         self.memory = StackMemory(serialize_path=f'{workspace}/normal_memory.json')
-
-    # def save(self):
-    #     for interpreter in self.interpreters:
-    #         if interpreter.__class__.__name__ == 'PythonInterpreter':
-    #             interpreter.save()
 
     @classmethod
     def empty(cls, workspace='./'):
@@ -53,7 +50,7 @@ class NormalAgent(AbsAgent):
     @classmethod
     def with_functions(
         cls,
-        functions,
+        functions=[],
         system_prompt=None,
         role_prompt=None,
         self_control=True,
@@ -63,6 +60,7 @@ class NormalAgent(AbsAgent):
         variables=None,
         knowledge_query_function=None,
         continue_run=True,
+        new=False
         ):
         """
         agent with functions
@@ -76,9 +74,12 @@ class NormalAgent(AbsAgent):
         @variables: dict, embed variables to python interpreter, like {'a': a, 'variable_name': variable_value}, then Agent can use the variables in python interpreter like `variable_name`
         @knowledge_query_function: function, knowledge query function
         @continue_run: bool, 是否自动继续执行。Agent在任务没有完成时，是否自动执行。默认为False
+        @new: bool, 是否新建一个Agent，如果为True，则会删除之前的memory
         """
-        agent = cls(workspace)
+        agent = cls(workspace, new=new)
         role_interpreter = RoleInterpreter(system_prompt=system_prompt, self_control=self_control, search_functions=search_functions)
+        if new and os.path.exists(f'{workspace}/code.bin'):
+            os.remove(f'{workspace}/code.bin')
         python_interpreter = PythonInterpreter(agent, serialize_path=f'{workspace}/code.bin')
         python_interpreter.function_tools = functions
         interpreter_list = [role_interpreter, python_interpreter]
@@ -95,8 +96,7 @@ class NormalAgent(AbsAgent):
         agent.continue_run = continue_run
         return agent
 
-    def run(self, input, return_type=str, stream_callback=None):
-        import os
+    def run(self, input, return_type=str, stream_callback=None, user_check=False):
         from GeneralAgent import skills
         if stream_callback is not None:
             self.output_callback = stream_callback
@@ -108,14 +108,15 @@ class NormalAgent(AbsAgent):
             the_prompt = "对于当前状态，无需用户输入或者确认，需要继续执行任务，请回复yes，其他情况回复no"
             messages += [{'role': 'system', 'content': the_prompt}]
             response = skills.llm_inference(messages, model_type='smart', stream=False)
-            # if os.environ.get('RUN_MODE', None) == 'dev':
-            #     self.output_callback('继续执行: ' + response)
             if 'yes' in response.lower():
-                return self.run('ok', return_type)
-            else:
+                result = self.run('ok', return_type)
+        if user_check:
+            response = skills.input('请确认结果: \n' + str(result) + '\n')
+            if response.lower() in ['', 'yes', 'y', '是', 'ok']:
                 return result
-        else:
-            return result
+            else:
+                return self.run(response, return_type, stream_callback, user_check)
+        return result
 
     def _run(self, input, return_type=str):
         """
@@ -123,6 +124,7 @@ class NormalAgent(AbsAgent):
         @input: str, user's new input, None means continue to run where it stopped
         @return_type: type, return type, default str
         """
+        from GeneralAgent import skills
         self.is_running = True
 
         result = ''
@@ -133,7 +135,7 @@ class NormalAgent(AbsAgent):
             else:
                 result += '\n'
             if self.output_callback is None:
-                default_output_callback(token)
+                skills.output(token)
             else:
                 self.output_callback(token)
 
@@ -153,6 +155,7 @@ class NormalAgent(AbsAgent):
         while True:
             messages = self._get_llm_messages()
             output_stop = self._llm_and_parse_output(messages, inner_output)
+            logging.info(f'output_stop: {output_stop}')
             if output_stop or self.stop_event.is_set():
                 inner_output(None)
                 self.is_running = False
@@ -169,6 +172,7 @@ class NormalAgent(AbsAgent):
                     pass
                 # check return type and try again
                 if type(result) != return_type and try_count < 1:
+                    logging.info('return type shold be: return_type')
                     try_count += 1
                     input_stop = self._parse_input('return type shold be ' + str(return_type), inner_output)
                     result = ''
@@ -219,8 +223,8 @@ class NormalAgent(AbsAgent):
                         message_id = self.memory.add_message('assistant', result)
                         self.memory.push_stack()
                         output, is_stop = interpreter.output_parse(result)
-                        if interpreter.outptu_parse_done_recall is not None:
-                            interpreter.outptu_parse_done_recall()
+                        if interpreter.output_parse_done_recall is not None:
+                            interpreter.output_parse_done_recall()
                         if self.python_run_result is not None:
                             output = output.strip()
                             if len(output) > 50000:
