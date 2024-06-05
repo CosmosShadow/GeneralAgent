@@ -3,7 +3,6 @@ import pickle
 import logging
 from jinja2 import Template
 from .interpreter import Interpreter
-from GeneralAgent.utils import confirm_to_run
 from functools import partial
 
 default_import_code = """
@@ -117,12 +116,9 @@ result
         pattern = re.compile(self.output_match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
-        if confirm_to_run():
-            result, stop = self.run_code(match.group(1))
-            result = '\nThe execution of the python code is completed, and the result is as follows:\n' + result + '\n'
-            return result, stop
-        else:
-            return '', False
+        result, stop = self.run_code(match.group(1))
+        result = '\nThe execution of the python code is completed, and the result is as follows:\n' + result + '\n'
+        return result, stop
 
     def run_code(self, code):
         code = self.import_code + '\n' + code

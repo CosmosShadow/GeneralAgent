@@ -1,6 +1,5 @@
 import re
 from .interpreter import Interpreter
-from GeneralAgent.utils import confirm_to_run
 
 applescript_promt = """
 # Run applescript
@@ -23,11 +22,8 @@ class AppleScriptInterpreter(Interpreter):
         pattern = re.compile(self.output_match_pattern, re.DOTALL)
         match = pattern.search(string)
         assert match is not None
-        if confirm_to_run():
-            sys_out = self._run_applescript(match.group(2))
-            return sys_out.strip(), False
-        else:
-            return '', False
+        sys_out = self._run_applescript(match.group(2))
+        return sys_out.strip(), False
 
     def _run_applescript(self, content):
         content = content.replace('"', '\\"')

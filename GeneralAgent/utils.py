@@ -21,20 +21,6 @@ def default_output_callback(token):
     else:
         print('\n[output end]\n', end='', flush=True)
 
-def confirm_to_run():
-    auto_run = os.environ.get('AUTO_RUN', 'n')
-    if auto_run == 'y':
-        return True
-    print('Are you sure to run this script? (y/n)')
-    while True:
-        line = input()
-        if line == 'y':
-            return True
-        elif line == 'n':
-            return False
-        else:
-            print('Please input y or n')
-
 def set_logging_level(log_level=None):
     for handler in logging.root.handlers[:]:
        logging.root.removeHandler(handler)
