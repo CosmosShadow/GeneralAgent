@@ -15,7 +15,7 @@ from .knowlege_interpreter import KnowledgeInterperter
 
 # output
 from .applescript_interpreter import AppleScriptInterpreter
-from .file_interpreter import FileInterpreter
+# from .file_interpreter import FileInterpreter
 from .python_interpreter import PythonInterpreter
 # from .python_interpreter import AsyncPythonInterpreter
 from .shell_interpreter import ShellInterpreter

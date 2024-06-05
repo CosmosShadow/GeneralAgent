@@ -61,6 +61,8 @@ class Skills:
         self._global_cache_dict = {}
         self._load_local_funs()
         self._load_remote_funs()
+        self._local_funs['input'] = input
+        self._local_funs['print'] = print
 
     def _load_local_funs(self):
         from GeneralAgent.skills.python_envs import load_functions_with_directory

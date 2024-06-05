@@ -4,7 +4,7 @@ from GeneralAgent.utils import default_get_input, default_output_callback
 from GeneralAgent.memory import NormalMemory, StackMemory
 from GeneralAgent.interpreter import Interpreter
 from GeneralAgent.interpreter import EmbeddingRetrieveInterperter, LinkRetrieveInterperter, KnowledgeInterperter
-from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter, FileInterpreter
+from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter
 from .abs_agent import AbsAgent
 
 
@@ -47,8 +47,7 @@ class NormalAgent(AbsAgent):
             retrieve_interperter = LinkRetrieveInterperter(python_interpreter)
         bash_interpreter = ShellInterpreter(workspace)
         applescript_interpreter = AppleScriptInterpreter()
-        file_interpreter = FileInterpreter()
-        agent.interpreters = [role_interpreter, retrieve_interperter, python_interpreter, bash_interpreter, applescript_interpreter, file_interpreter]
+        agent.interpreters = [role_interpreter, retrieve_interperter, python_interpreter, bash_interpreter, applescript_interpreter]
         return agent
 
     @classmethod
