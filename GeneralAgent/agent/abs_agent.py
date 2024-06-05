@@ -88,3 +88,9 @@ class AbsAgent(metaclass=abc.ABCMeta):
         @libs: str, libs
         """
         pass
+
+    def delete():
+        """
+        删除Agent: 删除记忆、python序列化结果等
+        """
+        pass

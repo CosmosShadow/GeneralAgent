@@ -12,10 +12,18 @@ class NormalAgent(AbsAgent):
 
     def __init__(self, workspace='./', new=False):
         super().__init__(workspace)
-        # self.memory = NormalMemory(serialize_path=f'{workspace}/normal_memory.json')
-        if new and os.path.exists(f'{workspace}/normal_memory.json'):
-            os.remove(f'{workspace}/normal_memory.json')
-        self.memory = StackMemory(serialize_path=f'{workspace}/normal_memory.json')
+        # self.memory = NormalMemory(serialize_path=f'{workspace}/memory.json')
+        if new and os.path.exists(self._memory_path):
+            os.remove(self._memory_path)
+        self.memory = StackMemory(serialize_path=self._memory_path)
+
+    @property
+    def _memory_path(self):
+        return os.path.join(self.workspace, '/memory.json')
+    
+    @property
+    def _python_path(self):
+        return os.path.join(self.workspace, '/code.bin')
 
     @classmethod
     def empty(cls, workspace='./'):
@@ -236,3 +244,13 @@ class NormalAgent(AbsAgent):
             logging.exception(e)
             output_callback(str(e))
             return True
+        
+    def delete(self):
+        """
+        删除agent: 删除memory和python序列化文件
+        """
+        if os.path.exists(self._memory_path):
+            os.remove(self._memory_path)
+        if os.path.exists(self._python_path):
+            os.remove(self._python_path)
+        return True
