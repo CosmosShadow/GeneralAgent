@@ -8,8 +8,6 @@ shell_prompt = """
 """
 
 class ShellInterpreter(Interpreter):
-
-    output_match_start_pattern = '```shell\n'
     output_match_pattern = '```shell\n(.*?)\n```'
     
     def __init__(self, workspace='./') -> None:
@@ -23,7 +21,7 @@ class ShellInterpreter(Interpreter):
         match = pattern.search(string)
         assert match is not None
         output = self._run_bash(match.group(1))
-        return output.strip(), False
+        return output.strip(), True
 
     def _run_bash(self, content):
         sys_out = ''

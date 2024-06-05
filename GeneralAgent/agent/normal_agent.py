@@ -134,9 +134,7 @@ class NormalAgent(AbsAgent):
         if self.run_level != 0:
             input += '\nPlease don\'t just pass the whole task to agent.run, try to finish part of the task by yourself.\n'
             input += '\n return type should be ' + str(return_type) + '\n'
-        input_stop = self._parse_input(input, inner_output)
-        if input_stop:
-            return result
+        self._memory_add_input(input)
 
         inner_output(None)
         
@@ -162,24 +160,15 @@ class NormalAgent(AbsAgent):
                 if type(result) != return_type and try_count < 1:
                     logging.info('return type shold be: return_type')
                     try_count += 1
-                    input_stop = self._parse_input('return type shold be ' + str(return_type), inner_output)
+                    self._memory_add_input('return type shold be ' + str(return_type))
                     result = ''
                     continue
                 return result
 
-    def _parse_input(self, input, output_callback):
+    def _memory_add_input(self, input):
+        # 记忆添加用户输入
         self.memory.add_message('user', input)
-        input_content = input
-        input_stop = False
-        interpreter:Interpreter = None
-        for interpreter in self.interpreters:
-            if interpreter.input_match(input_content):
-                logging.info('interpreter: ' + interpreter.__class__.__name__)
-                parse_output, case_is_stop = interpreter.input_parse(input_content)
-                if case_is_stop:
-                    output_callback(parse_output)
-                    input_stop = True
-        return input_stop
+
     
     def _get_llm_messages(self):
         from GeneralAgent import skills
@@ -211,8 +200,6 @@ class NormalAgent(AbsAgent):
                         message_id = self.memory.add_message('assistant', result)
                         self.memory.push_stack()
                         output, is_stop = interpreter.output_parse(result)
-                        if interpreter.output_parse_done_recall is not None:
-                            interpreter.output_parse_done_recall()
                         if self.python_run_result is not None:
                             output = output.strip()
                             if len(output) > 50000:

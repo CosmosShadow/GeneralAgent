@@ -10,18 +10,10 @@ import os, sys, math, time
 from GeneralAgent import skills
 """
 
-from GeneralAgent import skills
-default_libs = ''
-# default_libs = skills.get_current_env_python_libs()
-
-# from GeneralAgent.tools import Tools
-
 class PythonInterpreter(Interpreter):
     """
     Sync Python Interpreter: run python code in the interpreter. Not same namespace with the agent & Can Only run synchronous code
     """
-
-    output_match_start_pattern = '```python\n'
     output_match_pattern = '```python\n(.*?)\n```'
     agent = None
 
@@ -46,7 +38,7 @@ result
     def __init__(self, 
                  agent = None,
                  serialize_path:str=None, 
-                 libs: str=default_libs, 
+                 libs: str='', 
                  import_code:str=None,
                  prompt_append='',
                  stop_wrong_count = 3

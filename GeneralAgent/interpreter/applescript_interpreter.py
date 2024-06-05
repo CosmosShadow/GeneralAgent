@@ -11,9 +11,7 @@ applescript_promt = """
 """
 
 class AppleScriptInterpreter(Interpreter):
-    
     output_match_pattern = '```(\n)?applescript(.*?)\n```'
-    output_match_start_pattern = '```(\n)?applescript'
 
     def prompt(self, messages) -> str:
         return applescript_promt
@@ -23,7 +21,7 @@ class AppleScriptInterpreter(Interpreter):
         match = pattern.search(string)
         assert match is not None
         sys_out = self._run_applescript(match.group(2))
-        return sys_out.strip(), False
+        return sys_out.strip(), True
 
     def _run_applescript(self, content):
         content = content.replace('"', '\\"')
