@@ -59,7 +59,6 @@ class AbsAgent(metaclass=abc.ABCMeta):
         """
         if not os.path.exists(workspace):
             os.makedirs(workspace)
-        self.is_running = False
         self.stop_event = asyncio.Event()
         self.workspace = workspace
 

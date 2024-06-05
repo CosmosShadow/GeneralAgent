@@ -27,15 +27,12 @@ class NormalAgent(AbsAgent):
         return agent
 
     @classmethod
-    def default(cls, workspace='./', retrieve_type='embedding'):
+    def default(cls, workspace='./'):
         """
         default agent, with all interpreters
         @workspace: str, workspace path
-        @retrieve_type: str, 'embedding' or 'link'
         """
         agent = cls(workspace)
-        # memory
-        # interpreters
         role_interpreter = RoleInterpreter()
         python_interpreter = PythonInterpreter(agent, serialize_path=f'{workspace}/code.bin')
         bash_interpreter = ShellInterpreter(workspace)
@@ -101,13 +98,13 @@ class NormalAgent(AbsAgent):
             # 判断是否继续执行
             messages = self.memory.get_messages()
             messages = skills.cut_messages(messages, 2*1000)
-            the_prompt = "对于当前状态，无需用户输入或者确认，需要继续执行任务，请回复yes，其他情况回复no"
+            the_prompt = "对于当前状态，无需用户输入或者确认，继续执行任务，请回复yes，其他情况回复no"
             messages += [{'role': 'system', 'content': the_prompt}]
             response = skills.llm_inference(messages, model_type='smart', stream=False)
             if 'yes' in response.lower():
                 result = self.run('ok', return_type)
         if user_check:
-            response = skills.input('请确认结果: \n' + str(result) + '\n')
+            response = skills.input('请问是否继续？[回车, yes, y, 是, ok] \n或者直接输入你的想法:\n')
             if response.lower() in ['', 'yes', 'y', '是', 'ok']:
                 return result
             else:
@@ -121,7 +118,6 @@ class NormalAgent(AbsAgent):
         @return_type: type, return type, default str
         """
         from GeneralAgent import skills
-        self.is_running = True
 
         result = ''
         def inner_output(token):
@@ -135,14 +131,11 @@ class NormalAgent(AbsAgent):
             else:
                 self.output_callback(token)
 
-        inner_output(' ')
-
         if self.run_level != 0:
             input += '\nPlease don\'t just pass the whole task to agent.run, try to finish part of the task by yourself.\n'
             input += '\n return type should be ' + str(return_type) + '\n'
         input_stop = self._parse_input(input, inner_output)
         if input_stop:
-            self.is_running = False
             return result
 
         inner_output(None)
@@ -154,7 +147,6 @@ class NormalAgent(AbsAgent):
             logging.info(f'output_stop: {output_stop}')
             if output_stop or self.stop_event.is_set():
                 inner_output(None)
-                self.is_running = False
                 # get python result
                 if self.python_run_result is not None:
                     result = self.python_run_result
