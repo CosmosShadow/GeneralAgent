@@ -3,7 +3,7 @@ import os
 import logging
 from GeneralAgent.memory import NormalMemory, StackMemory
 from GeneralAgent.interpreter import Interpreter
-from GeneralAgent.interpreter import EmbeddingRetrieveInterperter, LinkRetrieveInterperter, KnowledgeInterperter
+from GeneralAgent.interpreter import KnowledgeInterperter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter
 from .abs_agent import AbsAgent
 
@@ -38,13 +38,9 @@ class NormalAgent(AbsAgent):
         # interpreters
         role_interpreter = RoleInterpreter()
         python_interpreter = PythonInterpreter(agent, serialize_path=f'{workspace}/code.bin')
-        if retrieve_type == 'embedding':
-            retrieve_interperter = EmbeddingRetrieveInterperter(serialize_path=f'{workspace}/read_interperter/')
-        else:
-            retrieve_interperter = LinkRetrieveInterperter(python_interpreter)
         bash_interpreter = ShellInterpreter(workspace)
         applescript_interpreter = AppleScriptInterpreter()
-        agent.interpreters = [role_interpreter, retrieve_interperter, python_interpreter, bash_interpreter, applescript_interpreter]
+        agent.interpreters = [role_interpreter, python_interpreter, bash_interpreter, applescript_interpreter]
         return agent
 
     @classmethod
@@ -232,10 +228,9 @@ class NormalAgent(AbsAgent):
                         self.memory.pop_stack()
                         message_id = self.memory.append_message('assistant', '\n' + output + '\n', message_id=message_id)
                         result = ''
-                        if not self.hide_output_parse or is_stop:
+                        if is_stop:
                             output_callback(None)
                             output_callback('```output\n' + output + '\n```\n')
-                            output_callback(None)
                         is_break = True
                         break
                 if is_break:

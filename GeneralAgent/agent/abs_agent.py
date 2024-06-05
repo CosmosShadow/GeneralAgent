@@ -21,7 +21,6 @@ class AbsAgent(metaclass=abc.ABCMeta):
     output_callback = None
     python_run_result = None
     run_level = 0
-    hide_output_parse = False
     # chat messages limit, default None means no limit
     chat_messages_limit = None
     continue_run = True
