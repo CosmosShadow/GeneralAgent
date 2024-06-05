@@ -1,7 +1,6 @@
 import abc
 import os
 import asyncio
-from GeneralAgent.utils import default_get_input, default_output_callback
 
 
 class AbsAgent(metaclass=abc.ABCMeta):
