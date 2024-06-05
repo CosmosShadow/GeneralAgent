@@ -158,7 +158,7 @@ class NormalAgent(AbsAgent):
             input += '\n return type should be ' + str(return_type) + '\n'
         self._memory_add_input(input)
 
-        inner_output(None)
+        # inner_output(None)
         
         try_count = 0
         while True:
