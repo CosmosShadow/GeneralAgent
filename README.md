@@ -1,6 +1,6 @@
 # GeneralAgent: From LLM to Agent
 
-* GeneralAgent 是一个python库，可以快速搭建Agent应用，嵌入到你的业务中，或者通过 [AgentServer](https://github.com/CosmosShadow/AgentServer) 进行部署，快速给大规模用户提供Agent服务
+* GeneralAgent 是一个python库，可以快速搭建Agent应用，嵌入到你的业务中，或者通过 [AgentServer(开源准备中)](https://github.com/CosmosShadow/AgentServer) 进行部署，快速给大规模用户提供Agent服务
 * GeneralAgent 通过python代码解释器来调用工具，不依赖大模型的 function call
 * GeneralAgent 支持序列化
 * GeneralAgent 支持自我调用和堆栈记忆，请见[论文](./docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf)
