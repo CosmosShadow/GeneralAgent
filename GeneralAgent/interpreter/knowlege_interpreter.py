@@ -19,4 +19,4 @@ class KnowledgeInterperter(Interpreter):
             results = self.query_function(input)
             while len(''.join(results)) > 14 * 1000:
                 results.pop()
-            return 'Backgroun: \n' + '\n'.join(results)
+            return 'Background: \n' + '\n'.join(results)
