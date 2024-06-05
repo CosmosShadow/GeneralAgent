@@ -18,11 +18,11 @@ class NormalAgent(AbsAgent):
 
     @property
     def _memory_path(self):
-        return os.path.join(self.workspace, '/memory.json')
+        return os.path.join(self.workspace, 'memory.json')
     
     @property
     def _python_path(self):
-        return os.path.join(self.workspace, '/code.bin')
+        return os.path.join(self.workspace, 'code.bin')
 
     @classmethod
     def empty(cls, workspace='./'):
@@ -218,7 +218,7 @@ class NormalAgent(AbsAgent):
                 interpreter:Interpreter = None
                 for interpreter in self.interpreters:
                     if interpreter.output_match(result):
-                        logging.info('interpreter: ' + interpreter.__class__.__name__)
+                        logging.debug('interpreter: ' + interpreter.__class__.__name__)
                         message_id = self.memory.add_message('assistant', result)
                         self.memory.push_stack()
                         output, is_stop = interpreter.output_parse(result)
