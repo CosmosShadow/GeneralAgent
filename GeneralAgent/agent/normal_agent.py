@@ -12,9 +12,8 @@ class NormalAgent(AbsAgent):
 
     def __init__(self, workspace='./', new=False):
         super().__init__(workspace)
-        # self.memory = NormalMemory(serialize_path=f'{workspace}/memory.json')
-        if new and os.path.exists(self._memory_path):
-            os.remove(self._memory_path)
+        if new:
+            self.delete()
         self.memory = StackMemory(serialize_path=self._memory_path)
 
     @property
@@ -253,4 +252,3 @@ class NormalAgent(AbsAgent):
             os.remove(self._memory_path)
         if os.path.exists(self._python_path):
             os.remove(self._python_path)
-        return True
