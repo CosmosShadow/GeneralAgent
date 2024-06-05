@@ -6,7 +6,7 @@ def default_output_callback(token):
     if token is not None:
         print(token, end='', flush=True)
     else:
-        print('\n[output end]\n', end='', flush=True)
+        print('\n', end='', flush=True)
 
 class Skills:
     __instance = None

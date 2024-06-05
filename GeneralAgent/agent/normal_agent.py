@@ -90,6 +90,27 @@ class NormalAgent(AbsAgent):
         return agent
 
     def run(self, input, return_type=str, stream_callback=None, user_check=False):
+        """
+        代码调用执行input命令
+        """
+        # 代码调用agent执行，直接run_level+1
+        self.run_level += 1
+        from GeneralAgent import skills
+        if stream_callback is not None:
+            self.output_callback = stream_callback
+        result = self._run(input, return_type)
+        if user_check:
+            response = skills.input('请问是否继续？[回车, yes, y, 是, ok] \n或者直接输入你的想法:\n')
+            if response.lower() in ['', 'yes', 'y', '是', 'ok']:
+                return result
+            else:
+                return self.run(response, return_type, stream_callback, user_check)
+        return result
+    
+    def user_input(self, input, return_type=str, stream_callback=None):
+        """
+        用户输入
+        """
         from GeneralAgent import skills
         if stream_callback is not None:
             self.output_callback = stream_callback
@@ -103,12 +124,6 @@ class NormalAgent(AbsAgent):
             response = skills.llm_inference(messages, model_type='smart', stream=False)
             if 'yes' in response.lower():
                 result = self.run('ok', return_type)
-        if user_check:
-            response = skills.input('请问是否继续？[回车, yes, y, 是, ok] \n或者直接输入你的想法:\n')
-            if response.lower() in ['', 'yes', 'y', '是', 'ok']:
-                return result
-            else:
-                return self.run(response, return_type, stream_callback, user_check)
         return result
 
     def _run(self, input, return_type=str):
@@ -142,7 +157,7 @@ class NormalAgent(AbsAgent):
         while True:
             messages = self._get_llm_messages()
             output_stop = self._llm_and_parse_output(messages, inner_output)
-            logging.info(f'output_stop: {output_stop}')
+            # logging.info(f'output_stop: {output_stop}')
             if output_stop or self.stop_event.is_set():
                 inner_output(None)
                 # get python result
