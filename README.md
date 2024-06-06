@@ -18,6 +18,7 @@ GeneralAgent的主要特性：
 该框架赋予开发者在强大且多功能的Python环境中利用LLM的认知能力，增强基于Agent的应用的自动化和智能性。
 
 
+
 ## 安装
 
 ```bash
@@ -57,6 +58,8 @@ agent.user_input('成都天气怎么样？')
 # 请问还有什么我可以帮忙的吗？
 ```
 
+
+
 ### 序列化
 
 ```python
@@ -79,6 +82,7 @@ agent.user_input('What is my name?')
 # 删除agent: 记忆 + python序列化状态
 agent.delete()
 ```
+
 
 
 ### 工作流
@@ -108,6 +112,8 @@ skills.output('你的小说已经生成[novel.md](novel.md)\n')
 # agent.delete()
 ```
 
+
+
 ### 多Agent
 
 ```python
@@ -123,7 +129,9 @@ enhanced_story = humor_enhancer.run(initial_story)
 print(enhanced_story)
 ```
 
-更多例子请见[examples](./examples)
+
+
+更多例子请见 [examples](./examples)
 
 
 
