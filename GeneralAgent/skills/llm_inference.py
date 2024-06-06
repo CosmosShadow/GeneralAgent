@@ -44,7 +44,8 @@ def search_similar_texts(focal:str, texts:[str], top_k=5):
 
 def _get_llm_model(model_type):
     import os
-    assert model_type in ['normal', 'smart', 'long', 'vision']
+    if model_type not in ['normal', 'smart', 'long', 'vision']:
+        return model_type
     api_type = os.environ.get('LLM_SOURCE', 'OPENAI')
     model_key = f'{api_type}_LLM_MODEL_{model_type.upper()}'
     model = os.environ.get(model_key, None)
@@ -59,7 +60,8 @@ def get_llm_token_limit(model_type='smart'):
     return the token limit for the model
     """
     import os
-    assert model_type in ['normal', 'smart', 'long']
+    if model_type not in ['normal', 'smart', 'long']:
+        return 16 * 1000
     api_type = os.environ.get('LLM_SOURCE', 'OPENAI')
     # OPENAI_LLM_MODEL_SMART_LIMIT
     limit_key = f'{api_type}_LLM_MODEL_{model_type.upper()}_LIMIT'
