@@ -126,7 +126,7 @@ agent = Agent('你是一个小说家')
 topic = '小白兔吃糖不刷牙的故事'
 
 # 步骤2: 小说的概要
-summary = agent.run(f'小说的名称和主题是: {topic}，扩展和完善一下小说概要。要求具备文艺性、教育性、娱乐性。', return_type=str)
+summary = agent.run(f'小说的名称和主题是: {topic}，扩展和完善一下小说概要。要求具备文艺性、教育性、娱乐性。')
 
 # 步骤3: 小说的章节名称和概要列表
 chapters = agent.run('输出小说的章节名称和每个章节的概要，返回列表 [(chapter_title, chapter_summary), ....]', return_type=list)
@@ -134,7 +134,7 @@ chapters = agent.run('输出小说的章节名称和每个章节的概要，返�
 # 步骤4: 生成小说每一章节的详细内容
 contents = []
 for index, (chapter_title, chapter_summary) in enumerate(chapters):
-    content = agent.run(f'对于章节: {chapter_title}\n{chapter_summary}. \n输出章节的详细内容，注意只返回内容，不要标题。', return_type=str)
+    content = agent.run(f'对于章节: {chapter_title}\n{chapter_summary}. \n输出章节的详细内容，注意只返回内容，不要标题。')
     content = '\n'.join([x.strip() for x in content.split('\n')])
     contents.append(content)
 
