@@ -1,6 +1,5 @@
 import abc
 import os
-import asyncio
 
 
 class AbsAgent(metaclass=abc.ABCMeta):
@@ -19,21 +18,9 @@ class AbsAgent(metaclass=abc.ABCMeta):
     output_callback = None
     python_run_result = None
     run_level = 0
-    # chat messages limit, default None means no limit
-    chat_messages_limit = None
+    chat_messages_limit = None # chat messages limit, default None means no limit
     continue_run = True
     disable_python_run = False
-
-    def add_role_prompt(self, prompt):
-        """
-        add role prompt
-        """
-        if len(self.interpreters) > 0 and self.interpreters[0].__class__.__name__ == 'RoleInterpreter':
-            role_interpreter = self.interpreters[0]
-            if role_interpreter.system_prompt is not None:
-                role_interpreter.system_prompt += '\n' + prompt
-            else:
-                role_interpreter.system_prompt_template += '\n' + prompt
 
     @abc.abstractmethod
     def run(self, input, return_type=str):
@@ -43,22 +30,12 @@ class AbsAgent(metaclass=abc.ABCMeta):
         @return_type: type, return type, default str
         """
 
-    def stop(self):
-        """
-        stop the agent
-        """
-        self.stop_event.set()
-
-    # def save(self):
-    #     pass
-
     def __init__(self, workspace=None):
         """
         @workspace: str, workspace path
         """
         if workspace is not None and not os.path.exists(workspace):
             os.makedirs(workspace)
-        self.stop_event = asyncio.Event()
         self.workspace = workspace
 
     @classmethod

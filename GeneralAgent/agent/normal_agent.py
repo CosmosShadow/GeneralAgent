@@ -26,6 +26,9 @@ class NormalAgent(AbsAgent):
         self.model_type = model_type
         self.continue_run = continue_run
         self.interpreters = [self.role_interpreter, self.python_interpreter]
+        # 默认输出回调函数
+        from GeneralAgent import skills
+        self.output_callback = skills.output
 
     @property
     def _memory_path(self):
@@ -79,6 +82,20 @@ class NormalAgent(AbsAgent):
     def role(self, new_value):
         self.role_interpreter.role = new_value
 
+    def disable_output_callback(self):
+        """
+        禁用输出回调函数
+        """
+        self.tmp_output_callback = self.output_callback
+        self.output_callback = None
+
+    def enable_output_callback(self):
+        """
+        启用输出回调函数
+        """
+        self.output_callback = self.tmp_output_callback
+        self.tmp_output_callback = None
+
     @classmethod
     def with_functions(
         cls,
@@ -108,7 +125,7 @@ class NormalAgent(AbsAgent):
         @new: bool, 是否新建一个Agent，如果为True，则会删除之前的memory
         """
         agent = cls(workspace)
-        role_interpreter = RoleInterpreter(system_prompt=system_prompt, self_control=self_control, search_functions=search_functions)
+        role_interpreter = RoleInterpreter(system_prompt=system_prompt, self_control=self_control, search_functions=search_functions, role=role_prompt)
         agent.python_interpreter.function_tools = functions
         interpreter_list = [role_interpreter, agent.python_interpreter]
         if knowledge_query_function is not None:
@@ -116,31 +133,42 @@ class NormalAgent(AbsAgent):
             interpreter_list.append(knowledge_interpreter)
         agent.interpreters = interpreter_list
         agent.model_type = model_type
-        if role_prompt is not None:
-            agent.add_role_prompt(role_prompt)
         if variables is not None:
             for key, value in variables.items():
                 agent.python_interpreter.set_variable(key, value)
         agent.continue_run = continue_run
         return agent
 
-    def run(self, input, return_type=str, stream_callback=None, user_check=False):
+    def run(self, command, return_type=str, show_stream=True, user_check=False):
         """
-        代码调用执行input命令
+        执行command命令，并返回return_type类型的结果
+        @command: str, 命令内容
+        @return_type: type, 返回类型，默认str
+        @show_stream: bool, 是否显示流输出
+        @user_check: bool, 是否需要用户确认命令执行后的结果，默认不需要
         """
         # 代码调用agent执行，直接run_level+1
         self.run_level += 1
-        from GeneralAgent import skills
-        if stream_callback is not None:
-            self.output_callback = stream_callback
-        result = self._run(input, return_type)
-        if user_check:
-            response = skills.input('请问是否继续？[回车, yes, y, 是, ok] \n或者直接输入你的想法:\n')
-            if response.lower() in ['', 'yes', 'y', '是', 'ok']:
-                return result
-            else:
-                return self.run(response, return_type, stream_callback, user_check)
-        return result
+        if not show_stream:
+            self.disable_output_callback()
+        try:
+            from GeneralAgent import skills
+            result = self._run(command, return_type)
+            if user_check:
+                response = skills.input('请问是否继续？[回车, yes, y, 是, ok] \n或者直接输入你的想法:\n')
+                if response.lower() in ['', 'yes', 'y', '是', 'ok']:
+                    return result
+                else:
+                    return self.run(response, return_type, user_check=user_check)
+            return result
+        except Exception as e:
+            logging.exception(e)
+            return str(e)
+        finally:
+            self.run_level -= 1
+            if not show_stream:
+                self.enable_output_callback()
+
     
     def user_input(self, input, return_type=str, stream_callback=None):
         """
@@ -170,36 +198,29 @@ class NormalAgent(AbsAgent):
         from GeneralAgent import skills
 
         result = ''
-        def inner_output(token):
+        def local_output(token):
             nonlocal result
             if token is not None:
                 result += token
             else:
                 result += '\n'
-            if self.output_callback is None:
-                skills.output(token)
-            else:
+            if self.output_callback is not None:
                 self.output_callback(token)
 
         if self.run_level != 0:
             input += '\nPlease don\'t just pass the whole task to agent.run, try to finish part of the task by yourself.\n'
             input += '\n return type should be ' + str(return_type) + '\n'
         self._memory_add_input(input)
-
-        # inner_output(None)
         
         try_count = 0
         while True:
             messages = self._get_llm_messages()
-            output_stop = self._llm_and_parse_output(messages, inner_output)
-            # logging.info(f'output_stop: {output_stop}')
-            if output_stop or self.stop_event.is_set():
-                inner_output(None)
-                # get python result
+            output_stop = self._llm_and_parse_output(messages, local_output)
+            if output_stop:
+                local_output(None)
                 if self.python_run_result is not None:
                     result = self.python_run_result
                     self.python_run_result = None
-                # try to transform result to return_type
                 if type(result) == str:
                     result = result.strip()
                 try:

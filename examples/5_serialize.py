@@ -5,7 +5,7 @@ from GeneralAgent.agent import Agent
 workspace='./5_serialize'
 
 role = 'You are a helpful agent.'
-agent = Agent(workspace=workspace)
+agent = Agent(role, workspace=workspace)
 agent.user_input('My name is Shadow.')
 
 agent = None
