@@ -1,6 +1,7 @@
 # GeneralAgent: From LLM to Agent
 
 GeneralAgent是一个python原生的Agent框架，可以配置角色、工具(函数)、知识库来快速生成Agent，并通过agent.run来执行命令和输出结构化内容。
+
 GeneralAgent有以下特性:
 
 * GeneralAgent 不依赖大模型的 function call，通过python代码解释器来调用工具，可以直接传递python函数给Agent使用
@@ -51,7 +52,7 @@ agent.user_input('成都天气怎么样？')
 
 
 
-### 写小说
+### 工作流
 
 ```python
 # 写小说
@@ -76,6 +77,21 @@ skills.output('你的小说已经生成[novel.md](novel.md)\n')
 
 # 删除Agent: 记忆文件 + python序列化状态
 # agent.delete()
+```
+
+### 多Agent
+
+```python
+# 多Agent配合完成任务
+from GeneralAgent.agent import Agent
+story_writer = Agent('你是一个故事创作家，根据大纲要求或者故事梗概，返回一个更加详细的故事内容。')
+humor_enhancer = Agent('你是一个润色作家，将一个故事进行诙谐润色，增加幽默元素。直接输出润色后的故事，不用python代码来实现。')
+
+# topic = skills.input('请输入小说的大纲要求或者故事梗概: ')
+topic = '写个小白兔吃糖不刷牙的故事，有教育意义。'
+initial_story = story_writer.run(topic)
+enhanced_story = humor_enhancer.run(initial_story)
+print(enhanced_story)
 ```
 
 更多例子请见[examples](./examples)
