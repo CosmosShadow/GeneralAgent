@@ -18,6 +18,7 @@ GeneralAgent的主要特性：
 * **大规模部署**：使用GeneralAgent或者其他Agent框架开发的应用可以通过 [AgentServer(即将开源)](https://github.com/CosmosShadow/AgentServer)部署，快速为大规模用户提供Agent服务。
 
 
+
 ## 安装
 
 ```bash
@@ -157,7 +158,11 @@ skills.output('你的小说已经生成[novel.md](novel.md)\n')
 # 多Agent配合完成任务
 from GeneralAgent.agent import Agent
 story_writer = Agent('你是一个故事创作家，根据大纲要求或者故事梗概，返回一个更加详细的故事内容。')
-humor_enhancer = Agent('你是一个润色作家，将一个故事进行诙谐润色，增加幽默元素。直接输出润色后的故事，不用python代码来实现。')
+humor_enhancer = Agent('你是一个润色作家，将一个故事进行诙谐润色，增加幽默元素。直接输出润色后的故事')
+
+# 禁用Python运行
+story_writer.disable_python_run = True
+humor_enhancer.disable_python_run = True
 
 # topic = skills.input('请输入小说的大纲要求或者故事梗概: ')
 topic = '写个小白兔吃糖不刷牙的故事，有教育意义。'
