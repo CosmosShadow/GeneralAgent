@@ -22,7 +22,7 @@ GeneralAgent的主要特性：
 ## 安装
 
 ```bash
-pip install GeneralAgent
+pip install GeneralAgent==0.2.30
 ```
 
 
