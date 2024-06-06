@@ -159,7 +159,46 @@ print(enhanced_story)
 
 
 
+### 大模型切换
+
+GeneralAgent框架使用OpenAI Python SDK 来支持其他大模型。
+
+如果其他大模型不支持OpenAI SDK，则需要通过 https://github.com/songquanpeng/one-api 来只支持。
+
+得益于GeneralAgent框架不依赖大模型厂商的 function call 能力实现了函数调用，可以无缝切换不同的大模型实现相同的能力。
+
+```python
+from GeneralAgent.agent import Agent
+
+agent = Agent('You are a helpful agent.', model='deepseek-chat', token_limit=32000, api_key='sk-xxx', base_url='https://api.deepseek.com/v1')
+agent.user_input('介绍一下成都')
+```
+
+详情见: [examples/8_multi_model.py](./examples/8_multi_model.py)
+
+
+
+### 禁用Python运行
+
+默认情况下，GeneralAgent会运行用户输入的Python代码。
+
+如果你不希望GeneralAgent运行Python代码，可以通过将 `disable_python_run` 属性设置为 `True` 来禁用Python运行。
+
+```python
+from GeneralAgent.agent import Agent
+
+agent = Agent('你是一个python专家，辅助用户解决python问题。')
+agent.disable_python_run = True
+agent.user_input('用python实现一个读取文件的函数')
+```
+
+
+
+### 更多
+
 更多例子请见 [examples](./examples)
+
+
 
 
 
