@@ -9,21 +9,38 @@ from .abs_agent import AbsAgent
 
 
 class NormalAgent(AbsAgent):
-    def __init__(self, role:str=None, functions:list=[], workspace:str=None, model='smart', self_call=False, continue_run=False):
+    def __init__(self, 
+                 role:str=None, 
+                 functions:list=[], 
+                 workspace:str=None, 
+                 model=None, 
+                 token_limit=None,
+                 api_key=None,
+                 base_url=None,
+                 self_call=False, 
+                 continue_run=False
+                 ):
         """
         @role: str, Agent角色描述，例如"你是一个小说家"，默认为None
         @functions: list, Agent可用的函数(工具)列表，默认为[]
         @workspace: str, Agent序列化目录地址，如果目录不存在会自动创建，如果workspace不为None，则会从workspace中加载序列化的memory和python代码。默认None表示不序列化，不加载。
-        @model: str, 模型类型，'smart', 'normal', or 'long', 'gpt4-o' 等, 默认为'smart'.
+        @model: str, 模型类型
+        @token_limit: int, 模型token限制. None: gpt3.5: 16*1000, gpt4: 128*1000, 其他: 16*1000
+        @api_key: str,  OpenAI or other LLM API KEY
+        @base_url: str, OpenAI or other LLM API BASE URL
         @self_call: bool, 是否开启自我调用(Agent可以写代码来自我调用完成复杂任务), 默认为False.
         @continue_run: bool, 是否自动继续执行。Agent在任务没有完成时，是否自动执行。默认为True.
         """
+        from GeneralAgent import skills
         super().__init__(workspace)
         self.memory = StackMemory(serialize_path=self._memory_path)
         self.role_interpreter = RoleInterpreter(role=role, self_call=self_call)
         self.python_interpreter = PythonInterpreter(self, serialize_path=self._python_path)
         self.python_interpreter.function_tools = functions
-        self.model = model
+        self.model = model or os.environ.get('DEFAULT_LLM_MODEL', 'gpt-4o')
+        self.token_limit = token_limit or skills.get_llm_token_limit(self.model)
+        self.api_key = api_key
+        self.base_url = base_url
         self.continue_run = continue_run
         self.interpreters = [self.role_interpreter, self.python_interpreter]
         # 默认输出回调函数
@@ -105,7 +122,7 @@ class NormalAgent(AbsAgent):
         self_control=False,
         search_functions=False,
         workspace = './',
-        model='smart',
+        model=None,
         variables=None,
         knowledge_query_function=None,
         continue_run=True,
@@ -118,7 +135,7 @@ class NormalAgent(AbsAgent):
         @self_control: bool, 是否开启自控
         @search_functions: bool, 是否开启搜索函数
         @workspace: str, workspace path
-        @model: str, 'smart', 'normal', or 'long'
+        @model: str, gpt-4o, gpt-3.5-turbo 等, 默认为None读取环境变量DEFAULT_LLM_MODEL，如果没有则为gpt-4o
         @variables: dict, embed variables to python interpreter, like {'a': a, 'variable_name': variable_value}, then Agent can use the variables in python interpreter like `variable_name`
         @knowledge_query_function: function, knowledge query function
         @continue_run: bool, 是否自动继续执行。Agent在任务没有完成时，是否自动执行。默认为False
@@ -132,7 +149,7 @@ class NormalAgent(AbsAgent):
             knowledge_interpreter = KnowledgeInterperter(knowledge_query_function)
             interpreter_list.append(knowledge_interpreter)
         agent.interpreters = interpreter_list
-        agent.model = model
+        agent.model = model or os.environ.get('DEFAULT_LLM_MODEL', 'gpt-4o')
         if variables is not None:
             for key, value in variables.items():
                 agent.python_interpreter.set_variable(key, value)
@@ -182,7 +199,7 @@ class NormalAgent(AbsAgent):
             messages = skills.cut_messages(messages, 2*1000)
             the_prompt = "对于当前状态，无需用户输入或者确认，继续执行任务，请回复yes，其他情况回复no"
             messages += [{'role': 'system', 'content': the_prompt}]
-            response = skills.llm_inference(messages, model_type='smart', stream=False)
+            response = skills.llm_inference(messages, model='smart', stream=False, api_key=self.api_key, base_url=self.base_url)
             if 'yes' in response.lower():
                 result = self.run('ok')
         return result
@@ -244,8 +261,7 @@ class NormalAgent(AbsAgent):
         messages = self.memory.get_messages()
         if self.chat_messages_limit is not None:
             messages = messages[-self.chat_messages_limit:]
-        token_limit = skills.get_llm_token_limit(self.model)
-        messages = skills.cut_messages(messages, int(token_limit*0.8))
+        messages = skills.cut_messages(messages, int(self.token_limit*0.8))
         system_prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.interpreters])
         messages = [{'role': 'system', 'content': system_prompt}] + messages
         return messages
@@ -256,7 +272,7 @@ class NormalAgent(AbsAgent):
             result = ''
             is_stop = True
             is_break = False
-            response = skills.llm_inference(messages, model_type=self.model, stream=True)
+            response = skills.llm_inference(messages, model=self.model, stream=True, api_key=self.api_key, base_url=self.base_url)
             message_id = None
             for token in response:
                 if token is None: break

@@ -1,6 +1,8 @@
 # GeneralAgent: From LLM to Agent
 
-GeneralAgent是一个原生Python框架，旨在将大型语言模型（LLM）与Python无缝集成，扩展LLM的文本输入输出能力到Python代码执行领域。这种集成允许创建结构化的工作流程，并协调多个Agent执行复杂任务。
+GeneralAgent是一个Python原生的Agent框架，旨在将大型语言模型（LLM）与 Python 无缝集成，扩展LLM的文本空间(输入和输出都是文本) 到 Python代码空间。
+
+这种集成允许创建结构化的工作流程、协调多个Agent，来执行复杂任务。
 
 使用GeneralAgent，您可以：
 * 快速配置角色、功能和知识库，创建Agent。
@@ -12,8 +14,8 @@ GeneralAgent是一个原生Python框架，旨在将大型语言模型（LLM）�
 GeneralAgent的主要特性：
 * **工具调用**：GeneralAgent 不依赖大模型的 function call，通过python代码解释器来调用工具。
 * **序列化**：GeneralAgent 支持序列化，包括记忆和python执行状态，随用随启
-* **自我调用**：GeneralAgent通过自我调用和堆栈记忆最小化大模型的调用次数使高效处理复杂任务。更多详情请见我们的[论文](./docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf)
-* **部署就绪**：使用GeneralAgent或者其他Agent框架开发的应用可以通过 [AgentServer(即将开源)](https://github.com/CosmosShadow/AgentServer)部署，快速为大规模用户提供Agent服务。
+* **自我调用**：GeneralAgent通过自我调用和堆栈记忆，最小化大模型的调用次数，来高效处理复杂任务。更多详情请见我们的 [论文](./docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf)
+* **大规模部署**：使用GeneralAgent或者其他Agent框架开发的应用可以通过 [AgentServer(即将开源)](https://github.com/CosmosShadow/AgentServer)部署，快速为大规模用户提供Agent服务。
 
 该框架赋予开发者在强大且多功能的Python环境中利用LLM的认知能力，增强基于Agent的应用的自动化和智能性。
 
@@ -23,6 +25,32 @@ GeneralAgent的主要特性：
 
 ```bash
 pip install GeneralAgent==0.2.30
+```
+
+
+
+## 配置
+
+### 方法一
+
+**步骤1** : 
+
+拷贝 .env.example 文件为 .env 文件，配置 .env 文件中的 OPENAI_API_KEY 和 其他变量
+
+**步骤2**: 
+
+命令行执行以下命令，导出全部配置到环境变量
+```bash
+export $(grep -v '^#' .env | sed 's/^export //g' | xargs)
+````
+
+
+
+### 方法二
+
+命令行执行以下命令，配置环境变量
+```bash
+export OPENAI_API_KEY=your_openai_api_key
 ```
 
 
@@ -137,13 +165,15 @@ print(enhanced_story)
 
 ## 论文
 
-[General Agent：自调用和堆栈内存](./docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf)
+[General Agent：Self Call and Stack Memory](./docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf)
 
 
 
-## 加入我们
 
-使用微信扫描下方二维码
+
+## 加入我们👏🏻
+
+使用微信扫描下方二维码，加入微信群聊，或参与贡献。
 
 <p align="center">
 <img src="./docs/images/wechat.jpg" alt="wechat" width=400/>
