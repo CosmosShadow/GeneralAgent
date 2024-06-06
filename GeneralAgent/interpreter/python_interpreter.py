@@ -12,7 +12,7 @@ from GeneralAgent import skills
 
 class PythonInterpreter(Interpreter):
     """
-    Sync Python Interpreter: run python code in the interpreter. Not same namespace with the agent & Can Only run synchronous code
+    Python Interpreter: run python code in the interpreter. Not same namespace with the agent & Can Only run synchronous code
     """
     output_match_pattern = '```python\n(.*?)\n```'
     agent = None
@@ -44,12 +44,11 @@ result
                  stop_wrong_count = 3
                  ):
         """
-        Args:
-            serialize_path (str): path to save the global variables, default None, which means not save, like './serialized.bin'
-            libs ([str], optional): libraries can be to used. Defaults to skills.get_current_env_python_libs()
-            import_code (str, optional): code to import. The tools used should be imported. Defaults to default_import_code.
-            prompt_append: append to the prompt, custom prompt can be added here
-            stop_wrong_count: stop running when the code is wrong for stop_wrong_count times
+        @serialize_path (str): python解释器的序列化路径，如果为None，则不序列化。举例: './python_interpreter.bin' or 'serialized.pkl'
+        @lib (str, optional): 可以使用的库
+        @import_code (str, optional): code to import. The tools used should be imported. Defaults to default_import_code.
+        @prompt_append: append to the prompt, custom prompt can be added here
+        @stop_wrong_count: stop running when the code is wrong for stop_wrong_count times
         """
         from GeneralAgent import skills
         self.globals = {}  # global variables shared by all code

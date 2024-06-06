@@ -9,20 +9,37 @@ from .abs_agent import AbsAgent
 
 
 class NormalAgent(AbsAgent):
-
-    def __init__(self, workspace='./', new=False):
+    def __init__(self, role:str=None, functions:list=[], workspace:str=None, model_type='smart', self_call=False, continue_run=True):
+        """
+        @role: str, Agent角色描述，例如"你是一个小说家"，默认为None
+        @functions: list, Agent可用的函数(工具)列表，默认为[]
+        @workspace: str, Agent序列化目录地址，如果目录不存在会自动创建，如果workspace不为None，则会从workspace中加载序列化的memory和python代码。默认None表示不序列化，不加载。
+        @model_type: str, 模型类型，'smart', 'normal', or 'long', 默认为'smart'.
+        @self_call: bool, 是否开启自我调用(Agent可以写代码来自我调用完成复杂任务), 默认为False.
+        @continue_run: bool, 是否自动继续执行。Agent在任务没有完成时，是否自动执行。默认为True.
+        """
         super().__init__(workspace)
-        if new:
-            self.delete()
         self.memory = StackMemory(serialize_path=self._memory_path)
+        self.role_interpreter = RoleInterpreter(role=role, self_call=self_call)
+        self.python_interpreter = PythonInterpreter(self, serialize_path=self._python_path)
+        self.python_interpreter.function_tools = functions
+        self.model_type = model_type
+        self.continue_run = continue_run
+        self.interpreters = [self.role_interpreter, self.python_interpreter]
 
     @property
     def _memory_path(self):
-        return os.path.join(self.workspace, 'memory.json')
+        if self.workspace is None:
+            return None
+        else:
+            return os.path.join(self.workspace, 'memory.json')
     
     @property
     def _python_path(self):
-        return os.path.join(self.workspace, 'code.bin')
+        if self.workspace is None:
+            return None
+        else:
+            return os.path.join(self.workspace, 'code.bin')
 
     @classmethod
     def empty(cls, workspace='./'):
@@ -41,11 +58,26 @@ class NormalAgent(AbsAgent):
         """
         agent = cls(workspace)
         role_interpreter = RoleInterpreter()
-        python_interpreter = PythonInterpreter(agent, serialize_path=f'{workspace}/code.bin')
         bash_interpreter = ShellInterpreter(workspace)
         applescript_interpreter = AppleScriptInterpreter()
-        agent.interpreters = [role_interpreter, python_interpreter, bash_interpreter, applescript_interpreter]
+        agent.interpreters = [role_interpreter, agent.python_interpreter, bash_interpreter, applescript_interpreter]
         return agent
+    
+    @property
+    def functions(self):
+        return self.python_interpreter.function_tools
+
+    @functions.setter
+    def functions(self, new_value):
+        self.python_interpreter.function_tools = new_value
+
+    @property
+    def role(self):
+        return self.role_interpreter.role
+    
+    @role.setter
+    def role(self, new_value):
+        self.role_interpreter.role = new_value
 
     @classmethod
     def with_functions(
@@ -60,7 +92,6 @@ class NormalAgent(AbsAgent):
         variables=None,
         knowledge_query_function=None,
         continue_run=True,
-        new=False
         ):
         """
         agent with functions
@@ -76,13 +107,10 @@ class NormalAgent(AbsAgent):
         @continue_run: bool, 是否自动继续执行。Agent在任务没有完成时，是否自动执行。默认为False
         @new: bool, 是否新建一个Agent，如果为True，则会删除之前的memory
         """
-        agent = cls(workspace, new=new)
+        agent = cls(workspace)
         role_interpreter = RoleInterpreter(system_prompt=system_prompt, self_control=self_control, search_functions=search_functions)
-        if new and os.path.exists(f'{workspace}/code.bin'):
-            os.remove(f'{workspace}/code.bin')
-        python_interpreter = PythonInterpreter(agent, serialize_path=f'{workspace}/code.bin')
-        python_interpreter.function_tools = functions
-        interpreter_list = [role_interpreter, python_interpreter]
+        agent.python_interpreter.function_tools = functions
+        interpreter_list = [role_interpreter, agent.python_interpreter]
         if knowledge_query_function is not None:
             knowledge_interpreter = KnowledgeInterperter(knowledge_query_function)
             interpreter_list.append(knowledge_interpreter)
@@ -92,7 +120,7 @@ class NormalAgent(AbsAgent):
             agent.add_role_prompt(role_prompt)
         if variables is not None:
             for key, value in variables.items():
-                python_interpreter.set_variable(key, value)
+                agent.python_interpreter.set_variable(key, value)
         agent.continue_run = continue_run
         return agent
 
@@ -248,7 +276,7 @@ class NormalAgent(AbsAgent):
         """
         删除agent: 删除memory和python序列化文件
         """
-        if os.path.exists(self._memory_path):
+        if self._memory_path is not None and os.path.exists(self._memory_path):
             os.remove(self._memory_path)
-        if os.path.exists(self._python_path):
+        if self._python_path is not None and os.path.exists(self._python_path):
             os.remove(self._python_path)

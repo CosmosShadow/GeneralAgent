@@ -4,15 +4,20 @@ import os
 
 class NormalMemory:
     def __init__(self, serialize_path='./memory.json'):
+        """
+        @serialize_path: str, 序列化路径，默认为'./memory.json'。如果为None，则使用内存存储
+        """
         self.messages = []
         self.serialize_path = serialize_path
-        if os.path.exists(serialize_path):
-            with open(serialize_path, 'r', encoding='utf-8') as f:
-                self.messages = json.load(f)
+        if serialize_path is not None:
+            if os.path.exists(serialize_path):
+                with open(serialize_path, 'r', encoding='utf-8') as f:
+                    self.messages = json.load(f)
 
     def save(self):
-        with open(self.serialize_path, 'w', encoding='utf-8') as f:
-            json.dump(self.messages, f)
+        if self.serialize_path is not None:
+            with open(self.serialize_path, 'w', encoding='utf-8') as f:
+                json.dump(self.messages, f)
 
     def push_stack(self):
         pass

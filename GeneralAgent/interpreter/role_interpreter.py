@@ -19,33 +19,7 @@ def get_os_version() -> str:
     else:
         return "Unknown system"
 
-class RoleInterpreter(Interpreter):
-    """
-    RoleInterpreter, a interpreter that can change the role of the agent.
-    Note: This should be the first interpreter in the agent.
-    """
-    
-#     system_prompt_template = """
-# Current Time: 2023-01-01 00:00:00
-
-# You are an agent named GeneralAgent on the computer, tasked with assisting users in resolving their issues. 
-# You have the capability to control the computer and access the internet. 
-# All responses should be formatted using markdown. For file references, use the format [title](a.txt), with all files stored in the './' directory.
-# When result file is ready, provide it to the user with donwload link.
-# You should use the following skills (start with #) to solve the problem directly without explain, without ask for permission, without ask for wait.
-
-# """
-
-#     system_prompt_template = \
-# """
-# Now: {{now}}
-# You are GeneralAgent, a agent on the {{os_version}} computer to help the user solve the problem.
-# Remember, you can control the computer and access the internet.
-# Reponse message in markdown format to user. for example file a.txt, you should reponse [title](a.txt)
-# You can use the following skills (start with # ) to help you solve the problem directly without explain, without ask for permission.
-# """
-    
-    system_prompt_template = """
+default_system_role = """
 Current Time: {{now}}
 
 You are an agent on the {{os_version}} computer, tasked with assisting users in resolving their issues. 
@@ -60,7 +34,7 @@ You shold directly output python code to solve the user's problem if nessary.
 You should use the following skills (by python code) to solve the problem directly without explain, without ask for permission, without ask for wait:
 """
 
-    self_control_template = """
+self_call_prompt = """
 # Self Control in Python:
 - You are `agent` in python, and you can control yourself to do any task in future.
 - Execute tasks by calling `agent.run('command', return_type=bool|str|dict|...)`.
@@ -101,11 +75,9 @@ According to the background, the proposed issuance amount is greater than 2000 d
 bigger_than = True
 bigger_than
 ```
-
-## Pay attention to numbers and units
-Be consistent wherever you use numbers and units. And in agent.run, it is necessary to explain the numbers and units clearly.
 """
-    function_search_template = """
+
+function_search_prompt = """
 # Search for functions
 - When you cannot directly meet user needs, you can use the skills.search_functions function in python code to search for available functions, and then execute the functions to complete user needs.
 ## DEMO: draw a image about Beijing
@@ -126,23 +98,36 @@ image_path
 ```
 """
 
-    def __init__(self, system_prompt=None, self_control=True, search_functions=False) -> None:
+
+class RoleInterpreter(Interpreter):
+    """
+    RoleInterpreter, a interpreter that can change the role of the agent.
+    Note: This should be the first interpreter in the agent.
+    """
+
+    def __init__(self, system_role=None, self_call=False, search_functions=False, role:str=None) -> None:
+        """
+        prompt = system_role | default_system_role + self_call_prompt + function_search_prompt + role
+        @system_role: str, 系统角色. 如果为None，则使用默认系统角色
+        @self_call: bool, 是否开启自调用
+        @search_functions: bool, 是否开启搜索功能
+        @role: str, 用户角色
+        """
         self.os_version = get_os_version()
-        self.system_prompt = system_prompt
-        self.slef_control = self_control
+        self.system_role = system_role
+        self.slef_control = self_call
         self.search_functions = search_functions
+        self.role = role
 
     def prompt(self, messages) -> str:
-        if self.system_prompt is not None:
-            return self.system_prompt
-        data = {
-            'now': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'os_version': self.os_version
-        }
-        the_template = self.system_prompt_template
+        if self.system_role is not None:
+            prompt = self.system_role
+        else:
+            prompt = Template(default_system_role).render(os_version=self.os_version, now=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         if self.slef_control:
-            the_template += self.self_control_template
+            prompt += '\n\n' + self.self_call_prompt
         if self.search_functions:
-            the_template += self.function_search_template
-        the_prompt = Template(the_template).render(**data)
-        return the_prompt
+            prompt += '\n\n' + self.function_search_prompt
+        if self.role is not None:
+            prompt += '\n\n' + self.role
+        return prompt

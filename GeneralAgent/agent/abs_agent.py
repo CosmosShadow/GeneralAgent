@@ -52,11 +52,11 @@ class AbsAgent(metaclass=abc.ABCMeta):
     # def save(self):
     #     pass
 
-    def __init__(self, workspace='./'):
+    def __init__(self, workspace=None):
         """
         @workspace: str, workspace path
         """
-        if not os.path.exists(workspace):
+        if workspace is not None and not os.path.exists(workspace):
             os.makedirs(workspace)
         self.stop_event = asyncio.Event()
         self.workspace = workspace

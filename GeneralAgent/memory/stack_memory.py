@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 from typing import List
 from tinydb import TinyDB, Query
+from tinydb.storages import MemoryStorage
 
 
 @dataclass
@@ -32,7 +33,14 @@ class StackMemoryNode:
 
 class StackMemory:
     def __init__(self, serialize_path='./memory.json'):
-        self.db = TinyDB(serialize_path)
+        """
+        @serialize_path: str, 序列化路径，默认为'./memory.json'。如果为None，则使用内存存储
+        """
+        if serialize_path is not None:
+            self.db = TinyDB(serialize_path)
+        else:
+            # 内存存储，不序列化
+            self.db = TinyDB(storage=MemoryStorage)
         nodes = [StackMemoryNode(**node) for node in self.db.all()]
         self.spark_nodes = dict(zip([node.node_id for node in nodes], nodes))
         # add root node

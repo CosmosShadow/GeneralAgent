@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List
 from tinydb import TinyDB, Query
-import asyncio
+from tinydb.storages import MemoryStorage
 
 @dataclass
 class LinkMemoryNode:
@@ -35,9 +35,17 @@ def summarize_and_segment(text, output_callback=None):
 
 class LinkMemory():
     def __init__(self, serialize_path='./link_memory.json', short_memory_limit=2000) -> None:
+        """
+        @serialize_path: str, 序列化路径，默认为'./link_memory.json'。如果为None，则使用内存存储
+        @short_memory_limit: int, 短时记忆长度限制
+        """
         self.serialize_path = serialize_path
         self.short_memory_limit = short_memory_limit
-        self.db = TinyDB(serialize_path)
+        if serialize_path is not None:
+            self.db = TinyDB(serialize_path)
+        else:
+            # 内存存储，不序列化
+            self.db = TinyDB(storage=MemoryStorage)
         nodes = [LinkMemoryNode(**x) for x in self.db.all()]
         self.concepts = dict(zip([node.key for node in nodes], nodes))
         self.short_memory = ''
