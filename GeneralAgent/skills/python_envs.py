@@ -1,16 +1,4 @@
 
-def get_current_env_python_libs() -> str:
-    """
-    Return the python libs that installed in current env
-    """
-    import os
-    requirements_path = os.path.join(os.path.dirname(__file__), '../requirements.txt')
-    with open(requirements_path, 'r', encoding='utf-8') as f:
-        requirements = f.read()
-        requirements = requirements.replace('\n', ' ')
-        return requirements.strip()
-    
-
 def get_python_version() -> str:
     """
     Return the python version, like "3.9.12"
