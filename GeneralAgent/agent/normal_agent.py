@@ -245,6 +245,8 @@ class NormalAgent(AbsAgent):
                 output_callback(token)
                 interpreter:Interpreter = None
                 for interpreter in self.interpreters:
+                    if self.disable_python_run and interpreter.__class__.__name__ == 'PythonInterpreter':
+                        continue
                     if interpreter.output_match(result):
                         logging.debug('interpreter: ' + interpreter.__class__.__name__)
                         message_id = self.memory.add_message('assistant', result)

@@ -12,7 +12,6 @@ class AbsAgent(metaclass=abc.ABCMeta):
     @output_callback: function, output_callback(content: str) -> None
     @python_run_result: str, python run result
     @run_level: int, python run level, use for check stack overflow level
-    @hide_output_parse: bool, hide output parse
     """
     memory = None
     interpreters = []
@@ -23,6 +22,7 @@ class AbsAgent(metaclass=abc.ABCMeta):
     # chat messages limit, default None means no limit
     chat_messages_limit = None
     continue_run = True
+    disable_python_run = False
 
     def add_role_prompt(self, prompt):
         """
