@@ -1,14 +1,12 @@
 # GeneralAgent: From LLM to Agent
 
-GeneralAgent是一个python原生的Agent框架，可以配置角色、工具、知识库来快速生成Agent，并通过函数调用(agent.run)来完成命令和输出结构化内容。
-
+GeneralAgent是一个python原生的Agent框架，可以配置角色、工具(函数)、知识库来快速生成Agent，并通过agent.run来执行命令和输出结构化内容。
 GeneralAgent有以下特性:
 
 * GeneralAgent 不依赖大模型的 function call，通过python代码解释器来调用工具，可以直接传递python函数给Agent使用
 * GeneralAgent 支持序列化，随用随启
 * GeneralAgent 支持自我调用和堆栈记忆，用最少的大模型消耗，来完成复杂任务，请见[论文](./docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf)
 * GeneralAgent 开发的应用，可以通过 [AgentServer(开源准备中)](https://github.com/CosmosShadow/AgentServer) 进行部署，快速给大规模用户提供Agent服务
-
 
 
 ## 安装
