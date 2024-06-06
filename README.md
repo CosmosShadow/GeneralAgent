@@ -52,7 +52,7 @@ agent.user_input('成都天气怎么样？')
 
 ### 序列化
 
-````python
+```python
 # 序列化
 from GeneralAgent.agent import Agent
 
