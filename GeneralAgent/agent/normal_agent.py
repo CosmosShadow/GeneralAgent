@@ -9,7 +9,7 @@ from .abs_agent import AbsAgent
 
 
 class NormalAgent(AbsAgent):
-    def __init__(self, role:str=None, functions:list=[], workspace:str=None, model_type='smart', self_call=False, continue_run=True):
+    def __init__(self, role:str=None, functions:list=[], workspace:str=None, model_type='smart', self_call=False, continue_run=False):
         """
         @role: str, Agent角色描述，例如"你是一个小说家"，默认为None
         @functions: list, Agent可用的函数(工具)列表，默认为[]
