@@ -190,9 +190,9 @@ agent.user_input('介绍一下成都')
 
 ### 禁用Python运行
 
-默认情况下，GeneralAgent会运行用户输入的Python代码。
+默认 GeneralAgent 自动运行 LLM 输出的python代码。
 
-如果你不希望GeneralAgent运行Python代码，可以通过将 `disable_python_run` 属性设置为 `True` 来禁用Python运行。
+某些场景下，如果不希望自动运行，设置 `disable_python_run` 为 `True` 即可。
 
 ```python
 from GeneralAgent import Agent
