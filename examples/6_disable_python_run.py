@@ -1,6 +1,6 @@
 # Disable Python Run
 # 默认情况下，GeneralAgent会运行用户输入的Python代码。如果你不希望GeneralAgent运行Python代码，可以通过将 `disable_python_run` 属性设置为 `True` 来禁用Python运行。
-from GeneralAgent.agent import Agent
+from GeneralAgent import Agent
 
 agent = Agent('你是一个python专家，辅助用户解决python问题。')
 agent.disable_python_run = True

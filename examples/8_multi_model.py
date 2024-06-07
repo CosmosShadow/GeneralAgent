@@ -1,6 +1,6 @@
 # 通过OpenAI Python SDK 支持其他大模型
 # 或者通过 https://github.com/songquanpeng/one-api 支持其他大模型
-from GeneralAgent.agent import Agent
+from GeneralAgent import Agent
 
 models = [
     ('deepseek-chat', 32000, 'sk-xxx', 'https://api.deepseek.com/v1'),  # DeepSeek官方支持

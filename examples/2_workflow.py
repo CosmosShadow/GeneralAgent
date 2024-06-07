@@ -1,5 +1,5 @@
 # 工作流: 写小说
-from GeneralAgent.agent import Agent
+from GeneralAgent import Agent
 from GeneralAgent import skills
 
 # 步骤0: 定义Agent

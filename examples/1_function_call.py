@@ -1,5 +1,5 @@
 # 函数调用
-from GeneralAgent.agent import Agent
+from GeneralAgent import Agent
 
 # 函数: 获取天气信息
 def get_weather(city: str) -> str:

@@ -3,7 +3,6 @@ import fitz
 import pytest
 import asyncio
 from GeneralAgent.memory import LinkMemory
-from GeneralAgent.utils import default_output_callback
 from GeneralAgent.utils import set_logging_level
 set_logging_level()
 
@@ -19,8 +18,7 @@ def test_read_paper():
     content = ''
     for page in doc:
         content += '\n' + page.get_text()
-    new_content = memory.add_memory(content, output_callback=None)
-    # new_content = memory.add_memory(content, output_callback=default_output_callback)
+    memory.add_memory(content, output_callback=None)
     spark = memory.get_memory()
     # print(f'-----------\n{spark}\n-----------')
     assert 'Introduction' in spark

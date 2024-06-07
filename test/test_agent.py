@@ -1,7 +1,6 @@
 import os
 import shutil
 from GeneralAgent.agent import Agent
-from GeneralAgent.utils import default_output_callback
 
 workspace = './data/test_workspace'
 

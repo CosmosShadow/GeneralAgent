@@ -32,7 +32,7 @@ pip install GeneralAgent
 
 ## 配置
 
-参考 .env.example 文件，配置大模型的Key或者其他参数
+参考 [.env.example](./.env.example) 文件，配置大模型的Key或者其他参数
 
 ```bash
 export OPENAI_API_KEY=your_openai_api_key
@@ -43,7 +43,7 @@ export OPENAI_API_KEY=your_openai_api_key
 或者在代码中配置
 
 ```python
-from GeneralAgent.agent import Agent
+from GeneralAgent import Agent
 agent = Agent('You are a helpful agent.', model='gpt-4o', token_limit=32000, api_key='sk-xxx', base_url='https://api.openai.com/v1')
 ```
 
@@ -55,7 +55,7 @@ agent = Agent('You are a helpful agent.', model='gpt-4o', token_limit=32000, api
 
 ```python
 # 函数调用
-from GeneralAgent.agent import Agent
+from GeneralAgent import Agent
 
 # 函数: 获取天气信息
 def get_weather(city: str) -> str:
@@ -86,7 +86,7 @@ agent.user_input('成都天气怎么样？')
 
 ```python
 # 序列化
-from GeneralAgent.agent import Agent
+from GeneralAgent import Agent
 
 # agent序列化位置，运行过程中会自动保存LLM的messages和python解析器的状态
 workspace='./5_serialize'
@@ -111,7 +111,7 @@ agent.delete()
 
 ```python
 # 工作流: 写小说
-from GeneralAgent.agent import Agent
+from GeneralAgent import Agent
 from GeneralAgent import skills
 
 # 步骤0: 定义Agent
@@ -152,7 +152,7 @@ skills.output('你的小说已经生成[novel.md](novel.md)\n')
 
 ```python
 # 多Agent配合完成任务
-from GeneralAgent.agent import Agent
+from GeneralAgent import Agent
 story_writer = Agent('你是一个故事创作家，根据大纲要求或者故事梗概，返回一个更加详细的故事内容。')
 humor_enhancer = Agent('你是一个润色作家，将一个故事进行诙谐润色，增加幽默元素。直接输出润色后的故事')
 
@@ -178,7 +178,7 @@ GeneralAgent框架使用OpenAI Python SDK 来支持其他大模型。
 得益于GeneralAgent框架不依赖大模型厂商的 function call 能力实现了函数调用，可以无缝切换不同的大模型实现相同的能力。
 
 ```python
-from GeneralAgent.agent import Agent
+from GeneralAgent import Agent
 
 agent = Agent('You are a helpful agent.', model='deepseek-chat', token_limit=32000, api_key='sk-xxx', base_url='https://api.deepseek.com/v1')
 agent.user_input('介绍一下成都')
@@ -195,7 +195,7 @@ agent.user_input('介绍一下成都')
 如果你不希望GeneralAgent运行Python代码，可以通过将 `disable_python_run` 属性设置为 `True` 来禁用Python运行。
 
 ```python
-from GeneralAgent.agent import Agent
+from GeneralAgent import Agent
 
 agent = Agent('你是一个python专家，辅助用户解决python问题。')
 agent.disable_python_run = True
