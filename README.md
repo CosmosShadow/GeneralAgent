@@ -1,21 +1,24 @@
 # GeneralAgent: From LLM to Agent
 
-GeneralAgent是一个Python原生的Agent框架，旨在将大型语言模型（LLM）与 Python 无缝集成，扩展LLM的文本空间(输入和输出都是文本) 到 Python代码空间。
+GeneralAgent是一个Python原生的Agent框架，旨在将大型语言模型 与 Python 无缝集成。
 
-这种集成允许创建结构化的工作流程、协调多个Agent，来执行复杂任务。
 
-使用GeneralAgent，您可以：
-* 快速配置角色、功能和知识库，创建Agent。
-* 执行稳定的复杂业务流程。
-* 协调多个Agent共同完成任务。
-* 使用 `agent.run` 函数执行命令并产生结构化输出，超越简单的文本响应。
-* 使用 `agent.user_input` 函数与用户进行动态交互。
 
-GeneralAgent的主要特性：
+主要特性：
+
 * **工具调用**：GeneralAgent 不依赖大模型的 function call，通过python代码解释器来调用工具。
 * **序列化**：GeneralAgent 支持序列化，包括记忆和python执行状态，随用随启
 * **自我调用**：GeneralAgent通过自我调用和堆栈记忆，最小化大模型的调用次数，来高效处理复杂任务。更多详情请见我们的 [论文](./docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf)
-* **大规模部署**：使用GeneralAgent或者其他Agent框架开发的应用可以通过 [AgentServer(即将开源)](https://github.com/CosmosShadow/AgentServer)部署，快速为大规模用户提供Agent服务。
+* **部署服务**：使用 [AgentServer(即将开源)](https://github.com/CosmosShadow/AgentServer) 部署 Agent，快速为大规模用户提供服务。
+
+
+
+使用GeneralAgent，您可以：
+
+* 快速配置角色、函数和知识库，创建Agent。
+* 执行稳定的复杂业务流程，协调多个Agent完成任务。
+* 使用 `agent.run` 函数执行命令并产生结构化输出，超越简单的文本响应。
+* 使用 `agent.user_input` 函数与用户进行动态交互。
 
 
 
@@ -29,26 +32,19 @@ pip install GeneralAgent
 
 ## 配置
 
-### 方法一
+参考 .env.example 文件，配置大模型的Key或者其他参数
 
-**步骤1** : 
-
-拷贝 .env.example 文件为 .env 文件，配置 .env 文件中的 OPENAI_API_KEY 和 其他变量
-
-**步骤2**: 
-
-命令行执行以下命令，导出全部配置到环境变量
-```bash
-export $(grep -v '^#' .env | sed 's/^export //g' | xargs)
-````
-
-
-
-### 方法二
-
-命令行执行以下命令，配置环境变量
 ```bash
 export OPENAI_API_KEY=your_openai_api_key
+```
+
+
+
+或者在代码中配置
+
+```python
+from GeneralAgent.agent import Agent
+agent = Agent('You are a helpful agent.', model='gpt-4o', token_limit=32000, api_key='sk-xxx', base_url='https://api.openai.com/v1')
 ```
 
 
