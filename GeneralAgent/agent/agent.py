@@ -29,17 +29,21 @@ class Agent():
     def __init__(self, 
                  role:str=None, 
                  functions:list=[], 
+                 knowledge_files=[],
+                 rag_function=None,
                  workspace:str=None, 
                  model=None, 
                  token_limit=None,
                  api_key=None,
                  base_url=None,
                  self_call=False, 
-                 continue_run=False
+                 continue_run=False,
                  ):
         """
         @role: str, Agent角色描述，例如"你是一个小说家"，默认为None
         @functions: list, Agent可用的函数(工具)列表，默认为[]
+        @knowledge_files: list, 知识库文件列表。当执行delete()函数时，不会删除构建好的知识库(embedding).
+        @rag_function: function, RAG function，用于自定义RAG函数，输入参数为chat模式的messages(包含最近一次输入)，返回值为字符串.
         @workspace: str, Agent序列化目录地址，如果目录不存在会自动创建，如果workspace不为None，则会从workspace中加载序列化的memory和python代码。默认None表示不序列化，不加载。
         @model: str, 模型类型
         @token_limit: int, 模型token限制. None: gpt3.5: 16*1000, gpt4: 128*1000, 其他: 16*1000
@@ -61,7 +65,8 @@ class Agent():
         self.api_key = api_key
         self.base_url = base_url
         self.continue_run = continue_run
-        self.interpreters = [self.role_interpreter, self.python_interpreter]
+        self.knowledge_interpreter = KnowledgeInterperter(knowledge_files=knowledge_files, rag_function=rag_function)
+        self.interpreters = [self.role_interpreter, self.python_interpreter, self.knowledge_interpreter]
         # 默认输出回调函数
         from GeneralAgent import skills
         self.output_callback = skills.output
@@ -330,9 +335,11 @@ class Agent():
         
     def delete(self):
         """
-        删除agent: 删除memory和python序列化文件
+        删除agent: 删除memory和python序列化文件。但不会删除workspace和知识库
         """
         if self._memory_path is not None and os.path.exists(self._memory_path):
             os.remove(self._memory_path)
         if self._python_path is not None and os.path.exists(self._python_path):
             os.remove(self._python_path)
+        self.memory = StackMemory(serialize_path=self._memory_path)
+        self.python_interpreter = PythonInterpreter(self, serialize_path=self._python_path)
