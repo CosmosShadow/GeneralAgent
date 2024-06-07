@@ -11,18 +11,15 @@ class Agent():
     """
     @memory: Memory
     @interpreters: list, interpreters
-    @model_type: str, 'normal' or 'smart' or 'long'. For OpenAI api, normal=gpt3.5, smart=gpt4, long=gpt3.5-16k
     @output_callback: function, output_callback(content: str) -> None
     @python_run_result: str, python run result
     @run_level: int, python run level, use for check stack overflow level
     """
     memory = None
     interpreters = []
-    model_type = 'smart'
     output_callback = None
     python_run_result = None
     run_level = 0
-    chat_messages_limit = None # chat messages limit, default None means no limit
     continue_run = True
     disable_python_run = False
 
@@ -42,9 +39,9 @@ class Agent():
         """
         @role: str, Agent角色描述，例如"你是一个小说家"，默认为None
         @functions: list, Agent可用的函数(工具)列表，默认为[]
-        @knowledge_files: list, 知识库文件列表。当执行delete()函数时，不会删除构建好的知识库(embedding).
+        @knowledge_files: list, 知识库文件列表。当执行delete()函数时，不会删除构建好的知识库(embedding). 
         @rag_function: function, RAG function，用于自定义RAG函数，输入参数为chat模式的messages(包含最近一次输入)，返回值为字符串.
-        @workspace: str, Agent序列化目录地址，如果目录不存在会自动创建，如果workspace不为None，则会从workspace中加载序列化的memory和python代码。默认None表示不序列化，不加载。
+        @workspace: str, Agent序列化目录地址，如果目录不存在会自动创建，如果workspace不为None，则会从workspace中加载序列化的memory和python代码。默认None表示不序列化，不加载。当knowledge_files不为空时, workspace必须提供
         @model: str, 模型类型
         @token_limit: int, 模型token限制. None: gpt3.5: 16*1000, gpt4: 128*1000, 其他: 16*1000
         @api_key: str,  OpenAI or other LLM API KEY
@@ -53,6 +50,8 @@ class Agent():
         @continue_run: bool, 是否自动继续执行。Agent在任务没有完成时，是否自动执行。默认为True.
         """
         from GeneralAgent import skills
+        if workspace is None and len(knowledge_files) > 0:
+            raise Exception('workspace must be provided when knowledge_files is not empty')
         if workspace is not None and not os.path.exists(workspace):
             os.makedirs(workspace)
         self.workspace = workspace
@@ -65,7 +64,7 @@ class Agent():
         self.api_key = api_key
         self.base_url = base_url
         self.continue_run = continue_run
-        self.knowledge_interpreter = KnowledgeInterperter(knowledge_files=knowledge_files, rag_function=rag_function)
+        self.knowledge_interpreter = KnowledgeInterperter(workspace, knowledge_files=knowledge_files, rag_function=rag_function)
         self.interpreters = [self.role_interpreter, self.python_interpreter, self.knowledge_interpreter]
         # 默认输出回调函数
         from GeneralAgent import skills
@@ -282,12 +281,15 @@ class Agent():
     
     def _get_llm_messages(self):
         from GeneralAgent import skills
+        # 获取记忆 + prompt
         messages = self.memory.get_messages()
-        if self.chat_messages_limit is not None:
-            messages = messages[-self.chat_messages_limit:]
-        messages = skills.cut_messages(messages, int(self.token_limit*0.8))
-        system_prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.interpreters])
-        messages = [{'role': 'system', 'content': system_prompt}] + messages
+        prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.interpreters])
+        # 动态调整记忆长度
+        prompt_count = skills.string_token_count(prompt)
+        left_count = int(self.token_limit * 0.9) - prompt_count
+        messages = skills.cut_messages(messages, left_count)
+        # 组合messages
+        messages = [{'role': 'system', 'content': prompt}] + messages
         return messages
 
     def _llm_and_parse_output(self, messages, output_callback):
