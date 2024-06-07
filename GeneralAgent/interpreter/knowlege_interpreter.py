@@ -1,4 +1,6 @@
 # 知识库解析器
+# 使用: https://github.com/run-llama/llama_index 库构建知识库索引
+
 from .interpreter import Interpreter
 
 import os
@@ -11,6 +13,7 @@ from llama_index.core import (
     StorageContext,
     load_index_from_storage,
 )
+
 
 # from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
 # from llama_index.llms.openai import OpenAI
@@ -102,5 +105,5 @@ class KnowledgeInterperter(Interpreter):
                 background += '\n' + node.get_text()
             background += '\n' + '\n'.join(self.knowledge_files)
         if self.rag_function is not None:
-            background += '\n' + 'RAG function'
+            background += '\n' + self.rag_function(messages)
         return background
