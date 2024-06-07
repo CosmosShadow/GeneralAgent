@@ -35,6 +35,7 @@ class Agent():
                  base_url=None,
                  self_call=False, 
                  continue_run=False,
+                 output_callback=None,
                  ):
         """
         @role: str, Agent角色描述，例如"你是一个小说家"，默认为None
@@ -48,6 +49,7 @@ class Agent():
         @base_url: str, OpenAI or other LLM API BASE URL
         @self_call: bool, 是否开启自我调用(Agent可以写代码来自我调用完成复杂任务), 默认为False.
         @continue_run: bool, 是否自动继续执行。Agent在任务没有完成时，是否自动执行。默认为True.
+        @output_callback: function, 输出回调函数，用于输出Agent的流式输出结果，默认为None，表示使用默认输出函数(skills.output==print)
         """
         from GeneralAgent import skills
         if workspace is None and len(knowledge_files) > 0:
@@ -66,9 +68,12 @@ class Agent():
         self.continue_run = continue_run
         self.knowledge_interpreter = KnowledgeInterperter(workspace, knowledge_files=knowledge_files, rag_function=rag_function)
         self.interpreters = [self.role_interpreter, self.python_interpreter, self.knowledge_interpreter]
-        # 默认输出回调函数
-        from GeneralAgent import skills
-        self.output_callback = skills.output
+        if output_callback is not None:
+            self.output_callback = output_callback
+        else:
+            # 默认输出回调函数
+            from GeneralAgent import skills
+            self.output_callback = skills.output
 
     @property
     def _memory_path(self):
