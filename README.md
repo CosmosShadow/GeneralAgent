@@ -44,7 +44,7 @@ export OPENAI_API_KEY=your_openai_api_key
 
 ```python
 from GeneralAgent import Agent
-agent = Agent('You are a helpful agent.', model='gpt-4o', token_limit=32000, api_key='sk-xxx', base_url='https://api.openai.com/v1')
+agent = Agent('You are a helpful agent.', api_key='sk-xxx')
 ```
 
 
