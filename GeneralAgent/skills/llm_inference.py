@@ -17,12 +17,8 @@ def embedding_texts(texts) -> [[float]]:
     import os
     client = _get_openai_client()
     model = os.environ.get('EMBEDDING_MODEL', 'text-embedding-3-small')
-    # 每次最多embedding 16个
-    max_batch_size = 16
-    result = []
-    for i in range(0, len(texts), max_batch_size):
-        resp = client.embeddings.create(input=texts[i:i+max_batch_size], model=model)
-        result += [x['embedding'] for x in resp['data']]
+    resp = client.embeddings.create(input=texts, model=model)
+    result = [x.embedding for x in resp.data]
     return result
 
 

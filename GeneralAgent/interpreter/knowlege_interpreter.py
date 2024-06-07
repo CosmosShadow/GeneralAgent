@@ -1,5 +1,20 @@
 # 知识库解析器
 # 使用: https://github.com/run-llama/llama_index 库构建知识库索引
+# 默认使用 GeneralAgent.skills 中 embedding_texts 函数来embedding，你可以重写 embedding_texts 函数
+
+# def new_embedding_texts(texts) -> [[float]]:
+#     """
+#     对文本数组进行embedding
+#     """
+#     import os
+#     client = _get_openai_client()
+#     model = os.environ.get('EMBEDDING_MODEL', 'text-embedding-3-small')
+#     resp = client.embeddings.create(input=texts, model=model)
+#     result = [x.embedding for x in resp.data]
+#     return result
+# from GeneralAgent import skills
+# skills.embedding_texts = new_embedding_texts
+
 
 from .interpreter import Interpreter
 
@@ -14,10 +29,41 @@ from llama_index.core import (
     load_index_from_storage,
 )
 
+from typing import Any, List
+from llama_index.core.embeddings import BaseEmbedding
 
-# from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
-# from llama_index.llms.openai import OpenAI
-# from llama_index.core import Settings
+from GeneralAgent import skills
+
+
+class CustomEmbeddings(BaseEmbedding):
+    def __init__(
+        self,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(**kwargs)
+
+    @classmethod
+    def class_name(cls) -> str:
+        return "CustomEmbeddings"
+
+    async def _aget_query_embedding(self, query: str) -> List[float]:
+        return self._get_query_embedding(query)
+
+    async def _aget_text_embedding(self, text: str) -> List[float]:
+        return self._get_text_embedding(text)
+
+    def _get_query_embedding(self, query: str) -> List[float]:
+        return skills.embedding_texts([query])[0]
+
+    def _get_text_embedding(self, text: str) -> List[float]:
+        return skills.embedding_texts([text])[0]
+
+    def _get_text_embeddings(self, texts: List[str]) -> List[List[float]]:
+        return skills.embedding_texts(texts)
+
+from llama_index.core import Settings
+embed_model = CustomEmbeddings(embed_batch_size=16)
+Settings.embed_model = embed_model
 
 
 class KnowledgeInterperter(Interpreter):

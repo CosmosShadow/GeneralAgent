@@ -1,5 +1,6 @@
 # RAG function
 
+# 设置日志级别
 import os
 os.environ['AGENT_LOG'] = 'debug'
 
