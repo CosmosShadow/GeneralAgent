@@ -148,8 +148,8 @@ agent.user_input('What is my name?')
 
 # Ooutput: Your name is Shadow. How can I help you today, Shadow?
 
-# 删除agent: 记忆 + python序列化状态
-agent.delete()
+# 清除: 记忆 + python序列化状态
+agent.clear()
 ```
 
 

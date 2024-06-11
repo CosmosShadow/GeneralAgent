@@ -340,9 +340,9 @@ class Agent():
             output_callback(str(e))
             return True
         
-    def delete(self):
+    def clear(self):
         """
-        删除agent: 删除memory和python序列化文件。但不会删除workspace和知识库
+        清除: 删除memory和python序列化文件。但不会删除workspace和知识库
         """
         if self._memory_path is not None and os.path.exists(self._memory_path):
             os.remove(self._memory_path)

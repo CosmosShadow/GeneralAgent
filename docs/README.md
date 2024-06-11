@@ -14,7 +14,7 @@ python -m venv ga
 source ga/bin/activate
 
 # 安装依赖
-pip isntall .
+pip install .
 
 # 导出环境变量
 export $(grep -v '^#' .env | sed 's/^export //g' | xargs)

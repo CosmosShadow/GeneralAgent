@@ -12,7 +12,13 @@ agent = None
 agent = Agent(role, workspace=workspace)
 agent.user_input('What is my name?')
 
-# Ooutput: Your name is Shadow. How can I help you today, Shadow?
+# Output: Your name is Shadow. How can I help you today, Shadow?
 
-# 删除agent: 记忆 + python序列化状态
-agent.delete()
+# agent: 清除记忆 + python序列化状态
+agent.clear()
+
+agent.user_input('What is my name?')
+# I'm sorry, but I don't have access to your personal information, including your name. How can I assist you today?
+
+import shutil
+shutil.rmtree(workspace)
