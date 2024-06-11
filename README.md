@@ -51,10 +51,9 @@ agent = Agent('You are a helpful agent.', api_key='sk-xxx')
 
 ## 使用
 
-### 基础应用
+### 快速开始
 
 ```python
-# 基础应用
 from GeneralAgent import Agent
 
 # 流式输出中间结果
@@ -64,7 +63,7 @@ def output_callback(token):
 
 agent = Agent('你是AI助手，用中文回复。', output_callback=output_callback)
 while True:
-    query = input('请输入或者回车结束：')
+    query = input('请输入: ')
     agent.user_input(query)
     print('-'*50)
 ```
@@ -219,11 +218,9 @@ print(enhanced_story)
 
 ### 大模型切换
 
-GeneralAgent框架使用OpenAI Python SDK 来支持其他大模型。
-
-如果其他大模型不支持OpenAI SDK，则需要通过 https://github.com/songquanpeng/one-api 来支持。
-
 得益于GeneralAgent框架不依赖大模型厂商的 function call 能力实现了函数调用，可以无缝切换不同的大模型实现相同的能力。
+
+GeneralAgent框架使用OpenAI Python SDK 来支持其他大模型。
 
 ```python
 from GeneralAgent import Agent
@@ -233,6 +230,22 @@ agent.user_input('介绍一下成都')
 ```
 
 详情见: [examples/8_multi_model.py](./examples/8_multi_model.py)
+
+
+
+如果其他大模型不支持OpenAI SDK，可以通过 https://github.com/songquanpeng/one-api 来支持。
+
+或者重写 GeneralAgent.skills 中 llm_inference 函数来使用其他大模型。
+
+```python
+from GeneralAgent import skills
+def new_llm_inference(messages, model, stream=False, temperature=None, api_key=None, base_url=None):
+    """
+    使用大模型进行推理
+    """
+    pass
+skills.llm_inference = new_llm_inference
+```
 
 
 
