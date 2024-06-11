@@ -61,14 +61,14 @@ from GeneralAgent import Agent
 
 # Streaming output of intermediate results
 def output_callback(token):
-token = token or '\n'
-print(token, end='', flush=True)
+    token = token or '\n'
+    print(token, end='', flush=True)
 
 agent = Agent('You are an AI assistant, reply in Chinese.', output_callback=output_callback)
 while True:
-query = input('Please enter: ')
-agent.user_input(query)
-print('-'*50)
+    query = input('Please enter: ')
+    agent.user_input(query)
+    print('-'*50)
 ```
 
 
@@ -81,12 +81,12 @@ from GeneralAgent import Agent
 
 # Function: Get weather information
 def get_weather(city: str) -> str:
-"""
-get weather information
-@city: str, city name
-@return: str, weather information
-"""
-return f"{city} weather: sunny"
+    """
+    get weather information
+    @city: str, city name
+    @return: str, weather information
+    """
+    return f"{city} weather: sunny"
 
 agent = Agent('You are a weather assistant', functions=[get_weather])
 agent.user_input('What is the weather like in Chengdu?')
@@ -120,11 +120,11 @@ You can rewrite the embedding_texts function to use other manufacturers or local
 
 ```python
 def new_embedding_texts(texts) -> [[float]]:
-"""
-Embedding text arrays
-"""
-# Your embedding method
-return result
+    """
+    Embedding text arrays
+    """
+    # Your embedding method
+    return result
 from GeneralAgent import skills
 skills.embedding_texts = new_embedding_texts
 ```
@@ -182,15 +182,15 @@ chapters = agent.run('Output the chapter names of the novel and the summary of e
 # Step 4: Generate detailed content of each chapter of the novel
 contents = []
 for index, (chapter_title, chapter_summary) in enumerate(chapters):
-content = agent.run(f'For chapters: {chapter_title}\n{chapter_summary}. \nOutput detailed content of the chapter, note that only the content is returned, not the title.')
-content = '\n'.join([x.strip() for x in content.split('\n')])
-contents.append(content)
+    content = agent.run(f'For chapters: {chapter_title}\n{chapter_summary}. \nOutput detailed content of the chapter, note that only the content is returned, not the title.')
+    content = '\n'.join([x.strip() for x in content.split('\n')])
+    contents.append(content)
 
 # Step 5: Format the novel and write it to a file
 with open('novel.md', 'w') as f:
-for index in range(len(chapters)):
-f.write(f'### {chapters[index][0]}\n')
-f.write(f'{contents[index]}\n\n')
+    for index in range(len(chapters)):
+        f.write(f'### {chapters[index][0]}\n')
+        f.write(f'{contents[index]}\n\n')
 
 # Step 6 (optional): Convert markdown file to pdf file
 
@@ -241,10 +241,10 @@ Or rewrite the llm_inference function in GeneralAgent.skills to use other large 
 ```python
 from GeneralAgent import skills
 def new_llm_inference(messages, model, stream=False, temperature=None, api_key=None, base_url=None):
-"""
-Use the large model for inference
-"""
-pass
+    """
+    Use the large model for inference
+    """
+    pass
 skills.llm_inference = new_llm_inference
 ```
 
