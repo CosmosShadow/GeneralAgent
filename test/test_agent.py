@@ -1,4 +1,5 @@
 from GeneralAgent import Agent
+from GeneralAgent import skills
 
 def test_math():
     """数学计算测试. 使用run直接返回python表达式的值"""
@@ -19,6 +20,68 @@ def test_function():
     result = agent.user_input('成都天气怎么样？')
     assert '晴' in result or 'sunny' in result
 
+def test_write_novel():
+    # 工作流: 写小说
+    novel_path = 'novel.md'
+    # 清理掉已经有的小说
+    import os
+    if os.path.exists(novel_path):
+        os.remove(novel_path)
+    try:
+
+        # 步骤0: 定义Agent
+        agent = Agent('你是一个小说家')
+
+        # 步骤1: 从用户处获取小说的名称和主题
+        # topic = skills.input('请输入小说的名称和主题: ')
+        topic = '小白兔吃糖不刷牙的故事'
+
+        # 步骤2: 小说的概要
+        summary = agent.run(f'小说的名称和主题是: {topic}，扩展和完善一下小说概要。要求具备文艺性、教育性、娱乐性。')
+
+        # 步骤3: 小说的章节名称和概要列表
+        chapters = agent.run('输出小说的章节名称和每个章节的概要，返回列表 [(chapter_title, chapter_summary), ....]', return_type=list)
+
+        # 步骤4: 生成小说每一章节的详细内容
+        contents = []
+        for index, (chapter_title, chapter_summary) in enumerate(chapters):
+            content = agent.run(f'对于章节: {chapter_title}\n{chapter_summary}. \n输出章节的详细内容，注意只返回内容，不要标题。')
+            content = '\n'.join([x.strip() for x in content.split('\n')])
+            contents.append(content)
+
+        # 步骤5: 将小说格式化写入文件
+        with open(novel_path, 'w') as f:
+            for index in range(len(chapters)):
+                f.write(f'### {chapters[index][0]}\n')
+                f.write(f'{contents[index]}\n\n')
+
+    except Exception as e:
+        pass
+    finally:
+        # 验证小说存在，而且内容不为空
+        assert os.path.exists(novel_path)
+        with open(novel_path, 'r') as f:
+            content = f.read()
+            assert content != ''
+            assert '### ' in content
+        # 清理掉
+        if os.path.exists(novel_path):
+            os.remove(novel_path)
+
+def test_knowledge():
+    # 知识库
+    workspace = '9_knowledge_files'
+    try:
+        files = ['../docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf']
+        agent = Agent('你是AI助手，用中文回复。', workspace=workspace, knowledge_files=files)
+        result = agent.user_input('Self call 是什么意思？')
+        assert 'LLM' in result
+    except Exception as e:
+        raise e
+    finally:
+        # 清理掉
+        import shutil
+        shutil.rmtree(workspace)
+
 if __name__ == '__main__':
-    test_math()
-    test_function()
+    test_knowledge()

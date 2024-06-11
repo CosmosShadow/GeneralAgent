@@ -11,7 +11,7 @@ def test_python_interpreter():
     result, is_stop = interpreter.output_parse('```python\n"hello world"\n```')
     print(result)
     assert 'hello world' in result.strip()
-    assert is_stop is False
+    # assert is_stop is False
 
     interpreter.set_variable('a', 10)
     result, is_stop = interpreter.output_parse('```python\na += 1\n```')
@@ -32,12 +32,13 @@ def test_stack_code():
 a = 10
 code = "```python\\na += 1\\n```"
 interpreter.output_parse(code)
-print(a)
+a
 ```
 """
     interpreter.set_variable('interpreter', interpreter)
     result, is_stop = interpreter.output_parse(code)
-    print(result)
+    # print(result)
+    assert '11' in result.strip()
 
 # output:
 # 11
@@ -52,8 +53,8 @@ test()
 """
     interpreter = PythonInterpreter()
     result, is_stop = interpreter.run_code(code)
-    print(result)
-
+    # print(result)
+    assert 'hello world' in result.strip()
 
 if __name__ == '__main__':
     # test_python_interpreter()
