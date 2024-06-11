@@ -55,7 +55,7 @@ def get_llm_token_limit(model):
     return 16 * 1000
 
 
-def llm_inference(messages, model, stream=False, temperature=None, api_key=None, base_url=None):
+def llm_inference(messages, model='gpt-4o', stream=False, temperature=None, api_key=None, base_url=None):
     """
     Run LLM (large language model) inference on the provided messages using the specified model.
     
@@ -73,6 +73,12 @@ def llm_inference(messages, model, stream=False, temperature=None, api_key=None,
     Note:
     The total number of tokens in the messages and the returned string must be less than 4000 when model_variant is 'normal', and less than 16000 when model_variant is 'long'.
     """
+    if model == 'smart':
+        model = 'gpt-4o'
+    if model == 'long':
+        model = 'gpt-4o'
+    if model == 'normal':
+        model = 'gpt-3.5-turbo'
     import os
     import logging
     logging.debug(messages)
