@@ -19,7 +19,7 @@ GeneralAgent is a Python-native Agent framework that aims to seamlessly integrat
 
 With GeneralAgent, you can:
 
-* Quickly configure roles, functions, and knowledge bases to create Agents.
+* Quickly configure role, functions, and knowledge bases to create Agent.
 
 * Execute stable and complex business processes and coordinate multiple Agents to complete tasks.
 * Use the `agent.run` function to execute commands and produce structured output, beyond simple text responses.
