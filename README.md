@@ -1,5 +1,10 @@
 # GeneralAgent: From LLM to Agent
 
+<p align="center">
+<a href="README.md"><img src="https://img.shields.io/badge/文档-中文版-blue.svg" alt="CN doc"></a>
+<a href="README_en.md"><img src="https://img.shields.io/badge/document-English-blue.svg" alt="EN doc"></a>
+</p>
+
 GeneralAgent是一个Python原生的Agent框架，旨在将大型语言模型 与 Python 无缝集成。
 
 
