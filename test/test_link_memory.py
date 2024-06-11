@@ -3,9 +3,6 @@ import fitz
 import pytest
 import asyncio
 from GeneralAgent.memory import LinkMemory
-from GeneralAgent.utils import set_logging_level
-set_logging_level()
-
 
 
 def test_read_paper():
