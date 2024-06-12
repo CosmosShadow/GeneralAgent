@@ -14,6 +14,9 @@ class Agent():
     @output_callback: function, output_callback(content: str) -> None
     @python_run_result: str, python run result
     @run_level: int, python run level, use for check stack overflow level
+    @continue_run: bool, continue run when task not finished
+    @disable_python_run: bool, disable python run
+    @hide_python_code: bool, hide python code in output
     """
     memory = None
     interpreters = []
@@ -22,6 +25,7 @@ class Agent():
     run_level = 0
     continue_run = True
     disable_python_run = False
+    hide_python_code = False
 
     def __init__(self, 
                  role:str=None, 
@@ -36,6 +40,8 @@ class Agent():
                  self_call=False, 
                  continue_run=False,
                  output_callback=None,
+                 disable_python_run=False,
+                 hide_python_code=False,
                  ):
         """
         @role: str, Agent角色描述，例如"你是一个小说家"，默认为None
@@ -50,6 +56,8 @@ class Agent():
         @self_call: bool, 是否开启自我调用(Agent可以写代码来自我调用完成复杂任务), 默认为False.
         @continue_run: bool, 是否自动继续执行。Agent在任务没有完成时，是否自动执行。默认为True.
         @output_callback: function, 输出回调函数，用于输出Agent的流式输出结果，默认为None，表示使用默认输出函数(skills.output==print)
+        @disable_python_run: bool, 是否禁用python运行，默认为False
+        @hide_python_code: bool, 是否隐藏python代码，默认为False
         """
         from GeneralAgent import skills
         if workspace is None and len(knowledge_files) > 0:
@@ -57,6 +65,8 @@ class Agent():
         if workspace is not None and not os.path.exists(workspace):
             os.makedirs(workspace)
         self.workspace = workspace
+        self.disable_python_run = disable_python_run
+        self.hide_python_code = hide_python_code
         self.memory = StackMemory(serialize_path=self._memory_path)
         self.role_interpreter = RoleInterpreter(role=role, self_call=self_call)
         self.python_interpreter = PythonInterpreter(self, serialize_path=self._python_path)
@@ -298,6 +308,7 @@ class Agent():
         return messages
 
     def _llm_and_parse_output(self, messages, output_callback):
+        outputer = PythonCodeFilter(output_callback, self.hide_python_code)
         from GeneralAgent import skills
         try:
             result = ''
@@ -308,7 +319,7 @@ class Agent():
             for token in response:
                 if token is None: break
                 result += token
-                output_callback(token)
+                outputer.process_text(token)
                 interpreter:Interpreter = None
                 for interpreter in self.interpreters:
                     if self.disable_python_run and interpreter.__class__.__name__ == 'PythonInterpreter':
@@ -326,18 +337,20 @@ class Agent():
                         message_id = self.memory.append_message('assistant', '\n' + output + '\n', message_id=message_id)
                         result = ''
                         if is_stop:
-                            output_callback(None)
-                            output_callback('```output\n' + output + '\n```\n')
+                            outputer.process_text(None)
+                            outputer.process_text('```output\n' + output + '\n```\n')
                         is_break = True
                         break
                 if is_break:
                     break
             if len(result) > 0:
                 message_id = self.memory.add_message('assistant', result)
+            outputer.flush()
             return is_stop
         except Exception as e:
             logging.exception(e)
-            output_callback(str(e))
+            outputer.process_text(str(e))
+            outputer.flush()
             return True
         
     def clear(self):
@@ -350,3 +363,40 @@ class Agent():
             os.remove(self._python_path)
         self.memory = StackMemory(serialize_path=self._memory_path)
         self.python_interpreter = PythonInterpreter(self, serialize_path=self._python_path)
+
+
+class PythonCodeFilter():
+    def __init__(self, output_callback, hide_python_code):
+        self.hide_python_code = hide_python_code
+        self.in_python_code = False
+        self.buffer = ''
+        self.output_callback = output_callback
+
+    def process_text(self, text):
+        if not self.hide_python_code:
+            self.output_callback(text)
+        else:
+            if text is None:
+                self.flush()
+                self.output_callback(None)
+            else:
+                if not self.in_python_code:
+                    self.buffer += text
+                    self._process_buffer()
+
+    def _process_buffer(self):
+        if self.buffer.endswith('```python'):
+            self.in_python_code = True
+            self.buffer = ''  # 清空缓冲区，因为我们不打印```python
+        elif self.buffer.endswith('```') and not self.in_python_code:
+            if self.buffer[:-3]:  # 如果```前有其他文本，先打印出来
+                self.output_callback(self.buffer[:-3])
+            self.buffer = '```'  # 重置缓冲区为```，以便检查后续是否为python代码块
+        else:
+            self.output_callback(self.buffer)
+            self.buffer = ''
+
+    def flush(self):
+        if self.buffer:
+            self.output_callback(self.buffer)
+            self.buffer = ''
