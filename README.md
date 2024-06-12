@@ -1,33 +1,33 @@
 # GeneralAgent: From LLM to Agent
 
 <p align="center">
-<a href="README_CN.md"><img src="https://img.shields.io/badge/文档-中文版-blue.svg" alt="CN doc"></a>
-<a href="README.md"><img src="https://img.shields.io/badge/document-English-blue.svg" alt="EN doc"></a>
+<a href="README.md"><img src="https://img.shields.io/badge/文档-中文版-blue.svg" alt="CN doc"></a>
+<a href="README_EN.md"><img src="https://img.shields.io/badge/document-English-blue.svg" alt="EN doc"></a>
 </p>
 
-GeneralAgent is a Python-native Agent framework that aims to seamlessly integrate large language models with Python.
-
-**Main features**
-
-* **Tool call**: GeneralAgent does not rely on the function call of large models, but calls tools through the python code interpreter.
-
-* **Serialization**: GeneralAgent supports serialization, including memory and python execution status, and is ready to use
-
-* **Self-call**: GeneralAgent minimizes the number of calls to large models through self-call and stack memory to efficiently handle complex tasks. For more details, please see our [paper](./docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf)
-
-* **Deployment service**: Use [AgentServer (to be open source)](https://github.com/CosmosShadow/AgentServer) to deploy Agents and quickly provide services to large-scale users.
-
-With GeneralAgent, you can:
-
-* Quickly configure role, functions, and knowledge bases to create Agent.
-
-* Execute stable and complex business processes and coordinate multiple Agents to complete tasks.
-* Use the `agent.run` function to execute commands and produce structured output, beyond simple text responses.
-* Use the `agent.user_input` function to dynamically interact with the user.
+GeneralAgent是一个Python原生的Agent框架，旨在将大型语言模型 与 Python 无缝集成。
 
 
 
-## Installation
+**主要特性**
+
+* **工具调用**：GeneralAgent 不依赖大模型的 function call，通过python代码解释器来调用工具。
+* **序列化**：GeneralAgent 支持序列化，包括记忆和python执行状态，随用随启
+* **自我调用**：GeneralAgent通过自我调用和堆栈记忆，最小化大模型的调用次数，来高效处理复杂任务。更多详情请见我们的 [论文](./docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf)
+* **部署服务**：使用 [AgentServer(即将开源)](https://github.com/CosmosShadow/AgentServer) 部署 Agent，快速为大规模用户提供服务。
+
+
+
+使用GeneralAgent，您可以：
+
+* 快速配置角色、函数和知识库，创建Agent。
+* 执行稳定的复杂业务流程，协调多个Agent完成任务。
+* 使用 `agent.run` 函数执行命令并产生结构化输出，超越简单的文本响应。
+* 使用 `agent.user_input` 函数与用户进行动态交互。
+
+
+
+## 安装
 
 ```bash
 pip install GeneralAgent
@@ -35,15 +35,17 @@ pip install GeneralAgent
 
 
 
-## Configuration
+## 配置
 
-Refer to the [.env.example](./.env.example) file to configure the key or other parameters of the large model
+参考 [.env.example](./.env.example) 文件，配置大模型的Key或者其他参数
 
 ```bash
 export OPENAI_API_KEY=your_openai_api_key
 ```
 
-Or configure in the code
+
+
+或者在代码中配置
 
 ```python
 from GeneralAgent import Agent
@@ -52,34 +54,29 @@ agent = Agent('You are a helpful agent.', api_key='sk-xxx')
 
 
 
-## Usage
+## 使用
 
-### Quick Start
+### 快速开始
 
 ```python
 from GeneralAgent import Agent
 
-# Streaming output of intermediate results
-def output_callback(token):
-    token = token or '\n'
-    print(token, end='', flush=True)
-
-agent = Agent('You are an AI assistant, reply in Chinese.', output_callback=output_callback)
+agent = Agent('你是一个AI助手')
 while True:
-    query = input('Please enter: ')
+    query = input('请输入: ')
     agent.user_input(query)
     print('-'*50)
 ```
 
 
 
-### Function call
+### 函数调用
 
 ```python
-# Function call
+# 函数调用
 from GeneralAgent import Agent
 
-# Function: Get weather information
+# 函数: 获取天气信息
 def get_weather(city: str) -> str:
     """
     get weather information
@@ -88,42 +85,43 @@ def get_weather(city: str) -> str:
     """
     return f"{city} weather: sunny"
 
-agent = Agent('You are a weather assistant', functions=[get_weather])
-agent.user_input('What is the weather like in Chengdu?')
 
-# Output
+agent = Agent('你是一个天气小助手', functions=[get_weather])
+agent.user_input('成都天气怎么样？')
+
+# 输出
 # ```python
-# city = "Chengdu"
+# city = "成都"
 # weather_info = get_weather(city)
 # weather_info
 # ```
-# The weather in Chengdu is sunny.
-# Is there anything else I can help with?
+# 成都的天气是晴天。
+# 请问还有什么我可以帮忙的吗？
 ```
 
 
 
-### Knowledge Base
+### 知识库
 
 ```python
-# Knowledge Base
+# 知识库
 from GeneralAgent import Agent
 
 knowledge_files = ['../docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf']
-agent = Agent('You are an AI assistant, reply in Chinese.', workspace='9_knowledge_files', knowledge_files=knowledge_files)
-agent.user_input('What does Self call mean?')
+agent = Agent('你是AI助手，用中文回复。', workspace='9_knowledge_files', knowledge_files=knowledge_files)
+agent.user_input('Self call 是什么意思？')
 ```
 
-The knowledge base uses the embedding_texts function in GeneralAgent.skills to embed text by default (the default is OpenAI's text-embedding-3-small model)
+知识库默认使用 GeneralAgent.skills 中 embedding_texts 函数来对文本进行 embedding (默认是OpenAI的text-embedding-3-small模型)
 
-You can rewrite the embedding_texts function to use other manufacturers or local embedding methods, as follows:
+你可以重写 embedding_texts 函数，使用其他厂商 或者 本地的 embedding 方法，具体如下:
 
 ```python
 def new_embedding_texts(texts) -> [[float]]:
     """
-    Embedding text arrays
+    对文本数组进行embedding
     """
-    # Your embedding method
+    # 你的embedding方法
     return result
 from GeneralAgent import skills
 skills.embedding_texts = new_embedding_texts
@@ -131,13 +129,13 @@ skills.embedding_texts = new_embedding_texts
 
 
 
-### Serialization
+### 序列化
 
 ```python
-# Serialization
+# 序列化
 from GeneralAgent import Agent
 
-# Agent serialization location, LLM messages and python parser status will be automatically saved during operation
+# agent序列化位置，运行过程中会自动保存LLM的messages和python解析器的状态
 workspace='./5_serialize'
 
 role = 'You are a helpful agent.'
@@ -149,7 +147,7 @@ agent = Agent(role, workspace=workspace)
 agent.user_input('What is my name?')
 # Output: Your name is Shadow. How can I help you today, Shadow?
 
-# agent: Clear memory + python serialization status
+# agent: 清除记忆 + python序列化状态
 agent.clear()
 
 agent.user_input('What is my name?')
@@ -159,59 +157,63 @@ import shutil
 shutil.rmtree(workspace)
 ```
 
-### Workflow
+
+
+### 工作流
 
 ```python
-# Workflow: Write a novel
+# 工作流: 写小说
 from GeneralAgent import Agent
 from GeneralAgent import skills
 
-# Step 0: Define Agent
-agent = Agent('You are a novelist')
+# 步骤0: 定义Agent
+agent = Agent('你是一个小说家')
 
-# Step 1: Get the name and topic of the novel from the user
-# topic = skills.input('Please enter the name and topic of the novel: ')
-topic = 'The story of the little white rabbit eating candy without brushing its teeth'
+# 步骤1: 从用户处获取小说的名称和主题
+# topic = skills.input('请输入小说的名称和主题: ')
+topic = '小白兔吃糖不刷牙的故事'
 
-# Step 2: Summary of the novel
-summary = agent.run(f'The name and topic of the novel are: {topic}, expand and improve the summary of the novel. It is required to be literary, educational, and entertaining. ')
+# 步骤2: 小说的概要
+summary = agent.run(f'小说的名称和主题是: {topic}，扩展和完善一下小说概要。要求具备文艺性、教育性、娱乐性。')
 
-# Step 3: List of chapter names and summaries of the novel
-chapters = agent.run('Output the chapter names of the novel and the summary of each chapter, return a list [(chapter_title, chapter_summary), ....]', return_type=list)
+# 步骤3: 小说的章节名称和概要列表
+chapters = agent.run('输出小说的章节名称和每个章节的概要，返回列表 [(chapter_title, chapter_summary), ....]', return_type=list)
 
-# Step 4: Generate detailed content of each chapter of the novel
+# 步骤4: 生成小说每一章节的详细内容
 contents = []
 for index, (chapter_title, chapter_summary) in enumerate(chapters):
-    content = agent.run(f'For chapters: {chapter_title}\n{chapter_summary}. \nOutput detailed content of the chapter, note that only the content is returned, not the title.')
+    content = agent.run(f'对于章节: {chapter_title}\n{chapter_summary}. \n输出章节的详细内容，注意只返回内容，不要标题。')
     content = '\n'.join([x.strip() for x in content.split('\n')])
     contents.append(content)
 
-# Step 5: Format the novel and write it to a file
+# 步骤5: 将小说格式化写入文件
 with open('novel.md', 'w') as f:
     for index in range(len(chapters)):
         f.write(f'### {chapters[index][0]}\n')
         f.write(f'{contents[index]}\n\n')
 
-# Step 6 (optional): Convert markdown file to pdf file
+# 步骤6(可选): 将markdown文件转换为pdf文件
 
-# Step 7: Output novel file to user
-skills.output('Your novel has been generated [novel.md](novel.md)\n')
+# 步骤7: 输出小说文件给用户
+skills.output('你的小说已经生成[novel.md](novel.md)\n')
 ```
 
-### Multi-Agent
+
+
+### 多Agent
 
 ```python
-# Multi-Agent cooperates to complete the task
+# 多Agent配合完成任务
 from GeneralAgent import Agent
-story_writer = Agent('You are a story writer. According to the outline requirements or story outline, return a more detailed story content.')
-humor_enhancer = Agent('You are a polisher. Make a story humorous and add humorous elements. Directly output the polished story')
+story_writer = Agent('你是一个故事创作家，根据大纲要求或者故事梗概，返回一个更加详细的故事内容。')
+humor_enhancer = Agent('你是一个润色作家，将一个故事进行诙谐润色，增加幽默元素。直接输出润色后的故事')
 
-# Disable Python running
+# 禁用Python运行
 story_writer.disable_python_run = True
 humor_enhancer.disable_python_run = True
 
-# topic = skills.input('Please enter the outline requirements or story summary of the novel: ')
-topic = 'Write a story about a little white rabbit eating candy without brushing its teeth. It has educational significance. '
+# topic = skills.input('请输入小说的大纲要求或者故事梗概: ')
+topic = '写个小白兔吃糖不刷牙的故事，有教育意义。'
 initial_story = story_writer.run(topic)
 enhanced_story = humor_enhancer.run(initial_story)
 print(enhanced_story)
@@ -219,30 +221,32 @@ print(enhanced_story)
 
 
 
-### LLM switching
+### 大模型切换
 
-Thanks to the GeneralAgent framework's independent function call capability of large model vendors, it can seamlessly switch between different large models to achieve the same capabilities.
+得益于GeneralAgent框架不依赖大模型厂商的 function call 能力实现了函数调用，可以无缝切换不同的大模型实现相同的能力。
 
-The GeneralAgent framework uses the OpenAI Python SDK to support other large models.
+GeneralAgent框架使用OpenAI Python SDK 来支持其他大模型。
 
 ```python
 from GeneralAgent import Agent
 
 agent = Agent('You are a helpful agent.', model='deepseek-chat', token_limit=32000, api_key='sk-xxx', base_url='https://api.deepseek.com/v1')
-agent.user_input('Introduce Chengdu')
+agent.user_input('介绍一下成都')
 ```
 
-For details, see: [examples/8_multi_model.py](./examples/8_multi_model.py)
+详情见: [examples/8_multi_model.py](./examples/8_multi_model.py)
 
-If other large models do not support OpenAI SDK, they can be supported through https://github.com/songquanpeng/one-api.
 
-Or rewrite the llm_inference function in GeneralAgent.skills to use other large models.
+
+如果其他大模型不支持OpenAI SDK，可以通过 https://github.com/songquanpeng/one-api 来支持。
+
+或者重写 GeneralAgent.skills 中 llm_inference 函数来使用其他大模型。
 
 ```python
 from GeneralAgent import skills
 def new_llm_inference(messages, model, stream=False, temperature=None, api_key=None, base_url=None):
     """
-    Use the large model for inference
+    使用大模型进行推理
     """
     pass
 skills.llm_inference = new_llm_inference
@@ -250,37 +254,86 @@ skills.llm_inference = new_llm_inference
 
 
 
-### Disable Python run
+### 禁用Python运行
 
-By default, GeneralAgent automatically runs the python code output by LLM.
+默认 GeneralAgent 自动运行 LLM 输出的python代码。
 
-In some scenarios, if you do not want to run automatically, set `disable_python_run` to `True`.
+某些场景下，如果不希望自动运行，设置 `disable_python_run` 为 `True` 即可。
 
 ```python
 from GeneralAgent import Agent
 
-agent = Agent('You are a python expert, helping users solve python problems.')
+agent = Agent('你是一个python专家，辅助用户解决python问题。')
 agent.disable_python_run = True
-agent.user_input('Use python to implement a function to read files')
+agent.user_input('用python实现一个读取文件的函数')
 ```
 
 
 
-### More
 
-For more examples, see [examples](./examples)
+### AI搜索
+
+```python
+# AI搜索
+# 运行前置条件: 1. 请先配置环境变量 SERPER_API_KEY (https://serper.dev/ 的API KEY)；2. 安装 selenium 库: pip install selenium
+
+# AI搜索
+# 运行前置条件: 
+# 1. 请先配置环境变量 SERPER_API_KEY (https://serper.dev/ 的API KEY)；
+# 2. 安装 selenium 库: pip install selenium
+
+from GeneralAgent import Agent
+from GeneralAgent import skills
+
+google_results = []
+
+# 步骤1: 第一次google搜索
+question = input('请输入问题，进行 AI 搜索: ')
+# question = '周鸿祎卖车'
+content1 = skills.google_search(question)
+google_results.append(content1)
+
+# 步骤2: 第二次google搜索: 根据第一次搜索结构，获取继续搜索的问题
+agent = Agent('你是一个AI搜索助手。')
+querys = agent.run(f'用户问题: \n{question}\n\n搜索引擎结果: \n{content1}\n\n。请问可以帮助用户，需要继续搜索的关键短语有哪些(最多3个，且和问题本身不太重合)？返回关键短语列表变量([query1, query2])', return_type=list)
+print(querys)
+for query in querys:
+    content = skills.google_search(query)
+    google_results.append(content)
+
+# 步骤3: 提取重点网页内容
+agent.clear()
+web_contents = []
+google_result = '\n\n'.join(google_results)
+urls = agent.run(f'用户问题: \n{question}\n\n搜索引擎结果: \n{google_result}\n\n。哪些网页对于用户问题比较有帮助？请返回最重要的不超过5个的网页url列表变量([url1, url2, ...])', return_type=list)
+for url in urls:
+    content = skills.web_get_text(url, wait_time=2)
+    web_contents.append(content)
+
+# 步骤4: 输出结果
+agent.clear()
+web_content = '\n\n'.join(web_contents)
+agent.run(f'用户问题: \n{question}\n\n搜索引擎结果: \n{google_result}\n\n部分网页内容: \n{web_content}\n\n。请根据用户问题，搜索引擎结果，网页内容，给出用户详细的回答，要求按一定目录结构来输出，并且使用markdown格式。')
+```
+
+### 更多
+
+更多例子请见 [examples](./examples)
 
 
 
-## Paper
 
-[General Agent: Self Call and Stack Memory](./docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf)
+## 论文
+
+[General Agent：Self Call and Stack Memory](./docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf)
 
 
 
-## Join us👏🏻
 
-Use WeChat to scan the QR code below, join the WeChat group chat, or participate in the contribution.
+
+## 加入我们👏🏻
+
+使用微信扫描下方二维码，加入微信群聊，或参与贡献。
 
 <p align="center">
 <img src="./docs/images/wechat.jpg" alt="wechat" width=400/>
