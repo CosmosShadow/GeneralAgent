@@ -9,15 +9,16 @@ from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellIn
 
 class Agent():
     """
-    @memory: Memory
-    @interpreters: list, interpreters
-    @output_callback: function, output_callback(content: str) -> None
-    @python_run_result: str, python run result
-    @run_level: int, python run level, use for check stack overflow level
-    @continue_run: bool, continue run when task not finished
-    @disable_python_run: bool, disable python run
-    @hide_python_code: bool, hide python code in output
+    Agent
     """
+    # @memory: Memory
+    # @interpreters: list, interpreters
+    # @output_callback: function, output_callback(content: str) -> None
+    # @python_run_result: str, python run result
+    # @run_level: int, python run level, use for check stack overflow level
+    # @continue_run: bool, continue run when task not finished
+    # @disable_python_run: bool, disable python run
+    # @hide_python_code: bool, hide python code in output
     memory = None
     interpreters = []
     output_callback = None
@@ -45,19 +46,33 @@ class Agent():
                  ):
         """
         @role: str, Agent角色描述，例如"你是一个小说家"，默认为None
+
         @functions: list, Agent可用的函数(工具)列表，默认为[]
+
         @knowledge_files: list, 知识库文件列表。当执行delete()函数时，不会删除构建好的知识库(embedding). 
+
         @rag_function: function, RAG function，用于自定义RAG函数，输入参数为chat模式的messages(包含最近一次输入)，返回值为字符串.
+
         @workspace: str, Agent序列化目录地址，如果目录不存在会自动创建，如果workspace不为None，则会从workspace中加载序列化的memory和python代码。默认None表示不序列化，不加载。当knowledge_files不为空时, workspace必须提供
-        @model: str, 模型类型
+
+        @model: str, 模型类型，比如"gpt-3.5-turbo", "gpt-4o"等
+
         @token_limit: int, 模型token限制. None: gpt3.5: 16*1000, gpt4: 128*1000, 其他: 16*1000
+
         @api_key: str,  OpenAI or other LLM API KEY
+
         @base_url: str, OpenAI or other LLM API BASE URL
+
         @self_call: bool, 是否开启自我调用(Agent可以写代码来自我调用完成复杂任务), 默认为False.
+
         @continue_run: bool, 是否自动继续执行。Agent在任务没有完成时，是否自动执行。默认为True.
+
         @output_callback: function, 输出回调函数，用于输出Agent的流式输出结果，默认为None，表示使用默认输出函数(skills.output==print)
+
         @disable_python_run: bool, 是否禁用python运行，默认为False
+
         @hide_python_code: bool, 是否隐藏python代码，默认为False
+
         """
         from GeneralAgent import skills
         if workspace is None and len(knowledge_files) > 0:
@@ -98,28 +113,6 @@ class Agent():
             return None
         else:
             return os.path.join(self.workspace, 'code.bin')
-
-    @classmethod
-    def empty(cls, workspace='./'):
-        """
-        empty agent, only role interpreter and memory, work like a basic LLM chatbot
-        """
-        agent = cls(workspace)
-        agent.interpreters = [RoleInterpreter()]
-        return agent
-
-    @classmethod
-    def default(cls, workspace='./'):
-        """
-        default agent, with all interpreters
-        @workspace: str, workspace path
-        """
-        agent = cls(workspace)
-        role_interpreter = RoleInterpreter()
-        bash_interpreter = ShellInterpreter(workspace)
-        applescript_interpreter = AppleScriptInterpreter()
-        agent.interpreters = [role_interpreter, agent.python_interpreter, bash_interpreter, applescript_interpreter]
-        return agent
     
     @property
     def functions(self):
@@ -151,56 +144,18 @@ class Agent():
         self.output_callback = self.tmp_output_callback
         self.tmp_output_callback = None
 
-    @classmethod
-    def with_functions(
-        cls,
-        functions=[],
-        system_prompt=None,
-        role_prompt=None,
-        self_control=False,
-        search_functions=False,
-        workspace = './',
-        model=None,
-        variables=None,
-        knowledge_query_function=None,
-        continue_run=True,
-        ):
-        """
-        agent with functions
-        @functions: list, [function1, function2, ...]
-        @system_prompt: str, system prompt，完全替换默认的system_prompt，且这时候 self_control & search_functions无效
-        @role_prompt: str, role prompt，在system_prompt的后面添加的prompt
-        @self_control: bool, 是否开启自控
-        @search_functions: bool, 是否开启搜索函数
-        @workspace: str, workspace path
-        @model: str, gpt-4o, gpt-3.5-turbo 等, 默认为None读取环境变量DEFAULT_LLM_MODEL，如果没有则为gpt-4o
-        @variables: dict, embed variables to python interpreter, like {'a': a, 'variable_name': variable_value}, then Agent can use the variables in python interpreter like `variable_name`
-        @knowledge_query_function: function, knowledge query function
-        @continue_run: bool, 是否自动继续执行。Agent在任务没有完成时，是否自动执行。默认为False
-        @new: bool, 是否新建一个Agent，如果为True，则会删除之前的memory
-        """
-        agent = cls(workspace)
-        role_interpreter = RoleInterpreter(system_prompt=system_prompt, self_control=self_control, search_functions=search_functions, role=role_prompt)
-        agent.python_interpreter.function_tools = functions
-        interpreter_list = [role_interpreter, agent.python_interpreter]
-        if knowledge_query_function is not None:
-            knowledge_interpreter = KnowledgeInterperter(knowledge_query_function)
-            interpreter_list.append(knowledge_interpreter)
-        agent.interpreters = interpreter_list
-        agent.model = model or os.environ.get('DEFAULT_LLM_MODEL', 'gpt-4o')
-        if variables is not None:
-            for key, value in variables.items():
-                agent.python_interpreter.set_variable(key, value)
-        agent.continue_run = continue_run
-        return agent
-
     def run(self, command, return_type=str, show_stream=True, user_check=False):
         """
         执行command命令，并返回return_type类型的结果
+
         @command: str, 命令内容
-        @return_type: type, 返回类型，默认str
+
+        @return_type: type, 返回类型，默认str. 可以是任意的python类型。
+
         @show_stream: bool, 是否显示流输出
+
         @user_check: bool, 是否需要用户确认命令执行后的结果，默认不需要
+
         """
         # 代码调用agent执行，直接run_level+1
         self.run_level += 1
@@ -225,9 +180,11 @@ class Agent():
                 self.enable_output_callback()
 
     
-    def user_input(self, input):
+    def user_input(self, input:str):
         """
-        用户输入
+        Agent接收用户输入
+        
+        :input: 用户输入内容, str类型
         """
         from GeneralAgent import skills
         result = self._run(input)
@@ -245,7 +202,9 @@ class Agent():
     def _run(self, input, return_type=str):
         """
         agent run: parse intput -> get llm messages -> run LLM and parse output
+
         @input: str, user's new input, None means continue to run where it stopped
+
         @return_type: type, return type, default str
         """
         from GeneralAgent import skills
@@ -357,7 +316,7 @@ class Agent():
         
     def clear(self):
         """
-        清除: 删除memory和python序列化文件。但不会删除workspace和知识库
+        清除: 删除memory和python序列化文件。不会删除workspace和知识库。
         """
         if self._memory_path is not None and os.path.exists(self._memory_path):
             os.remove(self._memory_path)
@@ -368,13 +327,26 @@ class Agent():
 
 
 class PythonCodeFilter():
+    """
+    Python代码过滤器，用于隐藏Python代码块
+    """
     def __init__(self, output_callback, hide_python_code):
+        """
+        构造函数
+
+        @output_callback: 输出回调函数
+
+        @hide_python_code: 是否隐藏python代码, bool
+        """
         self.hide_python_code = hide_python_code
         self.in_python_code = False
         self.buffer = ''
         self.output_callback = output_callback
 
     def process_text(self, text):
+        """
+        处理输入问题
+        """
         if not self.hide_python_code:
             self.output_callback(text)
         else:
