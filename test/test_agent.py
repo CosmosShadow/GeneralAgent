@@ -4,7 +4,7 @@ from GeneralAgent import skills
 def test_math():
     """数学计算测试. 使用run直接返回python表达式的值"""
     agent = Agent()
-    result = agent.run('calculate 0.99 ** 1000, return a float', return_type=float)
+    result = agent.run('calculate 0.99 ** 1000', return_type=float)
     assert 4.317124741065786e-05 == result
 
 def test_function():
@@ -84,4 +84,4 @@ def test_knowledge():
         shutil.rmtree(workspace)
 
 if __name__ == '__main__':
-    test_knowledge()
+    test_math()
