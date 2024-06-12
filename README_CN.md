@@ -282,6 +282,11 @@ agent.user_input('用python实现一个读取文件的函数')
 # AI搜索
 # 运行前置条件: 1. 请先配置环境变量 SERPER_API_KEY (https://serper.dev/ 的API KEY)；2. 安装 selenium 库: pip install selenium
 
+# AI搜索
+# 运行前置条件: 
+# 1. 请先配置环境变量 SERPER_API_KEY (https://serper.dev/ 的API KEY)；
+# 2. 安装 selenium 库: pip install selenium
+
 from GeneralAgent import Agent
 from GeneralAgent import skills
 
