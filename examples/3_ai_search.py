@@ -1,5 +1,5 @@
 # AI搜索
-# 请先配置环境变量 SERPER_API_KEY (https://serper.dev/ 的API KEY)
+# 运行前置条件: 1. 请先配置环境变量 SERPER_API_KEY (https://serper.dev/ 的API KEY)；2. 安装 selenium 库: pip install selenium
 
 from GeneralAgent import Agent
 from GeneralAgent import skills
@@ -7,8 +7,8 @@ from GeneralAgent import skills
 google_results = []
 
 # 步骤1: 第一次google搜索
-# question = input('请输入问题，进行 AI 搜索: ')
-question = '周鸿祎卖车'
+question = input('请输入问题，进行 AI 搜索: ')
+# question = '周鸿祎卖车'
 content1 = skills.google_search(question)
 google_results.append(content1)
 
