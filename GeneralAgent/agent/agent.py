@@ -269,7 +269,7 @@ class Agent():
         return messages
 
     def _llm_and_parse_output(self, messages, output_callback):
-        outputer = PythonCodeFilter(output_callback, self.hide_python_code)
+        outputer = _PythonCodeFilter(output_callback, self.hide_python_code)
         from GeneralAgent import skills
         try:
             result = ''
@@ -326,7 +326,7 @@ class Agent():
         self.python_interpreter = PythonInterpreter(self, serialize_path=self._python_path)
 
 
-class PythonCodeFilter():
+class _PythonCodeFilter():
     """
     Python代码过滤器，用于隐藏Python代码块
     """
