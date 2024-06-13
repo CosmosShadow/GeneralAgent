@@ -268,15 +268,21 @@ agent.disable_python_run = True
 agent.user_input('用python实现一个读取文件的函数')
 ```
 
+### 隐藏python运行
+
+在正式的业务场景中，不希望用户看到python代码的运行，而只是看到最终结果，可以设置 `hide_python_code` 为 `True`。
+
+```python
+from GeneralAgent import Agent
+agent = Agent('You are a helpful assistant.', hide_python_code=True)
+agent.user_input('caculate 0.999 ** 1000')
+```
 
 
 
 ### AI搜索
 
 ```python
-# AI搜索
-# 运行前置条件: 1. 请先配置环境变量 SERPER_API_KEY (https://serper.dev/ 的API KEY)；2. 安装 selenium 库: pip install selenium
-
 # AI搜索
 # 运行前置条件: 
 # 1. 请先配置环境变量 SERPER_API_KEY (https://serper.dev/ 的API KEY)；

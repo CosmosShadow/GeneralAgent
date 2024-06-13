@@ -266,6 +266,61 @@ agent.user_input('Use python to implement a function to read files')
 
 
 
+### Hide Python Run
+
+In formal business scenarios, if you do not want users to see the running of Python code but only the final result, you can set `hide_python_code` to `True`.
+
+```python
+from GeneralAgent import Agent
+agent = Agent('You are a helpful assistant.', hide_python_code=True)
+agent.user_input('caculate 0.999 ** 1000')
+```
+
+
+
+### AI search
+
+```python
+# AI search
+# Prerequisites:
+# 1. Please configure the environment variable SERPER_API_KEY (https://serper.dev/'s API KEY);
+# 2. Install the selenium library: pip install selenium
+
+from GeneralAgent import Agent
+from GeneralAgent import skills
+
+google_results = []
+
+# Step 1: First Google search
+question = input('Please enter a question and proceed AI search: ')
+content1 = skills.google_search(question)
+google_results.append(content1)
+
+# Step 2: Second Google search: According to the first search structure, get the question to continue searching
+agent = Agent('You are an AI search assistant.')
+queries = agent.run(f'User question: \n{question}\n\nSearch engine results: \n{content1}\n\n. Can you help users, what are the key phrases that need to be searched (up to 3, and not too overlapping with the question itself)? Return the key phrase list variable ([query1, query2])', return_type=list)
+print(queries)
+for query in queries:
+content = skills.google_search(query)
+google_results.append(content)
+
+# Step 3: Extract key web page content
+agent.clear()
+web_contents = []
+google_result = '\n\n'.join(google_results)
+urls = agent.run(f'User question: \n{question}\n\nSearch engine result: \n{google_result}\n\n. Which web pages are more helpful for user questions? Please return the most important webpage url list variable ([url1, url2, ...])', return_type=list)
+for url in urls:
+content = skills.web_get_text(url, wait_time=2)
+web_contents.append(content)
+
+# Step 4: Output results
+agent.clear()
+web_content = '\n\n'.join(web_contents)
+agent.run(f'User question: \n{question}\n\nSearch engine results: \n{google_result}\n\nPart of the webpage content: \n{web_content}\n\n. Please give the user a detailed answer based on the user's question, search engine results, and webpage content. It is required to be output according to a certain directory structure and use markdown format.')
+```
+
+
+
 ### More
 
 For more examples, see [examples](./examples)
