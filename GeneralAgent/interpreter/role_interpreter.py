@@ -109,7 +109,7 @@ class RoleInterpreter(Interpreter):
         """
         self.os_version = get_os_version()
         self.system_role = system_role
-        self.slef_control = self_call
+        self.self_control = self_call
         self.search_functions = search_functions
         self.role = role
 
@@ -118,7 +118,7 @@ class RoleInterpreter(Interpreter):
             prompt = self.system_role
         else:
             prompt = Template(default_system_role).render(os_version=self.os_version, now=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-        if self.slef_control:
+        if self.self_control:
             prompt += '\n\n' + self.self_call_prompt
         if self.search_functions:
             prompt += '\n\n' + self.function_search_prompt
