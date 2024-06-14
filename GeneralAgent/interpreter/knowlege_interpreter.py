@@ -32,8 +32,6 @@ from llama_index.core import (
 from typing import Any, List
 from llama_index.core.embeddings import BaseEmbedding
 
-from GeneralAgent import skills
-
 
 class CustomEmbeddings(BaseEmbedding):
     def __init__(
@@ -53,12 +51,15 @@ class CustomEmbeddings(BaseEmbedding):
         return self._get_text_embedding(text)
 
     def _get_query_embedding(self, query: str) -> List[float]:
+        from GeneralAgent import skills
         return skills.embedding_texts([query])[0]
 
     def _get_text_embedding(self, text: str) -> List[float]:
+        from GeneralAgent import skills
         return skills.embedding_texts([text])[0]
 
     def _get_text_embeddings(self, texts: List[str]) -> List[List[float]]:
+        from GeneralAgent import skills
         return skills.embedding_texts(texts)
 
 from llama_index.core import Settings
