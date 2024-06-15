@@ -221,6 +221,23 @@ print(enhanced_story)
 
 
 
+
+### 多模态输入
+
+user_input 的 input 参数，和 run 的 command 参数，支持字符串或者数组。
+
+数组时支持多模态，格式为最简模式: ['text_content', {'image': 'path/to/image'}, ...]
+
+```python
+# 支持多模态: 图片输入
+from GeneralAgent import Agent
+
+agent = Agent('You are a helpful assistant.')
+agent.user_input(['what is in the image?', {'image': '../docs/images/self_call.png'}])
+```
+
+
+
 ### 大模型切换
 
 得益于GeneralAgent框架不依赖大模型厂商的 function call 能力实现了函数调用，可以无缝切换不同的大模型实现相同的能力。

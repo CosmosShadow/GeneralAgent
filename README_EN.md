@@ -219,6 +219,23 @@ print(enhanced_story)
 
 
 
+### Multimodal input
+
+The input parameter of user_input and the command parameter of run support strings or arrays.
+
+Multimodal is supported when the array is used. The format is the simplest mode: ['text_content', {'image': 'path/to/image'}, ...]
+
+```python
+# Multimodal support: Image input
+from GeneralAgent import Agent
+
+agent = Agent('You are a helpful assistant.')
+agent.user_input(['what is in the image?', {'image': '../docs/images/self_call.png'}])
+```
+
+
+
+
 ### LLM switching
 
 Thanks to the GeneralAgent framework's independent function call capability of large model vendors, it can seamlessly switch between different large models to achieve the same capabilities.
