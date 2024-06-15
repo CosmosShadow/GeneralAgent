@@ -1,6 +1,7 @@
 # Memeory
+import json
 from dataclasses import dataclass
-from typing import List
+from typing import List, Union
 from tinydb import TinyDB, Query
 from tinydb.storages import MemoryStorage
 
@@ -8,6 +9,7 @@ from tinydb.storages import MemoryStorage
 @dataclass
 class StackMemoryNode:
     role: str
+    type: str = None # 'text' or 'list'
     content: str = None
     node_id: int = None
     parent: int = None
@@ -16,9 +18,11 @@ class StackMemoryNode:
     def __post_init__(self):
         assert self.role in ['user', 'system', 'root', 'assistant'], self.role
         self.childrens = self.childrens if self.childrens else []
+        if self.type is None:
+            self.type = 'text'
 
     def __str__(self):
-        return f'<{self.role}>: {self.content}'
+        return f'<{self.role}><{self.type}>: {self.content}'
     
     def __repr__(self):
         return str(self)
@@ -167,8 +171,36 @@ class StackMemory:
         return ancestors + left_brothers + [('direct', node)]
     
     def get_related_messages_for_node(self, node: StackMemoryNode):
+        # 获取节点相关的消息列表(OpenAI格式，包含图片)
+        def _encode_image(image_path):
+            if image_path.startswith('http'):
+                return image_path
+            import base64
+            with open(image_path, "rb") as image_file:
+                bin_data = base64.b64encode(image_file.read()).decode('utf-8')
+            image_type = image_path.split('.')[-1].lower()
+            virtural_url = f"data:image/{image_type};base64,{bin_data}"
+            return virtural_url
         nodes_with_position = self.get_related_nodes_for_node(node)
-        messages = [{'role': node.role, 'content': node.content} for position, node in nodes_with_position]
+        def _parse_node(node):
+            if node.type == 'list':
+                contents = []
+                items = json.loads(node.content)
+                for item in items:
+                    if isinstance(item, str):
+                        contents.append({'type': 'text', 'text': item})
+                    elif isinstance(item, dict):
+                        key = list(item.keys())[0]
+                        if key == 'image':
+                            url = _encode_image(item[key]) 
+                            contents.append({'type': 'image_url', "image_url": { "url": url}})
+                        else:
+                            raise Exception('message type wrong')
+                    else:
+                        raise Exception('message type wrong')
+                return {'role': node.role, 'content': contents}
+            return {'role': node.role, 'content': node.content}
+        messages = [_parse_node(node) for position, node in nodes_with_position]
         return messages
     
     def get_all_description_of_node(self, node, intend_char='    ', depth=0):
@@ -192,8 +224,13 @@ class StackMemory:
         self.next_position = 'in'
         return self.current_node.node_id
 
-    def add_message(self, role, message):
-        new_node = StackMemoryNode(role=role, content=message)
+    def add_message(self, role, message: Union[str, list]):
+        assert role in ['user', 'system', 'assistant'], role
+        type = 'text'
+        if isinstance(message, list):
+            type = 'list'
+            message = json.dumps(message)
+        new_node = StackMemoryNode(role=role, content=message, type=type)
         if self.next_position == 'after':
             self.add_node_after(self.current_node, new_node)
         else:

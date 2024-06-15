@@ -1,6 +1,7 @@
 # Agent
 import os
 import logging
+from typing import Union
 from GeneralAgent.memory import StackMemory
 from GeneralAgent.interpreter import Interpreter
 from GeneralAgent.interpreter import KnowledgeInterperter
@@ -144,11 +145,11 @@ class Agent():
         self.output_callback = self.tmp_output_callback
         self.tmp_output_callback = None
 
-    def run(self, command, return_type=str, show_stream=True, user_check=False):
+    def run(self, command:Union[str, list], return_type=str, show_stream=True, user_check=False):
         """
         执行command命令，并返回return_type类型的结果
 
-        @command: str, 命令内容
+        @command: 命令内容, str or list. list: [{'type': 'text', 'text': 'hello world'}, {'type': 'image_url', 'image_url': 'xxxx.jpg'}]
 
         @return_type: type, 返回类型，默认str. 可以是任意的python类型。
 
@@ -180,11 +181,11 @@ class Agent():
                 self.enable_output_callback()
 
     
-    def user_input(self, input:str):
+    def user_input(self, input:Union[str, list]):
         """
         Agent接收用户输入
         
-        :input: 用户输入内容, str类型
+        :input: 用户输入内容, str类型 or list: [{'type': 'text', 'text': 'hello world'}, {'type': 'image_url', 'image_url': 'xxxx.jpg'}]
         """
         from GeneralAgent import skills
         result = self._run(input)
@@ -221,9 +222,13 @@ class Agent():
 
         if self.run_level != 0:
             if return_type == str:
-                input += '\n Return type should be ' + str(return_type) + '\n'
+                add_content = '\n Return type should be ' + str(return_type) + '\n'
             else:
-                input += '\n Return type should be ' + str(return_type) + ' in Python Code\n'
+                add_content = '\n Return type should be ' + str(return_type) + ' in Python Code\n'
+            if isinstance(input, list):
+                input += [{'type': 'text', 'text': add_content}]
+            else:
+                input += add_content
         self._memory_add_input(input)
         
         try_count = 0
