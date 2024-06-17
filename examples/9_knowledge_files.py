@@ -4,7 +4,7 @@ from GeneralAgent import Agent
 files = ['../docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf']
 workspace = '9_knowledge_files'
 agent = Agent('你是AI助手，用中文回复。', workspace=workspace, knowledge_files=files)
-agent.user_input('Self call 是什么意思？')
+agent.user_input(['Self call 是什么意思？'])
 
 # 清理掉
 import shutil

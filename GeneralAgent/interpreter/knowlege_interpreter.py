@@ -82,7 +82,7 @@ class KnowledgeInterperter(Interpreter):
             return ''
         background = 'Background:'
         if len(self.knowledge_files) > 0:
-            background += query_llamaindex(self.index, messages[-1]['content'])
+            background += query_llamaindex(self.index, messages)
         if self.rag_function is not None:
             background += '\n' + self.rag_function(messages)
         return background
