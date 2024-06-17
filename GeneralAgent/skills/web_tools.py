@@ -112,10 +112,10 @@ def _web_driver_open(url: str, wait_time=10, scroll_to_bottom=False):
     import time
 
     # 开发环境使用本地chrome浏览器，生产环境使用远程chrome浏览器
-    if os.environ.get('RUN_MODE', None) == 'prod':
-        selenium_grid_url = os.environ.get('CHROME_GRID_URL', "http://localhost:4444/wd/hub") 
+    CHROME_GRID_URL = os.environ.get('CHROME_GRID_URL', None)
+    if CHROME_GRID_URL is not None:
         chrome_options = Options()
-        driver = webdriver.Remote(command_executor=selenium_grid_url, options=chrome_options)
+        driver = webdriver.Remote(command_executor=CHROME_GRID_URL, options=chrome_options)
     else:
         print('use local chrome browser')
         # Setup chrome options
