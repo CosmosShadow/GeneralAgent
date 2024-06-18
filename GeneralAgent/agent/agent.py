@@ -264,7 +264,10 @@ class Agent():
         from GeneralAgent import skills
         # 获取记忆 + prompt
         messages = self.memory.get_messages()
-        prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.interpreters])
+        if self.disable_python_run:
+            prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.interpreters if interpreter != self.python_interpreter])
+        else:
+            prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.interpreters])
         # 动态调整记忆长度
         prompt_count = skills.string_token_count(prompt)
         left_count = int(self.token_limit * 0.9) - prompt_count
@@ -288,7 +291,7 @@ class Agent():
                 outputer.process_text(token)
                 interpreter:Interpreter = None
                 for interpreter in self.interpreters:
-                    if self.disable_python_run and interpreter.__class__.__name__ == 'PythonInterpreter':
+                    if self.disable_python_run and interpreter == self.python_interpreter:
                         continue
                     if interpreter.output_match(result):
                         logging.debug('interpreter: ' + interpreter.__class__.__name__)
