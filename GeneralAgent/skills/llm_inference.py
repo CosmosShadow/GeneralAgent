@@ -73,21 +73,33 @@ def llm_inference(messages, model='gpt-4o', stream=False, temperature=None, api_
     Note:
     The total number of tokens in the messages and the returned string must be less than 4000 when model_variant is 'normal', and less than 16000 when model_variant is 'long'.
     """
+    import os
+    import logging
+    logging.debug(messages)
     if model == 'smart':
         model = 'gpt-4o'
     if model == 'long':
         model = 'gpt-4o'
     if model == 'normal':
         model = 'gpt-3.5-turbo'
-    import os
-    import logging
-    logging.debug(messages)
+    if 'doubao' in model:
+        client, model = _get_doubao_client(api_key, base_url)
+    else:
+        client = _get_openai_client(api_key, base_url)
     temperature = temperature or float(os.environ.get('LLM_TEMPERATURE', 0.5))
-    client = _get_openai_client(api_key, base_url)
     if stream:
         return _llm_inference_with_stream(client, messages, model, temperature)
     else:
         return _llm_inference_without_stream(client, messages, model, temperature)
+
+
+def _get_doubao_client(api_key=None, base_url=None):
+    import os
+    from volcenginesdkarkruntime import Ark
+    key = api_key or os.environ.get('OPENAI_API_KEY')
+    client = Ark(api_key=key)
+    model = base_url or os.environ.get('OPENAI_API_BASE')
+    return client, model
 
 
 def _llm_inference_with_stream(client, messages, model, temperature):
