@@ -184,7 +184,7 @@ class Agent():
                     show = str(result)
                 else:
                     show = check_render(result)
-                response = skills.input(f'{show}\n要继续[回车, yes, y, 是, ok] 或者 直接输入你的想法\n')
+                response = skills.input(f'{show}\n\n要继续[回车, yes, y, 是, ok] 或者 直接输入你的想法\n')
                 if response.lower() in ['', 'yes', 'y', '是', 'ok']:
                     return result
                 else:
