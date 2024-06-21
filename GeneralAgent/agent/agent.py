@@ -145,7 +145,19 @@ class Agent():
         self.output_callback = self.tmp_output_callback
         self.tmp_output_callback = None
 
-    def run(self, command:Union[str, list], return_type=str, show_stream=True, user_check=False):
+    def disable_python(self):
+        """
+        禁用python运行
+        """
+        self.disable_python_run = True
+
+    def enable_python(self):
+        """
+        启用python运行
+        """
+        self.disable_python_run = False
+
+    def run(self, command:Union[str, list], return_type=str, show_stream=True, user_check=False, check_render=None):
         """
         执行command命令，并返回return_type类型的结果
 
@@ -157,6 +169,8 @@ class Agent():
 
         @user_check: bool, 是否需要用户确认命令执行后的结果，默认不需要
 
+        @check_render: function, 检查渲染函数，用于渲染显示给用户的check内容: check_render(result:return_type) -> str
+
         """
         # 代码调用agent执行，直接run_level+1
         self.run_level += 1
@@ -166,7 +180,11 @@ class Agent():
             from GeneralAgent import skills
             result = self._run(command, return_type)
             if user_check:
-                response = skills.input('请问是否继续？[回车, yes, y, 是, ok] \n或者直接输入你的想法:\n')
+                if check_render is None:
+                    show = str(result)
+                else:
+                    show = check_render(result)
+                response = skills.input(f'{show}\n要继续[回车, yes, y, 是, ok] 或者 直接输入你的想法\n')
                 if response.lower() in ['', 'yes', 'y', '是', 'ok']:
                     return result
                 else:
