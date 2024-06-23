@@ -180,15 +180,19 @@ class Agent():
             from GeneralAgent import skills
             result = self._run(command, return_type)
             if user_check:
+                # 没有渲染函数 & 没有输出回调函数: 用户不知道确认什么内容，则默认是str(result)
                 if check_render is None:
-                    show = str(result)
+                    if self.output_callback is None:
+                        show = str(result)
+                    else:
+                        show = ' '
                 else:
                     show = check_render(result)
-                response = skills.input(f'{show}\n\n要继续[回车, yes, y, 是, ok] 或者 直接输入你的想法\n')
-                if response.lower() in ['', 'yes', 'y', '是', 'ok']:
+                response = skills.check(show)
+                if response is None:
                     return result
                 else:
-                    return self.run(response, return_type, user_check=user_check)
+                    return self.run(response, return_type, user_check=user_check, check_render=check_render)
             return result
         except Exception as e:
             logging.exception(e)
@@ -260,11 +264,11 @@ class Agent():
                     self.python_run_result = None
                 if type(result) == str:
                     result = result.strip()
-                try:
-                    result = return_type(result)
-                except Exception as e:
-                    pass
-                # check return type and try again
+                # 不再转换了，因为会把字符串转成列表，结果不符合预期
+                # try:
+                #     result = return_type(result)
+                # except Exception as e:
+                #     pass
                 if type(result) != return_type and try_count < 1:
                     logging.info('return type shold be: return_type')
                     try_count += 1

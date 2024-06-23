@@ -8,6 +8,18 @@ def default_output_callback(token):
     else:
         print('\n', end='', flush=True)
 
+
+def default_check(check_content=None):
+    show = '确认 | 继续 (回车, yes, y, 是, ok) 或者 直接输入你的想法\n'
+    if check_content is not None:
+        show = f'{check_content}\n\n{show}'
+    response = input(show)
+    if response.lower() in ['', 'yes', 'y', '是', 'ok']:
+        return None
+    else:
+        return response
+
+
 class Skills:
     __instance = None
 
@@ -64,6 +76,7 @@ class Skills:
         self._remote_funs = {}
         self._load_local_funs()
         self._local_funs['input'] = input
+        self._local_funs['check'] = default_check
         self._local_funs['print'] = default_output_callback
         self._local_funs['output'] = default_output_callback
 
