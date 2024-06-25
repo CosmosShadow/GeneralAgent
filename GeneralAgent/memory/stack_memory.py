@@ -194,6 +194,8 @@ class StackMemory:
                         if key == 'image':
                             url = _encode_image(item[key]) 
                             contents.append({'type': 'image_url', "image_url": { "url": url}})
+                        elif key == 'text':
+                            contents.append({'type': 'text', 'text': item[key]})
                         else:
                             raise Exception('message type wrong')
                     else:

@@ -248,7 +248,7 @@ class Agent():
             else:
                 add_content = '\n Return type should be ' + str(return_type) + ' in Python Code\n'
             if isinstance(input, list):
-                input += [{'type': 'text', 'text': add_content}]
+                input += [add_content]
             else:
                 input += add_content
         self._memory_add_input(input)
