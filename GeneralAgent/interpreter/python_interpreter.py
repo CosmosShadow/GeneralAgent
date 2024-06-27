@@ -142,7 +142,7 @@ result
             else:
                 if output.getvalue().strip() != '':
                     result = output.getvalue() + '\n' + str(result)
-            return result, stop
+            return str(result), stop
         except Exception as e:
             logging.exception(e)
             import traceback
