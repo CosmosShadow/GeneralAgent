@@ -8,9 +8,7 @@ def _parse_segment_llm_result(text):
     lines = text.strip().split('\n')
     key = None
     nodes = {}
-    # print(lines)
     for line in lines:
-        # print(line)
         line = line.strip()
         if len(line) == 0:
             continue
@@ -73,7 +71,6 @@ Please note, each title should not exceed 10 words. Titles exceeding this limit 
     if skills.messages_token_count(messages) > 3500:
         model_type = 'long'
     result = skills.llm_inference(messages, model_type)
-    # print(result)
     nodes = _parse_segment_llm_result(result)
     for key in nodes:
         start, end = nodes[key]

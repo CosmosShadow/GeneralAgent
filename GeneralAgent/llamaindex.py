@@ -1,5 +1,6 @@
 import os
 import os.path
+import logging
 from typing import Any, List
 import tiktoken
 from llama_index.core import Settings
@@ -118,10 +119,10 @@ def retrieve_knowlege(storage_dir, messages) -> list:
     @return: 检测结果，list of string
     """
     if len(messages) == 0:
-        print('messages is empty')
+        logging.info('messages is empty')
         return ''
     if not os.path.exists(storage_dir):
-        print(f'storage_dir {storage_dir} not exists')
+        logging.info(f'storage_dir {storage_dir} not exists')
         return ''
     query = _get_last_text_query(messages)
     index = load_llamaindex(storage_dir)

@@ -19,9 +19,10 @@ class LinkRetrieveInterperter(Interpreter):
         else:
             access_prompt = f"""
 In Python, You can access the values of <<key>> in all documents through the dictionary {self.sparks_dict_name}, such as <<Hello world>>:
-```
-print({self.sparks_dict_name}['Hello world'])
+```python
+self.sparks_dict_name['Hello world']
 ```
 """
             info = self.link_memory.get_memory(messages)
-            return 'Background Information: \n' + info + access_prompt
+            # return 'Background Information: \n' + info + access_prompt
+            return 'Background Information: \n' + info

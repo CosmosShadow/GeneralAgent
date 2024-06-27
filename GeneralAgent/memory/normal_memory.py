@@ -1,6 +1,7 @@
 # Memeory
 import json
 import os
+import logging
 
 class NormalMemory:
     def __init__(self, serialize_path='./memory.json'):
@@ -44,7 +45,7 @@ class NormalMemory:
         @content: str, message content
         return message id
         """
-        self.simple_print()
+        # self.show_messages()
         assert role in ['user', 'assistant']
         if message_id is not None:
             assert message_id >= 0 and message_id < len(self.messages)
@@ -53,7 +54,7 @@ class NormalMemory:
             # self.messages.append(self.messages.pop(message_id))
             self.messages = self.messages[:message_id+1]
             self.save()
-            self.simple_print()
+            # self.show_messages()
             return len(self.messages) - 1
         else:
             if len(self.messages) > 0 and self.messages[-1]['role'] == role:
@@ -61,7 +62,7 @@ class NormalMemory:
             else:
                 self.messages.append({'role': role, 'content': content})
             self.save()
-            self.simple_print()
+            # self.show_messages()
             return len(self.messages) - 1
 
     def get_messages(self):
@@ -70,11 +71,11 @@ class NormalMemory:
     def __str__(self):
         return json.dumps(self.messages, indent=4)
     
-    def simple_print(self):
-        print('-' * 50 + '<Memory>' + '-' * 50)
+    def show_messages(self):
+        logging.info('-' * 50 + '<Memory>' + '-' * 50)
         for message in self.messages:
-            print('[[' + message['role'] + ']]: ' + message['content'][:100])
-        print('-' * 50 + '</Memory>' + '-' * 50)
+            logging.info('[[' + message['role'] + ']]: ' + message['content'][:100])
+        logging.info('-' * 50 + '</Memory>' + '-' * 50)
 
 def test_NormalMemory():
     serialize_path = './memory.json'

@@ -8,7 +8,8 @@ def get_weather(city: str) -> str:
     @city: str, city name
     @return: str, weather information
     """
-    return f"{city} weather: sunny"
+    # return f"{city} weather: sunny"
+    print(f"{city} weather: sunny")
 
 
 agent = Agent('你是一个天气小助手', functions=[get_weather])

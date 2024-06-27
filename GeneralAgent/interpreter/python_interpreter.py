@@ -136,11 +136,13 @@ result
             # 出现了自我调用，则判断一下层级，如果层级为1，则停止
             if self.agent is not None:
                 stop = self.agent.run_level != 1
-                print('run_level:', self.agent.run_level, 'stop:', stop)
                 self.agent.python_run_result = result
             if result is None:
                 result = output.getvalue()
-            return str(result), stop
+            else:
+                if output.getvalue().strip() != '':
+                    result = output.getvalue() + '\n' + str(result)
+            return result, stop
         except Exception as e:
             logging.exception(e)
             import traceback

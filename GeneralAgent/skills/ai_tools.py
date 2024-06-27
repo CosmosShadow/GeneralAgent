@@ -19,7 +19,6 @@ def text_to_speech(text, voice='onyx'):
     from GeneralAgent import skills
     file_path = skills.unique_name() + '.mp3'
     response.stream_to_file(file_path)
-    # print(f'audio file created: [{file_path}]({file_path})')
     return file_path
 
 
@@ -40,7 +39,6 @@ def create_image(prompt) -> str:
 
     image_url = response.data[0].url
     image_path = skills.try_download_file(image_url)
-    # print(f'image created at ![{image_path}]({image_path})')
     return image_path
 
 
@@ -59,16 +57,9 @@ def edit_image(image_path:str, prompt:str) -> str:
     )
     image_url = response.data[0].url
     image_path = skills.try_download_file(image_url)
-    # print(f'image created at ![{image_path}]({image_path})')
     return image_path
 
 
 if __name__ == '__main__':
-    # file_path = text_to_speech('hello world')
-    # print(file_path)
 
     image_path  = create_image('a picture of a dog')
-    print(image_path)
-
-    # image_path = edit_image('a.jpg', 'add a white horse')
-    # print(image_path)

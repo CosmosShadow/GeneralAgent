@@ -68,7 +68,7 @@ class Skills:
             return fun
         if fun is not None:
             return fun
-        print('Function {} not found'.format(name))
+        logging.error('Function {} not found'.format(name))
         return None
     
     def __init__(self):

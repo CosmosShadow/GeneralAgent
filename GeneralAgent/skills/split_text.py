@@ -8,7 +8,6 @@ def split_text(text, max_token=3000, separators='\n'):
     from GeneralAgent import skills
     pattern = "[" + re.escape(separators) + "]"
     paragraphs = list(re.split(pattern, text))
-    print(len(paragraphs))
     result = []
     current = ''
     for paragraph in paragraphs:
