@@ -327,9 +327,11 @@ class Agent():
                         self.memory.pop_stack()
                         message_id = self.memory.append_message('assistant', '\n' + output + '\n', message_id=message_id)
                         result = ''
-                        if is_stop:
-                            outputer.process_text(None)
-                            outputer.process_text('```output\n' + output + '\n```\n')
+                        # if is_stop:
+                        outputer.process_text(None)
+                        outputer.process_text('```output\n' + output + '\n```\n')
+                        if interpreter == self.python_interpreter:
+                            outputer.exit_python_code()
                         is_break = True
                         break
                 if is_break:
@@ -387,6 +389,12 @@ class _PythonCodeFilter():
                 if not self.in_python_code:
                     self.buffer += text
                     self._process_buffer()
+
+    def exit_python_code(self):
+        """
+        退出python代码块
+        """
+        self.in_python_code = False
 
     def _process_buffer(self):
         if self.buffer.endswith('```python'):
