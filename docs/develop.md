@@ -13,6 +13,9 @@ poetry publish
 python -m venv ga
 source ga/bin/activate
 
+# 临时取消python别名 (如果有)
+unalias python
+
 # 安装依赖
 pip install .
 
