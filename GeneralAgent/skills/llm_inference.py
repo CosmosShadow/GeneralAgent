@@ -1,4 +1,3 @@
-
 def _get_openai_client(api_key=None, base_url=None):
     from openai import OpenAI
     import os
@@ -27,10 +26,10 @@ def cos_sim(a, b):
     from numpy.linalg import norm
     a = a if isinstance(a, np.ndarray) else np.array(a)
     b = b if isinstance(b, np.ndarray) else np.array(b)
-    return np.dot(a, b)/(norm(a)*norm(b))
+    return np.dot(a, b) / (norm(a) * norm(b))
 
 
-def search_similar_texts(focal:str, texts:[str], top_k=5):
+def search_similar_texts(focal: str, texts: [str], top_k=5):
     """
     search the most similar texts in texts, and return the top_k similar texts
     """
@@ -52,13 +51,18 @@ def get_llm_token_limit(model):
         return 16 * 1000
     if 'gpt-4' in model:
         return 128 * 1000
+    if 'glm-4v' in model:
+        return 8 * 1000
+    if 'glm-4' in model:
+        return 128 * 1000
+
     return 16 * 1000
 
 
 def llm_inference(messages, model='gpt-4o', stream=False, temperature=None, api_key=None, base_url=None):
     """
     Run LLM (large language model) inference on the provided messages using the specified model.
-    
+
     @messages: Input messages for the model, like [{'role': 'system', 'content': 'You are a helpful assistant'}, {'role': 'user', 'content': 'What is your name?'}]
     @model: Type of model to use. Options are 'normal', 'smart', 'long'
     @stream: Boolean indicating if the function should use streaming inference
@@ -87,10 +91,26 @@ def llm_inference(messages, model='gpt-4o', stream=False, temperature=None, api_
     else:
         client = _get_openai_client(api_key, base_url)
     temperature = temperature or float(os.environ.get('LLM_TEMPERATURE', 0.5))
+    messages = _remove_base64_prefix(messages) if "glm-4v" in model else messages  # for glm-4v model
     if stream:
         return _llm_inference_with_stream(client, messages, model, temperature)
     else:
         return _llm_inference_without_stream(client, messages, model, temperature)
+
+
+# This function is used to remove the base64 prefix in the image_url such as
+# 'data:image/jpeg;base64,' which is for GLM-4V
+def _remove_base64_prefix(messages):
+    for message in messages:
+        if 'content' in message and isinstance(message['content'], list):
+            for item in message['content']:
+                if item.get('type') == 'image_url' and 'url' in item.get('image_url', {}):
+                    url = item['image_url']['url']
+                    base64_index = url.find('base64,')
+                    if base64_index != -1:
+                        item['image_url']['url'] = url[base64_index + len('base64,'):]
+
+    return messages
 
 
 def _get_doubao_client(api_key=None, base_url=None):
