@@ -41,6 +41,8 @@ Refer to the [.env.example](./.env.example) file to configure the key or other p
 
 ```bash
 export OPENAI_API_KEY=your_openai_api_key
+# export OPENAI_API_BASE=your_openai_base_url
+# using with not openai official server or using other OpenAI API formate LLM server such as deepseek, zhipu(chatglm),qwen, etc.
 ```
 
 Or configure in the code

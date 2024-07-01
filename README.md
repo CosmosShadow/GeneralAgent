@@ -41,6 +41,8 @@ pip install GeneralAgent
 
 ```bash
 export OPENAI_API_KEY=your_openai_api_key
+# export OPENAI_API_BASE=your_openai_base_url
+# using with not openai official server or using other OpenAI API formate LLM server such as deepseek, zhipu(chatglm),qwen, etc.
 ```
 
 
