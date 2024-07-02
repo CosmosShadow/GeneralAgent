@@ -240,6 +240,8 @@ agent.user_input(['what is in the image?', {'image': '../docs/images/self_call.p
 
 ### LLM switching
 
+#### OpenAI SDK
+
 Thanks to the GeneralAgent framework's independent function call capability of large model vendors, it can seamlessly switch between different large models to achieve the same capabilities.
 
 The GeneralAgent framework uses the OpenAI Python SDK to support other large models.
@@ -253,7 +255,32 @@ agent.user_input('Introduce Chengdu')
 
 For details, see: [examples/8_multi_model.py](./examples/8_multi_model.py)
 
+#### Azure OpenAI 
+
+```python
+from GeneralAgent import Agent
+
+# api_key = os.getenv("OPENAI_API_KEY")
+# base_url = os.getenv("OPENAI_API_BASE")
+api_key = '8ef0b4df45e444079cd5xxx' # Azure API Key or use OPENAI_API_KEY environment variable
+base_url = 'https://xxxx.openai.azure.com/' # Azure API Base URL or use OPENAI_API_BASE environment variable
+model = 'azure_cpgpt4' # azure_ with model name, e.g. azure_cpgpt4
+# azure api_version is default to '2024-05-01-preview'. You can set by environment variable AZURE_API_VERSION
+
+agent = Agent('You are a helpful assistant', api_key=api_key, base_url=base_url, model=model)
+while True:
+    query = input('Please input your query:')
+    agent.user_input(query)
+    print('-'*50)
+```
+
+
+#### One API
+
 If other large models do not support OpenAI SDK, they can be supported through https://github.com/songquanpeng/one-api.
+
+
+#### Custom large model
 
 Or rewrite the llm_inference function in GeneralAgent.skills to use other large models.
 

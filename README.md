@@ -242,6 +242,8 @@ agent.user_input(['what is in the image?', {'image': '../docs/images/self_call.p
 
 ### 大模型切换
 
+#### OpenAI SDK
+
 得益于GeneralAgent框架不依赖大模型厂商的 function call 能力实现了函数调用，可以无缝切换不同的大模型实现相同的能力。
 
 GeneralAgent框架使用OpenAI Python SDK 来支持其他大模型。
@@ -256,8 +258,32 @@ agent.user_input('介绍一下成都')
 详情见: [examples/8_multi_model.py](./examples/8_multi_model.py)
 
 
+#### Azure OpenAI 
+
+```python
+from GeneralAgent import Agent
+
+# api_key = os.getenv("OPENAI_API_KEY")
+# base_url = os.getenv("OPENAI_API_BASE")
+api_key = '8ef0b4df45e444079cd5xxx' # Azure API Key or use OPENAI_API_KEY environment variable
+base_url = 'https://xxxx.openai.azure.com/' # Azure API Base URL or use OPENAI_API_BASE environment variable
+model = 'azure_cpgpt4' # azure_ with model name, e.g. azure_cpgpt4
+# azure api_version is default to '2024-05-01-preview'. You can set by environment variable AZURE_API_VERSION
+
+agent = Agent('You are a helpful assistant', api_key=api_key, base_url=base_url, model=model)
+while True:
+    query = input('Please input your query:')
+    agent.user_input(query)
+    print('-'*50)
+```
+
+
+#### OneAPI
 
 如果其他大模型不支持OpenAI SDK，可以通过 https://github.com/songquanpeng/one-api 来支持。
+
+
+#### 自定义大模型
 
 或者重写 GeneralAgent.skills 中 llm_inference 函数来使用其他大模型。
 
