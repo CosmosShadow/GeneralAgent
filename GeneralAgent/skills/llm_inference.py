@@ -8,14 +8,35 @@ def _get_openai_client(api_key=None, base_url=None):
     client = OpenAI(api_key=api_key, base_url=base_url, max_retries=3)
     return client
 
+def _get_azure_client(api_key=None, base_url=None):
+    import os
+    from openai import AzureOpenAI
+    if api_key is None and 'OPENAI_API_KEY' not in os.environ:
+        raise ValueError('Please set OPENAI_API_KEY (Azure API Key) in environment')
+    api_key = api_key or os.environ['OPENAI_API_KEY']
+    if base_url is None and 'OPENAI_API_BASE' not in os.environ:
+        raise ValueError('Please set OPENAI_API_BASE (Azure API Base URL) in environment')
+    base_url = base_url or os.environ['OPENAI_API_BASE']
+    api_version = os.environ.get('AZURE_API_VERSION', '2024-05-01-preview')
+    client = AzureOpenAI(
+        api_key=api_key,  
+        api_version=api_version,    
+        azure_endpoint=base_url,
+    )
+    return client
 
-def embedding_texts(texts) -> [[float]]:
+
+def embedding_texts(texts, model=None) -> [[float]]:
     """
     对文本数组进行embedding
     """
     import os
-    client = _get_openai_client()
-    model = os.environ.get('EMBEDDING_MODEL', 'text-embedding-3-small')
+    if model is not None and 'azure_' in model:
+        client = _get_azure_client()
+        model = model.replace('azure_', '')
+    else:
+        client = _get_openai_client()
+        model = os.environ.get('EMBEDDING_MODEL', 'text-embedding-3-small')
     resp = client.embeddings.create(input=texts, model=model)
     result = [x.embedding for x in resp.data]
     return result
@@ -86,7 +107,10 @@ def llm_inference(messages, model='gpt-4o', stream=False, temperature=None, api_
         model = 'gpt-4o'
     if model == 'normal':
         model = 'gpt-3.5-turbo'
-    if 'doubao' in model:
+    if 'azure_' in model:
+        model = model.replace('azure_', '')
+        client = _get_azure_client(api_key, base_url)
+    elif 'doubao' in model:
         client, model = _get_doubao_client(api_key, base_url)
     else:
         client = _get_openai_client(api_key, base_url)
