@@ -68,6 +68,8 @@ class Skills:
             return fun
         if fun is not None:
             return fun
+        if name == 'output':
+            return default_output_callback
         logging.error('Function {} not found'.format(name))
         return None
     
