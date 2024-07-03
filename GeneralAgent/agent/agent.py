@@ -244,7 +244,8 @@ class Agent():
 
         if self.run_level != 0:
             if return_type == str:
-                add_content = '\n Return type should be ' + str(return_type) + '\n'
+                # add_content = '\n Return type should be ' + str(return_type) + '\n'
+                add_content = ''
             else:
                 add_content = '\n Return type should be ' + str(return_type) + ' in Python Code\n'
             if isinstance(input, list):
