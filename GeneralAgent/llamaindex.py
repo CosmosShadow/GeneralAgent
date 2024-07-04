@@ -2,13 +2,8 @@ import os
 import os.path
 import logging
 from typing import Any, List
-import tiktoken
 from llama_index.core import Settings
-from llama_index.core.schema import QueryBundle
 from llama_index.core.embeddings import BaseEmbedding
-from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.embeddings.openai import OpenAIEmbeddingModelType
-from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
 from llama_index.core import (VectorStoreIndex, SimpleDirectoryReader, StorageContext, load_index_from_storage)
 
 
@@ -59,8 +54,6 @@ class CustomEmbeddings(BaseEmbedding):
 
 embed_model = CustomEmbeddings(embed_batch_size=16)
 Settings.embed_model = embed_model
-token_counter = TokenCountingHandler(tokenizer=tiktoken.encoding_for_model("gpt-3.5-turbo").encode)
-Settings.callback_manager = CallbackManager([token_counter])
 
 
 def create_llamaindex(data_dir, storage_dir, limit_count=1000000):
