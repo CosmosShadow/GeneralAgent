@@ -13,7 +13,7 @@ GeneralAgent is a Python-native Agent framework that aims to seamlessly integrat
 
 * **Serialization**: GeneralAgent supports serialization, including memory and python execution status, and is ready to use
 
-* **Self-call**: GeneralAgent minimizes the number of calls to large models through self-call and stack memory to efficiently handle complex tasks. For more details, please see our [paper](./docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf)
+* **Self-call(experimental)**: GeneralAgent minimizes the number of calls to large models through self-call and stack memory to efficiently handle complex tasks. For more details, please see our [paper](./docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf)
 
 * **Deployment service**: Use [AgentServer (to be open source)](https://github.com/CosmosShadow/AgentServer) to deploy Agents and quickly provide services to large-scale users.
 
@@ -161,10 +161,10 @@ import shutil
 shutil.rmtree(workspace)
 ```
 
-### Workflow
+### Write a novel
 
 ```python
-# Workflow: Write a novel
+# Write a novel
 from GeneralAgent import Agent
 from GeneralAgent import skills
 
