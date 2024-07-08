@@ -243,15 +243,14 @@ class Agent():
                 self.output_callback(token)
 
         if self.run_level != 0:
-            if return_type == str:
-                # add_content = '\n Return type should be ' + str(return_type) + '\n'
-                add_content = ''
-            else:
+            # add_content = None
+            # add_content = '\n Return type should be ' + str(return_type) + '\n'
+            if return_type != str:
                 add_content = '\n Return type should be ' + str(return_type) + ' in Python Code\n'
-            if isinstance(input, list):
-                input += [add_content]
-            else:
-                input += add_content
+                if isinstance(input, list):
+                    input += [add_content]
+                else:
+                    input += add_content
         self._memory_add_input(input)
         
         try_count = 0
