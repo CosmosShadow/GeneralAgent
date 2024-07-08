@@ -288,7 +288,7 @@ class Agent():
         # 获取记忆 + prompt
         messages = self.memory.get_messages()
         if self.disable_python_run:
-            prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.interpreters if interpreter != self.python_interpreter])
+            prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.interpreters if interpreter.__class__ != PythonInterpreter])
         else:
             prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.interpreters])
         # 动态调整记忆长度
@@ -314,7 +314,7 @@ class Agent():
                 outputer.process_text(token)
                 interpreter:Interpreter = None
                 for interpreter in self.interpreters:
-                    if self.disable_python_run and interpreter == self.python_interpreter:
+                    if self.disable_python_run and interpreter.__class__ == PythonInterpreter:
                         continue
                     if interpreter.output_match(result):
                         logging.debug('interpreter: ' + interpreter.__class__.__name__)
@@ -331,7 +331,7 @@ class Agent():
                         # if is_stop:
                         outputer.process_text(None)
                         outputer.process_text('```output\n' + output + '\n```\n')
-                        if interpreter == self.python_interpreter:
+                        if interpreter.__class__ == PythonInterpreter:
                             outputer.exit_python_code()
                         is_break = True
                         break

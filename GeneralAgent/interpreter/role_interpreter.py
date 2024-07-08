@@ -119,9 +119,9 @@ class RoleInterpreter(Interpreter):
         else:
             prompt = Template(default_system_role).render(os_version=self.os_version, now=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         if self.self_control:
-            prompt += '\n\n' + self.self_call_prompt
+            prompt += '\n\n' + self_call_prompt
         if self.search_functions:
-            prompt += '\n\n' + self.function_search_prompt
+            prompt += '\n\n' + function_search_prompt
         if self.role is not None:
             prompt += '\n\n' + self.role
         return prompt

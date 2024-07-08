@@ -7,7 +7,9 @@ def output_callback(token):
     print(token, end='', flush=True)
 
 agent = Agent('你是AI助手，用中文回复。', output_callback=output_callback)
+agent.clear()
+agent.disable_python()
 while True:
     query = input('请输入: ')
-    agent.user_input(query)
+    agent.run(query)
     print('-'*50)
