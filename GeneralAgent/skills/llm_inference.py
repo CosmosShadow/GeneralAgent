@@ -80,7 +80,7 @@ def get_llm_token_limit(model):
     return 16 * 1000
 
 
-def llm_inference(messages, model='gpt-4o', stream=False, temperature=None, api_key=None, base_url=None):
+def llm_inference(messages, model='gpt-4o', stream=False, temperature=None, api_key=None, base_url=None, frequency_penalty=None):
     """
     Run LLM (large language model) inference on the provided messages using the specified model.
 
@@ -90,6 +90,7 @@ def llm_inference(messages, model='gpt-4o', stream=False, temperature=None, api_
     @temperature: Sampling temperature to use during inference. Must be a float between 0 and 1. Defaults to 0.5.
     @api_key: OpenAI API key. If not provided, the function will use the OPENAI_API_KEY environment variable.
     @base_url: Base URL for the OpenAI API. If not provided, the function will use the OPENAI_API_BASE environment variable.
+    @frequency_penalty: Frequency penalty to use during inference. Must be a float between -2 and 2. Defaults to null.
 
     Returns:
     If stream is True, returns a generator that yields the inference results as they become available.
@@ -114,12 +115,12 @@ def llm_inference(messages, model='gpt-4o', stream=False, temperature=None, api_
         client, model = _get_doubao_client(api_key, base_url)
     else:
         client = _get_openai_client(api_key, base_url)
-    temperature = temperature or float(os.environ.get('LLM_TEMPERATURE', 0.5))
+    temperature = temperature or float(os.environ.get('LLM_TEMPERATURE', 0.1))
     messages = _remove_base64_prefix(messages) if "glm-4v" in model else messages  # for glm-4v model
     if stream:
-        return _llm_inference_with_stream(client, messages, model, temperature)
+        return _llm_inference_with_stream(client, messages, model, temperature, frequency_penalty)
     else:
-        return _llm_inference_without_stream(client, messages, model, temperature)
+        return _llm_inference_without_stream(client, messages, model, temperature, frequency_penalty)
 
 
 # This function is used to remove the base64 prefix in the image_url such as
@@ -146,10 +147,10 @@ def _get_doubao_client(api_key=None, base_url=None):
     return client, model
 
 
-def _llm_inference_with_stream(client, messages, model, temperature):
+def _llm_inference_with_stream(client, messages, model, temperature, frequency_penalty):
     import logging
     try:
-        response = client.chat.completions.create(messages=messages, model=model, stream=True, temperature=temperature)
+        response = client.chat.completions.create(messages=messages, model=model, stream=True, temperature=temperature, frequency_penalty=frequency_penalty)
         for chunk in response:
             if len(chunk.choices) > 0:
                 token = chunk.choices[0].delta.content
@@ -161,10 +162,10 @@ def _llm_inference_with_stream(client, messages, model, temperature):
         raise ValueError('LLM(Large Languate Model) error, Please check your key or base_url, or network')
 
 
-def _llm_inference_without_stream(client, messages, model, temperature):
+def _llm_inference_without_stream(client, messages, model, temperature, frequency_penalty):
     import logging
     try:
-        response = client.chat.completions.create(messages=messages, model=model, stream=False, temperature=temperature)
+        response = client.chat.completions.create(messages=messages, model=model, stream=False, temperature=temperature, frequency_penalt=frequency_penalty)
         result = response.choices[0].message.content
         return result
     except Exception as e:

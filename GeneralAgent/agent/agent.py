@@ -39,6 +39,8 @@ class Agent():
                  token_limit=None,
                  api_key=None,
                  base_url=None,
+                 temperature=None, 
+                 frequency_penalty=None,
                  self_call=False, 
                  continue_run=False,
                  output_callback=None,
@@ -63,6 +65,10 @@ class Agent():
         @api_key: str,  OpenAI or other LLM API KEY
 
         @base_url: str, OpenAI or other LLM API BASE URL
+
+        @temperature: float, 采样温度, 默认为None
+
+        @frequency_penalty: float, 频率惩罚, 默认为None, 在 -2 和 2 之间
 
         @self_call: bool, 是否开启自我调用(Agent可以写代码来自我调用完成复杂任务), 默认为False.
 
@@ -91,6 +97,8 @@ class Agent():
         self.token_limit = token_limit or skills.get_llm_token_limit(self.model)
         self.api_key = api_key
         self.base_url = base_url
+        self.temperature = temperature
+        self.frequency_penalty = frequency_penalty
         self.continue_run = continue_run
         self.knowledge_interpreter = KnowledgeInterperter(workspace, knowledge_files=knowledge_files, rag_function=rag_function)
         self.interpreters = [self.role_interpreter, self.python_interpreter, self.knowledge_interpreter]
@@ -217,7 +225,7 @@ class Agent():
             messages = skills.cut_messages(messages, 2*1000)
             the_prompt = "对于当前状态，无需用户输入或者确认，继续执行任务，请回复yes，其他情况回复no"
             messages += [{'role': 'system', 'content': the_prompt}]
-            response = skills.llm_inference(messages, model='smart', stream=False, api_key=self.api_key, base_url=self.base_url)
+            response = skills.llm_inference(messages, model='smart', stream=False, api_key=self.api_key, base_url=self.base_url, temperature=self.temperature, frequency_penalty=self.frequency_penalty)
             if 'yes' in response.lower():
                 result = self.run('ok')
         return result
@@ -305,7 +313,7 @@ class Agent():
             result = ''
             is_stop = True
             is_break = False
-            response = skills.llm_inference(messages, model=self.model, stream=True, api_key=self.api_key, base_url=self.base_url)
+            response = skills.llm_inference(messages, model=self.model, stream=True, api_key=self.api_key, base_url=self.base_url, temperature=self.temperature, frequency_penalty=self.frequency_penalty)
             message_id = None
             for token in response:
                 if token is None: break
