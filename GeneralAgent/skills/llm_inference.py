@@ -158,9 +158,20 @@ def _get_doubao_client(api_key=None, base_url=None):
 
 def _llm_inference_with_stream(client, messages, model, temperature, frequency_penalty):
     try:
-        response = client.chat.completions.create(messages=messages, model=model, stream=True, temperature=temperature,
-                                                  frequency_penalty=frequency_penalty)
-
+        if model not in ['qwen-vl-max', 'qwen-vl-plus']:
+            response = client.chat.completions.create(
+                messages=messages,
+                model=model,
+                stream=True,
+                temperature=temperature,
+                frequency_penalty=frequency_penalty
+            )
+        else:
+            response = client.chat.completions.create(
+                messages=messages,
+                model=model,
+                stream=True
+            )
         for chunk in response:
             if len(chunk.choices) > 0:
                 token = chunk.choices[0].delta.content
@@ -174,8 +185,20 @@ def _llm_inference_with_stream(client, messages, model, temperature, frequency_p
 
 def _llm_inference_without_stream(client, messages, model, temperature, frequency_penalty):
     try:
-        response = client.chat.completions.create(messages=messages, model=model, stream=False, temperature=temperature,
-                                                  frequency_penalt=frequency_penalty)
+        if model not in ['qwen-vl-max', 'qwen-vl-plus']:
+            response = client.chat.completions.create(
+                messages=messages,
+                model=model,
+                stream=False,
+                temperature=temperature,
+                frequency_penalt=frequency_penalty
+            )
+        else:
+            response = client.chat.completions.create(
+                messages=messages,
+                model=model,
+                stream=False,
+            )
         result = response.choices[0].message.content
         return result
     except Exception as e:
