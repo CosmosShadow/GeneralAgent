@@ -174,6 +174,9 @@ def _llm_inference_with_stream(client, messages, model, temperature, frequency_p
             )
         for chunk in response:
             if len(chunk.choices) > 0:
+                # Compatible with service using Azure API proxies, such as One-API
+                if chunk.choices[0].delta is None:
+                    continue
                 token = chunk.choices[0].delta.content
                 if token is None:
                     continue
