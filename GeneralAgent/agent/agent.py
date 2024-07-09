@@ -270,13 +270,8 @@ class Agent():
                 if self.python_run_result is not None:
                     result = self.python_run_result
                     self.python_run_result = None
-                if type(result) == str:
-                    result = result.strip()
-                # 不再转换了，因为会把字符串转成列表，结果不符合预期
-                # try:
-                #     result = return_type(result)
-                # except Exception as e:
-                #     pass
+                if return_type == str:
+                    return result
                 if type(result) != return_type and try_count < 1:
                     logging.info('return type shold be: return_type')
                     try_count += 1
