@@ -28,6 +28,7 @@ web_contents = []
 google_result = '\n\n'.join(google_results)
 urls = agent.run(f'用户问题: \n{question}\n\n搜索引擎结果: \n{google_result}\n\n。哪些网页对于用户问题比较有帮助？请返回最重要的不超过5个的网页url列表变量([url1, url2, ...])', return_type=list)
 for url in urls:
+    print(url)
     content = skills.web_get_text(url, wait_time=2)
     web_contents.append(content)
 
