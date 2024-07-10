@@ -5,7 +5,7 @@ from typing import Union
 from GeneralAgent.memory import StackMemory
 from GeneralAgent.interpreter import Interpreter
 from GeneralAgent.interpreter import KnowledgeInterperter
-from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter, ShellInterpreter, AppleScriptInterpreter
+from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter
 
 
 class Agent():
@@ -39,13 +39,12 @@ class Agent():
                  token_limit=None,
                  api_key=None,
                  base_url=None,
-                 temperature=None, 
-                 frequency_penalty=None,
                  self_call=False, 
                  continue_run=False,
                  output_callback=None,
                  disable_python_run=False,
                  hide_python_code=False,
+                 **args
                  ):
         """
         @role: str, Agent角色描述，例如"你是一个小说家"，默认为None
@@ -66,19 +65,21 @@ class Agent():
 
         @base_url: str, OpenAI or other LLM API BASE URL
 
-        @temperature: float, 采样温度, 默认为None
-
-        @frequency_penalty: float, 频率惩罚, 默认为None, 在 -2 和 2 之间
-
         @self_call: bool, 是否开启自我调用(Agent可以写代码来自我调用完成复杂任务), 默认为False.
 
         @continue_run: bool, 是否自动继续执行。Agent在任务没有完成时，是否自动执行。默认为True.
 
         @output_callback: function, 输出回调函数，用于输出Agent的流式输出结果，默认为None，表示使用默认输出函数(skills.output==print)
 
-        @disable_python_run: bool, 是否禁用python运行，默认为False
+        @disable_python_run  (deprecated) : bool, 是否禁用python运行，默认为False
 
-        @hide_python_code: bool, 是否隐藏python代码，默认为False
+        @hide_python_code  (deprecated) : bool, 是否隐藏python代码，默认为False
+
+        @args: 其他LLM对话参数
+
+            temperature: float, 采样温度
+
+            frequency_penalty: float, 频率惩罚, 在 -2 和 2 之间
 
         """
         from GeneralAgent import skills
@@ -97,8 +98,9 @@ class Agent():
         self.token_limit = token_limit or skills.get_llm_token_limit(self.model)
         self.api_key = api_key
         self.base_url = base_url
-        self.temperature = temperature
-        self.frequency_penalty = frequency_penalty
+        # self.temperature = temperature
+        # self.frequency_penalty = frequency_penalty
+        self.llm_args = args
         self.continue_run = continue_run
         self.knowledge_interpreter = KnowledgeInterperter(workspace, knowledge_files=knowledge_files, rag_function=rag_function)
         self.interpreters = [self.role_interpreter, self.python_interpreter, self.knowledge_interpreter]
@@ -165,7 +167,7 @@ class Agent():
         """
         self.disable_python_run = False
 
-    def run(self, command:Union[str, list], return_type=str, show_stream=True, user_check=False, check_render=None):
+    def run(self, command:Union[str, list], return_type=str, display=False, verbose=True, user_check=False, check_render=None):
         """
         执行command命令，并返回return_type类型的结果
 
@@ -173,7 +175,9 @@ class Agent():
 
         @return_type: type, 返回类型，默认str. 可以是任意的python类型。
 
-        @show_stream: bool, 是否显示流输出
+        @display: bool, 是否显示流输出
+
+        @verbose: bool, 是否显示详细输出
 
         @user_check: bool, 是否需要用户确认命令执行后的结果，默认不需要
 
@@ -182,11 +186,11 @@ class Agent():
         """
         # 代码调用agent执行，直接run_level+1
         self.run_level += 1
-        if not show_stream:
+        if not display:
             self.disable_output_callback()
         try:
             from GeneralAgent import skills
-            result = self._run(command, return_type)
+            result = self._run(command, return_type=return_type, verbose=verbose)
             if user_check:
                 # 没有渲染函数 & 没有输出回调函数: 用户不知道确认什么内容，则默认是str(result)
                 if check_render is None:
@@ -207,36 +211,38 @@ class Agent():
             return str(e)
         finally:
             self.run_level -= 1
-            if not show_stream:
+            if not display:
                 self.enable_output_callback()
 
     
-    def user_input(self, input:Union[str, list]):
+    def user_input(self, input:Union[str, list], verbose=True):
         """
         Agent接收用户输入
         
         :input: 用户输入内容, str类型 or list: [{'type': 'text', 'text': 'hello world'}, {'type': 'image_url', 'image_url': 'xxxx.jpg'}]
         """
         from GeneralAgent import skills
-        result = self._run(input)
+        result = self._run(input, verbose=verbose)
         if self.continue_run and self.run_level == 0:
             # 判断是否继续执行
             messages = self.memory.get_messages()
             messages = skills.cut_messages(messages, 2*1000)
             the_prompt = "对于当前状态，无需用户输入或者确认，继续执行任务，请回复yes，其他情况回复no"
             messages += [{'role': 'system', 'content': the_prompt}]
-            response = skills.llm_inference(messages, model='smart', stream=False, api_key=self.api_key, base_url=self.base_url, temperature=self.temperature, frequency_penalty=self.frequency_penalty)
+            response = skills.llm_inference(messages, model='smart', stream=False, api_key=self.api_key, base_url=self.base_url, **self.llm_args)
             if 'yes' in response.lower():
                 result = self.run('ok')
         return result
 
-    def _run(self, input, return_type=str):
+    def _run(self, input, return_type=str, verbose=False):
         """
         agent run: parse intput -> get llm messages -> run LLM and parse output
 
         @input: str, user's new input, None means continue to run where it stopped
 
         @return_type: type, return type, default str
+
+        @verbose: bool, verbose mode
         """
         from GeneralAgent import skills
 
@@ -264,7 +270,7 @@ class Agent():
         try_count = 0
         while True:
             messages = self._get_llm_messages()
-            output_stop = self._llm_and_parse_output(messages, local_output)
+            output_stop = self._llm_and_parse_output(messages, local_output, verbose)
             if output_stop:
                 local_output(None)
                 if self.python_run_result is not None:
@@ -301,14 +307,14 @@ class Agent():
         messages = [{'role': 'system', 'content': prompt}] + messages
         return messages
 
-    def _llm_and_parse_output(self, messages, output_callback):
-        outputer = _PythonCodeFilter(output_callback, self.hide_python_code)
+    def _llm_and_parse_output(self, messages, output_callback, verbose):
+        outputer = _PythonCodeFilter(output_callback, verbose)
         from GeneralAgent import skills
         try:
             result = ''
             is_stop = True
             is_break = False
-            response = skills.llm_inference(messages, model=self.model, stream=True, api_key=self.api_key, base_url=self.base_url, temperature=self.temperature, frequency_penalty=self.frequency_penalty)
+            response = skills.llm_inference(messages, model=self.model, stream=True, api_key=self.api_key, base_url=self.base_url, **self.llm_args)
             message_id = None
             for token in response:
                 if token is None: break
@@ -365,15 +371,15 @@ class _PythonCodeFilter():
     """
     Python代码过滤器，用于隐藏Python代码块
     """
-    def __init__(self, output_callback, hide_python_code):
+    def __init__(self, output_callback, verbose):
         """
         构造函数
 
         @output_callback: 输出回调函数
 
-        @hide_python_code: 是否隐藏python代码, bool
+        @verbose: 是否显示详细输出
         """
-        self.hide_python_code = hide_python_code
+        self.verbose = verbose
         self.in_python_code = False
         self.buffer = ''
         self.output_callback = output_callback
@@ -382,7 +388,7 @@ class _PythonCodeFilter():
         """
         处理输入问题
         """
-        if not self.hide_python_code:
+        if self.verbose:
             self.output_callback(text)
         else:
             if text is None:
@@ -400,13 +406,19 @@ class _PythonCodeFilter():
         self.in_python_code = False
 
     def _process_buffer(self):
-        if self.buffer.endswith('```python'):
+        format = '```python\n#run code\n'
+        if self.buffer.endswith(format):
             self.in_python_code = True
             self.buffer = ''  # 清空缓冲区，因为我们不打印```python
-        elif self.buffer.endswith('```') and not self.in_python_code:
-            if self.buffer[:-3]:  # 如果```前有其他文本，先打印出来
-                self.output_callback(self.buffer[:-3])
-            self.buffer = '```'  # 重置缓冲区为```，以便检查后续是否为python代码块
+        elif '```' in self.buffer and not self.in_python_code:
+            # 清空```之前的内容
+            index = self.buffer.rfind('```')
+            if index != -1:
+                self.output_callback(self.buffer[:index])
+                self.buffer = self.buffer[index:]
+            # 如果缓冲区太大，就表示不是python代码块，直接输出
+            if len(self.buffer) > len(format):
+                self.flush()
         else:
             self.output_callback(self.buffer)
             self.buffer = ''

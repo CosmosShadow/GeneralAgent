@@ -1,15 +1,8 @@
-# 快速开始
 from GeneralAgent import Agent
 
-# 流式输出中间结果
-def output_callback(token):
-    token = token or '\n'
-    print(token, end='', flush=True)
-
-agent = Agent('你是AI助手，用中文回复。', output_callback=output_callback, temperature=0.5, frequency_penalty=2)
-agent.clear()
-# agent.disable_python()
+# agent = Agent('You are a helpful assistant.', temperature=0.5, frequency_penalty=2)
+agent = Agent('You are a helpful assistant.')
 while True:
-    query = input('请输入: ')
+    query = input('')
     agent.user_input(query)
     print('-'*50)

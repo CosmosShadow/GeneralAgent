@@ -85,8 +85,7 @@ def get_llm_token_limit(model):
     return 16 * 1000
 
 
-def llm_inference(messages, model='gpt-4o', stream=False, temperature=None, api_key=None, base_url=None,
-                  frequency_penalty=None):
+def llm_inference(messages, model='gpt-4o', stream=False,  api_key=None, base_url=None, **args):
     """
     Run LLM (large language model) inference on the provided messages using the specified model.
 
@@ -120,13 +119,11 @@ def llm_inference(messages, model='gpt-4o', stream=False, temperature=None, api_
         client, model = _get_doubao_client(api_key, base_url)
     else:
         client = _get_openai_client(api_key, base_url)
-    temperature = temperature or float(os.environ.get('LLM_TEMPERATURE', 0.1))
     messages = _process_message(messages, model)
-
     if stream:
-        return _llm_inference_with_stream(client, messages, model, temperature, frequency_penalty)
+        return _llm_inference_with_stream(client, messages, model, **args)
     else:
-        return _llm_inference_without_stream(client, messages, model, temperature, frequency_penalty)
+        return _llm_inference_without_stream(client, messages, model, **args)
 
 
 def _process_message(messages, model):
@@ -156,21 +153,23 @@ def _get_doubao_client(api_key=None, base_url=None):
     return client, model
 
 
-def _llm_inference_with_stream(client, messages, model, temperature, frequency_penalty):
+def _llm_inference_with_stream(client, messages, model, **args):
     try:
         if model not in ['qwen-vl-max', 'qwen-vl-plus']:
             response = client.chat.completions.create(
                 messages=messages,
                 model=model,
                 stream=True,
-                temperature=temperature,
-                frequency_penalty=frequency_penalty
+                **args
             )
         else:
+            # 移除temperature
+            args = {k: v for k, v in args.items() if k != 'temperature'}
             response = client.chat.completions.create(
                 messages=messages,
                 model=model,
                 stream=True
+                **args
             )
         for chunk in response:
             if len(chunk.choices) > 0:
@@ -186,21 +185,23 @@ def _llm_inference_with_stream(client, messages, model, temperature, frequency_p
         raise ValueError('LLM(Large Languate Model) error, Please check your key or base_url, or network')
 
 
-def _llm_inference_without_stream(client, messages, model, temperature, frequency_penalty):
+def _llm_inference_without_stream(client, messages, model, **args):
     try:
         if model not in ['qwen-vl-max', 'qwen-vl-plus']:
             response = client.chat.completions.create(
                 messages=messages,
                 model=model,
                 stream=False,
-                temperature=temperature,
-                frequency_penalt=frequency_penalty
+                **args
             )
         else:
+            # 移除temperature
+            args = {k: v for k, v in args.items() if k != 'temperature'}
             response = client.chat.completions.create(
                 messages=messages,
                 model=model,
                 stream=False,
+                **args
             )
         result = response.choices[0].message.content
         return result
