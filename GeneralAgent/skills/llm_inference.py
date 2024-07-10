@@ -153,24 +153,23 @@ def _get_doubao_client(api_key=None, base_url=None):
     return client, model
 
 
+def _update_llm_args(model, args):
+    if model in ['qwen-vl-max', 'qwen-vl-plus']:
+        remove_items = ['temperature', 'frequency_penalty']
+        return {k: v for k, v in args.items() if k not in remove_items}
+    else:
+        return args
+
+
 def _llm_inference_with_stream(client, messages, model, **args):
     try:
-        if model not in ['qwen-vl-max', 'qwen-vl-plus']:
-            response = client.chat.completions.create(
-                messages=messages,
-                model=model,
-                stream=True,
-                **args
-            )
-        else:
-            # 移除temperature
-            args = {k: v for k, v in args.items() if k != 'temperature'}
-            response = client.chat.completions.create(
-                messages=messages,
-                model=model,
-                stream=True
-                **args
-            )
+        args = _update_llm_args(model, args)
+        response = client.chat.completions.create(
+            messages=messages,
+            model=model,
+            stream=True,
+            **args
+        )
         for chunk in response:
             if len(chunk.choices) > 0:
                 # Compatible with service using Azure API proxies, such as One-API
@@ -187,22 +186,13 @@ def _llm_inference_with_stream(client, messages, model, **args):
 
 def _llm_inference_without_stream(client, messages, model, **args):
     try:
-        if model not in ['qwen-vl-max', 'qwen-vl-plus']:
-            response = client.chat.completions.create(
-                messages=messages,
-                model=model,
-                stream=False,
-                **args
-            )
-        else:
-            # 移除temperature
-            args = {k: v for k, v in args.items() if k != 'temperature'}
-            response = client.chat.completions.create(
-                messages=messages,
-                model=model,
-                stream=False,
-                **args
-            )
+        args = _update_llm_args(model, args)
+        response = client.chat.completions.create(
+            messages=messages,
+            model=model,
+            stream=False,
+            **args
+        )
         result = response.choices[0].message.content
         return result
     except Exception as e:
