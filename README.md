@@ -65,7 +65,7 @@ from GeneralAgent import Agent
 
 agent = Agent('你是一个AI助手')
 while True:
-    query = input('请输入: ')
+    query = input()
     agent.user_input(query)
     print('-'*50)
 ```
@@ -90,15 +90,6 @@ def get_weather(city: str) -> str:
 
 agent = Agent('你是一个天气小助手', functions=[get_weather])
 agent.user_input('成都天气怎么样？')
-
-# 输出
-# ```python
-# city = "成都"
-# weather_info = get_weather(city)
-# weather_info
-# ```
-# 成都的天气是晴天。
-# 请问还有什么我可以帮忙的吗？
 ```
 
 
@@ -370,6 +361,43 @@ agent.run(f'用户问题: \n{question}\n\n搜索引擎结果: \n{google_result}\
 ### 更多
 
 更多例子请见 [examples](./examples)
+
+
+
+## API
+
+### 基础使用
+
+**Agent.\__init__(self, role: str, workspace: str = None, functions: List[Callable] = [], knowledge_files: List[str] = None)**
+
+初始化一个Agent实例。
+
+- role (str): Agent的角色。
+- workspace (str, 可选): Agent的工作空间。默认值为None（不序列化）。如果指定了目录，Agent会自动保存状态并在下次初始化时重新加载。
+- functions (List[Callable], 可选): Agent可以调用的函数列表。
+- knowledge_files (List[str], 可选): Agent知识库文件路径列表。
+
+**Agent.run(self, command: Union[str, List[Union[str, Dict[str, str]]]], return_type: str = str, display: bool = False)**
+
+执行命令并返回指定类型的结果。
+
+- command (Union[str, List[Union[str, Dict[str, str]]]]): 要执行的命令。例如：'describe chengdu' 或 ['what is in image?', {'image': 'path/to/image'}]。
+- return_type (str, 可选): 结果的返回类型。默认值为str。
+- display (bool, 可选): 是否显示LLM生成的中间内容。默认值为False。
+
+**Agent.user_input(self, input: Union[str, List[Union[str, Dict[str, str]]]])**
+
+响应用户输入，并始终显示LLM生成的中间内容。
+
+- input (Union[str, List[Union[str, Dict[str, str]]]]): 用户输入。
+
+**Agent.clear(self)**
+
+清除Agent的状态。
+
+### 高级使用
+
+[ ] # TODO
 
 
 
