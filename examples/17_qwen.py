@@ -1,7 +1,7 @@
 # 测试阿里千问
-api_key = 'sk-xxx'
+api_key = 'sk-xxxx'
 base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
-model  = 'qwen-vl-plus'
+model  = 'qwen-vl-max'
 
 from GeneralAgent import Agent
 
