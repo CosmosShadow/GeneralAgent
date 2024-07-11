@@ -257,14 +257,14 @@ class Agent():
                 self.output_callback(token)
 
         if self.run_level != 0:
-            # add_content = None
-            # add_content = '\n Return type should be ' + str(return_type) + '\n'
-            if return_type != str:
-                add_content = '\n Return type should be ' + str(return_type) + ' in Python Code\n'
-                if isinstance(input, list):
-                    input += [add_content]
-                else:
-                    input += add_content
+            if return_type == str:
+                add_content = '\nDirectly answer the question, no python code is required.\n'
+            else:
+                add_content = '\n You should return python values in type ' + str(return_type) + ' by run python code(```python\n#run code\nxxx\n).\n'
+            if isinstance(input, list):
+                input += [add_content]
+            else:
+                input += add_content
         self._memory_add_input(input)
         
         try_count = 0
