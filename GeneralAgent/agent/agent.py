@@ -258,13 +258,19 @@ class Agent():
 
         if self.run_level != 0:
             if return_type == str:
-                add_content = '\nDirectly answer the question, no python code is required.\n'
+                add_content = 'Directly answer the question, no need to run python\n'
+                # add_content 在前面
+                if isinstance(input, list):
+                    input = [add_content] + input
+                else:
+                    input = add_content + input
             else:
-                add_content = '\n You should return python values in type ' + str(return_type) + ' by run python code(```python\n#run code\nxxx\n).\n'
-            if isinstance(input, list):
-                input += [add_content]
-            else:
-                input += add_content
+                add_content = '\nYou should return python values in type ' + str(return_type) + ' by run python code(```python\n#run code\nxxx\n).\n'
+                # add_content 在后面
+                if isinstance(input, list):
+                    input = input + [add_content]
+                else:
+                    input = input + add_content
         self._memory_add_input(input)
         
         try_count = 0

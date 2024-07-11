@@ -42,7 +42,8 @@ class Skills:
         """
         assert money_type in ['dollar', 'rmb']
         try:
-            self._local_skill_consume(method_name, amount, money_type)
+            if self._load_skill_comsume is not None:
+                self._local_skill_consume(method_name, amount, money_type)
         except Exception as e:
             logging.exception(e)
             logging.warn('Skill _local_skill_consume function not found')
@@ -55,7 +56,7 @@ class Skills:
 
     def __getattr__(self, name):
         if name.startswith('_'):
-            return object.__getattr__(self, name)
+            return None
         else:
             return self._get_func(name)
         
