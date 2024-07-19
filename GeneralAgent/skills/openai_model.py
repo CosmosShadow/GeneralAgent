@@ -198,8 +198,7 @@ def _llm_inference_without_stream(client, messages, model, **args):
     except Exception as e:
         logging.exception(e)
         raise ValueError('LLM(Large Languate Model) error, Please check your key or base_url, or network')
-
-
+    
 def speech_to_text(audio_file_path):
     """Convert speech in audio to text, return text"""
     from GeneralAgent import skills
@@ -212,3 +211,61 @@ def speech_to_text(audio_file_path):
     )
 
     return content
+
+def text_to_speech(text, voice='onyx', save_path=None):
+    """
+    文本转语音，返回音频文件路径。
+    @param text: 要转换的文本
+    @param voice: 语音名称, onyx: 男性，nova: 女性
+    @return: 音频文件路径
+    """
+    from GeneralAgent import skills
+
+    # ['nova', 'shimmer', 'echo', 'onyx', 'fable', 'alloy']
+    client = _get_openai_client()
+    response = client.audio.speech.create(
+        model="tts-1",
+        voice=voice,
+        input=text,
+    )
+    file_path = save_path or skills.unique_name() + '.mp3'
+    response.stream_to_file(file_path)
+    return file_path
+
+
+def create_image(prompt) -> str:
+    """draw image given a prompt, returns the image path. Note: limit to generate violent, adult, or hateful content"""
+    import os
+    from openai import OpenAI
+    from GeneralAgent import skills
+
+    client = _get_openai_client()
+    response = client.images.generate(
+        model="dall-e-3",
+        prompt=prompt,
+        size="1024x1024",
+        quality="standard",
+        n=1,
+    )
+
+    image_url = response.data[0].url
+    image_path = skills.try_download_file(image_url)
+    return image_path
+
+
+def edit_image(image_path:str, prompt:str) -> str:
+    """Edit image given a prompt, returns the image path"""
+    import os
+    from openai import OpenAI
+    from GeneralAgent import skills
+    from pathlib import Path
+
+    client = _get_openai_client()
+    response = client.images.edit(
+        image = Path(image_path),
+        prompt = prompt,
+        n=1,
+    )
+    image_url = response.data[0].url
+    image_path = skills.try_download_file(image_url)
+    return image_path
