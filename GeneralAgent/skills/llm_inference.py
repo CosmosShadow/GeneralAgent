@@ -198,3 +198,17 @@ def _llm_inference_without_stream(client, messages, model, **args):
     except Exception as e:
         logging.exception(e)
         raise ValueError('LLM(Large Languate Model) error, Please check your key or base_url, or network')
+
+
+def speech_to_text(audio_file_path):
+    """Convert speech in audio to text, return text"""
+    from GeneralAgent import skills
+    audio_file = open(audio_file_path, "rb")
+    client = _get_openai_client()
+    content = client.audio.transcriptions.create(
+        model="whisper-1", 
+        file=audio_file, 
+        response_format="text"
+    )
+
+    return content
