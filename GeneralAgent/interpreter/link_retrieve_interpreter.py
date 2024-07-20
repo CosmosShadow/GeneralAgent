@@ -4,12 +4,12 @@ from .interpreter import Interpreter
 from GeneralAgent.memory import LinkMemory
 
 
-class LinkRetrieveInterperter(Interpreter):
+class LinkRetrieveInterpreter(Interpreter):
     """
     """
 
     def __init__(self, python_interpreter=None, sparks_dict_name='sparks'):
-        self.python_intrepreter = python_interpreter
+        self.python_interpreter = python_interpreter
         self.sparks_dict_name = sparks_dict_name
         self.link_memory = LinkMemory()
 
