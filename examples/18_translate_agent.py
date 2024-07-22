@@ -39,7 +39,7 @@ def translate_text(text, language, worker=1, reflection_mode=False):
     from GeneralAgent import skills
     from GeneralAgent import Agent
     from concurrent.futures import ThreadPoolExecutor
-    segments = skills.split_text(text, 600)
+    segments = split_text(text, 600)
 
     def _translate(index, content, language):
         role = f"You are an expert linguist, specializing in translation text to {language}."
