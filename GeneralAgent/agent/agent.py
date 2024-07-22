@@ -4,7 +4,7 @@ import logging
 from typing import Union
 from GeneralAgent.memory import StackMemory
 from GeneralAgent.interpreter import Interpreter
-from GeneralAgent.interpreter import KnowledgeInterperter
+from GeneralAgent.interpreter import KnowledgeInterpreter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter
 
 
@@ -102,7 +102,7 @@ class Agent():
         # self.frequency_penalty = frequency_penalty
         self.llm_args = args
         self.continue_run = continue_run
-        self.knowledge_interpreter = KnowledgeInterperter(workspace, knowledge_files=knowledge_files, rag_function=rag_function)
+        self.knowledge_interpreter = KnowledgeInterpreter(workspace, knowledge_files=knowledge_files, rag_function=rag_function)
         self.interpreters = [self.role_interpreter, self.python_interpreter, self.knowledge_interpreter]
         if output_callback is not None:
             self.output_callback = output_callback
@@ -236,7 +236,7 @@ class Agent():
 
     def _run(self, input, return_type=str, verbose=False):
         """
-        agent run: parse intput -> get llm messages -> run LLM and parse output
+        agent run: parse input -> get llm messages -> run LLM and parse output
 
         @input: str, user's new input, None means continue to run where it stopped
 
@@ -285,9 +285,9 @@ class Agent():
                 if return_type == str:
                     return result
                 if type(result) != return_type and try_count < 1:
-                    logging.info('return type shold be: return_type')
+                    logging.info('return type should be: return_type')
                     try_count += 1
-                    self._memory_add_input('return type shold be ' + str(return_type))
+                    self._memory_add_input('return type should be ' + str(return_type))
                     result = ''
                     continue
                 return result

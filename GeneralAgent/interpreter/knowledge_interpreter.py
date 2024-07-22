@@ -6,7 +6,7 @@ import os
 import json
 import shutil
 
-class KnowledgeInterperter(Interpreter):
+class KnowledgeInterpreter(Interpreter):
     """
     知识库解析器，用户解析知识库的问题
     """
