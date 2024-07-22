@@ -1,7 +1,7 @@
 import re
 from .interpreter import Interpreter
 
-applescript_promt = """
+applescript_prompt = """
 # Run applescript
 * Here are the commands
 ```applescript
@@ -14,7 +14,7 @@ class AppleScriptInterpreter(Interpreter):
     output_match_pattern = '```(\n)?applescript(.*?)\n```'
 
     def prompt(self, messages) -> str:
-        return applescript_promt
+        return applescript_prompt
     
     def output_parse(self, string) -> (str, bool):
         pattern = re.compile(self.output_match_pattern, re.DOTALL)
