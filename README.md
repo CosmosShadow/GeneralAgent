@@ -8,22 +8,21 @@
 GeneralAgent是一个Python原生的Agent框架，旨在将大型语言模型 与 Python 无缝集成。
 
 
-
 **主要特性**
 
-* **工具调用**：GeneralAgent 不依赖大模型的 function call，通过python代码解释器来调用工具。
-* **序列化**：GeneralAgent 支持序列化，包括记忆和python执行状态，随用随启
-* **自我调用(探索)**：GeneralAgent通过自我调用和堆栈记忆，最小化大模型的调用次数，来高效处理复杂任务。更多详情请见我们的 [论文](./docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf)
-* **部署服务**：使用 [AgentServer(即将开源)](https://github.com/CosmosShadow/AgentServer) 部署 Agent，快速为大规模用户提供服务。
+* 工具调用：GeneralAgent 不依赖大模型的 function call，通过python代码解释器来调用工具
 
+* 序列化：GeneralAgent 支持序列化，包括记忆和python执行状态，随用随启
 
+* 快速配置角色、函数和知识库，创建Agent
 
-使用GeneralAgent，您可以：
+* 执行稳定的复杂业务流程，协调多个Agent完成任务
 
-* 快速配置角色、函数和知识库，创建Agent。
-* 执行稳定的复杂业务流程，协调多个Agent完成任务。
-* 使用 `agent.run` 函数执行命令并产生结构化输出，超越简单的文本响应。
-* 使用 `agent.user_input` 函数与用户进行动态交互。
+* 使用 `agent.run` 函数执行命令并产生结构化输出，超越简单的文本响应
+
+* 使用 `agent.user_input` 函数与用户进行动态交互
+
+* 自我调用(探索)：GeneralAgent通过自我调用和堆栈记忆，最小化大模型的调用次数，来高效处理复杂任务。更多详情请见我们的 [论文](./docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf)
 
 
 
