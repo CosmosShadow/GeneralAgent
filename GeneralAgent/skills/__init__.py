@@ -42,8 +42,10 @@ class Skills:
         """
         assert money_type in ['dollar', 'rmb']
         try:
-            if self._load_skill_comsume is not None:
+            if self._local_skill_consume is not None:
                 self._local_skill_consume(method_name, amount, money_type)
+            else:
+                logging.error('_local_skill_consume function not found')
         except Exception as e:
             logging.exception(e)
             logging.warn('Skill _local_skill_consume function not found')
