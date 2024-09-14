@@ -6,4 +6,4 @@ set_logging_level()
 from GeneralAgent import Agent
 
 agent = Agent('You are a helpful assistant.')
-agent.run(['what is in the image?', {'image': '../docs/images/self_call.png'}])
+agent.user_input(['what is in the image?', {'image': '../docs/images/self_call.png'}])

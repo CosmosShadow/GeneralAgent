@@ -2,6 +2,7 @@
 import json
 import os
 import logging
+from GeneralAgent.utils import encode_image
 
 class NormalMemory:
     def __init__(self, serialize_path='./memory.json'):
@@ -33,10 +34,23 @@ class NormalMemory:
         @content: str, message content
         return message id
         """
-        assert role in ['user', 'assistant']
-        self.messages.append({'role': role, 'content': content})
+        assert role in ['user', 'system', 'assistant']
+        if isinstance(content, list):
+            r = []
+            for c in content:
+                if isinstance(c, dict):
+                    if 'image' in c:
+                        r.append({'type': 'image_url', 'image_url': {'url': encode_image(c['image'])}})
+                    elif 'text' in c:
+                        r.append({'type': 'text', 'text': c['text']})
+                    else:
+                        raise Exception('message type wrong')
+                else:
+                    r.append({'type': 'text', 'text': c})
+            self.messages.append({'role': role, 'content': r})
+        else:
+            self.messages.append({'role': role, 'content': content})
         self.save()
-        return len(self.messages) - 1
 
     def append_message(self, role, content, message_id=None):
         """
