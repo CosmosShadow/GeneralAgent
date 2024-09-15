@@ -23,3 +23,14 @@ def set_logging_level():
         format='%(asctime)s %(pathname)s [line:%(lineno)d] %(levelname)s %(funcName)s %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
+
+
+def encode_image(image_path):
+    if image_path.startswith('http'):
+        return image_path
+    import base64
+    with open(image_path, "rb") as image_file:
+        bin_data = base64.b64encode(image_file.read()).decode('utf-8')
+    image_type = image_path.split('.')[-1].lower()
+    virtural_url = f"data:image/{image_type};base64,{bin_data}"
+    return virtural_url
