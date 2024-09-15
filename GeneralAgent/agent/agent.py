@@ -2,7 +2,7 @@
 import os
 import logging
 from typing import Union
-from GeneralAgent.memory import StackMemory
+from GeneralAgent.memory import NormalMemory
 from GeneralAgent.interpreter import Interpreter
 from GeneralAgent.interpreter import KnowledgeInterpreter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter
@@ -90,7 +90,7 @@ class Agent():
         self.workspace = workspace
         self.disable_python_run = disable_python_run
         self.hide_python_code = hide_python_code
-        self.memory = StackMemory(serialize_path=self._memory_path)
+        self.memory = NormalMemory(serialize_path=self._memory_path)
         self.role_interpreter = RoleInterpreter(role=role, self_call=self_call)
         self.python_interpreter = PythonInterpreter(self, serialize_path=self._python_path)
         self.python_interpreter.function_tools = functions
@@ -369,7 +369,7 @@ class Agent():
             os.remove(self._memory_path)
         if self._python_path is not None and os.path.exists(self._python_path):
             os.remove(self._python_path)
-        self.memory = StackMemory(serialize_path=self._memory_path)
+        self.memory = NormalMemory(serialize_path=self._memory_path)
         self.python_interpreter = PythonInterpreter(self, serialize_path=self._python_path)
 
 
