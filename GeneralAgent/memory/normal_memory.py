@@ -79,6 +79,14 @@ class NormalMemory:
             # self.show_messages()
             return len(self.messages) - 1
 
+    # 恢复 message 数据， [: index]
+    def recover(self, index):
+        """
+        recover the messages to the index
+        """
+        self.messages = self.messages[:index]
+        self.save()
+
     def get_messages(self):
         return self.messages
     

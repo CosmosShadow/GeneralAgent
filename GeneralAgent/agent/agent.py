@@ -104,12 +104,24 @@ class Agent():
         self.continue_run = continue_run
         self.knowledge_interpreter = KnowledgeInterpreter(workspace, knowledge_files=knowledge_files, rag_function=rag_function)
         self.interpreters = [self.role_interpreter, self.python_interpreter, self.knowledge_interpreter]
+        self.enter_index = None # 进入 with 语句时 self.memory.messages 的索引
         if output_callback is not None:
             self.output_callback = output_callback
         else:
             # 默认输出回调函数
             from GeneralAgent import skills
             self.output_callback = skills.output
+
+    def __enter__(self):
+        self.enter_index = len(self.memory.get_messages())  # Record the index of self.messages
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type:
+            self.clear_temporary_messages()
+            self.handle_exception(exc_type, exc_val, exc_tb)
+        self.clear_temporary_messages()
+        return False
 
     @property
     def _memory_path(self):
@@ -140,6 +152,24 @@ class Agent():
     @role.setter
     def role(self, new_value):
         self.role_interpreter.role = new_value
+
+    class TemporaryManager:
+        def __init__(self, agent):
+            self.agent = agent
+
+        def __enter__(self):
+            self.agent.enter_index = len(self.agent.memory.get_messages())
+            return self.agent
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            if exc_type:
+                self.agent.clear_temporary_messages()
+                self.agent.handle_exception(exc_type, exc_val, exc_tb)
+            self.agent.clear_temporary_messages()
+            return False
+
+    def temporary_context(self):
+        return self.TemporaryManager(self)
 
     def disable_output_callback(self):
         """
@@ -360,7 +390,7 @@ class Agent():
             outputer.process_text(str(e))
             outputer.flush()
             return True
-        
+
     def clear(self):
         """
         清除: 删除memory和python序列化文件。不会删除workspace和知识库。
@@ -371,6 +401,14 @@ class Agent():
             os.remove(self._python_path)
         self.memory = NormalMemory(serialize_path=self._memory_path)
         self.python_interpreter = PythonInterpreter(self, serialize_path=self._python_path)
+
+    def clear_temporary_messages(self):
+        """
+        清除: 临时产生的数据
+        """
+        assert self.enter_index is not None
+        self.memory.recover(self.enter_index)
+        self.enter_index = None
 
 
 class _PythonCodeFilter():

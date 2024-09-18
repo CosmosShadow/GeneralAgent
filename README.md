@@ -390,6 +390,21 @@ agent.run(f'用户问题: \n{question}\n\n搜索引擎结果: \n{google_result}\
 
 - input (Union[str, List[Union[str, Dict[str, str]]]]): 用户输入。
 
+**Agent.temporary_context(self, input: Union[str, List[Union[str, Dict[str, str]]]])**
+
+对话产生的数据，不进入 agent memory 中。
+
+- input (Union[str, List[Union[str, Dict[str, str]]]]): 用户输入。
+
+```python
+from GeneralAgent import Agent
+
+agent = Agent('You are a helpful assistant.', hide_python_code=True)
+with agent.temporary_context():
+    agent.user_input('My name is Henry.')
+agent.user_input("What's my name?")
+```
+
 **Agent.clear(self)**
 
 清除Agent的状态。

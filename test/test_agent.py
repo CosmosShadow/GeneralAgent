@@ -83,5 +83,87 @@ def test_knowledge():
         import shutil
         shutil.rmtree(workspace)
 
+
+def test_with_query_clear_data_0():
+    workspace = 'test_with_query_clear_data_0'
+    import os
+    if os.path.exists(workspace):
+        import shutil
+        shutil.rmtree(workspace)
+    agent = Agent('You are a helpful assistant.', workspace=workspace)
+    with agent.temporary_context():
+        agent.user_input('My name is Henry.')
+    import json
+    with open(f'{workspace}/memory.json', 'r') as f:
+        memory = json.load(f)
+        assert len(memory) == 0
+
+
+def test_with_query_clear_data_1():
+    agent = Agent('You are a helpful assistant.', hide_python_code=True)
+    with agent.temporary_context():
+        agent.user_input('My name is Henry.')
+    response = agent.user_input("What's my name?")
+    assert 'Henry' not in response
+
+
+def test_with_query_save_data():
+    workspace = 'test_with_query_save_data'
+    import os
+    if os.path.exists(workspace):
+        import shutil
+        shutil.rmtree(workspace)
+    agent = Agent('You are a helpful assistant.', workspace=workspace)
+    agent.user_input('My name is Henry.')
+    with agent.temporary_context():
+        agent.user_input('My name is Jimmy.')
+    agent.user_input('My name is Yummy.')
+    import json
+    with open(f'{workspace}/memory.json', 'r') as f:
+        memory = json.load(f)
+        assert len(memory) == 4
+
+
+def test_with_query_clear_data_with_exception_0():
+    workspace = 'test_with_query_clear_data_with_exception_0'
+    import os
+    if os.path.exists(workspace):
+        import shutil
+        shutil.rmtree(workspace)
+    try:
+        agent = Agent('You are a helpful assistant.', workspace=workspace)
+        with agent.temporary_context():
+            agent.user_input('My name is Henry.')
+            raise Exception('test exception')
+    except Exception:
+        ...
+    finally:
+        import json
+        with open(f'{workspace}/memory.json', 'r') as f:
+            memory = json.load(f)
+            assert len(memory) == 0
+
+
+def test_with_query_clear_data_with_exception_1():
+    workspace = 'test_with_query_clear_data_with_exception_1'
+    import os
+    if os.path.exists(workspace):
+        import shutil
+        shutil.rmtree(workspace)
+    try:
+        agent = Agent('You are a helpful assistant.', workspace=workspace)
+        agent.user_input('My name is Yummy.')
+        with agent.temporary_context(): # no_memory()
+            agent.user_input('My name is Henry.')
+            raise Exception('test exception')
+    except Exception:
+        ...
+    finally:
+        import json
+        with open(f'{workspace}/memory.json', 'r') as f:
+            memory = json.load(f)
+            assert len(memory) == 2
+
+
 if __name__ == '__main__':
     test_math()
