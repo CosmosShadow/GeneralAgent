@@ -1,5 +1,4 @@
 *.pyc
-venv/*
 GeneralAgent/.env
 GeneralAgent/*.json
 
