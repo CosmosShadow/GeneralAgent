@@ -199,3 +199,11 @@ def test_image_input():
     agent = Agent('You are a helpful assistant.')
     response = agent.user_input(['What animal in the picture?', {'image': './data/test.jpeg'}])
     assert 'dog' in response
+
+
+def test_temporary_context():
+    agent = Agent('You are a helpful assistant.', hide_python_code=True)
+    with agent.temporary_context():
+        agent.user_input('My name is Henry.')
+    response = agent.user_input("What's my name?")
+    assert 'Henry' not in response
