@@ -153,6 +153,24 @@ class Agent():
     def role(self, new_value):
         self.role_interpreter.role = new_value
 
+    class TemporaryManager:
+        def __init__(self, agent):
+            self.agent = agent
+
+        def __enter__(self):
+            self.agent.enter_index = len(self.agent.memory.get_messages())
+            return self.agent
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            if exc_type:
+                self.agent.clear_temporary_messages()
+                self.agent.handle_exception(exc_type, exc_val, exc_tb)
+            self.agent.clear_temporary_messages()
+            return False
+
+    def temporary_context(self):
+        return self.TemporaryManager(self)
+
     def disable_output_callback(self):
         """
         禁用输出回调函数
