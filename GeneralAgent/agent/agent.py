@@ -44,6 +44,7 @@ class Agent():
                  output_callback=None,
                  disable_python_run=False,
                  hide_python_code=False,
+                 history=[],
                  **args
                  ):
         """
@@ -75,6 +76,8 @@ class Agent():
 
         @hide_python_code  (deprecated) : bool, 是否隐藏python代码，默认为False
 
+        @history: list, 历史对话列表
+
         @args: 其他LLM对话参数
 
             temperature: float, 采样温度
@@ -90,7 +93,7 @@ class Agent():
         self.workspace = workspace
         self.disable_python_run = disable_python_run
         self.hide_python_code = hide_python_code
-        self.memory = NormalMemory(serialize_path=self._memory_path)
+        self.memory = NormalMemory(serialize_path=self._memory_path, history=history)
         self.role_interpreter = RoleInterpreter(role=role, self_call=self_call)
         self.python_interpreter = PythonInterpreter(self, serialize_path=self._python_path)
         self.python_interpreter.function_tools = functions
