@@ -5,7 +5,7 @@ import logging
 from GeneralAgent.utils import encode_image
 
 class NormalMemory:
-    def __init__(self, serialize_path='./memory.json', history=[]):
+    def __init__(self, serialize_path='./memory.json', messages=[]):
         """
         @serialize_path: str, 序列化路径，默认为'./memory.json'。如果为None，则使用内存存储
         """
@@ -15,10 +15,10 @@ class NormalMemory:
             if os.path.exists(serialize_path):
                 with open(serialize_path, 'r', encoding='utf-8') as f:
                     self.messages = json.load(f)
-        if len(history) > 0:
-            self._validate_message_history(history)
-            # 将 history 的内容拼到 self.messages 后面
-            self.messages += history
+        if len(messages) > 0:
+            self._validate_messages(messages)
+            # 将 messages 的内容拼到 self.messages 后面
+            self.messages += messages
 
     def save(self):
         if self.serialize_path is not None:
@@ -103,14 +103,14 @@ class NormalMemory:
             logging.info('[[' + message['role'] + ']]: ' + message['content'][:100])
         logging.info('-' * 50 + '</Memory>' + '-' * 50)
 
-    def _validate_message_history(self, history):
+    def _validate_messages(self, messages):
         """
-        Validate each message in the history.
-        @history (list): List of messages where each message is a dict with 'role' and 'content'.
+        Validate each message in the messages.
+        @messages (list): List of messages where each message is a dict with 'role' and 'content'.
         Raises:
             AssertionError: If any message does not conform to the required format ('message format wrong').
         """
-        for message in history:
+        for message in messages:
             assert isinstance(message, dict), 'message format wrong'
             assert 'role' in message, 'message format wrong'
             assert 'content' in message, 'message format wrong'

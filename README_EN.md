@@ -382,7 +382,7 @@ Initializes an Agent instance.
 - workspace (str, optional): The agent's workspace. Default is None (not serialized). If a directory is specified, the agent will automatically save the agent's state and reload it upon the next initialization.
 - functions (List[Callable], optional): A list of functions that the agent can call.
 - knowledge_files (List[str], optional): A list of file paths for the agent's knowledge base.
-- history (List[str], optional): A list of Agent's historical messages, where each message must contain the 'role' and 'content' fields.
+- messages (List[str], optional): A list of Agent's historical messages, where each message must contain the 'role' and 'content' fields.
 
 
 **Agent.run(self, command: Union[str, List[Union[str, Dict[str, str]]]], return_type: str = str, display: bool = False)**

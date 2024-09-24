@@ -375,7 +375,7 @@ agent.run(f'用户问题: \n{question}\n\n搜索引擎结果: \n{google_result}\
 - workspace (str, 可选): Agent的工作空间。默认值为None（不序列化）。如果指定了目录，Agent会自动保存状态并在下次初始化时重新加载。
 - functions (List[Callable], 可选): Agent可以调用的函数列表。
 - knowledge_files (List[str], 可选): Agent知识库文件路径列表。
-- history (List[str], 可选): Agent的历史消息列表, 消息字段中必须包含 'role', 'content' 字段。
+- messages (List[str], 可选): Agent的历史消息列表, 消息字段中必须包含 'role', 'content' 字段。
 
 **Agent.run(self, command: Union[str, List[Union[str, Dict[str, str]]]], return_type: str = str, display: bool = False)**
 
