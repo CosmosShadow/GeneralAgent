@@ -56,11 +56,36 @@ class Skills:
         else:
             self._local_funs[name] = value
 
+    # def __getattr__(self, name):
+    #     if name.startswith('_'):
+    #         return None
+    #     else:
+    #         return self._get_func(name)
+
     def __getattr__(self, name):
         if name.startswith('_'):
             return None
-        else:
-            return self._get_func(name)
+        # 返回一个新的 Proxy 实例用于链式调用
+        return Skills.Proxy(self, name)
+
+    class Proxy:
+        def __init__(self, skills_instance, name):
+            self.skills_instance = skills_instance
+            self.chain = [name]
+
+        def __getattr__(self, name):
+            if name.startswith('_'):
+                return None
+            # 继续将调用链添加到列表中
+            self.chain.append(name)
+            return self
+
+        def __call__(self, *args, **kwargs):
+            # 构建完整的前缀名称
+            full_name = '.'.join(self.chain)
+            # 调用实际的函数
+            func = self.skills_instance._get_func(full_name)
+            return func(*args, **kwargs)
         
     def _get_func(self, name):
         fun = self._local_funs.get(name, None)
