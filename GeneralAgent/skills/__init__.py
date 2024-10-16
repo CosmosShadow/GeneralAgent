@@ -85,6 +85,9 @@ class Skills:
             full_name = '.'.join(self.chain)
             # 调用实际的函数
             func = self.skills_instance._get_func(full_name)
+            if func is None:
+                full_name = 'system.functions.' + full_name
+                func = self.skills_instance._get_func(full_name)
             return func(*args, **kwargs)
         
     def _get_func(self, name):
