@@ -56,16 +56,9 @@ class Skills:
         else:
             self._local_funs[name] = value
 
-    # def __getattr__(self, name):
-    #     if name.startswith('_'):
-    #         return None
-    #     else:
-    #         return self._get_func(name)
-
     def __getattr__(self, name):
         if name.startswith('_'):
             return None
-        # 返回一个新的 Proxy 实例用于链式调用
         return Skills.Proxy(self, name)
 
     class Proxy:
@@ -76,14 +69,11 @@ class Skills:
         def __getattr__(self, name):
             if name.startswith('_'):
                 return None
-            # 继续将调用链添加到列表中
             self.chain.append(name)
             return self
 
         def __call__(self, *args, **kwargs):
-            # 构建完整的前缀名称
             full_name = '.'.join(self.chain)
-            # 调用实际的函数
             func = self.skills_instance._get_func(full_name)
             if func is None:
                 full_name = 'system.functions.' + full_name
@@ -94,11 +84,6 @@ class Skills:
         fun = self._local_funs.get(name, None)
         if fun is not None:
             return fun
-        fun = self._remote_funs.get(name, None)
-        if fun is not None:
-            return fun
-        if fun is not None:
-            return fun
         if name == 'output':
             return default_output_callback
         logging.error('Function {} not found'.format(name))
@@ -106,7 +91,6 @@ class Skills:
     
     def __init__(self):
         self._local_funs = {}
-        self._remote_funs = {}
         self._load_local_funs()
         self._local_funs['input'] = input
         self._local_funs['check'] = default_check
@@ -122,40 +106,6 @@ class Skills:
         funcs = load_functions_with_directory(os.path.dirname(__file__))
         for fun in funcs:
             self._local_funs[fun.__name__] = fun
-
-    def _load_remote_funs(self, functions_code_dir):
-        """
-        加载远程函数
-        @param functions_code_dir: 函数代码目录
-        """
-        from GeneralAgent.skills.python_envs import load_functions_with_directory
-        self._remote_funs = {}
-        funcs = load_functions_with_directory(functions_code_dir)
-        for fun in funcs:
-            self._remote_funs[fun.__name__] = fun
-
-    def _search_functions(self, task_description, return_list=False):
-        """
-        搜索函数
-        @param task_description: 任务描述
-        @param return_list: 是否返回列表，默认False，返回字符串s
-        """
-        from .llm_inference import search_similar_texts
-        signatures = self._all_function_signatures()
-        results = search_similar_texts(task_description, signatures, top_k=5)
-        if return_list:
-            return results
-        else:
-            return '\n'.join(results)
-
-    def _all_function_signatures(self):
-        """
-        获取所有函数的签名: 本地函数和远程函数
-        """
-        from .python_envs import get_function_signature
-        locals = [get_function_signature(fun, 'skills') for fun in self._local_funs.values() if not fun.__name__.startswith('test_')]
-        remotes = [get_function_signature(fun, 'skills') for fun in self._remote_funs.values() if not fun.__name__.startswith('test_')]
-        return locals + remotes
 
 
 skills = Skills._instance()
