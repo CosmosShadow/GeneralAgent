@@ -78,6 +78,9 @@ class Skills:
             if func is None:
                 full_name = 'system.functions.' + full_name
                 func = self.skills_instance._get_func(full_name)
+            if func is None:
+                logging.error('Function {} not found'.format(full_name))
+                return None
             return func(*args, **kwargs)
         
     def _get_func(self, name):
@@ -86,7 +89,7 @@ class Skills:
             return fun
         if name == 'output':
             return default_output_callback
-        logging.error('Function {} not found'.format(name))
+        # logging.error('Function {} not found'.format(name))
         return None
     
     def __init__(self):
