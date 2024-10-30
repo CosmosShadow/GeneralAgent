@@ -33,23 +33,6 @@ class Skills:
             Skills.__instance = Skills(*args, **kwargs)
         return Skills.__instance
     
-    def _skill_consume(self, method_name, amount, money_type='dollar'):
-        """
-        消费技能: 函数调用时的扣费
-        @param method_name: 消费的函数名称
-        @param amount: 消费的数量
-        @param money_type: 消费的货币类型
-        """
-        assert money_type in ['dollar', 'rmb']
-        try:
-            if self._local_skill_consume is not None:
-                self._local_skill_consume(method_name, amount, money_type)
-            else:
-                logging.error('_local_skill_consume function not found')
-        except Exception as e:
-            logging.exception(e)
-            logging.warn('Skill _local_skill_consume function not found')
-    
     def __setattr__(self, name, value):
         if name.startswith('_'):
             object.__setattr__(self, name, value)
