@@ -1,5 +1,7 @@
+import pytest
 from GeneralAgent import Agent
 from GeneralAgent import skills
+
 
 def test_math():
     """数学计算测试. 使用run直接返回python表达式的值"""
@@ -163,6 +165,26 @@ def test_with_query_clear_data_with_exception_1():
         with open(f'{workspace}/memory.json', 'r') as f:
             memory = json.load(f)
             assert len(memory) == 2
+
+
+def test_load_error_messages():
+    messages = [
+        {"role": "user", "text": "My name is Yummy."},
+        {"role": "assistant", "content": "Hello, Yummy! How can I assist you today?"},
+    ]
+    with pytest.raises(AssertionError, match="message format wrong"):
+        agent = Agent('You are a helpful assistant.', messages=messages)
+        agent.user_input("What's my name?")
+
+
+def test_load_messages():
+    messages = [
+        {"role": "user", "content": "My name is Yummy."},
+        {"role": "assistant", "content": "Hello, Yummy! How can I assist you today?"},
+    ]
+    agent = Agent('You are a helpful assistant.', messages=messages)
+    response = agent.user_input("What's my name?")
+    assert 'Yummy' in response
 
 
 if __name__ == '__main__':
