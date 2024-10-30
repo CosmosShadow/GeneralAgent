@@ -35,18 +35,28 @@ pip install GeneralAgent
 
 
 ## 配置
-
-参考 [.env.example](./.env.example) 文件，配置大模型的Key或者其他参数
-
+### 方式一：使用环境变量（推荐）
+1. 安装依赖：
 ```bash
-export OPENAI_API_KEY=your_openai_api_key
-# export OPENAI_API_BASE=your_openai_base_url
-# using with not openai official server or using other OpenAI API formate LLM server such as deepseek, zhipu(chatglm),qwen, etc.
+pip install python-dotenv
 ```
 
+2. 参考 [.env.example](./.env.example) 文件，创建并配置 .env 文件：
+```bash
+OPENAI_API_KEY=your_openai_api_key
+# OPENAI_API_BASE=your_openai_base_url
+```
 
+3. 在代码中加载环境变量：
+```python
+from dotenv import load_dotenv
+from GeneralAgent import Agent
 
-或者在代码中配置
+load_dotenv()
+agent = Agent('You are a helpful agent.')
+```
+
+### 方式二：直接在代码中配置
 
 ```python
 from GeneralAgent import Agent

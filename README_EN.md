@@ -35,15 +35,28 @@ pip install GeneralAgent
 
 ## Configuration
 
-Refer to the [.env.example](./.env.example) file to configure the key or other parameters of the large model
-
+### Method 1: Using Environment Variables (Recommended)
+1. Install dependency:
 ```bash
-export OPENAI_API_KEY=your_openai_api_key
-# export OPENAI_API_BASE=your_openai_base_url
-# using with not openai official server or using other OpenAI API formate LLM server such as deepseek, zhipu(chatglm),qwen, etc.
+pip install python-dotenv
 ```
 
-Or configure in the code
+2. Refer to [.env.example](./.env.example) file to create and configure .env file:
+```bash
+OPENAI_API_KEY=your_openai_api_key
+# OPENAI_API_BASE=your_openai_base_url
+```
+
+3. Load environment variables in code:
+```python
+from dotenv import load_dotenv
+from GeneralAgent import Agent
+
+load_dotenv()
+agent = Agent('You are a helpful agent.')
+```
+
+### Method 2: Configure in Code
 
 ```python
 from GeneralAgent import Agent
