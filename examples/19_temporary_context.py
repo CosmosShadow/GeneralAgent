@@ -1,6 +1,8 @@
 # 演示临时上下文的用法
 from GeneralAgent import Agent
+from dotenv import load_dotenv
 
+load_dotenv()
 
 agent = Agent('You are a helpful assistant.')
 with agent.temporary_context():

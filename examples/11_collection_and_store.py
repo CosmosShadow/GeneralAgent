@@ -1,5 +1,8 @@
 # 多轮对话搜集信息 & 保存
 from GeneralAgent import Agent
+from dotenv import load_dotenv
+
+load_dotenv()
 
 role = """
 你是一个专业的诊前护士。

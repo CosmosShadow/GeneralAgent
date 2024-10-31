@@ -1,5 +1,8 @@
 # 序列化
 from GeneralAgent import Agent
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # agent序列化位置，运行过程中会自动保存LLM的messages和python解析器的状态
 workspace='./5_serialize'

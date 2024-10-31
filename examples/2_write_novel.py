@@ -1,7 +1,9 @@
 # 工作流: 写小说
 from GeneralAgent import Agent
 from GeneralAgent import skills
+from dotenv import load_dotenv
 
+load_dotenv()
 # 步骤0: 定义Agent
 agent = Agent('你是一个小说家')
 

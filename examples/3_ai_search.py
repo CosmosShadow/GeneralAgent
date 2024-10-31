@@ -5,7 +5,9 @@
 
 from GeneralAgent import Agent
 from GeneralAgent import skills
+from dotenv import load_dotenv
 
+load_dotenv()
 google_results = []
 
 # 步骤1: 第一次google搜索

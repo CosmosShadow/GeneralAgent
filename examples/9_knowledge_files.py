@@ -1,5 +1,8 @@
 # 知识库
 from GeneralAgent import Agent
+from dotenv import load_dotenv
+
+load_dotenv()
 
 files = ['../docs/paper/General_Agent__Self_Call_And_Stack_Memory.pdf']
 workspace = '9_knowledge_files'

@@ -4,7 +4,9 @@
 question = '周鸿祎卖车'
 from GeneralAgent import Agent
 from GeneralAgent import skills
+from dotenv import load_dotenv
 
+load_dotenv()
 agent = Agent('You are an AI search assistant.')
 
 # Google search

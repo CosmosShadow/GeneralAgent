@@ -1,4 +1,7 @@
 # 翻译Agent
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def split_text(text, max_token=3000, separators='\n'):
     """
@@ -8,7 +11,7 @@ def split_text(text, max_token=3000, separators='\n'):
     from GeneralAgent import skills
     pattern = "[" + re.escape(separators) + "]"
     paragraphs = list(re.split(pattern, text))
-    print(len(paragraphs))
+    # print(len(paragraphs))
     result = []
     current = ''
     for paragraph in paragraphs:
@@ -77,3 +80,4 @@ def translate_text(text, language, worker=1, reflection_mode=False):
     
 if __name__ == '__main__':
     result = translate_text('I love china', 'chinese')
+    print(result)
