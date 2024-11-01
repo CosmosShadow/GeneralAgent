@@ -1,6 +1,9 @@
 # agent.run命令的时候，核对生成内容是否合适
 from GeneralAgent import Agent
 from GeneralAgent import skills
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # 步骤0: 定义Agent
 agent = Agent('你是一个小说家')

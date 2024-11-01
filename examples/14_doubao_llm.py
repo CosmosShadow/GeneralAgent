@@ -4,6 +4,9 @@
 # 豆包由于接口上模型是Endpoint。所以使用base_url来指定Endpoint(即哪种模型)
 
 from GeneralAgent import Agent
+from dotenv import load_dotenv
+
+load_dotenv()
 
 api_key = 'your_api_key'
 endpoint = 'your_endpoint_id'

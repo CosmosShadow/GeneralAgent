@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+
+load_dotenv()
 # RAG function
 
 # 设置日志级别

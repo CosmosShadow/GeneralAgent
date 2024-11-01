@@ -1,6 +1,8 @@
 # 函数调用
 from GeneralAgent import Agent
+from dotenv import load_dotenv
 
+load_dotenv()
 # 函数: 获取天气信息
 def get_weather(city: str) -> str:
     """
