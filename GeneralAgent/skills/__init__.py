@@ -1,6 +1,6 @@
 # 单列
 import os
-import logging
+from codyer import skills
 
 def default_output_callback(token):
     if token is not None:
@@ -19,79 +19,63 @@ def default_check(check_content=None):
     else:
         return response
 
+def load_functions_with_path(python_code_path) -> (list, str):
+    """
+    Load functions from python file
+    @param python_code_path: the path of python file
+    @return: a list of functions and error message (if any, else None)
+    """
+    try:
+        import importlib.util
+        import inspect
 
-class Skills:
-    __instance = None
+        # 指定要加载的文件路径和文件名
+        module_name = 'skills'
+        module_file = python_code_path
 
-    @classmethod
-    def __getInstance(cls):
-        return cls.__instance
+        # 使用importlib加载文件
+        spec = importlib.util.spec_from_file_location(module_name, module_file)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
 
-    @classmethod
-    def _instance(cls, *args, **kwargs):
-        if not Skills.__instance:
-            Skills.__instance = Skills(*args, **kwargs)
-        return Skills.__instance
+        # 获取文件中的所有函数
+        functions = inspect.getmembers(module, inspect.isfunction)
+
+        # 过滤functions中以下划线开头的函数
+        functions = filter(lambda f: not f[0].startswith('_'), functions)
+
+        return [f[1] for f in functions], None
+    except Exception as e:
+        # 代码可能有错误，加载不起来
+        import logging
+        logging.exception(e)
+        return [], str(e)
     
-    def __setattr__(self, name, value):
-        if name.startswith('_'):
-            object.__setattr__(self, name, value)
+
+def load_functions_with_directory(python_code_dir) -> list:
+    """
+    Load functions from python directory (recursively)
+    @param python_code_dir: the path of python directory
+    @return: a list of functions
+    """
+    import os
+    total_funs = []
+    for file in os.listdir(python_code_dir):
+        # if file is directory
+        if os.path.isdir(os.path.join(python_code_dir, file)):
+            total_funs += load_functions_with_directory(os.path.join(python_code_dir, file))
         else:
-            self._local_funs[name] = value
+            # if file is file
+            if file.endswith('.py') and (not file.startswith('__init__') and not file.startswith('_') and not file == 'main.py'):
+                funcs, error = load_functions_with_path(os.path.join(python_code_dir, file))
+                total_funs += funcs
+    return total_funs
 
-    def __getattr__(self, name):
-        if name.startswith('_'):
-            return None
-        return Skills.Proxy(self, name)
-
-    class Proxy:
-        def __init__(self, skills_instance, name):
-            self.skills_instance = skills_instance
-            self.chain = [name]
-
-        def __getattr__(self, name):
-            if name.startswith('_'):
-                return None
-            self.chain.append(name)
-            return self
-
-        def __call__(self, *args, **kwargs):
-            full_name = '.'.join(self.chain)
-            func = self.skills_instance._get_func(full_name)
-            if func is None:
-                full_name = 'system.functions.' + full_name
-                func = self.skills_instance._get_func(full_name)
-            if func is None:
-                logging.error('Function {} not found'.format(full_name))
-                return None
-            return func(*args, **kwargs)
-        
-    def _get_func(self, name):
-        fun = self._local_funs.get(name, None)
-        if fun is not None:
-            return fun
-        if name == 'output':
-            return default_output_callback
-        # logging.error('Function {} not found'.format(name))
-        return None
-    
-    def __init__(self):
-        self._local_funs = {}
-        self._load_local_funs()
-        self._local_funs['input'] = input
-        self._local_funs['check'] = default_check
-        self._local_funs['print'] = default_output_callback
-        self._local_funs['output'] = default_output_callback
-
-    def _load_local_funs(self):
-        """
-        加载本目录的函数
-        """
-        from GeneralAgent.skills.python_envs import load_functions_with_directory
-        self._local_funs = {}
-        funcs = load_functions_with_directory(os.path.dirname(__file__))
-        for fun in funcs:
-            self._local_funs[fun.__name__] = fun
-
-
-skills = Skills._instance()
+if len(skills._functions) == 0:
+    skills._add_function('input', input)
+    skills._add_function('check', default_check)
+    skills._add_function('print', default_output_callback)
+    skills._add_function('output', default_output_callback)
+    funcs = load_functions_with_directory(os.path.dirname(__file__))
+    for fun in funcs:
+        skills._add_function(fun.__name__, fun)
