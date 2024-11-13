@@ -1,4 +1,6 @@
 # 函数调用
+import logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s', handlers=[logging.StreamHandler()])
 from GeneralAgent import Agent
 from dotenv import load_dotenv
 
@@ -14,6 +16,7 @@ def get_weather(city: str) -> str:
     print(f"{city} weather: sunny")
 
 
+# agent = Agent('你是一个天气小助手', functions=[get_weather], model='deepseek-chat')
 agent = Agent('你是一个天气小助手', functions=[get_weather])
 agent.user_input('成都天气怎么样？')
 

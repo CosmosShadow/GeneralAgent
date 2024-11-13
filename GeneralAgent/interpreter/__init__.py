@@ -4,4 +4,3 @@ from .python_interpreter import PythonInterpreter
 from .knowledge_interpreter import KnowledgeInterpreter
 from .applescript_interpreter import AppleScriptInterpreter
 from .shell_interpreter import ShellInterpreter
-from .link_retrieve_interpreter import LinkRetrieveInterpreter

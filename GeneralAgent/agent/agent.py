@@ -6,7 +6,26 @@ from GeneralAgent.memory import NormalMemory
 from GeneralAgent.interpreter import Interpreter
 from GeneralAgent.interpreter import KnowledgeInterpreter
 from GeneralAgent.interpreter import RoleInterpreter, PythonInterpreter
+from GeneralAgent.utils import cut_messages, string_token_count
 
+
+def default_output_callback(token):
+    if token is not None:
+        print(token, end='', flush=True)
+    else:
+        print('\n', end='', flush=True)
+
+
+def default_check(check_content=None):
+    show = '确认 | 继续 (回车, yes, y, 是, ok) 或者 直接输入你的想法\n'
+    if check_content is not None:
+        show = f'{check_content}\n\n{show}'
+    response = input(show)
+    if response.lower() in ['', 'yes', 'y', '是', 'ok']:
+        return None
+    else:
+        return response
+    
 
 class Agent():
     """
@@ -41,7 +60,7 @@ class Agent():
                  base_url=None,
                  self_call=False, 
                  continue_run=False,
-                 output_callback=None,
+                 output_callback=default_output_callback,
                  disable_python_run=False,
                  hide_python_code=False,
                  messages=[],
@@ -85,7 +104,6 @@ class Agent():
             frequency_penalty: float, 频率惩罚, 在 -2 和 2 之间
 
         """
-        from GeneralAgent import skills
         if workspace is None and len(knowledge_files) > 0:
             raise Exception('workspace must be provided when knowledge_files is not empty')
         if workspace is not None and not os.path.exists(workspace):
@@ -98,7 +116,7 @@ class Agent():
         self.python_interpreter = PythonInterpreter(self, serialize_path=self._python_path)
         self.python_interpreter.function_tools = functions
         self.model = model or os.environ.get('DEFAULT_LLM_MODEL', 'gpt-4o')
-        self.token_limit = token_limit or skills.get_llm_token_limit(self.model)
+        self.token_limit = token_limit or 64 * 1000
         self.api_key = api_key
         self.base_url = base_url
         # self.temperature = temperature
@@ -108,12 +126,7 @@ class Agent():
         self.knowledge_interpreter = KnowledgeInterpreter(workspace, knowledge_files=knowledge_files, rag_function=rag_function)
         self.interpreters = [self.role_interpreter, self.python_interpreter, self.knowledge_interpreter]
         self.enter_index = None # 进入 with 语句时 self.memory.messages 的索引
-        if output_callback is not None:
-            self.output_callback = output_callback
-        else:
-            # 默认输出回调函数
-            from GeneralAgent import skills
-            self.output_callback = skills.output
+        self.output_callback = output_callback
 
     def __enter__(self):
         self.enter_index = len(self.memory.get_messages())  # Record the index of self.messages
@@ -222,22 +235,7 @@ class Agent():
         if not display:
             self.disable_output_callback()
         try:
-            from GeneralAgent import skills
             result = self._run(command, return_type=return_type, verbose=verbose)
-            if user_check:
-                # 没有渲染函数 & 没有输出回调函数: 用户不知道确认什么内容，则默认是str(result)
-                if check_render is None:
-                    if self.output_callback is None:
-                        show = str(result)
-                    else:
-                        show = ' '
-                else:
-                    show = check_render(result)
-                response = skills.check(show)
-                if response is None:
-                    return result
-                else:
-                    return self.run(response, return_type, user_check=user_check, check_render=check_render)
             return result
         except Exception as e:
             logging.exception(e)
@@ -259,7 +257,7 @@ class Agent():
         if self.continue_run and self.run_level == 0:
             # 判断是否继续执行
             messages = self.memory.get_messages()
-            messages = skills.cut_messages(messages, 2*1000)
+            messages = cut_messages(messages, 2*1000)
             the_prompt = "对于当前状态，无需用户输入或者确认，继续执行任务，请回复yes，其他情况回复no"
             messages += [{'role': 'system', 'content': the_prompt}]
             response = skills.llm_inference(messages, model='smart', stream=False, api_key=self.api_key, base_url=self.base_url, **self.llm_args)
@@ -277,7 +275,6 @@ class Agent():
 
         @verbose: bool, verbose mode
         """
-        from GeneralAgent import skills
 
         result = ''
         def local_output(token):
@@ -331,7 +328,6 @@ class Agent():
 
     
     def _get_llm_messages(self):
-        from GeneralAgent import skills
         # 获取记忆 + prompt
         messages = self.memory.get_messages()
         if self.disable_python_run:
@@ -339,9 +335,9 @@ class Agent():
         else:
             prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.interpreters])
         # 动态调整记忆长度
-        prompt_count = skills.string_token_count(prompt)
+        prompt_count = string_token_count(prompt)
         left_count = int(self.token_limit * 0.9) - prompt_count
-        messages = skills.cut_messages(messages, left_count)
+        messages = cut_messages(messages, left_count)
         # 组合messages
         messages = [{'role': 'system', 'content': prompt}] + messages
         return messages
