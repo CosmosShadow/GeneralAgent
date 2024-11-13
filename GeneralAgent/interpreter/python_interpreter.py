@@ -49,7 +49,7 @@ class PythonInterpreter(Interpreter):
 - format: ```python\n#run code\nyour code\n```. Only this format will be executed.
 - Every time you output code, you need to reimport the required library. Each execution only shares variables and functions, without including libraries.
 - Available libraries: {{python_libs}}
-- The following functions can be used in code (already implemented and imported for you):
+- The following functions can be used in code (already implemented and imported for you, do not import them again):
 ```
 {{python_funcs}}
 ```
