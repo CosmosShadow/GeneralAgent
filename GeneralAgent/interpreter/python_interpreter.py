@@ -5,9 +5,36 @@ from jinja2 import Template
 from .interpreter import Interpreter
 from functools import partial
 
+def get_python_version() -> str:
+    """
+    Return the python version, like "3.9.12"
+    """
+    import platform
+    python_version = platform.python_version()
+    return python_version
+
+def get_function_signature(func, module:str=None):
+    """Returns a description string of function"""
+    try:
+        import inspect
+        sig = inspect.signature(func)
+        sig_str = str(sig)
+        desc = f"{func.__name__}{sig_str}"
+        if func.__doc__:
+            desc += ': ' + func.__doc__.strip()
+        if module is not None:
+            desc = f'{module}.{desc}'
+        if inspect.iscoroutinefunction(func):
+            desc = "" + desc
+        return desc
+    except Exception as e:
+        import logging
+        logging.exception(e)
+        return ''
+
 default_import_code = """
 import os, sys, math, time
-from GeneralAgent import skills
+from codyer import skills
 """
 
 class PythonInterpreter(Interpreter):
@@ -59,7 +86,6 @@ print('Hello, world!')
         @prompt_append: append to the prompt, custom prompt can be added here
         @stop_wrong_count: stop running when the code is wrong for stop_wrong_count times
         """
-        from GeneralAgent import skills
         self.globals = {}  # global variables shared by all code
         self.agent = agent
         self.python_libs = libs
@@ -82,12 +108,11 @@ print('Hello, world!')
         return {}
 
     def prompt(self, messages) -> str:
-        from GeneralAgent import skills
-        funtions = '\n\n'.join([skills.get_function_signature(x) for x in self.function_tools])
+        funtions = '\n\n'.join([get_function_signature(x) for x in self.function_tools])
         variables = {
             'python_libs': self.python_libs,
             'python_funcs': funtions,
-            'python_version': skills.get_python_version()
+            'python_version': get_python_version()
         }
         return Template(self.python_prompt_template).render(**variables) + self.prompt_append
 
