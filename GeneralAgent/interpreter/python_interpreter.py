@@ -185,7 +185,7 @@ print('Hello, world!')
             stop = True
             # 出现了自我调用，则判断一下层级，如果层级为1，则停止
             if self.agent is not None:
-                stop = self.agent.run_level == 1
+                stop = self.agent.run_level >= 1
                 self.agent.python_run_result = result
             if result is None:
                 result = output.getvalue()

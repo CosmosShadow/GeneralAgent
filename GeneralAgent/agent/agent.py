@@ -11,26 +11,27 @@ from GeneralAgent.utils import cut_messages, string_token_count
 
 def default_output_callback(token):
     if token is not None:
-        print(token, end='', flush=True)
+        print(token, end="", flush=True)
     else:
-        print('\n', end='', flush=True)
+        print("\n", end="", flush=True)
 
 
 def default_check(check_content=None):
-    show = '确认 | 继续 (回车, yes, y, 是, ok) 或者 直接输入你的想法\n'
+    show = "确认 | 继续 (回车, yes, y, 是, ok) 或者 直接输入你的想法\n"
     if check_content is not None:
-        show = f'{check_content}\n\n{show}'
+        show = f"{check_content}\n\n{show}"
     response = input(show)
-    if response.lower() in ['', 'yes', 'y', '是', 'ok']:
+    if response.lower() in ["", "yes", "y", "是", "ok"]:
         return None
     else:
         return response
-    
 
-class Agent():
+
+class Agent:
     """
     Agent
     """
+
     # @memory: Memory
     # @interpreters: list, interpreters
     # @output_callback: function, output_callback(content: str) -> None
@@ -48,30 +49,31 @@ class Agent():
     disable_python_run = False
     hide_python_code = False
 
-    def __init__(self, 
-                 role:str=None, 
-                 functions:list=[], 
-                 knowledge_files=[],
-                 rag_function=None,
-                 workspace:str=None, 
-                 model=None, 
-                 token_limit=None,
-                 api_key=None,
-                 base_url=None,
-                 self_call=False, 
-                 continue_run=False,
-                 output_callback=default_output_callback,
-                 disable_python_run=False,
-                 hide_python_code=False,
-                 messages=[],
-                 **args
-                 ):
+    def __init__(
+        self,
+        role: str = None,
+        functions: list = [],
+        knowledge_files=[],
+        rag_function=None,
+        workspace: str = None,
+        model=None,
+        token_limit=None,
+        api_key=None,
+        base_url=None,
+        self_call=False,
+        continue_run=False,
+        output_callback=default_output_callback,
+        disable_python_run=False,
+        hide_python_code=False,
+        messages=[],
+        **args,
+    ):
         """
         @role: str, Agent角色描述，例如"你是一个小说家"，默认为None
 
         @functions: list, Agent可用的函数(工具)列表，默认为[]
 
-        @knowledge_files: list, 知识库文件列表。当执行delete()函数时，不会删除构建好的知识库(embedding). 
+        @knowledge_files: list, 知识库文件列表。当执行delete()函数时，不会删除构建好的知识库(embedding).
 
         @rag_function: function, RAG function，用于自定义RAG函数，输入参数为chat模式的messages(包含最近一次输入)，返回值为字符串.
 
@@ -105,7 +107,9 @@ class Agent():
 
         """
         if workspace is None and len(knowledge_files) > 0:
-            raise Exception('workspace must be provided when knowledge_files is not empty')
+            raise Exception(
+                "workspace must be provided when knowledge_files is not empty"
+            )
         if workspace is not None and not os.path.exists(workspace):
             os.makedirs(workspace)
         self.workspace = workspace
@@ -113,9 +117,11 @@ class Agent():
         self.hide_python_code = hide_python_code
         self.memory = NormalMemory(serialize_path=self._memory_path, messages=messages)
         self.role_interpreter = RoleInterpreter(role=role, self_call=self_call)
-        self.python_interpreter = PythonInterpreter(self, serialize_path=self._python_path)
+        self.python_interpreter = PythonInterpreter(
+            self, serialize_path=self._python_path
+        )
         self.python_interpreter.function_tools = functions
-        self.model = model or os.environ.get('DEFAULT_LLM_MODEL', 'gpt-4o')
+        self.model = model or os.environ.get("DEFAULT_LLM_MODEL", "gpt-4o")
         self.token_limit = token_limit or 64 * 1000
         self.api_key = api_key
         self.base_url = base_url
@@ -123,13 +129,21 @@ class Agent():
         # self.frequency_penalty = frequency_penalty
         self.llm_args = args
         self.continue_run = continue_run
-        self.knowledge_interpreter = KnowledgeInterpreter(workspace, knowledge_files=knowledge_files, rag_function=rag_function)
-        self.interpreters = [self.role_interpreter, self.python_interpreter, self.knowledge_interpreter]
-        self.enter_index = None # 进入 with 语句时 self.memory.messages 的索引
+        self.knowledge_interpreter = KnowledgeInterpreter(
+            workspace, knowledge_files=knowledge_files, rag_function=rag_function
+        )
+        self.interpreters = [
+            self.role_interpreter,
+            self.python_interpreter,
+            self.knowledge_interpreter,
+        ]
+        self.enter_index = None  # 进入 with 语句时 self.memory.messages 的索引
         self.output_callback = output_callback
 
     def __enter__(self):
-        self.enter_index = len(self.memory.get_messages())  # Record the index of self.messages
+        self.enter_index = len(
+            self.memory.get_messages()
+        )  # Record the index of self.messages
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -144,15 +158,15 @@ class Agent():
         if self.workspace is None:
             return None
         else:
-            return os.path.join(self.workspace, 'memory.json')
-    
+            return os.path.join(self.workspace, "memory.json")
+
     @property
     def _python_path(self):
         if self.workspace is None:
             return None
         else:
-            return os.path.join(self.workspace, 'code.bin')
-    
+            return os.path.join(self.workspace, "code.bin")
+
     @property
     def functions(self):
         return self.python_interpreter.function_tools
@@ -164,7 +178,7 @@ class Agent():
     @property
     def role(self):
         return self.role_interpreter.role
-    
+
     @role.setter
     def role(self, new_value):
         self.role_interpreter.role = new_value
@@ -213,7 +227,15 @@ class Agent():
         """
         self.disable_python_run = False
 
-    def run(self, command:Union[str, list], return_type=str, display=False, verbose=True, user_check=False, check_render=None):
+    def run(
+        self,
+        command: Union[str, list],
+        return_type=str,
+        display=False,
+        verbose=True,
+        user_check=False,
+        check_render=None,
+    ):
         """
         执行command命令，并返回return_type类型的结果
 
@@ -245,24 +267,31 @@ class Agent():
             if not display:
                 self.enable_output_callback()
 
-    
-    def user_input(self, input:Union[str, list], verbose=True):
+    def user_input(self, input: Union[str, list], verbose=True):
         """
         Agent接收用户输入
-        
+
         :input: 用户输入内容, str类型 or list: [{'type': 'text', 'text': 'hello world'}, {'type': 'image_url', 'image_url': 'xxxx.jpg'}]
         """
         from GeneralAgent import skills
+
         result = self._run(input, verbose=verbose)
         if self.continue_run and self.run_level == 0:
             # 判断是否继续执行
             messages = self.memory.get_messages()
-            messages = cut_messages(messages, 2*1000)
+            messages = cut_messages(messages, 2 * 1000)
             the_prompt = "对于当前状态，无需用户输入或者确认，继续执行任务，请回复yes，其他情况回复no"
-            messages += [{'role': 'system', 'content': the_prompt}]
-            response = skills.llm_inference(messages, model='smart', stream=False, api_key=self.api_key, base_url=self.base_url, **self.llm_args)
-            if 'yes' in response.lower():
-                result = self.run('ok')
+            messages += [{"role": "system", "content": the_prompt}]
+            response = skills.llm_inference(
+                messages,
+                model="smart",
+                stream=False,
+                api_key=self.api_key,
+                base_url=self.base_url,
+                **self.llm_args,
+            )
+            if "yes" in response.lower():
+                result = self.run("ok")
         return result
 
     def _run(self, input, return_type=str, verbose=False):
@@ -276,33 +305,38 @@ class Agent():
         @verbose: bool, verbose mode
         """
 
-        result = ''
+        result = ""
+
         def local_output(token):
             nonlocal result
             if token is not None:
                 result += token
             else:
-                result += '\n'
+                result += "\n"
             if self.output_callback is not None:
                 self.output_callback(token)
 
         if self.run_level != 0:
             if return_type == str:
-                add_content = 'Directly answer the question, no need to run python\n'
+                add_content = "Directly answer the question, no need to run python\n"
                 # add_content 在前面
                 if isinstance(input, list):
                     input = [add_content] + input
                 else:
                     input = add_content + input
             else:
-                add_content = '\nYou should return python values in type ' + str(return_type) + ' by run python code(```python\n#run code\nxxx\n).\n'
+                add_content = (
+                    "\nYou should return python values in type "
+                    + str(return_type)
+                    + " by run python code(```python\n#run code\nxxx\n).\n"
+                )
                 # add_content 在后面
                 if isinstance(input, list):
                     input = input + [add_content]
                 else:
                     input = input + add_content
         self._memory_add_input(input)
-        
+
         try_count = 0
         while True:
             messages = self._get_llm_messages()
@@ -315,65 +349,86 @@ class Agent():
                 if return_type == str:
                     return result
                 if type(result) != return_type and try_count < 1:
-                    logging.info('return type should be: return_type')
+                    logging.info("return type should be: return_type")
                     try_count += 1
-                    self._memory_add_input('return type should be ' + str(return_type))
-                    result = ''
+                    self._memory_add_input("return type should be " + str(return_type))
+                    result = ""
                     continue
                 return result
 
     def _memory_add_input(self, input):
         # 记忆添加用户输入
-        self.memory.add_message('user', input)
+        self.memory.add_message("user", input)
 
-    
     def _get_llm_messages(self):
         # 获取记忆 + prompt
         messages = self.memory.get_messages()
         if self.disable_python_run:
-            prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.interpreters if interpreter.__class__ != PythonInterpreter])
+            prompt = "\n\n".join(
+                [
+                    interpreter.prompt(messages)
+                    for interpreter in self.interpreters
+                    if interpreter.__class__ != PythonInterpreter
+                ]
+            )
         else:
-            prompt = '\n\n'.join([interpreter.prompt(messages) for interpreter in self.interpreters])
+            prompt = "\n\n".join(
+                [interpreter.prompt(messages) for interpreter in self.interpreters]
+            )
         # 动态调整记忆长度
         prompt_count = string_token_count(prompt)
         left_count = int(self.token_limit * 0.9) - prompt_count
         messages = cut_messages(messages, left_count)
         # 组合messages
-        messages = [{'role': 'system', 'content': prompt}] + messages
+        messages = [{"role": "system", "content": prompt}] + messages
         return messages
 
     def _llm_and_parse_output(self, messages, output_callback, verbose):
         outputer = _PythonCodeFilter(output_callback, verbose)
         from GeneralAgent import skills
+
         try:
-            result = ''
+            result = ""
             is_stop = True
             is_break = False
-            response = skills.llm_inference(messages, model=self.model, stream=True, api_key=self.api_key, base_url=self.base_url, **self.llm_args)
+            response = skills.llm_inference(
+                messages,
+                model=self.model,
+                stream=True,
+                api_key=self.api_key,
+                base_url=self.base_url,
+                **self.llm_args,
+            )
             message_id = None
             for token in response:
-                if token is None: break
+                if token is None:
+                    break
                 result += token
                 outputer.process_text(token)
-                interpreter:Interpreter = None
+                interpreter: Interpreter = None
                 for interpreter in self.interpreters:
-                    if self.disable_python_run and interpreter.__class__ == PythonInterpreter:
+                    if (
+                        self.disable_python_run
+                        and interpreter.__class__ == PythonInterpreter
+                    ):
                         continue
                     if interpreter.output_match(result):
-                        logging.debug('interpreter: ' + interpreter.__class__.__name__)
-                        message_id = self.memory.add_message('assistant', result)
+                        logging.debug("interpreter: " + interpreter.__class__.__name__)
+                        message_id = self.memory.add_message("assistant", result)
                         self.memory.push_stack()
                         output, is_stop = interpreter.output_parse(result)
                         if self.python_run_result is not None:
                             output = output.strip()
                             if len(output) > 50000:
-                                output = output[:50000] + '...'
+                                output = output[:50000] + "..."
                         self.memory.pop_stack()
-                        message_id = self.memory.append_message('assistant', '\n' + output + '\n', message_id=message_id)
-                        result = ''
+                        message_id = self.memory.append_message(
+                            "assistant", "\n" + output + "\n", message_id=message_id
+                        )
+                        result = ""
                         # if is_stop:
                         outputer.process_text(None)
-                        outputer.process_text('```output\n' + output + '\n```\n')
+                        outputer.process_text("```output\n" + output + "\n```\n")
                         if interpreter.__class__ == PythonInterpreter:
                             outputer.exit_python_code()
                         is_break = True
@@ -381,7 +436,7 @@ class Agent():
                 if is_break:
                     break
             if len(result) > 0:
-                message_id = self.memory.add_message('assistant', result)
+                message_id = self.memory.add_message("assistant", result)
             outputer.flush()
             return is_stop
         except Exception as e:
@@ -399,7 +454,9 @@ class Agent():
         if self._python_path is not None and os.path.exists(self._python_path):
             os.remove(self._python_path)
         self.memory = NormalMemory(serialize_path=self._memory_path)
-        self.python_interpreter = PythonInterpreter(self, serialize_path=self._python_path)
+        self.python_interpreter = PythonInterpreter(
+            self, serialize_path=self._python_path
+        )
 
     def clear_temporary_messages(self):
         """
@@ -410,10 +467,11 @@ class Agent():
         self.enter_index = None
 
 
-class _PythonCodeFilter():
+class _PythonCodeFilter:
     """
     Python代码过滤器，用于隐藏Python代码块
     """
+
     def __init__(self, output_callback, verbose):
         """
         构造函数
@@ -424,7 +482,7 @@ class _PythonCodeFilter():
         """
         self.verbose = verbose
         self.in_python_code = False
-        self.buffer = ''
+        self.buffer = ""
         self.output_callback = output_callback
 
     def process_text(self, text):
@@ -449,13 +507,13 @@ class _PythonCodeFilter():
         self.in_python_code = False
 
     def _process_buffer(self):
-        format = '```python\n#run code\n'
+        format = "```python\n#run code\n"
         if self.buffer.endswith(format):
             self.in_python_code = True
-            self.buffer = ''  # 清空缓冲区，因为我们不打印```python
-        elif '```' in self.buffer and not self.in_python_code:
+            self.buffer = ""  # 清空缓冲区，因为我们不打印```python
+        elif "```" in self.buffer and not self.in_python_code:
             # 清空```之前的内容
-            index = self.buffer.rfind('```')
+            index = self.buffer.rfind("```")
             if index != -1:
                 self.output_callback(self.buffer[:index])
                 self.buffer = self.buffer[index:]
@@ -464,9 +522,9 @@ class _PythonCodeFilter():
                 self.flush()
         else:
             self.output_callback(self.buffer)
-            self.buffer = ''
+            self.buffer = ""
 
     def flush(self):
         if self.buffer:
             self.output_callback(self.buffer)
-            self.buffer = ''
+            self.buffer = ""
