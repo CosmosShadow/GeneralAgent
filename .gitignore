@@ -1,3 +1,6 @@
+/knowledge_files
+/.vscode
+
 *.pyc
 GeneralAgent/.env
 GeneralAgent/*.json

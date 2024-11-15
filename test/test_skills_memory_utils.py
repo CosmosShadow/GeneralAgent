@@ -33,14 +33,16 @@ background = """
 
 def test_parse_segment_llm_result():
     from GeneralAgent.skills.memory_utils import _parse_segment_llm_result
+
     string = "<<Nougat: Neural Optical Understanding for Academic Documents>>\n0: 15\n\n<<Abstract>>\n6: 15\n\n<<Introduction>>\n17: 32\n\n<<Primary Contributions>>\n34: 38"
     nodes = _parse_segment_llm_result(string)
-    assert nodes['Abstract'] == (6, 15)
+    assert nodes["Abstract"] == (6, 15)
     assert len(nodes) == 4
 
 
 def test_segment_text():
     from GeneralAgent import skills
+
     nodes = skills.segment_text(content)
     assert len(nodes) > 0
     # assert 'Abstract' in ' '.join(nodes.keys())
@@ -48,6 +50,7 @@ def test_segment_text():
 
 def test_summarize_text():
     from GeneralAgent import skills
+
     summary = skills.summarize_text(content)
     # print(summary)
     assert len(summary) < len(content)
@@ -55,9 +58,10 @@ def test_summarize_text():
 
 def test_extract_info():
     from GeneralAgent import skills
+
     task = "今天天气怎么样?"
     info = skills.extract_info(background, task)
-    assert '[Nothing]' in info
+    assert "[Nothing]" in info
 
     task = "论文有哪贡献?"
     info = skills.extract_info(background, task)
@@ -66,6 +70,7 @@ def test_extract_info():
     task = "论文有哪些限制?"
     info = skills.extract_info(background, task)
     print(info)
+
 
 def test_parse_extract_info():
     content = """
@@ -82,15 +87,18 @@ def test_parse_extract_info():
 #03 The model's utility is limited by factors such as repetitions and the need for improvements in handling different document styles. The model's generation speed is slower compared to classical approaches but can correctly parse mathematical expressions. Future work includes addressing the tendency for the model to collapse into a repeating loop and improving the handling of inconsistencies across the document. Detail in <<Repetition Detection and Inference>>, <<Limitations and Future Work>>
 """
     from GeneralAgent import skills
+
     numbers, titles = skills.parse_extract_info(content)
     assert numbers == [1, 3, 3]
     # print(numbers)
-    assert titles == ['Nougat: Neural Optical Understanding for Academic Documents', 'Numbers and Punctuation', 'Math and Plain Text Scores', 'Results and Format of GROBID', 'Comparison of Approaches', 'Repetition Detection and Inference', 'Limitations and Future Work', 'Repetition Detection and Inference', 'Limitations and Future Work']
-
-
-if __name__ == '__main__':
-    # test_parse_segment_llm_result()
-    # asyncio.run(test_segment_text())
-    # asyncio.run(test_summarize_text())
-    # asyncio.run(test_extract_info())
-    test_parse_extract_info()
+    assert titles == [
+        "Nougat: Neural Optical Understanding for Academic Documents",
+        "Numbers and Punctuation",
+        "Math and Plain Text Scores",
+        "Results and Format of GROBID",
+        "Comparison of Approaches",
+        "Repetition Detection and Inference",
+        "Limitations and Future Work",
+        "Repetition Detection and Inference",
+        "Limitations and Future Work",
+    ]

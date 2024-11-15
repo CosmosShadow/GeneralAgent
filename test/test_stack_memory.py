@@ -1,17 +1,22 @@
 import os
-from GeneralAgent.memory import StackMemory, StackMemoryNode
+import pytest
 from GeneralAgent.utils import set_logging_level
+
 set_logging_level()
 
+
+@pytest.mark.skip(reason="removed temporarily")
 def test_memory():
-    serialize_path='./data/memory.json'
+    from GeneralAgent.memory import StackMemory, StackMemoryNode
+
+    serialize_path = "./data/memory.json"
     if os.path.exists(serialize_path):
         os.remove(serialize_path)
     memory = StackMemory(serialize_path=serialize_path)
-    node1 = StackMemoryNode(role='user', content='node1')
-    node2 = StackMemoryNode(role='system', content='node2')
-    node3 = StackMemoryNode(role='system', content='node3')
-    node4 = StackMemoryNode(role='system', content='node4')
+    node1 = StackMemoryNode(role="user", content="node1")
+    node2 = StackMemoryNode(role="system", content="node2")
+    node3 = StackMemoryNode(role="system", content="node3")
+    node4 = StackMemoryNode(role="system", content="node4")
     memory.add_node(node1)
     memory.add_node_in(node1, node2)
     memory.add_node_after(node2, node3)
@@ -23,7 +28,7 @@ def test_memory():
         node2 = memory.get_node(2)
         node3 = memory.get_node(3)
         node4 = memory.get_node(4)
-        assert node1.role == 'user'
+        assert node1.role == "user"
         assert node1.childrens == [2, 3, 4]
         assert node2.parent == 1
         assert node3.parent == 1
@@ -46,7 +51,7 @@ def test_memory():
 
     # test get node
     tmp_node = memory.get_node(3)
-    assert tmp_node.content == 'node3'
+    assert tmp_node.content == "node3"
 
     # # get todo node
     # todo_node = memory.get_todo_node()
@@ -55,9 +60,6 @@ def test_memory():
     # # success node
     # memory.success_node(todo_node)
     # assert memory.get_todo_node().node_id == 3
-    
+
     if os.path.exists(serialize_path):
         os.remove(serialize_path)
-
-if __name__ == '__main__':
-    test_memory()

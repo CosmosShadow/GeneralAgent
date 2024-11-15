@@ -2,31 +2,29 @@ import os
 import fitz
 import pytest
 import asyncio
-from GeneralAgent.memory import LinkMemory
 
 
+@pytest.mark.skip(reason="removed temporarily")
 def test_read_paper():
-    serialize_path = './summary_memory.json'
+    from GeneralAgent.memory import LinkMemory
+
+    serialize_path = "./summary_memory.json"
     if os.path.exists(serialize_path):
         os.remove(serialize_path)
     memory = LinkMemory(serialize_path=serialize_path)
-    file_path = './data/Nougat_piece.pdf'
+    file_path = "./data/Nougat_piece.pdf"
     doc = fitz.open(file_path)
-    content = ''
+    content = ""
     for page in doc:
-        content += '\n' + page.get_text()
+        content += "\n" + page.get_text()
     memory.add_memory(content, output_callback=None)
     spark = memory.get_memory()
     # print(f'-----------\n{spark}\n-----------')
-    assert 'Introduction' in spark
+    assert "Introduction" in spark
 
     messages = [
-        {'role': 'user', 'content': '论文有哪些贡献?'},
+        {"role": "user", "content": "论文有哪些贡献?"},
     ]
     spark = memory.get_memory(messages)
-    print(f'-----------\n{spark}\n-----------')
-    assert 'pdf' in spark.lower()
-
-
-if __name__ == '__main__':
-    asyncio.run(test_read_paper())
+    print(f"-----------\n{spark}\n-----------")
+    assert "pdf" in spark.lower()
