@@ -1,8 +1,9 @@
-import re, io, os, sys, ast
+import re, io, os, sys
 import pickle
 import logging
 from jinja2 import Template
 from functools import partial
+from codyer import skills
 from .interpreter import Interpreter
 
 
@@ -145,7 +146,7 @@ print('Hello, world!')
         for key in keys:
             try:
                 pickle.dumps(save_globals[key])
-            except Exception as e:
+            except Exception:
                 save_globals.__delitem__(key)
         return save_globals
 
@@ -180,7 +181,7 @@ print('Hello, world!')
                 else:
                     name = fun.__name__
                 self.globals[name] = fun
-            result = exec_and_get_last_expression(self.globals, code)
+            result = skills._exec(code, self.globals)
             self.run_wrong_count = 0
             stop = True
             # 出现了自我调用，则判断一下层级，如果层级为1，则停止
@@ -217,40 +218,3 @@ print('Hello, world!')
 
     def set_variable(self, name, value):
         self.globals[name] = value
-
-
-def exec_and_get_last_expression(globals_vars, code):
-    tree = ast.parse(code)
-
-    try:
-        last_node = tree.body[-1]
-        code_body = tree.body[0:-1]
-        last_expr = ast.unparse(last_node)
-
-        if isinstance(last_node, ast.Assign):
-            code_body = tree.body
-            expr_left = last_node.targets[-1]
-            if isinstance(expr_left, ast.Tuple):
-                last_expr = f"({', '.join([x.id for x in expr_left.elts])})"
-            else:
-                last_expr = expr_left.id
-
-        elif isinstance(last_node, ast.AugAssign) or isinstance(
-            last_node, ast.AnnAssign
-        ):
-            code_body = tree.body
-            last_expr = last_node.target.id
-
-        if len(code_body):
-            main_code = compile(ast.unparse(code_body), "<string>", "exec")
-            exec(main_code, globals_vars)
-    except SyntaxError:
-        return None
-
-    try:
-        return eval(
-            compile(last_expr, "<string>", "eval"),
-            globals_vars,
-        )
-    except SyntaxError:
-        return None

@@ -2,24 +2,26 @@
 import os
 from codyer import skills
 
+
 def default_output_callback(token):
     if token is not None:
-        print(token, end='', flush=True)
+        print(token, end="", flush=True)
     else:
-        print('\n', end='', flush=True)
+        print("\n", end="", flush=True)
 
 
 def default_check(check_content=None):
-    show = '确认 | 继续 (回车, yes, y, 是, ok) 或者 直接输入你的想法\n'
+    show = "确认 | 继续 (回车, yes, y, 是, ok) 或者 直接输入你的想法\n"
     if check_content is not None:
-        show = f'{check_content}\n\n{show}'
+        show = f"{check_content}\n\n{show}"
     response = input(show)
-    if response.lower() in ['', 'yes', 'y', '是', 'ok']:
+    if response.lower() in ["", "yes", "y", "是", "ok"]:
         return None
     else:
         return response
 
-def load_functions_with_path(python_code_path) -> (list, str):
+
+def load_functions_with_path(python_code_path) -> tuple[list, str]:
     """
     Load functions from python file
     @param python_code_path: the path of python file
@@ -30,7 +32,7 @@ def load_functions_with_path(python_code_path) -> (list, str):
         import inspect
 
         # 指定要加载的文件路径和文件名
-        module_name = 'skills'
+        module_name = "skills"
         module_file = python_code_path
 
         # 使用importlib加载文件
@@ -42,15 +44,16 @@ def load_functions_with_path(python_code_path) -> (list, str):
         functions = inspect.getmembers(module, inspect.isfunction)
 
         # 过滤functions中以下划线开头的函数
-        functions = filter(lambda f: not f[0].startswith('_'), functions)
+        functions = filter(lambda f: not f[0].startswith("_"), functions)
 
         return [f[1] for f in functions], None
     except Exception as e:
         # 代码可能有错误，加载不起来
         import logging
+
         logging.exception(e)
         return [], str(e)
-    
+
 
 def load_functions_with_directory(python_code_dir) -> list:
     """
@@ -59,23 +62,76 @@ def load_functions_with_directory(python_code_dir) -> list:
     @return: a list of functions
     """
     import os
+
     total_funs = []
     for file in os.listdir(python_code_dir):
         # if file is directory
         if os.path.isdir(os.path.join(python_code_dir, file)):
-            total_funs += load_functions_with_directory(os.path.join(python_code_dir, file))
+            total_funs += load_functions_with_directory(
+                os.path.join(python_code_dir, file)
+            )
         else:
             # if file is file
-            if file.endswith('.py') and (not file.startswith('__init__') and not file.startswith('_') and not file == 'main.py'):
-                funcs, error = load_functions_with_path(os.path.join(python_code_dir, file))
+            if file.endswith(".py") and (
+                not file.startswith("__init__")
+                and not file.startswith("_")
+                and not file == "main.py"
+            ):
+                funcs, error = load_functions_with_path(
+                    os.path.join(python_code_dir, file)
+                )
                 total_funs += funcs
     return total_funs
 
+
+def _exec(code, globals_vars={}):
+    """
+    Execute code and return the last expression
+    """
+    import ast
+
+    tree = ast.parse(code)
+
+    try:
+        last_node = tree.body[-1]
+        code_body = tree.body[0:-1]
+        last_expr = ast.unparse(last_node)
+
+        if isinstance(last_node, ast.Assign):
+            code_body = tree.body
+            expr_left = last_node.targets[-1]
+            if isinstance(expr_left, ast.Tuple):
+                last_expr = f"({', '.join([x.id for x in expr_left.elts])})"
+            else:
+                last_expr = expr_left.id
+
+        elif isinstance(last_node, ast.AugAssign) or isinstance(
+            last_node, ast.AnnAssign
+        ):
+            code_body = tree.body
+            last_expr = last_node.target.id
+
+        if len(code_body):
+            main_code = compile(ast.unparse(code_body), "<string>", "exec")
+            exec(main_code, globals_vars)
+    except SyntaxError:
+        return None
+
+    try:
+        return eval(
+            compile(last_expr, "<string>", "eval"),
+            globals_vars,
+        )
+    except SyntaxError:
+        return None
+
+
 if len(skills._functions) == 0:
-    skills._add_function('input', input)
-    skills._add_function('check', default_check)
-    skills._add_function('print', default_output_callback)
-    skills._add_function('output', default_output_callback)
+    skills._add_function("input", input)
+    skills._add_function("check", default_check)
+    skills._add_function("print", default_output_callback)
+    skills._add_function("output", default_output_callback)
+    skills._add_function("_exec", _exec)
     funcs = load_functions_with_directory(os.path.dirname(__file__))
     for fun in funcs:
         skills._add_function(fun.__name__, fun)
