@@ -1,5 +1,8 @@
+# 市场信息搜集
+# 运行前置条件: 
+# 1. 安装 BeutifulSoup 库：pip install beautifulsoup4
+# 2. 安装 playwrite 库: pip install playwright
 from GeneralAgent import Agent
-from GeneralAgent import skills
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
@@ -75,23 +78,27 @@ def process_single_url(url: str, keyword: str, search_description: str, agent: A
         return f"URL {url} 未找到任何文章"
     
     prompt = f"""
-从以下文章列表中找出与"{search_description}"相关的内容：
-{articles}
+    请从以下文章列表中严格筛选出仅与"{keyword}"直接相关的最新新闻。
 
-请按照以下格式整理相关文章：
-标题,网址,相关性说明
+    文章列表：
+    {articles}
 
-要求：
-1. 使用逗号分隔字段
-2. 每行一篇文章
-3. 第一行为表头
-4. 如果标题包含逗号，用双引号括起来
-5. 只输出相关的文章
-6. 按相关性排序
-7. 简要说明文章与搜索需求的关联度
+    筛选标准：
+    1. 必须在标题中直接提到"{keyword}"或与{keyword}直接相关的产品/事件
+    2. 必须是最新的新闻内容，不要选择普通的产品介绍页面
+    3. 新闻必须具有时效性和重要性
 
-请直接输出结果，不要有多余的解释。
-"""
+    请按照以下格式整理符合条件的文章：
+    标题,网址
+
+    要求：
+    1. 使用逗号分隔字段
+    2. 每行一篇文章
+    3. 第一行为表头
+    4. 如果标题包含逗号，用双引号括起来
+    5. 按相关性和重要性排序
+    6. 只输出100%确定与{keyword}直接相关的文章
+    """
     return agent.run(prompt, display=False)
 
 def process_articles_with_command(urls: list, keyword: str, search_description: str = None):
@@ -124,11 +131,13 @@ def process_articles_with_command(urls: list, keyword: str, search_description: 
 # 使用示例
 if __name__ == "__main__":
     keyword = "新能源汽车"
-    description = "寻找新能源汽车行业的最新发展动态，包括技术突破、政策变化、市场趋势等信息"
+    description = "寻找所有和新能源汽车可能相关的动态，只找和新能源汽车最直接相关的最新重要信息（企业，行业政策等）"
     
     urls = [
         "https://www.dongchedi.com/",
-        "https://www.baidu.com/s"
+        "https://www.baidu.com/s",
+        "https://www.dongchedi.com/",
+        "https://36kr.com/",
     ]
     
     result = process_articles_with_command(urls, keyword, description)
