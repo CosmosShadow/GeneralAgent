@@ -136,7 +136,6 @@ if __name__ == "__main__":
     urls = [
         "https://www.dongchedi.com/",
         "https://www.baidu.com/s",
-        "https://www.dongchedi.com/",
         "https://36kr.com/",
     ]
     
