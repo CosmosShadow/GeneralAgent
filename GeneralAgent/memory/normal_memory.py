@@ -119,10 +119,30 @@ class NormalMemory:
 
 def test_NormalMemory():
     serialize_path = './memory.json'
+    if os.path.exists(serialize_path):
+        os.remove(serialize_path)
+        
+    # 测试基本的添加消息
     mem = NormalMemory(serialize_path=serialize_path)
     mem.add_message('user', 'hello')
     mem.add_message('assistant', 'hi')
+    assert len(mem.get_messages()) == 2, "应该有2条消息"
+    
+    # 测试消息持久化
     mem = NormalMemory(serialize_path=serialize_path)
-    assert len(mem.get_messages()) == 2
+    assert len(mem.get_messages()) == 2, "加载后应该有2条消息"
+    
+    # 测试append_message的合并行为
     mem.append_message('assistant', 'hi')
-    assert len(mem.get_messages()) == 2
+    assert len(mem.get_messages()) == 2, "append后应该仍然是2条消息"
+    assert mem.get_messages()[-1]['content'] == 'hi\nhi', "最后一条消息应该被合并"
+    
+    # 清理测试文件
+    if os.path.exists(serialize_path):
+        os.remove(serialize_path)
+
+if __name__ == '__main__':
+    # 运行测试
+    print("开始运行测试...")
+    test_NormalMemory()
+    print("测试完成！")
